@@ -9,6 +9,7 @@ import NetworkEngine from './NetworkEngine'
 import N64 from './consoles/N64'
 import IMemory from '../API/IMemory';
 import { FakeN64Memory } from './consoles/FakeN64Memory';
+import { INetworkPlayer } from '../API/NetworkHandler';
 
 class ModLoader64 {
 
@@ -81,6 +82,7 @@ class ModLoader64 {
             this.plugins.loadPluginsConstruct();
         }
         // Set up networking.
+        // This is likely broken for dedis. Rewrite this mess.
         (function (inst) {
             if (inst.data.isServer) {
                 inst.Server.setup().then(function (result) {
@@ -88,21 +90,21 @@ class ModLoader64 {
                         return inst.Client.setup()
                     }
                 }).then(function (result) {
-                    inst.postinit()
+                    inst.postinit(result as INetworkPlayer)
                 })
             } else {
                 if (inst.data.isClient) {
                     inst.Client.setup().then(function (result) {
-                        inst.postinit()
+                        inst.postinit(result as INetworkPlayer)
                     })
                 }
             }
         })(this)
     }
 
-    private postinit() {
+    private postinit(me: INetworkPlayer) {
         if (fs.existsSync(this.rom_path)) {
-            this.plugins.loadPluginsStart(this.Server);
+            this.plugins.loadPluginsStart(this.Server, me);
             if (this.data.isClient) {
                 this.logger.info("Setting up Mupen...")
                 var instance = this

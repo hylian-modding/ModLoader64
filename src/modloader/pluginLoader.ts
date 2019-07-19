@@ -5,7 +5,7 @@ import IMemory from '../API/IMemory';
 import { GameShark, Code } from './GameShark';
 import IMupen from './consoles/IMupen';
 import { EventHandler, bus } from '../API/EventHandler';
-import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager } from '../API/NetworkHandler';
+import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer } from '../API/NetworkHandler';
 
 class pluginLoader {
 
@@ -132,11 +132,13 @@ class pluginLoader {
         })
     }
 
-    loadPluginsStart(manager: ILobbyManager) {
+    loadPluginsStart(manager: ILobbyManager, me: INetworkPlayer) {
         this.loaded_core.preinit()
         this.loaded_core.ModLoader.lobbyManager = manager
+        this.loaded_core.ModLoader.me = me;
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.lobbyManager = manager
+            plugin.ModLoader.me = me;
             plugin.preinit()
         })
         this.loaded_core.init()

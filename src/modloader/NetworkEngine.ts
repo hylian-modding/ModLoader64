@@ -191,8 +191,8 @@ namespace NetworkEngine {
             return (function (inst) {
                 let promise = new Promise(function (resolve, reject) {
                     try {
-                        let release = function () {
-                            resolve(true)
+                        let release = function (me: INetworkPlayer) {
+                            resolve(me)
                         }
                         inst.logger.info("Starting up NetworkEngine.Client...")
                         inst.socket = inst.io.connect('http://' + inst.config.ip + ":" + inst.config.port);
@@ -223,7 +223,7 @@ namespace NetworkEngine {
                             ld.data = new SerializableMap(ld.data)
                             bus.emit("lobbyJoined", ld)
                             inst.logger.info("Joined lobby " + ld.name + ".")
-                            release()
+                            release(inst.me)
                         });
                         inst.socket.on("LobbyDenied_BadPassword", (ld: LobbyData) =>{
                             inst.logger.error("Failed to join lobby. :(")
