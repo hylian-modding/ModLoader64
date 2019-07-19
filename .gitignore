@@ -1,0 +1,7 @@
+.vscode/
+build/
+node_modules/
+m64pnpm.zip
+build.js
+mods/
+roms/

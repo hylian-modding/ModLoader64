@@ -1,0 +1,3 @@
+[submodule "Mupen64Plus-Script"]
+	path = Mupen64Plus-Script
+	url = https://github.com/SpiceyWolf/Mupen64Plus-Script.git
