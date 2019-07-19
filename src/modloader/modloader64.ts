@@ -19,8 +19,6 @@ class ModLoader64 {
     plugins: pluginLoader
     rom_folder: string = "./roms"
     roms: string[] = fs.readdirSync(this.rom_folder)
-    loaded_rom!: Buffer
-    loaded_rom_header: Buffer = Buffer.alloc(0x50)
     Server: NetworkEngine.Server
     Client: NetworkEngine.Client
     rom_path!: string
@@ -57,23 +55,25 @@ class ModLoader64 {
     }
 
     private init() {
+        var loaded_rom!: Buffer
+        var loaded_rom_header: Buffer = Buffer.alloc(0x50)
         if (fs.existsSync(this.rom_path)) {
             this.logger.info("Loading rom \"" + this.data["rom"] + "\"...")
-            this.loaded_rom = fs.readFileSync(this.rom_path)
+            loaded_rom = fs.readFileSync(this.rom_path)
             this.logger.info("Parsing rom header...")
-            this.loaded_rom.copy(this.loaded_rom_header, 0, 0, 0x50)
+            loaded_rom.copy(loaded_rom_header, 0, 0, 0x50)
             let core_match: any = null
             let core_key: string = ""
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-                if (this.loaded_rom.includes(this.plugins.core_plugins[key].header, 0, 'utf8')) {
+                if (loaded_rom.includes(this.plugins.core_plugins[key].header, 0, 'utf8')) {
                     core_match = this.plugins.core_plugins[key]
                     core_key = key
                 }
             });
             if (core_match !== null) {
                 this.logger.info("Auto-selected core: " + core_key)
-                this.logger.info("Header hash: " + crypto.createHash('md5').update(this.loaded_rom_header).digest("hex"))
-                this.logger.info("Rom hash: " + crypto.createHash("md5").update(this.loaded_rom).digest("hex"))
+                this.logger.info("Header hash: " + crypto.createHash('md5').update(loaded_rom_header).digest("hex"))
+                this.logger.info("Rom hash: " + crypto.createHash("md5").update(loaded_rom).digest("hex"))
                 this.plugins.selected_core = core_key
             } else {
                 this.logger.error("Failed to find a compatible core for the selected rom!")
