@@ -19,13 +19,16 @@ function EventHandler(key: string) {
 
 export enum EventsServer{
     ON_LOBBY_CREATE = "lobbyCreated",
-    ON_LOBBY_JOIN = "lobbyJoin"
+    ON_LOBBY_JOIN = "lobbyJoin",
+    ON_LOBBY_LEAVE = "lobbyLeave"
 }
 
 export enum EventsClient{
-    LOBBY_JOINED = "lobbyJoined",
+    ON_LOBBY_CREATE = "lobbyJoined",
     CONFIGURE_LOBBY = "configureLobby",
-    ON_SERVER_CONNECTION = "onServerConnection"
+    ON_SERVER_CONNECTION = "onServerConnection",
+    ON_LOBBY_LEAVE = "lobbyLeave",
+    ON_LOBBY_JOIN = "lobbyJoined"
 }
 
 export {bus, EventHandler}

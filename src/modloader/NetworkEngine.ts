@@ -1,5 +1,5 @@
 import { ILogger, IConfig} from '../API/IModLoaderAPI'
-import { bus, EventsServer } from '../API/EventHandler';
+import { bus, EventsServer, EventsClient } from '../API/EventHandler';
 import {NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, SerializableMap, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
 import crypto from 'crypto'
 import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
@@ -130,6 +130,8 @@ namespace NetworkEngine {
                             if (storage.config.key === lj.lobbyData.key){
                                 socket.join(storage.config.name)
                                 bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
+                                //@ts-ignore
+                                socket["ModLoader64"] = {lobby: storage.config.name, player: lj.player}
                                 inst.sendToTarget(socket.id, "LobbyReady", storage.config)
                             }else{
                                 inst.sendToTarget(socket.id, "LobbyDenied_BadPassword", lj)
@@ -140,6 +142,8 @@ namespace NetworkEngine {
                             var storage: ILobbyStorage = inst.createLobbyStorage(lj.lobbyData, socket.id)
                             bus.emit(EventsServer.ON_LOBBY_CREATE, storage)
                             bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
+                            //@ts-ignore
+                            socket["ModLoader64"] = {lobby: storage.config.name, player: lj.player}
                             inst.sendToTarget(socket.id, "LobbyReady", storage.config)
                         }
                     });
@@ -150,6 +154,12 @@ namespace NetworkEngine {
                     });
                     socket.on('toSpecificPlayer', function(data: any){
                         inst.sendToTarget(data.player.uuid, "msg", data.packet)
+                    });
+                    socket.on("disconnect", () => {
+                        //@ts-ignore
+                        var ML = socket.ModLoader64;
+                        bus.emit(EventsServer.ON_LOBBY_LEAVE, ML.player as INetworkPlayer)
+                        inst.sendToTarget(ML.lobby, "left", ML.player as INetworkPlayer)
                     });
                 });
                 let promise = new Promise(function (resolve, reject) {
@@ -212,21 +222,24 @@ namespace NetworkEngine {
                         inst.socket.on("versionGood", (data: any) => {
                             inst.logger.info("Version good! " + JSON.stringify(data.server))
                             let ld = new LobbyData(inst.config.lobby, crypto.createHash("md5").update(Buffer.from(inst.config.password)).digest("hex"))
-                            bus.emit("configureLobby", ld)
+                            bus.emit(EventsClient.CONFIGURE_LOBBY, ld)
                             inst.socket.emit("LobbyRequest", new LobbyJoin(ld, inst.me))
-                            bus.emit("onServerConnection", {})
+                            bus.emit(EventsClient.ON_SERVER_CONNECTION, {})
                         });
                         inst.socket.on("versionBad", (data: any) => {
                             inst.logger.info("Version bad! " + JSON.stringify(data.server))
                         });
                         inst.socket.on("LobbyReady", (ld: LobbyData) => {
                             ld.data = new SerializableMap(ld.data)
-                            bus.emit("lobbyJoined", ld)
+                            bus.emit(EventsClient.ON_LOBBY_JOIN, ld)
                             inst.logger.info("Joined lobby " + ld.name + ".")
                             release(inst.me)
                         });
                         inst.socket.on("LobbyDenied_BadPassword", (ld: LobbyData) =>{
                             inst.logger.error("Failed to join lobby. :(")
+                        });
+                        inst.socket.on("left", (player: INetworkPlayer) => {
+                            bus.emit(EventsClient.ON_LOBBY_LEAVE, player)
                         });
                         inst.socket.on("msg", (data: IPacketHeader) => {
                             NetworkBus.emit(data.packet_id, data);
