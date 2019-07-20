@@ -154,6 +154,7 @@ class pluginLoader {
     }
 
     loadPluginsEnd(emulator: IMemory, console: IConsole) {
+        console.pauseEmulator()
         let gameshark = new GameShark(this.logger, emulator)
         this.plugin_folders.forEach((dir: string) => {
             let test = path.join(dir, "payloads")
@@ -180,6 +181,7 @@ class pluginLoader {
             };
             console.setFrameCallback(inst.onTickHandle);
         })(this);
+        console.resumeEmulator()
     }
 }
 

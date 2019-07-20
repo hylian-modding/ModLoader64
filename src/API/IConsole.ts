@@ -14,6 +14,10 @@ interface IConsole{
 
     setFrameCallback(fn: Function): void
 
+    pauseEmulator(): void
+
+    resumeEmulator(): void
+
 }
 
 export default IConsole

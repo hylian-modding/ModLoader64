@@ -52,8 +52,15 @@ export interface ISwords {
     biggoronSword: boolean;
 }
 
+export interface IShields{
+    dekuShield: boolean
+    hylianShield: boolean
+    mirrorShield: boolean
+}
+
 export interface ISaveContext {
     swords: ISwords;
+    shields: IShields;
     entrance_index: number;
     cutscene_number: number;
     world_time: number;

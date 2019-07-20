@@ -24,15 +24,15 @@ class N64 implements IConsole {
         this.mupen.setPluginRSP(process.cwd() + "/mupen64plus-rsp-hle.dll");
 
         this.mupen.initialize();
+
         this.rom_size = this.mupen.loadRom(rom);
     }
 
     startEmulator(preStartCallback: Function): IMemory {
         let rom_r = this.mupen as IRomMemory
-        var buf: Buffer = this.getLoadedRom()
-        buf = preStartCallback(buf)
-        for (let i = 0; i < buf.byteLength; i++) {
-            rom_r.romWrite8(i, buf.readUInt8(i))
+        let buf: Buffer = preStartCallback()
+        if (buf.byteLength > 1){
+            rom_r.romWriteBuffer(0x0, buf)
         }
         this.mupen.runEmulator(true);
         return this.mupen
@@ -43,6 +43,7 @@ class N64 implements IConsole {
 
     finishInjects(): void {
         this.mupen.savestatesRefreshHack();
+        this.mupen.hookFrameCallback();
     }
 
     isEmulatorReady(): boolean {
@@ -51,15 +52,20 @@ class N64 implements IConsole {
 
     getLoadedRom(): Buffer {
         let rom_r = this.mupen as IRomMemory
-        var buf: Buffer = Buffer.alloc(this.rom_size)
-        for (let i = 0; i < buf.byteLength; i++) {
-            buf.writeUInt8(rom_r.romRead8(i), i)
-        }
+        var buf: Buffer = rom_r.romReadBuffer(0x0, this.rom_size)
         return buf
     }
 
     setFrameCallback(fn: Function): void {
         this.mupen.setFrameCallback(fn)
+    }
+
+    pauseEmulator(): void{
+        this.mupen.pauseEmulator()
+    }
+
+    resumeEmulator(): void{
+        this.mupen.resumeEmulator()
     }
 
 }

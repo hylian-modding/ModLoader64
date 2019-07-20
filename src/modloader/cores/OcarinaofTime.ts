@@ -3,8 +3,9 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore, IShields } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
+import ZeldaString from '../../API/OOT/ZeldaString';
 
 
 export const enum SwordBitMap {
@@ -30,6 +31,63 @@ export const enum BootsBitMap {
     KOKIRI = 3,
     IRON = 2,
     HOVER = 1
+}
+
+export class Shields implements IShields {
+
+    private flags: Bit[]
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private equipment_addr: number = this.instance + 0x009C + 1
+
+    constructor(data: number, emulator: IMemory) {
+        this.emulator = emulator
+        this.flags = bitwise.byte.read(data as UInt8)
+    }
+
+    update() {
+        this.flags = bitwise.byte.read(this.emulator.rdramRead8(this.equipment_addr) as UInt8)
+    }
+
+    set dekuShield(bool: boolean) {
+        if (bool) {
+            this.flags[ShieldBitMap.DEKU] = 1
+        } else {
+            this.flags[ShieldBitMap.DEKU] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get dekuShield(): boolean {
+        return this.flags[ShieldBitMap.DEKU] === 1
+    }
+
+    set hylianShield(bool: boolean) {
+        if (bool) {
+            this.flags[ShieldBitMap.HYLIAN] = 1
+        } else {
+            this.flags[ShieldBitMap.HYLIAN] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get hylianShield(): boolean {
+        return this.flags[ShieldBitMap.HYLIAN] === 1
+    }
+
+    set mirrorShield(bool: boolean) {
+        if (bool) {
+            this.flags[ShieldBitMap.MIRROR] = 1
+        } else {
+            this.flags[ShieldBitMap.MIRROR] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get mirrorShield(): boolean {
+        return this.flags[ShieldBitMap.MIRROR] === 1
+    }
+
 }
 
 export class Swords implements ISwords {
@@ -58,7 +116,6 @@ export class Swords implements ISwords {
         } else {
             this.flags[SwordBitMap.KOKIRI] = 0
         }
-        console.log(this.flags)
         this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
     }
 
@@ -222,13 +279,15 @@ export class SaveContext implements ISaveContext {
     private magic_flag_2_addr: number = this.instance + 0x003C
     private rupees_address: number = this.instance + 0x0034
     private navi_timer_addr: number = this.instance + 0x0038
+    private zs: ZeldaString = new ZeldaString()
     // Further abstractions
     swords: Swords
-    // C#
+    shields: Shields
 
     constructor(emu: IMemory) {
         this.emulator = emu
         this.swords = new Swords(0, emu)
+        this.shields = new Shields(0, emu)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table
@@ -278,8 +337,7 @@ export class SaveContext implements ISaveContext {
     }
 
     get player_name(): string {
-        let b = Buffer.from(this.emulator.rdramReadBuffer(this.player_name_addr, 8))
-        return ""
+        return this.zs.decode(this.emulator.rdramReadBuffer(this.player_name_addr, 8))
     }
 
     // Will always be false normally.
@@ -403,7 +461,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
         let gameshark = new GameShark(this.ModLoader.logger, this.ModLoader.emulator)
         gameshark.read(__dirname + "/OcarinaofTime.payload")
         this.ModLoader.logger.info("Checking for core ASM injection...")
-        if (this.ModLoader.emulator.rdramRead64(0x089710) === 0x8FA8008008182400) {
+        if (this.ModLoader.emulator.rdramRead32(0x089710) === 0x8FA80080) {
             this.ModLoader.logger.info("confirmed.")
         } else {
             this.ModLoader.logger.error("injection failed?")
@@ -414,6 +472,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
     onTick(): void {
         this.save.swords.update()
+        this.save.shields.update()
         this.eventTicks.forEach((value: Function, key: string) => {
             value();
         });

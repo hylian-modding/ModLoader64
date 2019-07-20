@@ -11,9 +11,7 @@ export interface IRomMemory{
 
     romWrite32(addr: number, value: number): void
 
-    romRead64(addr: number): number
-
-    romWrite64(addr: number, value: number): void
-
     romReadBuffer(addr: number, size: number): Buffer
+
+    romWriteBuffer(addr: number, buf: Buffer): void
 }

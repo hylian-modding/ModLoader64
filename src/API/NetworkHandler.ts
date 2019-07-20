@@ -114,33 +114,15 @@ export interface IPacketHeader {
     player: INetworkPlayer
 }
 
-export class SerializableMap{
-
-    data: any
-
-    constructor(d: any = {}){
-        this.data = d
-    }
-
-    get(key: string){
-        return this.data[key]
-    }
-
-    set(key: string, value: string){
-        this.data[key] = value
-    }
-
-}
-
 export class LobbyData{
     name: string
     key: string
-    data: SerializableMap
+    data: any
 
     constructor(name: string, key: string){
         this.name = name
         this.key = key
-        this.data = new SerializableMap()
+        this.data = {}
     }
 }
 

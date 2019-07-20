@@ -55,19 +55,17 @@ describe('IRomMemory', function () {
             assert.equal(0x80371240, rom.romRead32(0x0));
         });
     });
-    describe('romRead64', function () {
-        it('Should return 0x803712400000000F if ok or 0 if emulation failure', function () {
-            assert.equal(0x803712400000000F, rom.romRead64(0x0));
-        });
-    });
     describe('romReadBuffer', function () {
         it('Should return 0x803712400000000F if ok or 0 if emulation failure', function () {
-            assert.equal(JSON.stringify(Buffer.from("803712400000000F", 'hex')), JSON.stringify(Buffer.from(rom.romReadBuffer(0x0, 0x8))));
+            assert.equal(JSON.stringify(Buffer.from("803712400000000F", 'hex')), JSON.stringify(rom.romReadBuffer(0x0, 0x8)));
         });
     });
     describe('romWrite8', function () {
         it('Should return 0xAB if ok or 0 if emulation failure', function () {
-            let fn = () =>{
+            let fn = () => {
+                for (let i = 0; i < rom_size; i++) {
+                    rom.romWrite8(i, 0)
+                }
                 rom.romWrite8(0x0, 0xAB)
                 return rom.romRead8(0x0)
             }
@@ -76,7 +74,10 @@ describe('IRomMemory', function () {
     });
     describe('romWrite16', function () {
         it('Should return 0xABAB if ok or 0 if emulation failure', function () {
-            let fn = () =>{
+            let fn = () => {
+                for (let i = 0; i < rom_size; i++) {
+                    rom.romWrite8(i, 0)
+                }
                 rom.romWrite16(0x0, 0xABAB)
                 return rom.romRead16(0x0)
             }
@@ -85,21 +86,26 @@ describe('IRomMemory', function () {
     });
     describe('romWrite32', function () {
         it('Should return 0xABABABAB if ok or 0 if emulation failure', function () {
-            let fn = () =>{
+            let fn = () => {
+                for (let i = 0; i < rom_size; i++) {
+                    rom.romWrite8(i, 0)
+                }
                 rom.romWrite32(0x0, 0xABABABAB)
                 return rom.romRead32(0x0)
             }
             assert.equal(0xABABABAB, fn());
         });
     });
-    describe('romWrite64', function () {
-        it('Should return 0xAB if ok or 0 if emulation failure', function () {
-            let fn = () =>{
-                rom.romWrite64(0x0, 0x0000000000000000)
-                rom.romWrite64(0x0, 0xAB)
-                return rom.romRead64(0x0)
+    describe('romWriteBuffer', function () {
+        it('Should return 0xABABABAB if ok or 0 if emulation failure', function () {
+            let fn = () => {
+                for (let i = 0; i < rom_size; i++) {
+                    rom.romWrite8(i, 0)
+                }
+                rom.romWriteBuffer(0x0, Buffer.from("ABABABABABABABAB", 'hex'))
+                return JSON.stringify(rom.romReadBuffer(0x0, 0x8))
             }
-            assert.equal(0xAB, fn());
+            assert.equal(JSON.stringify(Buffer.from("ABABABABABABABAB", "hex")), fn());
         });
     });
 });

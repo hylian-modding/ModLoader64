@@ -1,6 +1,6 @@
 import { ILogger, IConfig} from '../API/IModLoaderAPI'
 import { bus, EventsServer, EventsClient } from '../API/EventHandler';
-import {NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, SerializableMap, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
+import {NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
 import crypto from 'crypto'
 import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
 
@@ -123,7 +123,6 @@ namespace NetworkEngine {
                         }
                     });
                     socket.on("LobbyRequest", function(lj: LobbyJoin){
-                        lj.lobbyData.data = new SerializableMap(lj.lobbyData.data)
                         if (inst.doesLobbyExist(lj.lobbyData.name)){
                             // Lobby already exists.
                             var storage: ILobbyStorage = inst.getLobbyStorage(lj.lobbyData.name)
@@ -230,7 +229,6 @@ namespace NetworkEngine {
                             inst.logger.info("Version bad! " + JSON.stringify(data.server))
                         });
                         inst.socket.on("LobbyReady", (ld: LobbyData) => {
-                            ld.data = new SerializableMap(ld.data)
                             bus.emit(EventsClient.ON_LOBBY_JOIN, ld)
                             inst.logger.info("Joined lobby " + ld.name + ".")
                             release(inst.me)

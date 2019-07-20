@@ -24,6 +24,7 @@ class ModLoader64 {
     Client: NetworkEngine.Client
     rom_path!: string
     console!: IConsole
+    rom_hash!: string
 
     constructor(logger: any) {
         this.logger = logger as ILogger
@@ -80,9 +81,10 @@ class ModLoader64 {
                 }
             });
             if (core_match !== null) {
+                this.rom_hash = crypto.createHash("md5").update(loaded_rom).digest("hex")
                 this.logger.info("Auto-selected core: " + core_key)
                 this.logger.info("Header hash: " + crypto.createHash('md5').update(loaded_rom_header).digest("hex"))
-                this.logger.info("Rom hash: " + crypto.createHash("md5").update(loaded_rom).digest("hex"))
+                this.logger.info("Rom hash: " + this.rom_hash)
                 this.plugins.selected_core = core_key
             } else {
                 this.logger.error("Failed to find a compatible core for the selected rom!")
@@ -117,8 +119,12 @@ class ModLoader64 {
             var instance = this
             var mupen: IMemory
             var load_mupen = new Promise(function (resolve, reject) {
-                mupen = instance.console.startEmulator((data: Buffer) => {
-                    return data
+                mupen = instance.console.startEmulator(() => {
+                    if (instance.rom_hash !== crypto.createHash("md5").update(rom).digest("hex")){
+                        return rom
+                    }else{
+                        return Buffer.alloc(1)
+                    }
                 }) as IMemory
                 while (!instance.console.isEmulatorReady()) {
                 }

@@ -4,7 +4,7 @@ import fs from 'fs';
 import { Rom } from "../Rom";
 
 export class FakeMupen implements IConsole{
-
+    
     rom: string
     rom_data: Buffer
     
@@ -34,4 +34,11 @@ export class FakeMupen implements IConsole{
 
     setFrameCallback(fn: Function): void {
     }
+
+    pauseEmulator(): void {
+    }
+    
+    resumeEmulator(): void {
+    }
+    
 }

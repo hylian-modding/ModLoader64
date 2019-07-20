@@ -37,6 +37,8 @@ interface IMupen extends IMemory, IRomMemory{
 
     resumeEmulator(): void
 
+    hookFrameCallback (): void
+
 }
 
 export default IMupen

@@ -12,10 +12,6 @@ interface IMemory{
 
     rdramRead32(addr: number): number
 
-    rdramWrite64(addr: number, value: number): void
-
-    rdramRead64(addr: number): number
-
     rdramReadBuffer(addr: number, size: number): Buffer
 
     rdramWriteBuffer(addr: number, buf: Buffer): void
