@@ -4,7 +4,7 @@ import { ILogger, IConfig, IPlugin, IModLoaderAPI, ICore } from '../API/IModLoad
 import IMemory from '../API/IMemory';
 import { GameShark, Code } from './GameShark';
 import { EventHandler, bus } from '../API/EventHandler';
-import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer } from '../API/NetworkHandler';
+import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer, ClientController, ServerController } from '../API/NetworkHandler';
 import IConsole from '../API/IConsole';
 
 class pluginLoader {
@@ -136,9 +136,15 @@ class pluginLoader {
         this.loaded_core.preinit()
         this.loaded_core.ModLoader.lobbyManager = manager
         this.loaded_core.ModLoader.me = me;
+        this.loaded_core.ModLoader.clientSide = ClientController
+        this.loaded_core.ModLoader.serverSide = ServerController
+        this.loaded_core.ModLoader.clientLobby = this.config.data["NetworkEngine.Client"]["lobby"]
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.lobbyManager = manager
             plugin.ModLoader.me = me;
+            plugin.ModLoader.clientSide = ClientController
+            plugin.ModLoader.serverSide = ServerController
+            plugin.ModLoader.clientLobby = this.config.data["NetworkEngine.Client"]["lobby"]
             plugin.preinit()
         })
         this.loaded_core.init()

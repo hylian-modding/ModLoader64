@@ -1,5 +1,5 @@
 import IMemory from "./IMemory";
-import { ILobbyManager, INetworkPlayer } from "./NetworkHandler";
+import { ILobbyManager, INetworkPlayer, INetwork } from "./NetworkHandler";
 
 export interface ILogger{
     info(msg: string): void
@@ -21,6 +21,9 @@ export interface IModLoaderAPI{
     emulator: IMemory
     lobbyManager: ILobbyManager
     me: INetworkPlayer
+    clientSide: INetwork
+    serverSide: INetwork
+    clientLobby: string
 }
 
 export interface IPlugin{

@@ -36,6 +36,7 @@ export class FakeN64Memory implements IMemory {
         return this.buf.readUInt32BE(addr)
     }
 
+    // Idk if these two actually work.
     rdramWriteU64(addr: number, value: number): void {
         var hex = value.toString(16);
         var parts = hex.match(/.{1,2}/g);
