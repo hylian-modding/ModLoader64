@@ -8,7 +8,7 @@
     "build": "tsc ./build.ts && node ./build.js && npm run tsc",
     "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
     "start_gui": "npm run build && node ./build/src/index.js --mode=gui --dir=build",
-    "test": "tsc ./test/TestMupen.ts && mocha"
+    "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
+    "find-remove": "^1.2.2",
     "mocha": "^6.2.0",
     "thread-sleep": "^2.2.0"
   }

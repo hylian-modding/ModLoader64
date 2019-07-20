@@ -8,19 +8,11 @@ interface IMemory{
 
     rdramWrite16(addr: number, value: number): void
 
-    rdramWriteU32(addr: number, value: number): void
-
     rdramWrite32(addr: number, value: number): void
-
-    rdramReadU32(addr: number): number
 
     rdramRead32(addr: number): number
 
-    rdramWriteU64(addr: number, value: number): void
-
     rdramWrite64(addr: number, value: number): void
-
-    rdramReadU64(addr: number): number
 
     rdramRead64(addr: number): number
 

@@ -137,7 +137,7 @@ export class Link implements ILink {
     }
 
     exists(): boolean {
-        return this.emulator.rdramReadU32(this.instance) === 0x2FF
+        return this.emulator.rdramRead32(this.instance) === 0x2FF
     }
 
     get state(): LinkState {
@@ -234,11 +234,11 @@ export class SaveContext implements ISaveContext {
     // https://wiki.cloudmodding.com/oot/Entrance_Table
     // https://wiki.cloudmodding.com/oot/Entrance_Table_(Data)
     get entrance_index(): number {
-        return this.emulator.rdramReadU32(this.entrance_index_addr)
+        return this.emulator.rdramRead32(this.entrance_index_addr)
     }
 
     set entrance_index(index: number) {
-        this.emulator.rdramWriteU32(this.entrance_index_addr, index)
+        this.emulator.rdramWrite32(this.entrance_index_addr, index)
     }
 
     get cutscene_number(): number {
@@ -403,7 +403,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
         let gameshark = new GameShark(this.ModLoader.logger, this.ModLoader.emulator)
         gameshark.read(__dirname + "/OcarinaofTime.payload")
         this.ModLoader.logger.info("Checking for core ASM injection...")
-        if (this.ModLoader.emulator.rdramReadU64(0x089710) === 0x8FA8008008182400) {
+        if (this.ModLoader.emulator.rdramRead64(0x089710) === 0x8FA8008008182400) {
             this.ModLoader.logger.info("confirmed.")
         } else {
             this.ModLoader.logger.error("injection failed?")

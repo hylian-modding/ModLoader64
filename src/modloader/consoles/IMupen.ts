@@ -33,6 +33,10 @@ interface IMupen extends IMemory, IRomMemory{
 
     pauseEmulator(): void
 
+    stopEmulator(): void
+
+    resumeEmulator(): void
+
 }
 
 export default IMupen
