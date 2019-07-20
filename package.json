@@ -7,7 +7,8 @@
     "tsc": "tsc",
     "build": "tsc ./build.ts && node ./build.js && npm run tsc",
     "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
-    "start_gui": "npm run build && node ./build/src/index.js --mode=gui --dir=build"
+    "start_gui": "npm run build && node ./build/src/index.js --mode=gui --dir=build",
+    "test": "tsc ./test/TestMupen.ts && mocha"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -24,5 +25,10 @@
     "socket.io-client": "^2.2.0",
     "typescript": "^3.5.2",
     "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "mocha": "^6.2.0",
+    "thread-sleep": "^2.2.0"
   }
 }

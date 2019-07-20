@@ -29,7 +29,9 @@ interface IMupen extends IMemory, IRomMemory{
 
     initialize(): void
 
-    loadRom(rom: string): void
+    loadRom(rom: string): number
+
+    pauseEmulator(): void
 
 }
 

@@ -28,10 +28,6 @@ interface IMemory{
 
     rdramWriteBuffer(addr: number, buf: Buffer): void
 
-    rdramReadUBuffer(addr: number, size: number): Buffer
-
-    rdramWriteUBuffer(addr: number, buf: Buffer): void
-
 }
 
 export default IMemory

@@ -5,8 +5,8 @@ import IMemory from '../../API/IMemory';
 import IConsole from '../../API/IConsole';
 import { IRomMemory } from '../../API/IRomMemory';
 
-class N64 implements IConsole{
-    
+class N64 implements IConsole {
+
     mupen: IMupen
     rom_size: number
 
@@ -23,32 +23,15 @@ class N64 implements IConsole{
         this.mupen.setPluginInput(process.cwd() + "/mupen64plus-input-sdl.dll");
         this.mupen.setPluginRSP(process.cwd() + "/mupen64plus-rsp-hle.dll");
 
-        var instance = this
-
-        this.mupen.rdramReadBuffer = function(addr: number, size: number){
-            let buf = Buffer.alloc(size)
-            for (let i = 0; i < buf.byteLength; i++){
-                buf.writeUInt8(instance.mupen.rdramRead8(addr + i), i)
-            }
-            return buf
-        }
-        
-        this.mupen.rdramWriteBuffer = function(addr: number, buf: Buffer){
-            for (let i = 0; i < buf.byteLength; i++){
-                instance.mupen.rdramWrite8(addr + i, buf.readUInt8(i))
-            }
-        }
-
         this.mupen.initialize();
-        this.rom_size = fs.readFileSync(rom).byteLength
-        this.mupen.loadRom(rom);
+        this.rom_size = this.mupen.loadRom(rom);
     }
 
     startEmulator(preStartCallback: Function): IMemory {
         let rom_r = this.mupen as IRomMemory
         var buf: Buffer = this.getLoadedRom()
         buf = preStartCallback(buf)
-        for (let i = 0; i < buf.byteLength; i++){
+        for (let i = 0; i < buf.byteLength; i++) {
             rom_r.romWrite8(i, buf.readUInt8(i))
         }
         this.mupen.runEmulator(true);
@@ -62,20 +45,20 @@ class N64 implements IConsole{
         this.mupen.savestatesRefreshHack();
     }
 
-    isEmulatorReady(): boolean{
+    isEmulatorReady(): boolean {
         return this.mupen.coreEmuState() === 2
     }
 
-    getLoadedRom(): Buffer{
+    getLoadedRom(): Buffer {
         let rom_r = this.mupen as IRomMemory
         var buf: Buffer = Buffer.alloc(this.rom_size)
-        for (let i = 0; i < buf.byteLength; i++){
+        for (let i = 0; i < buf.byteLength; i++) {
             buf.writeUInt8(rom_r.romRead8(i), i)
         }
         return buf
     }
 
-    setFrameCallback(fn: Function): void{
+    setFrameCallback(fn: Function): void {
         this.mupen.setFrameCallback(fn)
     }
 
