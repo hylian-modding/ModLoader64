@@ -1,6 +1,7 @@
 import IMemory from "../../API/IMemory";
+import { IRomMemory } from "../../API/IRomMemory";
 
-interface IMupen extends IMemory{
+interface IMupen extends IMemory, IRomMemory{
 
     setCoreLib(path: string): void
 
@@ -18,13 +19,17 @@ interface IMupen extends IMemory{
 
     setPluginRSP(path: string): void
 
-    runEmulatorAsync(path: string): void
+    runEmulator(bool: boolean): void
 
     savestatesRefreshHack(): void
 
     coreEmuState(): number
 
     setFrameCallback(fn: Function): void
+
+    initialize(): void
+
+    loadRom(rom: string): void
 
 }
 

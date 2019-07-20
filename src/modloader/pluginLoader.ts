@@ -3,9 +3,9 @@ import path from 'path'
 import { ILogger, IConfig, IPlugin, IModLoaderAPI, ICore } from '../API/IModLoaderAPI';
 import IMemory from '../API/IMemory';
 import { GameShark, Code } from './GameShark';
-import IMupen from './consoles/IMupen';
 import { EventHandler, bus } from '../API/EventHandler';
 import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer } from '../API/NetworkHandler';
+import IConsole from '../API/IConsole';
 
 class pluginLoader {
 
@@ -147,7 +147,7 @@ class pluginLoader {
         })
     }
 
-    loadPluginsEnd(emulator: IMemory) {
+    loadPluginsEnd(emulator: IMemory, console: IConsole) {
         let gameshark = new GameShark(this.logger, emulator)
         this.plugin_folders.forEach((dir: string) => {
             let test = path.join(dir, "payloads")
@@ -172,8 +172,7 @@ class pluginLoader {
                     plugin.onTick()
                 });
             };
-            var mupen = emulator as IMupen
-            mupen.setFrameCallback(inst.onTickHandle);
+            console.setFrameCallback(inst.onTickHandle);
         })(this);
     }
 }

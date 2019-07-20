@@ -8,8 +8,9 @@ import IModLoaderConfig from './IModLoaderConfig'
 import NetworkEngine from './NetworkEngine'
 import N64 from './consoles/N64'
 import IMemory from '../API/IMemory';
-import { FakeN64Memory } from './consoles/FakeN64Memory';
 import { INetworkPlayer } from '../API/NetworkHandler';
+import IConsole from '../API/IConsole';
+import { FakeMupen } from './consoles/FakeMupen';
 
 class ModLoader64 {
 
@@ -22,6 +23,7 @@ class ModLoader64 {
     Server: NetworkEngine.Server
     Client: NetworkEngine.Client
     rom_path!: string
+    console!: IConsole
 
     constructor(logger: any) {
         this.logger = logger as ILogger
@@ -51,15 +53,22 @@ class ModLoader64 {
             }
         });
 
+        if (this.data.isServer) {
+            this.console = new FakeMupen(this.rom_path)
+        }
+        if (this.data.isClient) {
+            this.console = new N64(this.rom_path)
+        }
+
         this.init()
     }
 
     private init() {
-        var loaded_rom!: Buffer
+        var loaded_rom: Buffer
         var loaded_rom_header: Buffer = Buffer.alloc(0x50)
         if (fs.existsSync(this.rom_path)) {
             this.logger.info("Loading rom \"" + this.data["rom"] + "\"...")
-            loaded_rom = fs.readFileSync(this.rom_path)
+            loaded_rom = this.console.getLoadedRom()
             this.logger.info("Parsing rom header...")
             loaded_rom.copy(loaded_rom_header, 0, 0, 0x50)
             let core_match: any = null
@@ -82,7 +91,6 @@ class ModLoader64 {
             this.plugins.loadPluginsConstruct();
         }
         // Set up networking.
-        // This is likely broken for dedis. Rewrite this mess.
         (function (inst) {
             if (inst.data.isServer) {
                 inst.Server.setup().then(function (result) {
@@ -90,45 +98,39 @@ class ModLoader64 {
                         return inst.Client.setup()
                     }
                 }).then(function (result) {
-                    inst.postinit(result as INetworkPlayer)
+                    inst.postinit(result as INetworkPlayer, loaded_rom)
                 })
             } else {
                 if (inst.data.isClient) {
                     inst.Client.setup().then(function (result) {
-                        inst.postinit(result as INetworkPlayer)
+                        inst.postinit(result as INetworkPlayer, loaded_rom)
                     })
                 }
             }
         })(this)
     }
 
-    private postinit(me: INetworkPlayer) {
+    private postinit(me: INetworkPlayer, rom: Buffer) {
         if (fs.existsSync(this.rom_path)) {
             this.plugins.loadPluginsStart(this.Server, me);
-            if (this.data.isClient) {
-                this.logger.info("Setting up Mupen...")
-                var instance = this
-                var n64 = new N64()
-                var mupen: IMemory = {} as IMemory
-                var load_mupen = new Promise(function (resolve, reject) {
-                    mupen = n64.startEmulator(instance.rom_path) as IMemory
-                    while (n64.mupen.coreEmuState() !== 2) {
-                    }
-                    resolve()
-                });
-                load_mupen.then(function () {
-                    setTimeout(function () {
-                        instance.logger.info("Finishing plugin init...")
-                        instance.plugins.loadPluginsEnd(mupen)
-                        n64.finishInjects();
-                    }, 3000);
-                });
-            } else {
+            this.logger.info("Setting up Mupen...")
+            var instance = this
+            var mupen: IMemory
+            var load_mupen = new Promise(function (resolve, reject) {
+                mupen = instance.console.startEmulator((data: Buffer) => {
+                    return data
+                }) as IMemory
+                while (!instance.console.isEmulatorReady()) {
+                }
+                resolve()
+            });
+            load_mupen.then(function () {
                 setTimeout(function () {
                     instance.logger.info("Finishing plugin init...")
-                    instance.plugins.loadPluginsEnd(new FakeN64Memory())
+                    instance.plugins.loadPluginsEnd(mupen, instance.console)
+                    instance.console.finishInjects();
                 }, 3000);
-            }
+            });
         }
     }
 }

@@ -1,13 +1,16 @@
-import * as path from 'path'
+import * as path from 'path';
+import * as fs from 'fs';
 import IMupen from './IMupen';
 import IMemory from '../../API/IMemory';
 import IConsole from '../../API/IConsole';
+import { IRomMemory } from '../../API/IRomMemory';
 
 class N64 implements IConsole{
     
     mupen: IMupen
+    rom_size: number
 
-    constructor() {
+    constructor(rom: string) {
         this.mupen = require(process.cwd() + '/node/m64pnpm.node') as IMupen;
 
         this.mupen.setCoreLib(process.cwd() + "/mupen64plus.dll");
@@ -36,10 +39,19 @@ class N64 implements IConsole{
             }
         }
 
+        this.mupen.initialize();
+        this.rom_size = fs.readFileSync(rom).byteLength
+        this.mupen.loadRom(rom);
     }
 
-    startEmulator(rom: string): IMemory {
-        this.mupen.runEmulatorAsync(rom);
+    startEmulator(preStartCallback: Function): IMemory {
+        let rom_r = this.mupen as IRomMemory
+        var buf: Buffer = this.getLoadedRom()
+        buf = preStartCallback(buf)
+        for (let i = 0; i < buf.byteLength; i++){
+            rom_r.romWrite8(i, buf.readUInt8(i))
+        }
+        this.mupen.runEmulator(true);
         return this.mupen
     }
 
@@ -48,6 +60,23 @@ class N64 implements IConsole{
 
     finishInjects(): void {
         this.mupen.savestatesRefreshHack();
+    }
+
+    isEmulatorReady(): boolean{
+        return this.mupen.coreEmuState() === 2
+    }
+
+    getLoadedRom(): Buffer{
+        let rom_r = this.mupen as IRomMemory
+        var buf: Buffer = Buffer.alloc(this.rom_size)
+        for (let i = 0; i < buf.byteLength; i++){
+            buf.writeUInt8(rom_r.romRead8(i), i)
+        }
+        return buf
+    }
+
+    setFrameCallback(fn: Function): void{
+        this.mupen.setFrameCallback(fn)
     }
 
 }

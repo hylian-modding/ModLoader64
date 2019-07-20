@@ -37,19 +37,35 @@ export class FakeN64Memory implements IMemory {
     }
 
     rdramWriteU64(addr: number, value: number): void {
-        this.buf.writeBigUInt64BE(BigInt(value), addr)
+        var hex = value.toString(16);
+        var parts = hex.match(/.{1,2}/g);
+        if (parts !== null) {
+            for (let i = 0; i < parts.length; i++) {
+                this.buf.writeUInt8(parseInt("0x" + parts[i]), addr + i)
+            }
+        }
     }
 
     rdramWrite64(addr: number, value: number): void {
-        this.buf.writeBigUInt64BE(BigInt(value), addr)
+        var hex = value.toString(16);
+        var parts = hex.match(/.{1,2}/g);
+        if (parts !== null) {
+            for (let i = 0; i < parts.length; i++) {
+                this.buf.writeUInt8(parseInt("0x" + parts[i]), addr + i)
+            }
+        }
     }
 
     rdramReadU64(addr: number): number {
-        return parseInt(this.buf.readBigUInt64BE(addr).toString(16))
+        var b: Buffer = Buffer.alloc(8)
+        this.buf.copy(b, 0, addr, addr + 8)
+        return parseInt("0x" + b.toString('hex'))
     }
 
     rdramRead64(addr: number): number {
-        return parseInt(this.buf.readBigUInt64BE(addr).toString(16))
+        var b: Buffer = Buffer.alloc(8)
+        this.buf.copy(b, 0, addr, addr + 8)
+        return parseInt("0x" + b.toString('hex'))
     }
 
     rdramReadBuffer(addr: number, size: number): Buffer {
