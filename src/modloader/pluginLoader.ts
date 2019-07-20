@@ -42,7 +42,6 @@ class pluginLoader {
                 plugin["ModLoader"] = {} as IModLoaderAPI
                 plugin["ModLoader"]["logger"] = this.logger.child({})
                 plugin["ModLoader"]["config"] = this.config
-                plugin.core = this.loaded_core
                 if (plugin.core_dependency === this.selected_core) {
                     // TODO: Clean this up. Could be done generically.
                     if (p.prototype.hasOwnProperty("ModLoader")) {
@@ -89,6 +88,11 @@ class pluginLoader {
                                     NetworkChannelBusServer.addListener(key, a)
                                 });
                             }
+                        }
+                        if (p.prototype.ModLoader.hasOwnProperty("InjectCore")){
+                            // Inject the core.
+                            //@ts-ignore
+                            plugin[p.prototype.ModLoader.InjectCore.get("field")()] = this.loaded_core
                         }
                     }
                     this.registerPlugin(plugin)

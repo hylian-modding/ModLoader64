@@ -29,7 +29,6 @@ export interface IModLoaderAPI{
 export interface IPlugin{
     core_dependency: string
     ModLoader: IModLoaderAPI
-    core: ICore
     preinit(): void
     init(): void
     postinit(): void
