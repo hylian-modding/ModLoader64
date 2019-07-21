@@ -93,9 +93,11 @@ class ModLoader64 {
                 inst.Server.setup().then(function (result) {
                     if (inst.data.isClient) {
                         return inst.Client.setup()
+                    }else{
+                        return result
                     }
                 }).then(function (result) {
-                    inst.postinit(result as INetworkPlayer)
+                    inst.postinit(result)
                 })
             } else {
                 if (inst.data.isClient) {

@@ -5,6 +5,7 @@ import crypto from 'crypto'
 import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
 import fs from 'fs';
+import uuid from 'uuid';
 
 interface IServerConfig {
     port: number
@@ -53,6 +54,17 @@ class LobbyJoin{
     constructor(lobbyData: LobbyData, player: INetworkPlayer){
         this.lobbyData = lobbyData
         this.player = player
+    }
+}
+
+class FakeNetworkPlayer implements INetworkPlayer{
+
+    nickname: string;    
+    uuid: string;
+
+    constructor(){
+        this.nickname = "FakeNetworkPlayer"
+        this.uuid = uuid.v4()
     }
 }
 
@@ -167,7 +179,7 @@ namespace NetworkEngine {
                     try {
                         inst.http.listen(inst.config.port, function () {
                             inst.logger.info("NetworkEngine.Server set up on port " + inst.config.port + ".")
-                            resolve(true)
+                            resolve({me: new FakeNetworkPlayer(), patch: Buffer.alloc(1)})
                         });
                     } catch (err) {
                         reject(err)
