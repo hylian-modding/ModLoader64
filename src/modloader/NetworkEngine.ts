@@ -3,6 +3,8 @@ import { bus, EventsServer, EventsClient } from '../API/EventHandler';
 import {NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
 import crypto from 'crypto'
 import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
+import IModLoaderConfig from './IModLoaderConfig';
+import fs from 'fs';
 
 interface IServerConfig {
     port: number
@@ -182,6 +184,7 @@ namespace NetworkEngine {
         socket: SocketIO.Socket = {} as SocketIO.Socket
         logger: ILogger
         config: IClientConfig
+        modLoaderconfig: IModLoaderConfig
         masterConfig: IConfig
         me!: INetworkPlayer
 
@@ -194,14 +197,15 @@ namespace NetworkEngine {
             config.setData("NetworkEngine.Client", "nickname", "Player")
             config.setData("NetworkEngine.Client", "password", "")
             this.masterConfig = config
+            this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
         }
 
         setup() {
             return (function (inst) {
                 let promise = new Promise(function (resolve, reject) {
                     try {
-                        let release = function (me: INetworkPlayer) {
-                            resolve(me)
+                        let release = function (result: any) {
+                            resolve(result)
                         }
                         inst.logger.info("Starting up NetworkEngine.Client...")
                         inst.socket = inst.io.connect('http://' + inst.config.ip + ":" + inst.config.port);
@@ -222,6 +226,9 @@ namespace NetworkEngine {
                             inst.logger.info("Version good! " + JSON.stringify(data.server))
                             let ld = new LobbyData(inst.config.lobby, crypto.createHash("md5").update(Buffer.from(inst.config.password)).digest("hex"))
                             bus.emit(EventsClient.CONFIGURE_LOBBY, ld)
+                            if (inst.modLoaderconfig.patch !== ""){
+                                ld.data["patch"] = fs.readFileSync(inst.modLoaderconfig.patch).toString('base64')
+                            }
                             inst.socket.emit("LobbyRequest", new LobbyJoin(ld, inst.me))
                             bus.emit(EventsClient.ON_SERVER_CONNECTION, {})
                         });
@@ -231,7 +238,11 @@ namespace NetworkEngine {
                         inst.socket.on("LobbyReady", (ld: LobbyData) => {
                             bus.emit(EventsClient.ON_LOBBY_JOIN, ld)
                             inst.logger.info("Joined lobby " + ld.name + ".")
-                            release(inst.me)
+                            let p: Buffer = Buffer.alloc(1)
+                            if (ld.data.hasOwnProperty("patch")){
+                                p = Buffer.from(ld.data.patch, "base64")
+                            }
+                            release({me: inst.me, patch: p})
                         });
                         inst.socket.on("LobbyDenied_BadPassword", (ld: LobbyData) =>{
                             inst.logger.error("Failed to join lobby. :(")

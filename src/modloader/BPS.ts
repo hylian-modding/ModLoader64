@@ -135,13 +135,11 @@ class BPS {
         }
     }
 
-    tryPatch(filename: string, rom: Buffer, bps: string) {
+    tryPatch(rom: Buffer, bps: Buffer) {
         var bpsdata;
         var romdata;
-        romdata = { bytes: rom, name: filename, mime: "bps" };
-
-        var bps_hold = fs.readFileSync(bps);
-        bpsdata = { bytes: bps_hold.buffer, name: bps, mime: "bps" };
+        romdata = { bytes: rom, name: "", mime: "bps" };
+        bpsdata = { bytes: bps, name: bps, mime: "bps" };
         if (romdata && bpsdata){
             return this.handleBps(romdata, bpsdata);
         }

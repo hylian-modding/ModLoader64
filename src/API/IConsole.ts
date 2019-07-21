@@ -12,6 +12,8 @@ interface IConsole{
 
     getLoadedRom(): Buffer
 
+    getRomHeader(): Buffer
+
     setFrameCallback(fn: Function): void
 
     pauseEmulator(): void

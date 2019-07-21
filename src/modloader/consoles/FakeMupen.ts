@@ -40,5 +40,11 @@ export class FakeMupen implements IConsole{
     
     resumeEmulator(): void {
     }
+
+    getRomHeader(): Buffer{
+        var b: Buffer = Buffer.alloc(0x50)
+        this.rom_data.copy(b, 0, 0, 0x50)
+        return b
+    }
     
 }

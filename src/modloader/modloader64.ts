@@ -24,7 +24,6 @@ class ModLoader64 {
     Client: NetworkEngine.Client
     rom_path!: string
     console!: IConsole
-    rom_hash!: string
 
     constructor(logger: any) {
         this.logger = logger as ILogger
@@ -40,6 +39,7 @@ class ModLoader64 {
     private preinit() {
         // Set up config.
         this.config.setData("ModLoader64", "rom", "Legend of Zelda, The - Ocarina of Time (U) (V1.0) [!].z64")
+        this.config.setData("ModLoader64", "patch", "")
         this.config.setData("ModLoader64", "isServer", true)
         this.config.setData("ModLoader64", "isClient", true)
 
@@ -65,26 +65,21 @@ class ModLoader64 {
     }
 
     private init() {
-        var loaded_rom: Buffer
-        var loaded_rom_header: Buffer = Buffer.alloc(0x50)
+        var loaded_rom_header: Buffer
         if (fs.existsSync(this.rom_path)) {
-            this.logger.info("Loading rom \"" + this.data["rom"] + "\"...")
-            loaded_rom = this.console.getLoadedRom()
             this.logger.info("Parsing rom header...")
-            loaded_rom.copy(loaded_rom_header, 0, 0, 0x50)
+            loaded_rom_header = this.console.getRomHeader()
             let core_match: any = null
             let core_key: string = ""
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-                if (loaded_rom.includes(this.plugins.core_plugins[key].header, 0, 'utf8')) {
+                if (loaded_rom_header.includes(this.plugins.core_plugins[key].header, 0, 'utf8')) {
                     core_match = this.plugins.core_plugins[key]
                     core_key = key
                 }
             });
             if (core_match !== null) {
-                this.rom_hash = crypto.createHash("md5").update(loaded_rom).digest("hex")
                 this.logger.info("Auto-selected core: " + core_key)
                 this.logger.info("Header hash: " + crypto.createHash('md5').update(loaded_rom_header).digest("hex"))
-                this.logger.info("Rom hash: " + this.rom_hash)
                 this.plugins.selected_core = core_key
             } else {
                 this.logger.error("Failed to find a compatible core for the selected rom!")
@@ -100,30 +95,35 @@ class ModLoader64 {
                         return inst.Client.setup()
                     }
                 }).then(function (result) {
-                    inst.postinit(result as INetworkPlayer, loaded_rom)
+                    inst.postinit(result as INetworkPlayer)
                 })
             } else {
                 if (inst.data.isClient) {
                     inst.Client.setup().then(function (result) {
-                        inst.postinit(result as INetworkPlayer, loaded_rom)
+                        inst.postinit(result)
                     })
                 }
             }
         })(this)
     }
 
-    private postinit(me: INetworkPlayer, rom: Buffer) {
+    private postinit(result: any) {
         if (fs.existsSync(this.rom_path)) {
-            this.plugins.loadPluginsStart(this.Server, me);
+            this.plugins.loadPluginsStart(this.Server, result.me);
             this.logger.info("Setting up Mupen...")
             var instance = this
             var mupen: IMemory
             var load_mupen = new Promise(function (resolve, reject) {
                 mupen = instance.console.startEmulator(() => {
-                    if (instance.rom_hash !== crypto.createHash("md5").update(rom).digest("hex")){
-                        return rom
+                    let p: Buffer = result.patch as Buffer
+                    if (p.byteLength > 1){
+                        let rom_data: Buffer = instance.console.getLoadedRom()
+                        let BPS = require('./BPS');
+                        let _BPS = new BPS()
+                        rom_data = _BPS.tryPatch(rom_data, p)
+                        return rom_data
                     }else{
-                        return Buffer.alloc(1)
+                        return p
                     }
                 }) as IMemory
                 while (!instance.console.isEmulatorReady()) {

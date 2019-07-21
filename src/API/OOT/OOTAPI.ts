@@ -58,9 +58,23 @@ export interface IShields{
     mirrorShield: boolean
 }
 
+export interface ITunics{
+    kokiri: boolean
+    goron: boolean
+    zora: boolean
+}
+
+export interface IBoots{
+    kokiri: boolean
+    iron: boolean
+    hover: boolean
+}
+
 export interface ISaveContext {
     swords: ISwords;
     shields: IShields;
+    tunics: ITunics;
+    boots: IBoots;
     entrance_index: number;
     cutscene_number: number;
     world_time: number;

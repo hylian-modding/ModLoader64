@@ -68,6 +68,10 @@ class N64 implements IConsole {
         this.mupen.resumeEmulator()
     }
 
+    getRomHeader(): Buffer{
+        return this.mupen.romReadBuffer(0x0, 0x50)
+    }
+
 }
 
 export default N64

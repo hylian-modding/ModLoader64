@@ -41,75 +41,66 @@ sleep(1000)
 // Read tests. I'll make the write tests later.
 describe('IMemory', function () {
     beforeEach(function () {
+        for (let i = 0; i < 0x800000; i++) {
+            ram.rdramWrite8(i, 0xAB)
+        }
     })
     afterEach(function () {
     })
     describe('rdramRead8', function () {
-        it('Should return 0x3C if ok or 0 if emulation failure', function () {
-            assert.equal(0x3C, ram.rdramRead8(0x0));
+        it('Should return 0xAB if ok or 0 if emulation failure', function () {
+            assert.equal(0xAB, ram.rdramRead8(0x0));
         });
     });
     describe('rdramRead16', function () {
-        it('Should return 0x3C1A if ok or 0 if emulation failure', function () {
-            assert.equal(0x3C1A, ram.rdramRead16(0x0));
+        it('Should return 0xABAB if ok or 0 if emulation failure', function () {
+            assert.equal(0xABAB, ram.rdramRead16(0x0));
         });
     });
     describe('rdramRead32', function () {
-        it('Should return 0x3C1A800F if ok or 0 if emulation failure', function () {
-            assert.equal(0x3C1A800F, ram.rdramRead32(0x0));
+        it('Should return 0xABABABAB if ok or 0 if emulation failure', function () {
+            assert.equal(0xABABABAB, ram.rdramRead32(0x0));
         });
     });
     describe('rdramReadBuffer', function () {
-        it('Should return 0x3C1A800F275A66F0 if ok or 0 if emulation failure', function () {
-            assert.equal(JSON.stringify(Buffer.from("3C1A800F275A6520", 'hex')), JSON.stringify(ram.rdramReadBuffer(0x0, 0x8)));
+        it('Should return 0xABABABABABABABAB if ok or 0 if emulation failure', function () {
+            assert.equal(JSON.stringify(Buffer.from("ABABABABABABABAB", 'hex')), JSON.stringify(ram.rdramReadBuffer(0x0, 0x8)));
         });
     });
     describe('rdramWrite8', function () {
-        it('Should return 0xAB if ok or 0 if emulation failure', function () {
+        it('Should return 0xFF if ok or 0 if emulation failure', function () {
             let fn = () => {
-                for (let i = 0; i < 0x800000; i++) {
-                    ram.rdramWrite8(i, 0)
-                }
-                ram.rdramWrite8(0x0, 0xAB)
+                ram.rdramWrite8(0x0, 0xFF)
                 return ram.rdramRead8(0x0)
             }
-            assert.equal(0xAB, fn());
+            assert.equal(0xFF, fn());
         });
     });
     describe('rdramWrite16', function () {
-        it('Should return 0xABAB if ok or 0 if emulation failure', function () {
+        it('Should return 0xFFFF if ok or 0 if emulation failure', function () {
             let fn = () => {
-                for (let i = 0; i < 0x800000; i++) {
-                    ram.rdramWrite8(i, 0)
-                }
-                ram.rdramWrite16(0x0, 0xABAB)
+                ram.rdramWrite16(0x0, 0xFFFF)
                 return ram.rdramRead16(0x0)
             }
-            assert.equal(0xABAB, fn());
+            assert.equal(0xFFFF, fn());
         });
     });
     describe('rdramWrite32', function () {
-        it('Should return 0xABABABAB if ok or 0 if emulation failure', function () {
+        it('Should return 0xFFFFFFFF if ok or 0 if emulation failure', function () {
             let fn = () => {
-                for (let i = 0; i < 0x800000; i++) {
-                    ram.rdramWrite8(i, 0)
-                }
-                ram.rdramWrite32(0x0, 0xABABABAB)
+                ram.rdramWrite32(0x0, 0xFFFFFFFF)
                 return ram.rdramRead32(0x0)
             }
-            assert.equal(0xABABABAB, fn());
+            assert.equal(0xFFFFFFFF, fn());
         });
     });
     describe('rdramWriteBuffer', function () {
-        it('Should return 0xAB if ok or 0 if emulation failure', function () {
+        it('Should return 0xFFFFFFFFFFFFFFFF if ok or 0 if emulation failure', function () {
             let fn = () => {
-                for (let i = 0; i < 0x800000; i++) {
-                    ram.rdramWrite8(i, 0)
-                }
-                ram.rdramWriteBuffer(0x0, Buffer.from("ABABABABABABABAB", 'hex'))
+                ram.rdramWriteBuffer(0x0, Buffer.from("FFFFFFFFFFFFFFFF", 'hex'))
                 return JSON.stringify(Buffer.from(ram.rdramReadBuffer(0x0, 0x8)))
             }
-            assert.equal(JSON.stringify(Buffer.from("ABABABABABABABAB", 'hex')), fn());
+            assert.equal(JSON.stringify(Buffer.from("FFFFFFFFFFFFFFFF", 'hex')), fn());
         });
     });
 });

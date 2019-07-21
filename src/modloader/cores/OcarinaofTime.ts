@@ -3,7 +3,7 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore, IShields } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore, IShields, ITunics, IBoots } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
 
@@ -33,7 +33,131 @@ export const enum BootsBitMap {
     HOVER = 1
 }
 
-export class Shields implements IShields {
+export class BootsEquipment implements IBoots {
+
+    private flags: Bit[]
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private equipment_addr: number = this.instance + 0x009C
+
+    constructor(data: number, emulator: IMemory) {
+        this.emulator = emulator
+        this.flags = bitwise.byte.read(data as UInt8)
+    }
+
+    update() {
+        this.flags = bitwise.byte.read(this.emulator.rdramRead8(this.equipment_addr) as UInt8)
+    }
+
+    get kokiri() {
+        this.update()
+        return this.flags[BootsBitMap.KOKIRI] === 1
+    }
+
+    set kokiri(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[BootsBitMap.KOKIRI] = 1
+        } else {
+            this.flags[BootsBitMap.KOKIRI] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get iron() {
+        this.update()
+        return this.flags[BootsBitMap.IRON] === 1
+    }
+
+    set iron(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[BootsBitMap.IRON] = 1
+        } else {
+            this.flags[BootsBitMap.IRON] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get hover() {
+        this.update()
+        return this.flags[BootsBitMap.HOVER] === 1
+    }
+
+    set hover(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[BootsBitMap.HOVER] = 1
+        } else {
+            this.flags[BootsBitMap.HOVER] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+}
+
+export class TunicsEquipment implements ITunics {
+
+    private flags: Bit[]
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private equipment_addr: number = this.instance + 0x009C
+
+    constructor(data: number, emulator: IMemory) {
+        this.emulator = emulator
+        this.flags = bitwise.byte.read(data as UInt8)
+    }
+
+    update() {
+        this.flags = bitwise.byte.read(this.emulator.rdramRead8(this.equipment_addr) as UInt8)
+    }
+
+    get kokiri() {
+        this.update()
+        return this.flags[TunicBitMap.KOKIRI] === 1
+    }
+
+    set kokiri(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[TunicBitMap.KOKIRI] = 1
+        } else {
+            this.flags[TunicBitMap.KOKIRI] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get goron() {
+        this.update()
+        return this.flags[TunicBitMap.GORON] === 1
+    }
+
+    set goron(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[TunicBitMap.GORON] = 1
+        } else {
+            this.flags[TunicBitMap.GORON] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    get zora() {
+        this.update()
+        return this.flags[TunicBitMap.ZORA] === 1
+    }
+
+    set zora(bool: boolean) {
+        this.update()
+        if (bool) {
+            this.flags[TunicBitMap.ZORA] = 1
+        } else {
+            this.flags[TunicBitMap.ZORA] = 0
+        }
+        this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+}
+
+export class ShieldsEquipment implements IShields {
 
     private flags: Bit[]
     private emulator: IMemory
@@ -50,6 +174,7 @@ export class Shields implements IShields {
     }
 
     set dekuShield(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[ShieldBitMap.DEKU] = 1
         } else {
@@ -63,6 +188,7 @@ export class Shields implements IShields {
     }
 
     set hylianShield(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[ShieldBitMap.HYLIAN] = 1
         } else {
@@ -76,6 +202,7 @@ export class Shields implements IShields {
     }
 
     set mirrorShield(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[ShieldBitMap.MIRROR] = 1
         } else {
@@ -85,12 +212,13 @@ export class Shields implements IShields {
     }
 
     get mirrorShield(): boolean {
+        this.update()
         return this.flags[ShieldBitMap.MIRROR] === 1
     }
 
 }
 
-export class Swords implements ISwords {
+export class SwordsEquipment implements ISwords {
     private flags: Bit[]
     private emulator: IMemory
     private instance: number = global.ModLoader.save_context
@@ -107,10 +235,12 @@ export class Swords implements ISwords {
     }
 
     get kokiriSword() {
+        this.update()
         return this.flags[SwordBitMap.KOKIRI] === 1
     }
 
     set kokiriSword(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[SwordBitMap.KOKIRI] = 1
         } else {
@@ -120,10 +250,12 @@ export class Swords implements ISwords {
     }
 
     get masterSword() {
+        this.update()
         return this.flags[SwordBitMap.MASTER] === 1
     }
 
     set masterSword(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[SwordBitMap.MASTER] = 1
         } else {
@@ -133,10 +265,12 @@ export class Swords implements ISwords {
     }
 
     get giantKnife() {
+        this.update()
         return this.flags[SwordBitMap.GIANT] === 1
     }
 
     set giantKnife(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[SwordBitMap.GIANT] = 1
         } else {
@@ -146,10 +280,12 @@ export class Swords implements ISwords {
     }
 
     get biggoronSword() {
+        this.update()
         return this.flags[SwordBitMap.BIGGORON] === 1
     }
 
     set biggoronSword(bool: boolean) {
+        this.update()
         if (bool) {
             this.flags[SwordBitMap.BIGGORON] = 1
         } else {
@@ -281,13 +417,17 @@ export class SaveContext implements ISaveContext {
     private navi_timer_addr: number = this.instance + 0x0038
     private zs: ZeldaString = new ZeldaString()
     // Further abstractions
-    swords: Swords
-    shields: Shields
+    swords: SwordsEquipment
+    shields: ShieldsEquipment
+    tunics: TunicsEquipment
+    boots: BootsEquipment
 
     constructor(emu: IMemory) {
         this.emulator = emu
-        this.swords = new Swords(0, emu)
-        this.shields = new Shields(0, emu)
+        this.swords = new SwordsEquipment(0, emu)
+        this.shields = new ShieldsEquipment(0, emu)
+        this.tunics = new TunicsEquipment(0, emu)
+        this.boots = new BootsEquipment(0, emu)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table
@@ -471,8 +611,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
     }
 
     onTick(): void {
-        this.save.swords.update()
-        this.save.shields.update()
         this.eventTicks.forEach((value: Function, key: string) => {
             value();
         });
