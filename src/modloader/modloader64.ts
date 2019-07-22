@@ -11,6 +11,9 @@ import IMemory from '../API/IMemory';
 import { INetworkPlayer } from '../API/NetworkHandler';
 import IConsole from '../API/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
+import { bus, EventBus } from '../API/EventHandler';
+
+export const internal_event_bus = new EventBus()
 
 class ModLoader64 {
 
@@ -24,6 +27,7 @@ class ModLoader64 {
     Client: NetworkEngine.Client
     rom_path!: string
     console!: IConsole
+    done: boolean = false
 
     constructor(logger: any) {
         this.logger = logger as ILogger
@@ -60,7 +64,7 @@ class ModLoader64 {
         if (this.data.isClient) {
             this.console = new N64(this.rom_path)
         }
-
+        internal_event_bus.emit("preinit_done", {})
         this.init()
     }
 
@@ -86,45 +90,43 @@ class ModLoader64 {
             }
             // Load the plugins
             this.plugins.loadPluginsConstruct();
+            bus.emit("romPath", this.rom_path)
         }
+        this.plugins.loadPluginsPreInit(this.Server);
         // Set up networking.
-        (function (inst) {
-            if (inst.data.isServer) {
-                inst.Server.setup().then(function (result) {
-                    if (inst.data.isClient) {
-                        return inst.Client.setup()
-                    }else{
-                        return result
-                    }
-                }).then(function (result) {
-                    inst.postinit(result)
-                })
-            } else {
-                if (inst.data.isClient) {
-                    inst.Client.setup().then(function (result) {
-                        inst.postinit(result)
-                    })
-                }
+        internal_event_bus.on("onNetworkConnect", (evt: any) => {
+            this.postinit(evt)
+        });
+        (() => {
+            if (this.data.isServer) {
+                this.Server.setup();
             }
-        })(this)
+            if (this.data.isClient) {
+                this.Client.setup();
+            }
+        })()
+        internal_event_bus.emit("init_done", {})
     }
 
     private postinit(result: any) {
+        if (this.done) {
+            return
+        }
         if (fs.existsSync(this.rom_path)) {
-            this.plugins.loadPluginsStart(this.Server, result.me);
+            this.plugins.loadPluginsInit(result.me);
             this.logger.info("Setting up Mupen...")
             var instance = this
             var mupen: IMemory
             var load_mupen = new Promise(function (resolve, reject) {
                 mupen = instance.console.startEmulator(() => {
                     let p: Buffer = result.patch as Buffer
-                    if (p.byteLength > 1){
+                    if (p.byteLength > 1) {
                         let rom_data: Buffer = instance.console.getLoadedRom()
                         let BPS = require('./BPS');
                         let _BPS = new BPS()
                         rom_data = _BPS.tryPatch(rom_data, p)
                         return rom_data
-                    }else{
+                    } else {
                         return p
                     }
                 }) as IMemory
@@ -135,8 +137,10 @@ class ModLoader64 {
             load_mupen.then(function () {
                 setTimeout(function () {
                     instance.logger.info("Finishing plugin init...")
-                    instance.plugins.loadPluginsEnd(mupen, instance.console)
+                    instance.plugins.loadPluginsPostinit(mupen, instance.console)
                     instance.console.finishInjects();
+                    internal_event_bus.emit("postinit_done", {})
+                    instance.done = true;
                 }, 3000);
             });
         }

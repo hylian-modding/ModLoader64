@@ -6,6 +6,7 @@ import { GameShark, Code } from './GameShark';
 import { EventHandler, bus } from '../API/EventHandler';
 import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer, ClientController, ServerController } from '../API/NetworkHandler';
 import IConsole from '../API/IConsole';
+import { internal_event_bus } from './modloader64';
 
 class pluginLoader {
 
@@ -89,7 +90,7 @@ class pluginLoader {
                                 });
                             }
                         }
-                        if (p.prototype.ModLoader.hasOwnProperty("InjectCore")){
+                        if (p.prototype.ModLoader.hasOwnProperty("InjectCore")) {
                             // Inject the core.
                             //@ts-ignore
                             plugin[p.prototype.ModLoader.InjectCore.get("field")()] = this.loaded_core
@@ -108,7 +109,7 @@ class pluginLoader {
 
     loadPluginsConstruct(overrideCore: string = "") {
         // Start the core plugin.
-        if (overrideCore !== ""){
+        if (overrideCore !== "") {
             this.selected_core = overrideCore
         }
         let core = this.core_plugins[this.selected_core]
@@ -133,31 +134,41 @@ class pluginLoader {
                     }
                 })
             }
-        })
+        });
+        internal_event_bus.on("onNetworkConnect", (evt: any) => {
+            this.loaded_core.ModLoader.me = evt.me;
+            this.plugins.forEach((plugin: IPlugin) => {
+                plugin.ModLoader.me = evt.me;
+            })
+        });
     }
 
-    loadPluginsStart(manager: ILobbyManager, me: INetworkPlayer) {
+    loadPluginsPreInit(manager: ILobbyManager) {
         this.loaded_core.preinit()
         this.loaded_core.ModLoader.lobbyManager = manager
-        this.loaded_core.ModLoader.me = me;
         this.loaded_core.ModLoader.clientSide = ClientController
         this.loaded_core.ModLoader.serverSide = ServerController
         this.loaded_core.ModLoader.clientLobby = this.config.data["NetworkEngine.Client"]["lobby"]
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.lobbyManager = manager
-            plugin.ModLoader.me = me;
+
             plugin.ModLoader.clientSide = ClientController
             plugin.ModLoader.serverSide = ServerController
             plugin.ModLoader.clientLobby = this.config.data["NetworkEngine.Client"]["lobby"]
             plugin.preinit()
         })
+    }
+
+    loadPluginsInit(me: INetworkPlayer) {
+        this.loaded_core.ModLoader.me = me;
         this.loaded_core.init()
         this.plugins.forEach((plugin: IPlugin) => {
+            plugin.ModLoader.me = me;
             plugin.init()
         })
     }
 
-    loadPluginsEnd(emulator: IMemory, console: IConsole) {
+    loadPluginsPostinit(emulator: IMemory, console: IConsole) {
         console.pauseEmulator()
         let gameshark = new GameShark(this.logger, emulator)
         this.plugin_folders.forEach((dir: string) => {

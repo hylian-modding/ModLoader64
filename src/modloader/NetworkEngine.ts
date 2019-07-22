@@ -1,11 +1,12 @@
-import { ILogger, IConfig} from '../API/IModLoaderAPI'
+import { ILogger, IConfig } from '../API/IModLoaderAPI'
 import { bus, EventsServer, EventsClient } from '../API/EventHandler';
-import {NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
+import { NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
 import crypto from 'crypto'
 import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
 import fs from 'fs';
 import uuid from 'uuid';
+import { internal_event_bus } from './modloader64';
 
 interface IServerConfig {
     port: number
@@ -35,34 +36,34 @@ class Version {
     }
 }
 
-class LobbyStorage implements ILobbyStorage{
-    config: LobbyData;    
+class LobbyStorage implements ILobbyStorage {
+    config: LobbyData;
     owner: string;
     data: any;
 
-    constructor(config: LobbyData, owner: string){
+    constructor(config: LobbyData, owner: string) {
         this.config = config;
         this.owner = owner;
         this.data = {};
-    }   
+    }
 }
 
-class LobbyJoin{
+class LobbyJoin {
     lobbyData: LobbyData
     player: INetworkPlayer
 
-    constructor(lobbyData: LobbyData, player: INetworkPlayer){
+    constructor(lobbyData: LobbyData, player: INetworkPlayer) {
         this.lobbyData = lobbyData
         this.player = player
     }
 }
 
-class FakeNetworkPlayer implements INetworkPlayer{
+class FakeNetworkPlayer implements INetworkPlayer {
 
-    nickname: string;    
+    nickname: string;
     uuid: string;
 
-    constructor(){
+    constructor() {
         this.nickname = "FakeNetworkPlayer"
         this.uuid = uuid.v4()
     }
@@ -70,7 +71,7 @@ class FakeNetworkPlayer implements INetworkPlayer{
 
 namespace NetworkEngine {
 
-    export class Server implements ILobbyManager{
+    export class Server implements ILobbyManager {
         private app: any = require('express')();
         private http: any = require('http').createServer(this.app);
         io: any = require('socket.io')(this.http);
@@ -78,6 +79,7 @@ namespace NetworkEngine {
         masterConfig: IConfig
         config: IServerConfig
         version!: Version
+        modLoaderconfig: IModLoaderConfig
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger
@@ -86,31 +88,32 @@ namespace NetworkEngine {
             config.setData("NetworkEngine.Server", "port", 8082)
             let temp = global.ModLoader.version.split(".")
             this.version = new Version(temp[0], temp[1], temp[2])
+            this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
         }
 
-        getLobbies(){
+        getLobbies() {
             return this.io.sockets.adapter.rooms
         }
 
-        doesLobbyExist(Lobby: string){
+        doesLobbyExist(Lobby: string) {
             return this.getLobbies().hasOwnProperty(Lobby)
         }
 
-        createLobbyStorage(ld: LobbyData, owner: string): ILobbyStorage{
+        createLobbyStorage(ld: LobbyData, owner: string): ILobbyStorage {
             this.getLobbies()[ld.name]["ModLoader64"] = new LobbyStorage(ld, owner)
             return this.getLobbies()[ld.name]["ModLoader64"]
         }
 
-        getLobbyStorage(name: string): ILobbyStorage{
-            try{
+        getLobbyStorage(name: string): ILobbyStorage {
+            try {
                 return this.getLobbies()[name].ModLoader64
-            }catch(err){
+            } catch (err) {
             }
             //@ts-ignore
             return null
         }
 
-        sendToTarget(target: string, internalChannel: string, packet: any){
+        sendToTarget(target: string, internalChannel: string, packet: any) {
             this.io.sockets.to(target).emit(internalChannel, packet)
         }
 
@@ -123,7 +126,7 @@ namespace NetworkEngine {
                     inst.sendToTarget(data.player.uuid, "msg", data.packet)
                 });
                 inst.io.on('connection', function (socket: SocketIO.Socket) {
-                    inst.sendToTarget(socket.id, "uuid", {uuid: socket.id});
+                    inst.sendToTarget(socket.id, "uuid", { uuid: socket.id });
                     socket.on('version', function (data: string) {
                         let parse = data.split(".")
                         let v = new Version(parse[0], parse[1], parse[2])
@@ -131,41 +134,41 @@ namespace NetworkEngine {
                             inst.sendToTarget(socket.id, "versionGood", { client: v, server: inst.version, uuid: socket.id })
                         } else {
                             inst.sendToTarget(socket.id, "versionBad", { client: v, server: inst.version })
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 socket.disconnect()
                             }, 1000);
                         }
                     });
-                    socket.on("LobbyRequest", function(lj: LobbyJoin){
-                        if (inst.doesLobbyExist(lj.lobbyData.name)){
+                    socket.on("LobbyRequest", function (lj: LobbyJoin) {
+                        if (inst.doesLobbyExist(lj.lobbyData.name)) {
                             // Lobby already exists.
                             var storage: ILobbyStorage = inst.getLobbyStorage(lj.lobbyData.name)
-                            if (storage.config.key === lj.lobbyData.key){
+                            if (storage.config.key === lj.lobbyData.key) {
                                 socket.join(storage.config.name)
                                 bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
                                 //@ts-ignore
-                                socket["ModLoader64"] = {lobby: storage.config.name, player: lj.player}
+                                socket["ModLoader64"] = { lobby: storage.config.name, player: lj.player }
                                 inst.sendToTarget(socket.id, "LobbyReady", storage.config)
-                            }else{
+                            } else {
                                 inst.sendToTarget(socket.id, "LobbyDenied_BadPassword", lj)
                             }
-                        }else{
+                        } else {
                             // Lobby does not exist.
                             socket.join(lj.lobbyData.name)
                             var storage: ILobbyStorage = inst.createLobbyStorage(lj.lobbyData, socket.id)
                             bus.emit(EventsServer.ON_LOBBY_CREATE, storage)
                             bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
                             //@ts-ignore
-                            socket["ModLoader64"] = {lobby: storage.config.name, player: lj.player}
+                            socket["ModLoader64"] = { lobby: storage.config.name, player: lj.player }
                             inst.sendToTarget(socket.id, "LobbyReady", storage.config)
                         }
                     });
-                    socket.on('msg', function(data: IPacketHeader){
+                    socket.on('msg', function (data: IPacketHeader) {
                         NetworkBusServer.emit(data.packet_id, data);
                         NetworkChannelBusServer.emit(data.channel, data);
                         socket.to(data.lobby).emit("msg", data);
                     });
-                    socket.on('toSpecificPlayer', function(data: any){
+                    socket.on('toSpecificPlayer', function (data: any) {
                         inst.sendToTarget(data.player.uuid, "msg", data.packet)
                     });
                     socket.on("disconnect", () => {
@@ -175,17 +178,12 @@ namespace NetworkEngine {
                         inst.sendToTarget(ML.lobby, "left", ML.player as INetworkPlayer)
                     });
                 });
-                let promise = new Promise(function (resolve, reject) {
-                    try {
-                        inst.http.listen(inst.config.port, function () {
-                            inst.logger.info("NetworkEngine.Server set up on port " + inst.config.port + ".")
-                            resolve({me: new FakeNetworkPlayer(), patch: Buffer.alloc(1)})
-                        });
-                    } catch (err) {
-                        reject(err)
+                inst.http.listen(inst.config.port, function () {
+                    inst.logger.info("NetworkEngine.Server set up on port " + inst.config.port + ".")
+                    if (!inst.modLoaderconfig.isClient) {
+                        internal_event_bus.emit("onNetworkConnect", { me: new FakeNetworkPlayer(), patch: Buffer.alloc(1) });
                     }
                 });
-                return promise
             })(this)
         }
     }
@@ -213,64 +211,54 @@ namespace NetworkEngine {
         }
 
         setup() {
-            return (function (inst) {
-                let promise = new Promise(function (resolve, reject) {
-                    try {
-                        let release = function (result: any) {
-                            resolve(result)
-                        }
-                        inst.logger.info("Starting up NetworkEngine.Client...")
-                        inst.socket = inst.io.connect('http://' + inst.config.ip + ":" + inst.config.port);
-                        NetworkSendBus.addListener("msg", (data: IPacketHeader) => {
-                            inst.socket.emit("msg", data);
-                        });
-                        NetworkSendBus.addListener("toPlayer", (data: any) => {
-                            inst.socket.emit("toSpecificPlayer", data);
-                        });
-                        inst.socket.on('connect', () => {
-                            inst.logger.info("Connected.")
-                        });
-                        inst.socket.on("uuid", (data: any) => {
-                            inst.me = new NetworkPlayer(inst.config.nickname, data.uuid)
-                            inst.socket.emit('version', global.ModLoader.version)
-                        });
-                        inst.socket.on("versionGood", (data: any) => {
-                            inst.logger.info("Version good! " + JSON.stringify(data.server))
-                            let ld = new LobbyData(inst.config.lobby, crypto.createHash("md5").update(Buffer.from(inst.config.password)).digest("hex"))
-                            bus.emit(EventsClient.CONFIGURE_LOBBY, ld)
-                            if (inst.modLoaderconfig.patch !== ""){
-                                ld.data["patch"] = fs.readFileSync(inst.modLoaderconfig.patch).toString('base64')
-                            }
-                            inst.socket.emit("LobbyRequest", new LobbyJoin(ld, inst.me))
-                            bus.emit(EventsClient.ON_SERVER_CONNECTION, {})
-                        });
-                        inst.socket.on("versionBad", (data: any) => {
-                            inst.logger.info("Version bad! " + JSON.stringify(data.server))
-                        });
-                        inst.socket.on("LobbyReady", (ld: LobbyData) => {
-                            bus.emit(EventsClient.ON_LOBBY_JOIN, ld)
-                            inst.logger.info("Joined lobby " + ld.name + ".")
-                            let p: Buffer = Buffer.alloc(1)
-                            if (ld.data.hasOwnProperty("patch")){
-                                p = Buffer.from(ld.data.patch, "base64")
-                            }
-                            release({me: inst.me, patch: p})
-                        });
-                        inst.socket.on("LobbyDenied_BadPassword", (ld: LobbyData) =>{
-                            inst.logger.error("Failed to join lobby. :(")
-                        });
-                        inst.socket.on("left", (player: INetworkPlayer) => {
-                            bus.emit(EventsClient.ON_LOBBY_LEAVE, player)
-                        });
-                        inst.socket.on("msg", (data: IPacketHeader) => {
-                            NetworkBus.emit(data.packet_id, data);
-                            NetworkChannelBus.emit(data.channel, data);
-                        });
-                    } catch (err) {
-                        reject(err)
+            (function (inst) {
+                inst.logger.info("Starting up NetworkEngine.Client...")
+                inst.socket = inst.io.connect('http://' + inst.config.ip + ":" + inst.config.port);
+                NetworkSendBus.addListener("msg", (data: IPacketHeader) => {
+                    inst.socket.emit("msg", data);
+                });
+                NetworkSendBus.addListener("toPlayer", (data: any) => {
+                    inst.socket.emit("toSpecificPlayer", data);
+                });
+                inst.socket.on('connect', () => {
+                    inst.logger.info("Connected.")
+                });
+                inst.socket.on("uuid", (data: any) => {
+                    inst.me = new NetworkPlayer(inst.config.nickname, data.uuid)
+                    inst.socket.emit('version', global.ModLoader.version)
+                });
+                inst.socket.on("versionGood", (data: any) => {
+                    inst.logger.info("Version good! " + JSON.stringify(data.server))
+                    let ld = new LobbyData(inst.config.lobby, crypto.createHash("md5").update(Buffer.from(inst.config.password)).digest("hex"))
+                    bus.emit(EventsClient.CONFIGURE_LOBBY, ld)
+                    if (inst.modLoaderconfig.patch !== "") {
+                        ld.data["patch"] = fs.readFileSync(inst.modLoaderconfig.patch).toString('base64')
                     }
-                })
-                return promise
+                    inst.socket.emit("LobbyRequest", new LobbyJoin(ld, inst.me))
+                    bus.emit(EventsClient.ON_SERVER_CONNECTION, {})
+                });
+                inst.socket.on("versionBad", (data: any) => {
+                    inst.logger.info("Version bad! " + JSON.stringify(data.server))
+                });
+                inst.socket.on("LobbyReady", (ld: LobbyData) => {
+                    bus.emit(EventsClient.ON_LOBBY_JOIN, ld)
+                    inst.logger.info("Joined lobby " + ld.name + ".")
+                    let p: Buffer = Buffer.alloc(1)
+                    if (ld.data.hasOwnProperty("patch")) {
+                        p = Buffer.from(ld.data.patch, "base64")
+                    }
+                    internal_event_bus.emit("onNetworkConnect", { me: inst.me, patch: p });
+                });
+                inst.socket.on("LobbyDenied_BadPassword", (ld: LobbyData) => {
+                    inst.logger.error("Failed to join lobby. :(")
+                });
+                inst.socket.on("left", (player: INetworkPlayer) => {
+                    bus.emit(EventsClient.ON_LOBBY_LEAVE, player)
+                });
+                inst.socket.on("msg", (data: IPacketHeader) => {
+                    NetworkBus.emit(data.packet_id, data);
+                    NetworkChannelBus.emit(data.channel, data);
+                });
             })(this)
         }
     }
