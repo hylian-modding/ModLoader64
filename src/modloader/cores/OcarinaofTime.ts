@@ -3,7 +3,7 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore, IShields, ITunics, IBoots } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
 
@@ -31,6 +31,33 @@ export const enum BootsBitMap {
     KOKIRI = 3,
     IRON = 2,
     HOVER = 1
+}
+
+export const enum InventorySlots {
+    DEKU_STICKS,
+    DEKU_NUTS,
+    BOMBS,
+    FAIRY_BOW,
+    FIRE_ARROWS,
+    DINS_FIRE,
+    FAIRY_SLINGSHOT,
+    OCARINA,
+    BOMBCHUS,
+    HOOKSHOT,
+    ICE_ARROWS,
+    FARORES_WIND,
+    BOOMERANG,
+    LENS_OF_TRUTH,
+    MAGIC_BEANS,
+    MEGATON_HAMMER,
+    LIGHT_ARROWS,
+    NAYRUS_LOVE,
+    BOTTLE1,
+    BOTTLE2,
+    BOTTLE3,
+    BOTTLE4,
+    ADULT_TRADE_ITEM,
+    CHILD_TRADE_ITEM 
 }
 
 export class BootsEquipment implements IBoots {
@@ -316,6 +343,165 @@ export class SwordsEquipment implements ISwords {
     }
 }
 
+export class Inventory implements IInventory {
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private inventory_addr: number = this.instance + 0x0074
+    private inventory_ammo_addr: number = this.instance + 0x008C
+    
+    constructor(emu: IMemory) {
+        this.emulator = emu
+    }
+
+    get dekuSticks(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuSticks(bool: boolean) {
+        
+    }
+    get dekuSticksCount: number {
+        return this.getAmmoForItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuSticksCount(count: number) {
+
+    }
+    dekuNuts: boolean;
+    dekuNutsCount: number;
+    bombs: boolean;
+    bombsCount: boolean;
+    bombchus: boolean;
+    bombchuCount: number;
+    magicBeans: boolean;
+    magicBeansCount: number;
+    fairySlingshot: boolean;
+    dekuSeeds: number;
+    fairyBow: boolean;
+    fireArrows: boolean;
+    iceArrows: boolean;
+    lightArrows: boolean;
+    arrows: number;
+    dinsFire: boolean;
+    faroresWind: boolean;
+    nayrusLove: boolean;
+    ocarina: Ocarina;
+    hookshot: Hookshot;
+    boomerang: boolean;
+    lensOfTruth: boolean;
+    megatonHammer: boolean;
+    bottle: boolean;
+    bottleCount: number;
+    bottledItems: InventoryItem[];
+    childTradeItem: InventoryItem;
+    childTradeFinished: boolean;
+    adultTradeItem: InventoryItem;
+    adultTradeFinished: boolean;
+
+    getItemInSlot(slotId: number): InventoryItem {
+        if(slotId < 0 || slotId > 23)
+        {
+            return InventoryItem.NONE;
+        }
+
+        var itemId: number = this.emulator.rdramRead8(this.inventory_addr + slotId);
+        return <InventoryItem>itemId;
+    }
+
+    getSlotForItem(item: InventoryItem): number {
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == item)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    getSlotsForItem(item: InventoryItem): number[] {
+        var slots: number[] = new Array;
+
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == item)
+            {
+                slots.push(i);
+            }
+        }
+
+        return slots;
+    }
+
+    hasItem(item: InventoryItem): boolean {
+        return (this.getSlotForItem(item) != -1);
+    }
+
+    getAmmoForItem(item: InventoryItem): number {
+        if(!this.hasAmmo(item))
+        {
+            return 0;
+        }
+        
+        var ammo: number = 0;
+        var slots: number[] = this.getSlotsForItem(item);
+
+        for(var i = 0; i < slots.length; i++)
+        {
+            ammo += this.getAmmoForSlot(slots[i]);
+        }
+
+        return ammo;
+    }
+
+    hasAmmo(item: InventoryItem): boolean {
+        switch(item)
+        {
+            case InventoryItem.DEKU_STICK:
+            case InventoryItem.DEKU_NUT:
+            case InventoryItem.FAIRY_SLINGSHOT:
+            case InventoryItem.FAIRY_BOW:
+            case InventoryItem.BOMB:
+            case InventoryItem.BOMBCHU:
+            case InventoryItem.MAGIC_BEAN:
+                return true;
+        }
+
+        return false;
+    }
+
+    getAmmoForSlot(slotId: number): number {
+        if(slotId < 0 || slotId > 0xF)
+        {
+            return 0;
+        }
+
+        return this.emulator.rdramRead8(this.inventory_ammo_addr + slotId);
+    }
+
+    setItemInSlot(item: InventoryItem, slot: number): void {
+        if(slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM)
+        {
+            return;
+        }
+
+        this.emulator.rdramWrite8(this.inventory_addr, item.valueOf());
+    }
+
+    getEmptySlots(): number[] {
+        var slots: number[] = new Array;
+
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == InventoryItem.NONE)
+            {
+                slots.push(i);
+            }
+        }
+
+        return slots;
+    }
+}
+
 export class Link implements ILink {
     private emulator: IMemory
     private instance: number = 0x1DAA30
@@ -421,6 +607,7 @@ export class SaveContext implements ISaveContext {
     shields: ShieldsEquipment
     tunics: TunicsEquipment
     boots: BootsEquipment
+    inventory: Inventory
 
     constructor(emu: IMemory) {
         this.emulator = emu
@@ -428,6 +615,7 @@ export class SaveContext implements ISaveContext {
         this.shields = new ShieldsEquipment(0, emu)
         this.tunics = new TunicsEquipment(0, emu)
         this.boots = new BootsEquipment(0, emu)
+        this.inventory = new Inventory(emu)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table
