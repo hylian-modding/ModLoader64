@@ -452,10 +452,52 @@ export class Inventory implements IInventory {
         this.setAmmoInSlot(slot, count);
     }
 
-    fairySlingshot: boolean;
-    dekuSeeds: number;
+    get fairySlingshot(): boolean {
+        return this.hasItem(InventoryItem.FAIRY_SLINGSHOT);
+    }
+    set fairySlingshot(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.FAIRY_SLINGSHOT, InventorySlots.FAIRY_SLINGSHOT);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.FAIRY_SLINGSHOT);
+            this.bulletBag = AmmoUpgrade.NONE;
+        }
+    }
+    get dekuSeeds(): number {
+        return this.getAmmoForItem(InventoryItem.FAIRY_SLINGSHOT);
+    }
+    set dekuSeeds(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.FAIRY_SLINGSHOT);
+        this.setAmmoInSlot(slot, count);
+    }
     bulletBag: AmmoUpgrade;
-    fairyBow: boolean;
+    
+
+    get fairyBow(): boolean {
+        return this.hasItem(InventoryItem.FAIRY_BOW);
+    }
+    set fairyBow(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.FAIRY_BOW, InventorySlots.FAIRY_BOW);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.FAIRY_BOW);
+            this.quiver = AmmoUpgrade.NONE;
+        }
+    }
+    get arrows(): number {
+        return this.getAmmoForItem(InventoryItem.FAIRY_BOW);
+    }
+    set arrows(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.FAIRY_BOW);
+        this.setAmmoInSlot(slot, count);
+    }
+    quiver: AmmoUpgrade;
 
     get fireArrows(): boolean {
         return this.hasItem(InventoryItem.FIRE_ARROW);
@@ -480,9 +522,6 @@ export class Inventory implements IInventory {
         if(bool) { this.giveItem(InventoryItem.LIGHT_ARROW, InventorySlots.LIGHT_ARROWS); }
         else { this.removeItem(InventoryItem.LIGHT_ARROW); }
     }
-    
-    arrows: number;
-    quiver: AmmoUpgrade;
     
     get dinsFire(): boolean {
         return this.hasItem(InventoryItem.DINS_FIRE);
@@ -648,6 +687,9 @@ export class Inventory implements IInventory {
 
         return InventoryItem.NONE;
     }
+    set childTradeItem(item: InventoryItem) {
+        // More complex logic is required here because of flags
+    }
     
     get adultTradeItem(): InventoryItem {
         for(var i = InventoryItem.CLAIM_CHECK; i >= InventoryItem.POCKET_EGG; i--)
@@ -665,13 +707,17 @@ export class Inventory implements IInventory {
 
         return InventoryItem.NONE;
     }
+    set adultTradeItem(item: InventoryItem) {
+        // More complex logic is required here because of flags
+    }
 
     isChildTradeFinished(): boolean {
         // This is going to require more complex flag checks
         return true;
     }
     isAdultTradeFinished(): boolean {
-        return this.hasItem(InventoryItem.CLAIM_CHECK);
+        // This should be done with flags also
+        return true;
     }
 
     getItemInSlot(slotId: number): InventoryItem {
