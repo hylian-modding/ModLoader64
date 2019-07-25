@@ -3,7 +3,7 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
 
@@ -346,11 +346,13 @@ export class SwordsEquipment implements ISwords {
 export class Inventory implements IInventory {
     private emulator: IMemory
     private instance: number = global.ModLoader.save_context
+    private saveContext: ISaveContext
     private inventory_addr: number = this.instance + 0x0074
     private inventory_ammo_addr: number = this.instance + 0x008C
     
-    constructor(emu: IMemory) {
+    constructor(emu: IMemory, saveContext: ISaveContext) {
         this.emulator = emu
+        this.saveContext = saveContext
     }
 
     get dekuSticks(): boolean {
@@ -857,6 +859,44 @@ export class Inventory implements IInventory {
     }
 }
 
+export class QuestStatus implements IQuestStatus {
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private saveContext: ISaveContext
+
+    constructor(emu: IMemory, saveContext: ISaveContext)
+    {
+        this.emulator = emu;
+        this.saveContext = saveContext;
+    }
+
+    kokiriEmerald: boolean;
+    goronRuby: boolean;
+    zoraSapphire: boolean;
+    lightMedallion: boolean;
+    forestMedallion: boolean;
+    fireMedallion: boolean;
+    waterMedallion: boolean;
+    shadowMedallion: boolean;
+    spiritMedallion: boolean;
+    zeldasLullaby: boolean;
+    eponasSong: boolean;
+    sariasSong: boolean;
+    sunsSong: boolean;
+    songOfTime: boolean;
+    songOfStorms: boolean;
+    preludeOfLight: boolean;
+    minuetOfForest: boolean;
+    boleroOfFire: boolean;
+    serenadeOfWater: boolean;
+    nocturneOfShadow: boolean;
+    requiemOfSpirit: boolean;
+    gerudoMembershipCard: boolean;
+    stoneOfAgony: boolean;
+    goldSkulltulas: number;
+    heartPieces: number;
+}
+
 export class Link implements ILink {
     private emulator: IMemory
     private instance: number = 0x1DAA30
@@ -963,6 +1003,7 @@ export class SaveContext implements ISaveContext {
     tunics: TunicsEquipment
     boots: BootsEquipment
     inventory: Inventory
+    questStatus: IQuestStatus
 
     constructor(emu: IMemory) {
         this.emulator = emu
@@ -970,7 +1011,8 @@ export class SaveContext implements ISaveContext {
         this.shields = new ShieldsEquipment(0, emu)
         this.tunics = new TunicsEquipment(0, emu)
         this.boots = new BootsEquipment(0, emu)
-        this.inventory = new Inventory(emu)
+        this.inventory = new Inventory(emu, this)
+        this.questStatus = new QuestStatus(emu, this)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table

@@ -213,12 +213,47 @@ export interface IInventory {
     getEmptySlots(): number[];
 }
 
+export interface IQuestStatus {
+    kokiriEmerald: boolean;
+    goronRuby: boolean;
+    zoraSapphire: boolean;
+
+    lightMedallion: boolean;
+    forestMedallion: boolean;
+    fireMedallion: boolean;
+    waterMedallion: boolean;
+    shadowMedallion: boolean;
+    spiritMedallion: boolean;
+
+    zeldasLullaby: boolean;
+    eponasSong: boolean;
+    sariasSong: boolean;
+    sunsSong: boolean;
+    songOfTime: boolean;
+    songOfStorms: boolean;
+
+    preludeOfLight: boolean;
+    minuetOfForest: boolean;
+    boleroOfFire: boolean;
+    serenadeOfWater: boolean;
+    nocturneOfShadow: boolean;
+    requiemOfSpirit: boolean;
+
+    gerudoMembershipCard: boolean;
+    stoneOfAgony: boolean;
+
+    goldSkulltulas: number;
+
+    heartPieces: number;
+}
+
 export interface ISaveContext {
     swords: ISwords;
     shields: IShields;
     tunics: ITunics;
     boots: IBoots;
     inventory: IInventory;
+    questStatus: IQuestStatus;
     entrance_index: number;
     cutscene_number: number;
     world_time: number;
