@@ -3,7 +3,7 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
 
@@ -354,6 +354,10 @@ export class Inventory implements IInventory {
         this.emulator = emu
         this.saveContext = saveContext
     }
+
+    wallet: Wallet;
+    strength: Strength;
+    swimming: ZoraScale;
 
     get dekuSticks(): boolean {
         return this.hasItem(InventoryItem.DEKU_STICK);
@@ -870,31 +874,36 @@ export class QuestStatus implements IQuestStatus {
         this.saveContext = saveContext;
     }
 
-    kokiriEmerald: boolean;
-    goronRuby: boolean;
-    zoraSapphire: boolean;
-    lightMedallion: boolean;
-    forestMedallion: boolean;
-    fireMedallion: boolean;
-    waterMedallion: boolean;
-    shadowMedallion: boolean;
-    spiritMedallion: boolean;
+    gerudoMembershipCard: boolean;
+    stoneOfAgony: boolean;
+
+    goldSkulltulas: number;
+    heartPieces: number;
+
     zeldasLullaby: boolean;
     eponasSong: boolean;
     sariasSong: boolean;
     sunsSong: boolean;
     songOfTime: boolean;
     songOfStorms: boolean;
+
     preludeOfLight: boolean;
     minuetOfForest: boolean;
     boleroOfFire: boolean;
     serenadeOfWater: boolean;
     nocturneOfShadow: boolean;
     requiemOfSpirit: boolean;
-    gerudoMembershipCard: boolean;
-    stoneOfAgony: boolean;
-    goldSkulltulas: number;
-    heartPieces: number;
+
+    lightMedallion: boolean;
+    forestMedallion: boolean;
+    fireMedallion: boolean;
+    waterMedallion: boolean;
+    shadowMedallion: boolean;
+    spiritMedallion: boolean;
+
+    kokiriEmerald: boolean;
+    goronRuby: boolean;
+    zoraSapphire: boolean;
 }
 
 export class Link implements ILink {

@@ -120,6 +120,26 @@ export const enum Hookshot {
     LONGSHOT
 }
 
+export const enum Strength {
+    NONE,
+    GORON_BRACELET,
+    SILVER_GAUNTLETS,
+    GOLDEN_GAUNTLETS
+}
+
+export const enum Wallet {
+    CHILD,
+    ADULT,
+    GIANT,
+    TYCOON
+}
+
+export const enum ZoraScale {
+    NONE,
+    SILVER,
+    GOLDEN
+}
+
 export const enum AmmoUpgrade {
     NONE,
     BASE,
@@ -153,6 +173,10 @@ export interface IBoots{
 }
 
 export interface IInventory {
+    wallet: Wallet;
+    strength: Strength;
+    swimming: ZoraScale;
+    
     dekuSticks: boolean;
     dekuSticksCount: number;
     dekuSticksCapacity: AmmoUpgrade;
