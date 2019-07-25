@@ -374,23 +374,68 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.DEKU_STICK);
         this.setAmmoInSlot(slot, count);
     }
-    get dekuNutsCapacity(): AmmoUpgrade {
-        // TODO
-        return AmmoUpgrade.NONE;
-    }
-    set dekuSticksCapacity(size: AmmoUpgrade) {
-        // TODO
-    }
+    dekuSticksCapacity: AmmoUpgrade;
 
-    dekuNuts: boolean;
-    dekuNutsCount: number;
-    dekuNutCapacity: AmmoUpgrade;
+    get dekuNuts(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuNuts(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.DEKU_STICK);
+            this.dekuSticksCapacity = AmmoUpgrade.NONE;
+        }
+    }
+    get dekuNutsCount(): number {
+        return this.getAmmoForItem(InventoryItem.DEKU_NUT);
+    }
+    set dekuNutsCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.DEKU_NUT);
+        this.setAmmoInSlot(slot, count);
+    }
+    dekuNutsCapacity: AmmoUpgrade;
 
-    bombs: boolean;
-    bombsCount: boolean;
+    get bombs(): boolean {
+        return this.hasItem(InventoryItem.BOMB);
+    }
+    set bombs(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.BOMB, InventorySlots.BOMBS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.BOMB);
+            this.bombBag = AmmoUpgrade.NONE;
+        }
+    }
+    get bombsCount(): number {
+        return this.getAmmoForItem(InventoryItem.BOMB);
+    }
+    set bombsCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.BOMB);
+        this.setAmmoInSlot(slot, count);
+    }
     bombBag: AmmoUpgrade;
-    bombchus: boolean;
-    bombchuCount: number;
+
+    get bombchus(): boolean {
+        return this.hasItem(InventoryItem.BOMBCHU);
+    }
+    set bombchus(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.BOMBCHU, InventorySlots.BOMBCHUS); }
+        else { this.removeItem(InventoryItem.BOMBCHU); }
+    }
+    get bombchuCount(): number {
+        return this.getAmmoForItem(InventoryItem.BOMBCHU);
+    }
+    set bombchuCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.BOMBCHU);
+        this.setAmmoInSlot(slot, count);
+    }
 
     get magicBeans(): boolean {
         return this.hasItem(InventoryItem.DEKU_STICK);
@@ -551,7 +596,17 @@ export class Inventory implements IInventory {
         else { this.removeItem(InventoryItem.MEGATON_HAMMER); }
     }
 
-    bottle: boolean;
+    get bottle(): boolean {
+        for(var i = 0; i < InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     bottleCount: number;
     bottledItems: InventoryItem[];
     childTradeItem: InventoryItem;

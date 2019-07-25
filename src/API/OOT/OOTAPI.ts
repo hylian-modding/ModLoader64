@@ -161,7 +161,7 @@ export interface IInventory {
     dekuNutsCapacity: AmmoUpgrade;
     
     bombs: boolean;
-    bombsCount: boolean;
+    bombsCount: number;
     bombBag: AmmoUpgrade;
     bombchus: boolean;
     bombchuCount: number;
