@@ -190,14 +190,14 @@ export interface IInventory {
     lensOfTruth: boolean;
     megatonHammer: boolean;
 
-    bottle: boolean;
-    bottleCount: number;
-    bottledItems: InventoryItem[];
+    hasBottle(): boolean;
+    getBottleCount(): number;
+    getBottledItems(): InventoryItem[];
 
     childTradeItem: InventoryItem;
-    childTradeFinished: boolean;
+    isChildTradeFinished(): boolean;
     adultTradeItem: InventoryItem;
-    adultTradeFinished: boolean;
+    isAdultTradeFinished(): boolean;
 
     // We should probably have an Item ID enum
     getItemInSlot(slotId: number): InventoryItem;

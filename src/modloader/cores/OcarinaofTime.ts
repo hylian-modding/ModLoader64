@@ -596,8 +596,8 @@ export class Inventory implements IInventory {
         else { this.removeItem(InventoryItem.MEGATON_HAMMER); }
     }
 
-    get bottle(): boolean {
-        for(var i = 0; i < InventorySlots.CHILD_TRADE_ITEM; i++)
+    hasBottle(): boolean {
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
         {
             var item: InventoryItem = this.getItemInSlot(i);
             if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
@@ -607,12 +607,72 @@ export class Inventory implements IInventory {
         }
         return false;
     }
-    bottleCount: number;
-    bottledItems: InventoryItem[];
-    childTradeItem: InventoryItem;
-    childTradeFinished: boolean;
-    adultTradeItem: InventoryItem;
-    adultTradeFinished: boolean;
+    getBottleCount(): number {
+        var bottles: number = 0;
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                bottles++;
+            }
+        }
+        return bottles;
+    }
+    getBottledItems(): InventoryItem[] {
+        var bottles: InventoryItem[] = new Array;
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                bottles.push(item);
+            }
+        }
+        return bottles;
+    }
+
+    get childTradeItem(): InventoryItem {
+        for(var i = InventoryItem.MASK_OF_TRUTH; i >= InventoryItem.ZELDAS_LETTER; i--)
+        {
+            if(this.hasItem(i))
+            {
+                return i;
+            }
+        }
+
+        if(this.hasItem(InventoryItem.SOLD_OUT))
+        {
+            // More complex logic is required here to grab the last mask the child had
+        }
+
+        return InventoryItem.NONE;
+    }
+    
+    get adultTradeItem(): InventoryItem {
+        for(var i = InventoryItem.CLAIM_CHECK; i >= InventoryItem.POCKET_EGG; i--)
+        {
+            if(i == InventoryItem.SOLD_OUT)
+            {
+                continue;
+            }
+
+            if(this.hasItem(i))
+            {
+                return i;
+            }
+        }
+
+        return InventoryItem.NONE;
+    }
+
+    isChildTradeFinished(): boolean {
+        // This is going to require more complex flag checks
+        return true;
+    }
+    isAdultTradeFinished(): boolean {
+        return this.hasItem(InventoryItem.CLAIM_CHECK);
+    }
 
     getItemInSlot(slotId: number): InventoryItem {
         if(slotId < 0 || slotId > 23)
