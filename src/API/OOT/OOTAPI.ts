@@ -120,6 +120,13 @@ export const enum Hookshot {
     LONGSHOT
 }
 
+export const enum AmmoUpgrade {
+    NONE,
+    BASE,
+    UPGRADED,
+    MAX
+}
+
 export interface ISwords {
     kokiriSword: boolean;
     masterSword: boolean;
@@ -148,11 +155,14 @@ export interface IBoots{
 export interface IInventory {
     dekuSticks: boolean;
     dekuSticksCount: number;
+    dekuSticksCapacity: AmmoUpgrade;
     dekuNuts: boolean;
     dekuNutsCount: number;
+    dekuNutsCapacity: AmmoUpgrade;
     
     bombs: boolean;
     bombsCount: boolean;
+    bombBag: AmmoUpgrade;
     bombchus: boolean;
     bombchuCount: number;
 
@@ -161,11 +171,13 @@ export interface IInventory {
 
     fairySlingshot: boolean;
     dekuSeeds: number;
+    bulletBag: AmmoUpgrade;
     fairyBow: boolean;
     fireArrows: boolean;
     iceArrows: boolean;
     lightArrows: boolean;
     arrows: number;
+    quiver: AmmoUpgrade;
 
     dinsFire: boolean;
     faroresWind: boolean;
@@ -196,6 +208,8 @@ export interface IInventory {
     getAmmoForItem(item: InventoryItem): number
     getAmmoForSlot(slotId: number): number;
     setItemInSlot(item: InventoryItem, slot: number): void;
+    giveItem(item: InventoryItem, desiredSlot: number): void;
+    removeItem(item: InventoryItem): void;
     getEmptySlots(): number[];
 }
 

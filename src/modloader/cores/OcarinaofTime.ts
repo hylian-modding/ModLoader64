@@ -3,7 +3,7 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
 
@@ -357,37 +357,200 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.DEKU_STICK);
     }
     set dekuSticks(bool: boolean) {
-        
+        if(bool)
+        {
+            this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.DEKU_STICK);
+            this.dekuSticksCapacity = AmmoUpgrade.NONE;
+        }
     }
-    get dekuSticksCount: number {
+    get dekuSticksCount(): number {
         return this.getAmmoForItem(InventoryItem.DEKU_STICK);
     }
     set dekuSticksCount(count: number) {
-
+        var slot = this.getSlotForItem(InventoryItem.DEKU_STICK);
+        this.setAmmoInSlot(slot, count);
     }
+    get dekuNutsCapacity(): AmmoUpgrade {
+        // TODO
+        return AmmoUpgrade.NONE;
+    }
+    set dekuSticksCapacity(size: AmmoUpgrade) {
+        // TODO
+    }
+
     dekuNuts: boolean;
     dekuNutsCount: number;
+    dekuNutCapacity: AmmoUpgrade;
+
     bombs: boolean;
     bombsCount: boolean;
+    bombBag: AmmoUpgrade;
     bombchus: boolean;
     bombchuCount: number;
-    magicBeans: boolean;
-    magicBeansCount: number;
+
+    get magicBeans(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set magicBeans(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.MAGIC_BEAN, InventorySlots.MAGIC_BEANS); }
+        else { this.removeItem(InventoryItem.MAGIC_BEAN); }
+    }
+    get magicBeansCount(): number {
+        return this.getAmmoForItem(InventoryItem.MAGIC_BEAN);
+    }
+    set magicBeansCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.MAGIC_BEAN);
+        this.setAmmoInSlot(slot, count);
+    }
+
     fairySlingshot: boolean;
     dekuSeeds: number;
+    bulletBag: AmmoUpgrade;
     fairyBow: boolean;
-    fireArrows: boolean;
-    iceArrows: boolean;
-    lightArrows: boolean;
+
+    get fireArrows(): boolean {
+        return this.hasItem(InventoryItem.FIRE_ARROW);
+    }
+    set fireArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.FIRE_ARROW, InventorySlots.FIRE_ARROWS); }
+        else { this.removeItem(InventoryItem.FIRE_ARROW); }
+    }
+
+    get iceArrows(): boolean {
+        return this.hasItem(InventoryItem.ICE_ARROW);
+    }
+    set iceArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.ICE_ARROW, InventorySlots.ICE_ARROWS); }
+        else { this.removeItem(InventoryItem.ICE_ARROW); }
+    }
+    
+    get lightArrows(): boolean {
+        return this.hasItem(InventoryItem.LIGHT_ARROW);
+    }
+    set lightArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.LIGHT_ARROW, InventorySlots.LIGHT_ARROWS); }
+        else { this.removeItem(InventoryItem.LIGHT_ARROW); }
+    }
+    
     arrows: number;
-    dinsFire: boolean;
-    faroresWind: boolean;
-    nayrusLove: boolean;
-    ocarina: Ocarina;
-    hookshot: Hookshot;
-    boomerang: boolean;
-    lensOfTruth: boolean;
-    megatonHammer: boolean;
+    quiver: AmmoUpgrade;
+    
+    get dinsFire(): boolean {
+        return this.hasItem(InventoryItem.DINS_FIRE);
+    }
+    set dinsFire(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.DINS_FIRE, InventorySlots.DINS_FIRE); }
+        else { this.removeItem(InventoryItem.DINS_FIRE); }
+    }
+
+    get faroresWind(): boolean {
+        return this.hasItem(InventoryItem.FARORES_WIND);
+    }
+    set faroresWind(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.FARORES_WIND, InventorySlots.FARORES_WIND); }
+        else { this.removeItem(InventoryItem.FARORES_WIND); }
+    }
+
+    get nayrusLove(): boolean {
+        return this.hasItem(InventoryItem.NAYRUS_LOVE);
+    }
+    set nayrusLove(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.NAYRUS_LOVE, InventorySlots.NAYRUS_LOVE); }
+        else { this.removeItem(InventoryItem.NAYRUS_LOVE); }
+    }
+
+    get ocarina(): Ocarina {
+        if(this.hasItem(InventoryItem.OCARINA_OF_TIME)) { return Ocarina.OCARINA_OF_TIME; }
+        if(this.hasItem(InventoryItem.FAIRY_OCARINA)) { return Ocarina.FAIRY_OCARINA; }
+        return Ocarina.NONE;
+    }
+    set ocarina(item: Ocarina) {
+        if(item == this.ocarina)
+        {
+            return;
+        }
+
+        if(item == Ocarina.NONE)
+        {
+            this.removeItem(InventoryItem.OCARINA_OF_TIME);
+            this.removeItem(InventoryItem.FAIRY_OCARINA);  
+        }
+
+        if(item == Ocarina.OCARINA_OF_TIME)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.FAIRY_OCARINA);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.OCARINA_OF_TIME, slot); }
+            else { this.giveItem(InventoryItem.OCARINA_OF_TIME, InventorySlots.OCARINA); }
+        }
+
+        if(item == Ocarina.FAIRY_OCARINA)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.OCARINA_OF_TIME);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.FAIRY_OCARINA, slot); }
+            else { this.giveItem(InventoryItem.FAIRY_OCARINA, InventorySlots.OCARINA); }
+        }
+    }
+
+    get hookshot(): Hookshot {
+        if(this.hasItem(InventoryItem.LONGSHOT)) { return Hookshot.LONGSHOT; }
+        if(this.hasItem(InventoryItem.HOOKSHOT)) { return Hookshot.LONGSHOT; }
+        return Hookshot.NONE;
+    }
+    set hookshot(item: Hookshot) {
+        if(item == this.hookshot)
+        {
+            return;
+        }
+
+        if(item == Hookshot.NONE)
+        {
+            this.removeItem(InventoryItem.HOOKSHOT);
+            this.removeItem(InventoryItem.LONGSHOT);  
+        }
+
+        if(item == Hookshot.LONGSHOT)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.HOOKSHOT);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.LONGSHOT, slot); }
+            else { this.giveItem(InventoryItem.LONGSHOT, InventorySlots.HOOKSHOT); }
+        }
+
+        if(item == Hookshot.HOOKSHOT)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.LONGSHOT);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.HOOKSHOT, slot); }
+            else { this.giveItem(InventoryItem.HOOKSHOT, InventorySlots.HOOKSHOT); }
+        }
+    }
+
+    get boomerang(): boolean {
+        return this.hasItem(InventoryItem.BOOMERANG);
+    }
+    set boomerang(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.BOOMERANG, InventorySlots.BOOMERANG); }
+        else { this.removeItem(InventoryItem.BOOMERANG); }
+    }
+
+    get lensOfTruth(): boolean {
+        return this.hasItem(InventoryItem.LENS_OF_TRUTH);
+    }
+    set lensOfTruth(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.LENS_OF_TRUTH, InventorySlots.LENS_OF_TRUTH); }
+        else { this.removeItem(InventoryItem.LENS_OF_TRUTH); }
+    }
+
+    get megatonHammer(): boolean {
+        return this.hasItem(InventoryItem.MEGATON_HAMMER);
+    }
+    set megatonHammer(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.MEGATON_HAMMER, InventorySlots.MEGATON_HAMMER); }
+        else { this.removeItem(InventoryItem.MEGATON_HAMMER); }
+    }
+
     bottle: boolean;
     bottleCount: number;
     bottledItems: InventoryItem[];
@@ -478,6 +641,16 @@ export class Inventory implements IInventory {
         return this.emulator.rdramRead8(this.inventory_ammo_addr + slotId);
     }
 
+    setAmmoInSlot(slot: number, amount: number): void
+    {
+        if(slot < 0 || slot >= 0xF)
+        {
+            return;
+        }
+
+        this.emulator.rdramWrite8(this.inventory_ammo_addr + slot, <UInt8>amount);
+    }
+
     setItemInSlot(item: InventoryItem, slot: number): void {
         if(slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM)
         {
@@ -485,6 +658,27 @@ export class Inventory implements IInventory {
         }
 
         this.emulator.rdramWrite8(this.inventory_addr, item.valueOf());
+    }
+
+    giveItem(item: InventoryItem, desiredSlot: InventorySlots)
+    {
+        if(this.getItemInSlot(desiredSlot) == InventoryItem.NONE || this.getItemInSlot(desiredSlot) == item)
+        {
+            this.setItemInSlot(item, desiredSlot);
+        }
+        else
+        {
+            this.setItemInSlot(item, this.getEmptySlots()[0]);
+        }
+    }
+
+    removeItem(item: InventoryItem): void
+    {
+        var slots = this.getSlotsForItem(item);
+        for(var i = 0; i < slots.length; i++)
+        {
+            this.setItemInSlot(InventoryItem.NONE, i);
+        }
     }
 
     getEmptySlots(): number[] {
