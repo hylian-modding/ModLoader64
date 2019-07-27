@@ -6,7 +6,7 @@ import { UInt8, Bit } from 'bitwise/types';
 import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
-import { FlagManager, Flag } from '../../FlagManager';
+import { FlagManager, Flag } from '../../API/FlagManager';
 
 
 export const enum SwordBitMap {
@@ -351,16 +351,20 @@ export class Inventory implements IInventory {
     private inventory_addr: number = this.instance + 0x0074
     private inventory_ammo_addr: number = this.instance + 0x008C
     private obtainedUpgrades: FlagManager;
-    
+    wallet!: Wallet;
+    strength!: Strength;
+    swimming!: ZoraScale;
+    dekuSticksCapacity!: AmmoUpgrade;
+    dekuNutsCapacity!: AmmoUpgrade;
+    bombBag!: AmmoUpgrade;
+    bulletBag!: AmmoUpgrade;
+    quiver!: AmmoUpgrade;
+
     constructor(emu: IMemory, saveContext: ISaveContext) {
         this.emulator = emu
         this.saveContext = saveContext
         this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00A0);
     }
-
-    wallet: Wallet;
-    strength: Strength;
-    swimming: ZoraScale;
 
     get dekuSticks(): boolean {
         return this.hasItem(InventoryItem.DEKU_STICK);
@@ -383,7 +387,6 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.DEKU_STICK);
         this.setAmmoInSlot(slot, count);
     }
-    dekuSticksCapacity: AmmoUpgrade;
 
     get dekuNuts(): boolean {
         return this.hasItem(InventoryItem.DEKU_STICK);
@@ -406,7 +409,7 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.DEKU_NUT);
         this.setAmmoInSlot(slot, count);
     }
-    dekuNutsCapacity: AmmoUpgrade;
+
 
     get bombs(): boolean {
         return this.hasItem(InventoryItem.BOMB);
@@ -429,7 +432,7 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.BOMB);
         this.setAmmoInSlot(slot, count);
     }
-    bombBag: AmmoUpgrade;
+    
 
     get bombchus(): boolean {
         return this.hasItem(InventoryItem.BOMBCHU);
@@ -482,9 +485,7 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.FAIRY_SLINGSHOT);
         this.setAmmoInSlot(slot, count);
     }
-    bulletBag: AmmoUpgrade;
     
-
     get fairyBow(): boolean {
         return this.hasItem(InventoryItem.FAIRY_BOW);
     }
@@ -506,7 +507,6 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.FAIRY_BOW);
         this.setAmmoInSlot(slot, count);
     }
-    quiver: AmmoUpgrade;
 
     get fireArrows(): boolean {
         return this.hasItem(InventoryItem.FIRE_ARROW);

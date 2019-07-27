@@ -1,4 +1,6 @@
-import IMemory from "./API/IMemory";
+import IMemory from "./IMemory";
+import bitwise from "bitwise";
+import { Bit, UInt8 } from "bitwise/types";
 
 export class FlagManager {
     private emulator: IMemory
