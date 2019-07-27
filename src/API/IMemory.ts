@@ -16,6 +16,8 @@ interface IMemory{
 
     rdramWriteBuffer(addr: number, buf: Buffer): void
 
+    dereferencePointer(addr: number): number
+
 }
 
 export default IMemory

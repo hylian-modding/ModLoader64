@@ -20,6 +20,8 @@ interface IConsole{
 
     resumeEmulator(): void
 
+    getMemoryAccess(): IMemory
+
 }
 
 export default IConsole

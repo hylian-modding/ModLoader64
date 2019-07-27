@@ -585,16 +585,25 @@ export class SaveContext implements ISaveContext {
 
 export class OcarinaofTime implements ICore, IOOTCore {
     header: string = "THE LEGEND OF ZELDA"
-    ModLoader: IModLoaderAPI = {} as IModLoaderAPI
+    ModLoader!: IModLoaderAPI
     link!: ILink
     save!: SaveContext
     eventTicks: Map<string, Function> = new Map<string, Function>()
 
     preinit(): void {
         global.ModLoader["save_context"] = 0x11A5D0
+        global.ModLoader["global_context_pointer"] = 0x11F248
+        global.ModLoader["global_context"] = 0
     }
 
     init(): void {
+        this.eventTicks.set("contextScan", ()=>{
+            if (this.ModLoader.emulator.dereferencePointer(global.ModLoader.global_context_pointer) > 0){
+                global.ModLoader.global_context = this.ModLoader.emulator.dereferencePointer(global.ModLoader.global_context_pointer)
+                this.ModLoader.logger.info("Located global context: 0x" + global.ModLoader.global_context.toString(16).toUpperCase() + ".")
+                this.eventTicks.delete("contextScan")
+            }
+        });
     }
 
     postinit(): void {

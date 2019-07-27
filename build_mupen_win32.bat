@@ -1,9 +1,7 @@
-cd Mupen64Plus-Script\mupen64plus-win32-solution
-devenv.com "mupen64plus-script.sln" /clean release
-devenv.com "mupen64plus-script.sln" /rebuild release
+mkdir build\emulator
+copy Mupen64Plus_Bundle_Windows_x86\* build\emulator
+copy Mupen64Plus_Bundle_Linux_x64\* build\emulator
+cd ModLoader64-M64P-Npm
+call script_build.bat
 cd ..
-cd mupen64plus-binding-npm
-call npm install
-call npm run clean
-call npm run build
-call npm run winpak
+copy ModLoader64-M64P-Npm\build\Release build\emulator

@@ -1,3 +1,6 @@
-[submodule "Mupen64Plus-Script"]
-	path = Mupen64Plus-Script
-	url = https://github.com/SpiceyWolf/Mupen64Plus-Script.git
+[submodule "ModLoader64-M64P-Core"]
+	path = ModLoader64-M64P-Core
+	url = https://github.com/hylian-modding/ModLoader64-M64P-Core.git
+[submodule "ModLoader64-M64P-Npm"]
+	path = ModLoader64-M64P-Npm
+	url = https://github.com/hylian-modding/ModLoader64-M64P-Npm.git

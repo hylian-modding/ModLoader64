@@ -112,6 +112,7 @@ export interface IPacketHeader {
     lobby: string
     channel: string
     player: INetworkPlayer
+    forward: boolean
 }
 
 export class LobbyData{

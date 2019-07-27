@@ -7,6 +7,7 @@ import { EventHandler, bus } from '../API/EventHandler';
 import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer, ClientController, ServerController } from '../API/NetworkHandler';
 import IConsole from '../API/IConsole';
 import { internal_event_bus } from './modloader64';
+import { setupLobbyVariable } from '../API/LobbyVariable';
 
 class pluginLoader {
 
@@ -96,6 +97,7 @@ class pluginLoader {
                             plugin[p.prototype.ModLoader.InjectCore.get("field")()] = this.loaded_core
                         }
                     }
+                    setupLobbyVariable(plugin, p.prototype);
                     this.registerPlugin(plugin)
                     this.plugin_folders.push(parse.dir)
                 } else {

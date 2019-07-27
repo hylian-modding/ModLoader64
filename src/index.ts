@@ -39,6 +39,7 @@ logger.info("Version: %s", version)
 
 program.option('-m, --mode <type>', 'launch mode')
 program.option('-d, --dir <dir>', 'set directory')
+program.option('-dd, --dirforce <dir>', 'set directory')
 program.parse(process.argv);
 
 if (program.dir){
@@ -46,9 +47,21 @@ if (program.dir){
     logger.info("Setting running directory: " + process.cwd())
 }
 
-process.on('SIGINT', () => {
-    process.exit();
-});
+if (program.dirforce){
+    process.chdir(program.dirforce);
+    logger.info("Setting running directory: " + process.cwd())
+}
+
+var isWin = process.platform === "win32";
+
+if (isWin){
+    logger.info("We are on Windows.");
+    logger.info("Checking for PATH...");
+    if (process.env.PATH){
+        logger.info("Attempting to modify path...");
+        process.env.PATH = process.env.PATH + path.resolve('./emulator') + ";";
+    }
+}
 
 if (program.mode === "cli"){
     logger.info("Starting in CLI Mode...")

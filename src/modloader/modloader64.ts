@@ -26,7 +26,7 @@ class ModLoader64 {
     Server: NetworkEngine.Server
     Client: NetworkEngine.Client
     rom_path!: string
-    console!: IConsole
+    emulator!: IConsole
     done: boolean = false
 
     constructor(logger: any) {
@@ -37,6 +37,13 @@ class ModLoader64 {
     }
 
     start() {
+        var ofn = internal_event_bus.emit.bind(internal_event_bus);
+        internal_event_bus.emit = function (event: string | symbol, ...args: any[]): boolean {
+            if (process.send) {
+                process.send(JSON.stringify({id: event, data: args}));
+            }
+            return ofn(event, args);
+        }
         this.preinit()
     }
 
@@ -59,10 +66,10 @@ class ModLoader64 {
         });
 
         if (this.data.isServer) {
-            this.console = new FakeMupen(this.rom_path)
+            this.emulator = new FakeMupen(this.rom_path)
         }
         if (this.data.isClient) {
-            this.console = new N64(this.rom_path)
+            this.emulator = new N64(this.rom_path)
         }
         internal_event_bus.emit("preinit_done", {})
         this.init()
@@ -72,7 +79,7 @@ class ModLoader64 {
         var loaded_rom_header: Buffer
         if (fs.existsSync(this.rom_path)) {
             this.logger.info("Parsing rom header...")
-            loaded_rom_header = this.console.getRomHeader()
+            loaded_rom_header = this.emulator.getRomHeader()
             let core_match: any = null
             let core_key: string = ""
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
@@ -113,15 +120,16 @@ class ModLoader64 {
             return
         }
         if (fs.existsSync(this.rom_path)) {
-            this.plugins.loadPluginsInit(result.me);
+            console.log(result);
+            this.plugins.loadPluginsInit(result[0].me);
             this.logger.info("Setting up Mupen...")
             var instance = this
             var mupen: IMemory
             var load_mupen = new Promise(function (resolve, reject) {
-                mupen = instance.console.startEmulator(() => {
-                    let p: Buffer = result.patch as Buffer
+                mupen = instance.emulator.startEmulator(() => {
+                    let p: Buffer = result[0].patch as Buffer
                     if (p.byteLength > 1) {
-                        let rom_data: Buffer = instance.console.getLoadedRom()
+                        let rom_data: Buffer = instance.emulator.getLoadedRom()
                         let BPS = require('./BPS');
                         let _BPS = new BPS()
                         rom_data = _BPS.tryPatch(rom_data, p)
@@ -130,15 +138,16 @@ class ModLoader64 {
                         return p
                     }
                 }) as IMemory
-                while (!instance.console.isEmulatorReady()) {
+                while (!instance.emulator.isEmulatorReady()) {
                 }
+                internal_event_bus.emit("emulator_started", {})
                 resolve()
             });
             load_mupen.then(function () {
                 setTimeout(function () {
                     instance.logger.info("Finishing plugin init...")
-                    instance.plugins.loadPluginsPostinit(mupen, instance.console)
-                    instance.console.finishInjects();
+                    instance.plugins.loadPluginsPostinit(mupen, instance.emulator)
+                    instance.emulator.finishInjects();
                     internal_event_bus.emit("postinit_done", {})
                     instance.done = true;
                 }, 3000);

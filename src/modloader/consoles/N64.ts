@@ -11,17 +11,15 @@ class N64 implements IConsole {
     rom_size: number
 
     constructor(rom: string) {
-        this.mupen = require(process.cwd() + '/node/m64pnpm.node') as IMupen;
+        this.mupen = require(process.cwd() + '/emulator/mupen64plus.node') as IMupen;
 
-        this.mupen.setCoreLib(process.cwd() + "/mupen64plus.dll");
-        this.mupen.setConfigDir(process.cwd());
-        this.mupen.setDataDir(process.cwd());
+        this.mupen.dereferencePointer = (addr: number)=>{
+            return this.mupen.rdramRead32(addr) - 0x80000000
+        }
 
-        this.mupen.setPluginDir(process.cwd());
-        this.mupen.setPluginAudio(process.cwd() + "/mupen64plus-audio-sdl.dll");
-        this.mupen.setPluginGFX(process.cwd() + "/mupen64plus-video-rice.dll");
-        this.mupen.setPluginInput(process.cwd() + "/mupen64plus-input-sdl.dll");
-        this.mupen.setPluginRSP(process.cwd() + "/mupen64plus-rsp-hle.dll");
+        this.mupen.setConfigDir(process.cwd() + "/emulator");
+        this.mupen.setDataDir(process.cwd() + "/emulator");
+        this.mupen.setPluginDir(process.cwd() + "/emulator");
 
         this.mupen.initialize();
 
@@ -42,7 +40,7 @@ class N64 implements IConsole {
     }
 
     finishInjects(): void {
-        this.mupen.savestatesRefreshHack();
+        //this.mupen.memoryCacheRefresh();
         this.mupen.hookFrameCallback();
     }
 
@@ -70,6 +68,10 @@ class N64 implements IConsole {
 
     getRomHeader(): Buffer{
         return this.mupen.romReadBuffer(0x0, 0x50)
+    }
+
+    getMemoryAccess(): IMemory{
+        return this.mupen;
     }
 
 }

@@ -21,7 +21,7 @@ interface IMupen extends IMemory, IRomMemory{
 
     runEmulator(bool: boolean): void
 
-    savestatesRefreshHack(): void
+    memoryCacheRefresh(): void
 
     coreEmuState(): number
 
