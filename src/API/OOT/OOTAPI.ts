@@ -267,6 +267,7 @@ export interface IQuestStatus {
     stoneOfAgony: boolean;
 
     goldSkulltulas: number;
+    displayGoldSkulltulas: boolean;
 
     heartPieces: number;
 }

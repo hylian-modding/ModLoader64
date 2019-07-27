@@ -6,6 +6,7 @@ import { UInt8, Bit } from 'bitwise/types';
 import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
+import { FlagManager, Flag } from '../../FlagManager';
 
 
 export const enum SwordBitMap {
@@ -349,10 +350,12 @@ export class Inventory implements IInventory {
     private saveContext: ISaveContext
     private inventory_addr: number = this.instance + 0x0074
     private inventory_ammo_addr: number = this.instance + 0x008C
+    private obtainedUpgrades: FlagManager;
     
     constructor(emu: IMemory, saveContext: ISaveContext) {
         this.emulator = emu
         this.saveContext = saveContext
+        this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00A0);
     }
 
     wallet: Wallet;
@@ -864,46 +867,227 @@ export class Inventory implements IInventory {
 }
 
 export class QuestStatus implements IQuestStatus {
-    private emulator: IMemory
-    private instance: number = global.ModLoader.save_context
-    private saveContext: ISaveContext
+    private emulator: IMemory;
+    private instance: number = global.ModLoader.save_context;
+    private saveContext: ISaveContext;
+    private questFlags: FlagManager;
+
+    private skulltulaAddr: number = this.instance + 0x00D0;
+    private questFlagsAddr: number = this.instance + 0x00A4;
 
     constructor(emu: IMemory, saveContext: ISaveContext)
     {
         this.emulator = emu;
         this.saveContext = saveContext;
+        this.questFlags = new FlagManager(emu, this.questFlagsAddr);
     }
 
-    gerudoMembershipCard: boolean;
-    stoneOfAgony: boolean;
+    private gerudoMembershipCardFlag = new Flag(3, 7);
+    get gerudoMembershipCard(): boolean {
+        return this.questFlags.isFlagSet(this.gerudoMembershipCardFlag);
+    }
+    set gerudoMembershipCard(bool: boolean) {
+        this.questFlags.setFlag(this.gerudoMembershipCardFlag, bool);
+    }
 
-    goldSkulltulas: number;
-    heartPieces: number;
+    private stoneOfAgonyFlag = new Flag(3, 6);
+    get stoneOfAgony(): boolean {
+        return this.questFlags.isFlagSet(this.stoneOfAgonyFlag);
+    }
+    set stoneOfAgony(bool: boolean) {
+        this.questFlags.setFlag(this.stoneOfAgonyFlag, bool);
+    }
 
-    zeldasLullaby: boolean;
-    eponasSong: boolean;
-    sariasSong: boolean;
-    sunsSong: boolean;
-    songOfTime: boolean;
-    songOfStorms: boolean;
+    private displayGoldSkulltulasFlag = new Flag(3, 6);
+    get displayGoldSkulltulas(): boolean {
+        return this.questFlags.isFlagSet(this.displayGoldSkulltulasFlag);
+    }
+    set displayGoldSkulltulas(bool: boolean) {
+        this.questFlags.setFlag(this.displayGoldSkulltulasFlag, bool);
+    }
 
-    preludeOfLight: boolean;
-    minuetOfForest: boolean;
-    boleroOfFire: boolean;
-    serenadeOfWater: boolean;
-    nocturneOfShadow: boolean;
-    requiemOfSpirit: boolean;
+    get goldSkulltulas(): number {
+        return this.emulator.rdramRead16(this.skulltulaAddr);
+    }
+    set goldSkulltulas(count: number) {
+        this.emulator.rdramWrite16(this.skulltulaAddr, count);
+    }
 
-    lightMedallion: boolean;
-    forestMedallion: boolean;
-    fireMedallion: boolean;
-    waterMedallion: boolean;
-    shadowMedallion: boolean;
-    spiritMedallion: boolean;
+    get heartPieces(): number {
+        return this.emulator.rdramRead8(this.questFlagsAddr + 3);
+    }
+    set heartPieces(count: number) {
+        var pieces: number = count % 4;
+        this.emulator.rdramWrite8(this.questFlagsAddr + 3, pieces);
+    }
 
-    kokiriEmerald: boolean;
-    goronRuby: boolean;
-    zoraSapphire: boolean;
+    private zeldaasLullabyFlag = new Flag(2, 5);
+    get zeldasLullaby(): boolean {
+        return this.questFlags.isFlagSet(this.zeldaasLullabyFlag);
+    }
+    set zeldasLullaby(bool: boolean) {
+        this.questFlags.setFlag(this.zeldaasLullabyFlag, bool);
+    }
+
+    private eponasSongFlag = new Flag(2, 6);
+    get eponasSong(): boolean {
+        return this.questFlags.isFlagSet(this.eponasSongFlag);
+    }
+    set eponasSong(bool: boolean) {
+        this.questFlags.setFlag(this.eponasSongFlag, bool);
+    }
+
+    private sariasSongFlag = new Flag(2, 7);
+    get sariasSong(): boolean {
+        return this.questFlags.isFlagSet(this.sariasSongFlag);
+    }
+    set sariasSong(bool: boolean) {
+        this.questFlags.setFlag(this.sariasSongFlag, bool);
+    }
+
+    private sunsSongFlag = new Flag(2, 8);
+    get sunsSong(): boolean {
+        return this.questFlags.isFlagSet(this.sunsSongFlag);
+    }
+    set sunsSong(bool: boolean) {
+        this.questFlags.setFlag(this.sunsSongFlag, bool);
+    }
+
+    private songOfTimeFlag = new Flag(3, 1);
+    get songOfTime(): boolean {
+        return this.questFlags.isFlagSet(this.songOfTimeFlag);
+    }
+    set songOfTime(bool: boolean) {
+        this.questFlags.setFlag(this.songOfTimeFlag, bool);
+    }
+
+    private songOfStormsFlag = new Flag(3, 2);
+    get songOfStorms(): boolean {
+        return this.questFlags.isFlagSet(this.songOfStormsFlag);
+    }
+    set songOfStorms(bool: boolean) {
+        this.questFlags.setFlag(this.songOfStormsFlag, bool);
+    }
+
+    private preludeOfLightFlag = new Flag(2, 4);
+    get preludeOfLight(): boolean {
+        return this.questFlags.isFlagSet(this.preludeOfLightFlag);
+    }
+    set preludeOfLight(bool: boolean) {
+        this.questFlags.setFlag(this.preludeOfLightFlag, bool);
+    }
+    
+    private minuetOfForestFlag = new Flag(1, 7);
+    get minuetOfForest(): boolean {
+        return this.questFlags.isFlagSet(this.minuetOfForestFlag);
+    }
+    set minuetOfForest(bool: boolean) {
+        this.questFlags.setFlag(this.minuetOfForestFlag, bool);
+    }
+
+    private boleroOfFireFlag = new Flag(1, 8);
+    get boleroOfFire(): boolean {
+        return this.questFlags.isFlagSet(this.boleroOfFireFlag);
+    }
+    set boleroOfFire(bool: boolean) {
+        this.questFlags.setFlag(this.boleroOfFireFlag, bool);
+    }
+
+    private serenadeOfWaterFlag = new Flag(2, 1);
+    get serenadeOfWater(): boolean {
+        return this.questFlags.isFlagSet(this.serenadeOfWaterFlag);
+    }
+    set serenadeOfWater(bool: boolean) {
+        this.questFlags.setFlag(this.serenadeOfWaterFlag, bool);
+    }
+
+    private nocturneOfShadowFlag = new Flag(2, 3);
+    get nocturneOfShadow(): boolean {
+        return this.questFlags.isFlagSet(this.nocturneOfShadowFlag);
+    }
+    set nocturneOfShadow(bool: boolean) {
+        this.questFlags.setFlag(this.nocturneOfShadowFlag, bool);
+    }
+
+    private requiemOfSpiritFlag = new Flag(2, 2);
+    get requiemOfSpirit(): boolean {
+        return this.questFlags.isFlagSet(this.requiemOfSpiritFlag);
+    }
+    set requiemOfSpirit(bool: boolean) {
+        this.questFlags.setFlag(this.requiemOfSpiritFlag, bool);
+    }
+
+    private lightMedallionFlag = new Flag(1, 6);
+    get lightMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.lightMedallionFlag);
+    }
+    set lightMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.lightMedallionFlag, bool);
+    }
+
+    private forestMedallionFlag = new Flag(1, 1);
+    get forestMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.forestMedallionFlag);
+    }
+    set forestMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.forestMedallionFlag, bool);
+    }
+
+    private fireMedallionFlag = new Flag(1, 2);
+    get fireMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.fireMedallionFlag);
+    }
+    set fireMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.fireMedallionFlag, bool);
+    }
+
+    private waterMedallionFlag = new Flag(1, 3);
+    get waterMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.waterMedallionFlag);
+    }
+    set waterMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.waterMedallionFlag, bool);
+    }
+
+    private shadowMedallionFlag = new Flag(1, 5);
+    get shadowMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.shadowMedallionFlag);
+    }
+    set shadowMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.shadowMedallionFlag, bool);
+    }
+
+    private spiritMedallionFlag = new Flag(1, 4);
+    get spiritMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.spiritMedallionFlag);
+    }
+    set spiritMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.spiritMedallionFlag, bool);
+    }
+
+    private kokiriEmeraldFlag = new Flag(3, 3);
+    get kokiriEmerald(): boolean {
+        return this.questFlags.isFlagSet(this.kokiriEmeraldFlag);
+    }
+    set kokiriEmerald(bool: boolean) {
+        this.questFlags.setFlag(this.kokiriEmeraldFlag, bool);
+    }
+
+    private goronRubyFlag = new Flag(3, 4);
+    get goronRuby(): boolean {
+        return this.questFlags.isFlagSet(this.goronRubyFlag);
+    }
+    set goronRuby(bool: boolean) {
+        this.questFlags.setFlag(this.goronRubyFlag, bool);
+    }
+
+    private zoraSapphireFlag = new Flag(3, 5);
+    get zoraSapphire(): boolean {
+        return this.questFlags.isFlagSet(this.zoraSapphireFlag);
+    }
+    set zoraSapphire(bool: boolean) {
+        this.questFlags.setFlag(this.zoraSapphireFlag, bool);
+    }
 }
 
 export class Link implements ILink {
