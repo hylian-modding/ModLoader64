@@ -120,7 +120,6 @@ class ModLoader64 {
             return
         }
         if (fs.existsSync(this.rom_path)) {
-            console.log(result);
             this.plugins.loadPluginsInit(result[0].me);
             this.logger.info("Setting up Mupen...")
             var instance = this
