@@ -44,7 +44,19 @@ export class FakeN64Memory implements IMemory {
         return nb
     }
 
-    dereferencePointer(addr: number): number{
+    dereferencePointer(addr: number): number {
         return this.rdramRead32(addr) - 0x80000000
+    }
+
+    rdramReadS8(addr: number): number {
+        return this.buf.readUInt8(addr)
+    }
+
+    rdramReadS16(addr: number): number {
+        return this.buf.readUInt16BE(addr)
+    }
+
+    rdramReadS32(addr: number): number {
+        return this.buf.readUInt32BE(addr)
     }
 }
