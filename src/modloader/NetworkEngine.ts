@@ -132,7 +132,6 @@ namespace NetworkEngine {
                     inst.sendToTarget(data.lobby, "msg", data)
                 });
                 NetworkSendBusServer.addListener("toPlayer", (data: any) => {
-                    console.log(data)
                     inst.sendToTarget(data.player.uuid, "msg", data.packet)
                 });
                 inst.io.on('connection', function (socket: SocketIO.Socket) {
