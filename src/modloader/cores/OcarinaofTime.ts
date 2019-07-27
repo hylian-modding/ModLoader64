@@ -882,7 +882,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags = new FlagManager(emu, this.questFlagsAddr);
     }
 
-    private gerudoMembershipCardFlag = new Flag(3, 7);
+    private gerudoMembershipCardFlag = new Flag(1, 1);
     get gerudoMembershipCard(): boolean {
         return this.questFlags.isFlagSet(this.gerudoMembershipCardFlag);
     }
@@ -890,7 +890,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.gerudoMembershipCardFlag, bool);
     }
 
-    private stoneOfAgonyFlag = new Flag(3, 6);
+    private stoneOfAgonyFlag = new Flag(1, 2);
     get stoneOfAgony(): boolean {
         return this.questFlags.isFlagSet(this.stoneOfAgonyFlag);
     }
@@ -898,7 +898,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.stoneOfAgonyFlag, bool);
     }
 
-    private displayGoldSkulltulasFlag = new Flag(3, 6);
+    private displayGoldSkulltulasFlag = new Flag(1, 7);
     get displayGoldSkulltulas(): boolean {
         return this.questFlags.isFlagSet(this.displayGoldSkulltulasFlag);
     }
@@ -921,7 +921,7 @@ export class QuestStatus implements IQuestStatus {
         this.emulator.rdramWrite8(this.questFlagsAddr + 3, pieces);
     }
 
-    private zeldaasLullabyFlag = new Flag(2, 5);
+    private zeldaasLullabyFlag = new Flag(2, 3);
     get zeldasLullaby(): boolean {
         return this.questFlags.isFlagSet(this.zeldaasLullabyFlag);
     }
@@ -929,7 +929,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.zeldaasLullabyFlag, bool);
     }
 
-    private eponasSongFlag = new Flag(2, 6);
+    private eponasSongFlag = new Flag(2, 2);
     get eponasSong(): boolean {
         return this.questFlags.isFlagSet(this.eponasSongFlag);
     }
@@ -937,7 +937,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.eponasSongFlag, bool);
     }
 
-    private sariasSongFlag = new Flag(2, 7);
+    private sariasSongFlag = new Flag(2, 1);
     get sariasSong(): boolean {
         return this.questFlags.isFlagSet(this.sariasSongFlag);
     }
@@ -945,7 +945,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.sariasSongFlag, bool);
     }
 
-    private sunsSongFlag = new Flag(2, 8);
+    private sunsSongFlag = new Flag(2, 0);
     get sunsSong(): boolean {
         return this.questFlags.isFlagSet(this.sunsSongFlag);
     }
@@ -953,7 +953,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.sunsSongFlag, bool);
     }
 
-    private songOfTimeFlag = new Flag(3, 1);
+    private songOfTimeFlag = new Flag(1, 7);
     get songOfTime(): boolean {
         return this.questFlags.isFlagSet(this.songOfTimeFlag);
     }
@@ -961,7 +961,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.songOfTimeFlag, bool);
     }
 
-    private songOfStormsFlag = new Flag(3, 2);
+    private songOfStormsFlag = new Flag(1, 6);
     get songOfStorms(): boolean {
         return this.questFlags.isFlagSet(this.songOfStormsFlag);
     }
@@ -977,7 +977,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.preludeOfLightFlag, bool);
     }
     
-    private minuetOfForestFlag = new Flag(1, 7);
+    private minuetOfForestFlag = new Flag(3, 1);
     get minuetOfForest(): boolean {
         return this.questFlags.isFlagSet(this.minuetOfForestFlag);
     }
@@ -985,7 +985,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.minuetOfForestFlag, bool);
     }
 
-    private boleroOfFireFlag = new Flag(1, 8);
+    private boleroOfFireFlag = new Flag(3, 0);
     get boleroOfFire(): boolean {
         return this.questFlags.isFlagSet(this.boleroOfFireFlag);
     }
@@ -993,7 +993,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.boleroOfFireFlag, bool);
     }
 
-    private serenadeOfWaterFlag = new Flag(2, 1);
+    private serenadeOfWaterFlag = new Flag(2, 7);
     get serenadeOfWater(): boolean {
         return this.questFlags.isFlagSet(this.serenadeOfWaterFlag);
     }
@@ -1001,7 +1001,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.serenadeOfWaterFlag, bool);
     }
 
-    private nocturneOfShadowFlag = new Flag(2, 3);
+    private nocturneOfShadowFlag = new Flag(2, 5);
     get nocturneOfShadow(): boolean {
         return this.questFlags.isFlagSet(this.nocturneOfShadowFlag);
     }
@@ -1009,7 +1009,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.nocturneOfShadowFlag, bool);
     }
 
-    private requiemOfSpiritFlag = new Flag(2, 2);
+    private requiemOfSpiritFlag = new Flag(2, 6);
     get requiemOfSpirit(): boolean {
         return this.questFlags.isFlagSet(this.requiemOfSpiritFlag);
     }
@@ -1017,7 +1017,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.requiemOfSpiritFlag, bool);
     }
 
-    private lightMedallionFlag = new Flag(1, 6);
+    private lightMedallionFlag = new Flag(3, 2);
     get lightMedallion(): boolean {
         return this.questFlags.isFlagSet(this.lightMedallionFlag);
     }
@@ -1025,7 +1025,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.lightMedallionFlag, bool);
     }
 
-    private forestMedallionFlag = new Flag(1, 1);
+    private forestMedallionFlag = new Flag(3, 7);
     get forestMedallion(): boolean {
         return this.questFlags.isFlagSet(this.forestMedallionFlag);
     }
@@ -1033,7 +1033,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.forestMedallionFlag, bool);
     }
 
-    private fireMedallionFlag = new Flag(1, 2);
+    private fireMedallionFlag = new Flag(3, 6);
     get fireMedallion(): boolean {
         return this.questFlags.isFlagSet(this.fireMedallionFlag);
     }
@@ -1041,7 +1041,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.fireMedallionFlag, bool);
     }
 
-    private waterMedallionFlag = new Flag(1, 3);
+    private waterMedallionFlag = new Flag(3, 5);
     get waterMedallion(): boolean {
         return this.questFlags.isFlagSet(this.waterMedallionFlag);
     }
@@ -1049,7 +1049,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.waterMedallionFlag, bool);
     }
 
-    private shadowMedallionFlag = new Flag(1, 5);
+    private shadowMedallionFlag = new Flag(3, 3);
     get shadowMedallion(): boolean {
         return this.questFlags.isFlagSet(this.shadowMedallionFlag);
     }
@@ -1057,7 +1057,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.shadowMedallionFlag, bool);
     }
 
-    private spiritMedallionFlag = new Flag(1, 4);
+    private spiritMedallionFlag = new Flag(3, 4);
     get spiritMedallion(): boolean {
         return this.questFlags.isFlagSet(this.spiritMedallionFlag);
     }
@@ -1065,7 +1065,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.spiritMedallionFlag, bool);
     }
 
-    private kokiriEmeraldFlag = new Flag(3, 3);
+    private kokiriEmeraldFlag = new Flag(1, 5);
     get kokiriEmerald(): boolean {
         return this.questFlags.isFlagSet(this.kokiriEmeraldFlag);
     }
@@ -1073,7 +1073,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.kokiriEmeraldFlag, bool);
     }
 
-    private goronRubyFlag = new Flag(3, 4);
+    private goronRubyFlag = new Flag(1, 4);
     get goronRuby(): boolean {
         return this.questFlags.isFlagSet(this.goronRubyFlag);
     }
@@ -1081,7 +1081,7 @@ export class QuestStatus implements IQuestStatus {
         this.questFlags.setFlag(this.goronRubyFlag, bool);
     }
 
-    private zoraSapphireFlag = new Flag(3, 5);
+    private zoraSapphireFlag = new Flag(1, 3);
     get zoraSapphire(): boolean {
         return this.questFlags.isFlagSet(this.zoraSapphireFlag);
     }
@@ -1401,5 +1401,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
         this.eventTicks.forEach((value: Function, key: string) => {
             value();
         });
+        this.save.questStatus.sariasSong = true;
     }
 }

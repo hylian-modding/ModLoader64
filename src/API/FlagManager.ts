@@ -12,15 +12,16 @@ export class FlagManager {
     }
 
     isFlagSet(flag: Flag): boolean{
-        return bitwise.byte.read(this.emulator.rdramRead8(global.ModLoader.save_context + this.offset + flag.byte) as UInt8)[flag.bit] === 1;
+        return bitwise.byte.read(this.emulator.rdramRead8(this.offset + flag.byte) as UInt8)[flag.bit] === 1;
     }
 
     setFlag(flag: Flag, bool: boolean){
         var i: Bit = bool ? 1 : 0
-        var bits = bitwise.byte.read(this.emulator.rdramRead8(global.ModLoader.save_context + this.offset + flag.byte) as UInt8)
+        var org = this.emulator.rdramRead8(this.offset + flag.byte) as UInt8;
+        var bits = bitwise.byte.read(org);
         bits[flag.bit] = i;
         var byte = bitwise.byte.write(bits);
-        this.emulator.rdramWrite8(global.ModLoader.save_context + this.offset + flag.byte, byte);
+        this.emulator.rdramWrite8(this.offset + flag.byte, byte);
     }
 }
 
