@@ -1,0 +1,37 @@
+export const enum MoveBitMap {
+	BeakBarge = 0x00,
+	BeakBomb = 0x01,
+	BeakBuster = 0x02,
+	CameraControls = 0x03,
+	BearPunch = 0x04,
+	ClimbTrees = 0x05,
+	Eggs = 0x06,
+	FeatheryFlap = 0x07,
+	FlapFlip = 0x08,
+	Flying = 0x09,
+	HoldAToJumpHigher = 0x0A,
+	RatATatRap = 0x0B,
+	Roll = 0x0C,
+	ShockSpringJump = 0x0D,
+	WadingBoots = 0x0E,
+	Dive = 0x0F,
+	TalonTrot = 0x10,
+	TurboTalonTrainers = 0x11,
+	Wonderwing = 0x12,
+	FirstNoteDoorMolehill = 0x13,
+}
+
+export const enum NoteDoorBitMap {
+    x50 = 0x06,
+    x180 = 0x05,
+    x260 = 0x04,
+    x350 = 0x03,
+    x450 = 0x02,
+    x640 = 0x01,
+    x765 = 0x0F,
+    x810 = 0x0E ,        
+    x828 = 0x0D,
+    x846 = 0x0C,
+    x864 = 0x0B,
+    x882 = 0x0A
+}
