@@ -18,6 +18,12 @@ interface IMemory{
 
     dereferencePointer(addr: number): number
 
+    rdramReadS8(addr: number): number
+
+    rdramReadS16(addr: number): number
+
+    rdramReadS32(addr: number): number
+
 }
 
 export default IMemory
