@@ -3,9 +3,10 @@ import IMemory from '../../API/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, ILink, IOOTCore, IShields, ITunics, IBoots } from '../../API/OOT/OOTAPI';
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from '../../API/OOT/OOTAPI';
 import { bus } from '../../API/EventHandler';
 import ZeldaString from '../../API/OOT/ZeldaString';
+import { FlagManager, Flag } from '../../FlagManager';
 
 
 export const enum SwordBitMap {
@@ -31,6 +32,33 @@ export const enum BootsBitMap {
     KOKIRI = 3,
     IRON = 2,
     HOVER = 1
+}
+
+export const enum InventorySlots {
+    DEKU_STICKS,
+    DEKU_NUTS,
+    BOMBS,
+    FAIRY_BOW,
+    FIRE_ARROWS,
+    DINS_FIRE,
+    FAIRY_SLINGSHOT,
+    OCARINA,
+    BOMBCHUS,
+    HOOKSHOT,
+    ICE_ARROWS,
+    FARORES_WIND,
+    BOOMERANG,
+    LENS_OF_TRUTH,
+    MAGIC_BEANS,
+    MEGATON_HAMMER,
+    LIGHT_ARROWS,
+    NAYRUS_LOVE,
+    BOTTLE1,
+    BOTTLE2,
+    BOTTLE3,
+    BOTTLE4,
+    ADULT_TRADE_ITEM,
+    CHILD_TRADE_ITEM 
 }
 
 export class BootsEquipment implements IBoots {
@@ -316,6 +344,752 @@ export class SwordsEquipment implements ISwords {
     }
 }
 
+export class Inventory implements IInventory {
+    private emulator: IMemory
+    private instance: number = global.ModLoader.save_context
+    private saveContext: ISaveContext
+    private inventory_addr: number = this.instance + 0x0074
+    private inventory_ammo_addr: number = this.instance + 0x008C
+    private obtainedUpgrades: FlagManager;
+    
+    constructor(emu: IMemory, saveContext: ISaveContext) {
+        this.emulator = emu
+        this.saveContext = saveContext
+        this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00A0);
+    }
+
+    wallet: Wallet;
+    strength: Strength;
+    swimming: ZoraScale;
+
+    get dekuSticks(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuSticks(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.DEKU_STICK);
+            this.dekuSticksCapacity = AmmoUpgrade.NONE;
+        }
+    }
+    get dekuSticksCount(): number {
+        return this.getAmmoForItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuSticksCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.DEKU_STICK);
+        this.setAmmoInSlot(slot, count);
+    }
+    dekuSticksCapacity: AmmoUpgrade;
+
+    get dekuNuts(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set dekuNuts(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.DEKU_STICK);
+            this.dekuSticksCapacity = AmmoUpgrade.NONE;
+        }
+    }
+    get dekuNutsCount(): number {
+        return this.getAmmoForItem(InventoryItem.DEKU_NUT);
+    }
+    set dekuNutsCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.DEKU_NUT);
+        this.setAmmoInSlot(slot, count);
+    }
+    dekuNutsCapacity: AmmoUpgrade;
+
+    get bombs(): boolean {
+        return this.hasItem(InventoryItem.BOMB);
+    }
+    set bombs(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.BOMB, InventorySlots.BOMBS);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.BOMB);
+            this.bombBag = AmmoUpgrade.NONE;
+        }
+    }
+    get bombsCount(): number {
+        return this.getAmmoForItem(InventoryItem.BOMB);
+    }
+    set bombsCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.BOMB);
+        this.setAmmoInSlot(slot, count);
+    }
+    bombBag: AmmoUpgrade;
+
+    get bombchus(): boolean {
+        return this.hasItem(InventoryItem.BOMBCHU);
+    }
+    set bombchus(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.BOMBCHU, InventorySlots.BOMBCHUS); }
+        else { this.removeItem(InventoryItem.BOMBCHU); }
+    }
+    get bombchuCount(): number {
+        return this.getAmmoForItem(InventoryItem.BOMBCHU);
+    }
+    set bombchuCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.BOMBCHU);
+        this.setAmmoInSlot(slot, count);
+    }
+
+    get magicBeans(): boolean {
+        return this.hasItem(InventoryItem.DEKU_STICK);
+    }
+    set magicBeans(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.MAGIC_BEAN, InventorySlots.MAGIC_BEANS); }
+        else { this.removeItem(InventoryItem.MAGIC_BEAN); }
+    }
+    get magicBeansCount(): number {
+        return this.getAmmoForItem(InventoryItem.MAGIC_BEAN);
+    }
+    set magicBeansCount(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.MAGIC_BEAN);
+        this.setAmmoInSlot(slot, count);
+    }
+
+    get fairySlingshot(): boolean {
+        return this.hasItem(InventoryItem.FAIRY_SLINGSHOT);
+    }
+    set fairySlingshot(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.FAIRY_SLINGSHOT, InventorySlots.FAIRY_SLINGSHOT);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.FAIRY_SLINGSHOT);
+            this.bulletBag = AmmoUpgrade.NONE;
+        }
+    }
+    get dekuSeeds(): number {
+        return this.getAmmoForItem(InventoryItem.FAIRY_SLINGSHOT);
+    }
+    set dekuSeeds(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.FAIRY_SLINGSHOT);
+        this.setAmmoInSlot(slot, count);
+    }
+    bulletBag: AmmoUpgrade;
+    
+
+    get fairyBow(): boolean {
+        return this.hasItem(InventoryItem.FAIRY_BOW);
+    }
+    set fairyBow(bool: boolean) {
+        if(bool)
+        {
+            this.giveItem(InventoryItem.FAIRY_BOW, InventorySlots.FAIRY_BOW);
+        }
+        else
+        {
+            this.removeItem(InventoryItem.FAIRY_BOW);
+            this.quiver = AmmoUpgrade.NONE;
+        }
+    }
+    get arrows(): number {
+        return this.getAmmoForItem(InventoryItem.FAIRY_BOW);
+    }
+    set arrows(count: number) {
+        var slot = this.getSlotForItem(InventoryItem.FAIRY_BOW);
+        this.setAmmoInSlot(slot, count);
+    }
+    quiver: AmmoUpgrade;
+
+    get fireArrows(): boolean {
+        return this.hasItem(InventoryItem.FIRE_ARROW);
+    }
+    set fireArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.FIRE_ARROW, InventorySlots.FIRE_ARROWS); }
+        else { this.removeItem(InventoryItem.FIRE_ARROW); }
+    }
+
+    get iceArrows(): boolean {
+        return this.hasItem(InventoryItem.ICE_ARROW);
+    }
+    set iceArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.ICE_ARROW, InventorySlots.ICE_ARROWS); }
+        else { this.removeItem(InventoryItem.ICE_ARROW); }
+    }
+    
+    get lightArrows(): boolean {
+        return this.hasItem(InventoryItem.LIGHT_ARROW);
+    }
+    set lightArrows(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.LIGHT_ARROW, InventorySlots.LIGHT_ARROWS); }
+        else { this.removeItem(InventoryItem.LIGHT_ARROW); }
+    }
+    
+    get dinsFire(): boolean {
+        return this.hasItem(InventoryItem.DINS_FIRE);
+    }
+    set dinsFire(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.DINS_FIRE, InventorySlots.DINS_FIRE); }
+        else { this.removeItem(InventoryItem.DINS_FIRE); }
+    }
+
+    get faroresWind(): boolean {
+        return this.hasItem(InventoryItem.FARORES_WIND);
+    }
+    set faroresWind(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.FARORES_WIND, InventorySlots.FARORES_WIND); }
+        else { this.removeItem(InventoryItem.FARORES_WIND); }
+    }
+
+    get nayrusLove(): boolean {
+        return this.hasItem(InventoryItem.NAYRUS_LOVE);
+    }
+    set nayrusLove(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.NAYRUS_LOVE, InventorySlots.NAYRUS_LOVE); }
+        else { this.removeItem(InventoryItem.NAYRUS_LOVE); }
+    }
+
+    get ocarina(): Ocarina {
+        if(this.hasItem(InventoryItem.OCARINA_OF_TIME)) { return Ocarina.OCARINA_OF_TIME; }
+        if(this.hasItem(InventoryItem.FAIRY_OCARINA)) { return Ocarina.FAIRY_OCARINA; }
+        return Ocarina.NONE;
+    }
+    set ocarina(item: Ocarina) {
+        if(item == this.ocarina)
+        {
+            return;
+        }
+
+        if(item == Ocarina.NONE)
+        {
+            this.removeItem(InventoryItem.OCARINA_OF_TIME);
+            this.removeItem(InventoryItem.FAIRY_OCARINA);  
+        }
+
+        if(item == Ocarina.OCARINA_OF_TIME)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.FAIRY_OCARINA);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.OCARINA_OF_TIME, slot); }
+            else { this.giveItem(InventoryItem.OCARINA_OF_TIME, InventorySlots.OCARINA); }
+        }
+
+        if(item == Ocarina.FAIRY_OCARINA)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.OCARINA_OF_TIME);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.FAIRY_OCARINA, slot); }
+            else { this.giveItem(InventoryItem.FAIRY_OCARINA, InventorySlots.OCARINA); }
+        }
+    }
+
+    get hookshot(): Hookshot {
+        if(this.hasItem(InventoryItem.LONGSHOT)) { return Hookshot.LONGSHOT; }
+        if(this.hasItem(InventoryItem.HOOKSHOT)) { return Hookshot.LONGSHOT; }
+        return Hookshot.NONE;
+    }
+    set hookshot(item: Hookshot) {
+        if(item == this.hookshot)
+        {
+            return;
+        }
+
+        if(item == Hookshot.NONE)
+        {
+            this.removeItem(InventoryItem.HOOKSHOT);
+            this.removeItem(InventoryItem.LONGSHOT);  
+        }
+
+        if(item == Hookshot.LONGSHOT)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.HOOKSHOT);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.LONGSHOT, slot); }
+            else { this.giveItem(InventoryItem.LONGSHOT, InventorySlots.HOOKSHOT); }
+        }
+
+        if(item == Hookshot.HOOKSHOT)
+        {
+            var slot: number = this.getSlotForItem(InventoryItem.LONGSHOT);
+            if(slot > -1) { this.setItemInSlot(InventoryItem.HOOKSHOT, slot); }
+            else { this.giveItem(InventoryItem.HOOKSHOT, InventorySlots.HOOKSHOT); }
+        }
+    }
+
+    get boomerang(): boolean {
+        return this.hasItem(InventoryItem.BOOMERANG);
+    }
+    set boomerang(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.BOOMERANG, InventorySlots.BOOMERANG); }
+        else { this.removeItem(InventoryItem.BOOMERANG); }
+    }
+
+    get lensOfTruth(): boolean {
+        return this.hasItem(InventoryItem.LENS_OF_TRUTH);
+    }
+    set lensOfTruth(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.LENS_OF_TRUTH, InventorySlots.LENS_OF_TRUTH); }
+        else { this.removeItem(InventoryItem.LENS_OF_TRUTH); }
+    }
+
+    get megatonHammer(): boolean {
+        return this.hasItem(InventoryItem.MEGATON_HAMMER);
+    }
+    set megatonHammer(bool: boolean) {
+        if(bool) { this.giveItem(InventoryItem.MEGATON_HAMMER, InventorySlots.MEGATON_HAMMER); }
+        else { this.removeItem(InventoryItem.MEGATON_HAMMER); }
+    }
+
+    hasBottle(): boolean {
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    getBottleCount(): number {
+        var bottles: number = 0;
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                bottles++;
+            }
+        }
+        return bottles;
+    }
+    getBottledItems(): InventoryItem[] {
+        var bottles: InventoryItem[] = new Array;
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            var item: InventoryItem = this.getItemInSlot(i);
+            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
+            {
+                bottles.push(item);
+            }
+        }
+        return bottles;
+    }
+
+    get childTradeItem(): InventoryItem {
+        for(var i = InventoryItem.MASK_OF_TRUTH; i >= InventoryItem.ZELDAS_LETTER; i--)
+        {
+            if(this.hasItem(i))
+            {
+                return i;
+            }
+        }
+
+        if(this.hasItem(InventoryItem.SOLD_OUT))
+        {
+            // More complex logic is required here to grab the last mask the child had
+        }
+
+        return InventoryItem.NONE;
+    }
+    set childTradeItem(item: InventoryItem) {
+        // More complex logic is required here because of flags
+    }
+    
+    get adultTradeItem(): InventoryItem {
+        for(var i = InventoryItem.CLAIM_CHECK; i >= InventoryItem.POCKET_EGG; i--)
+        {
+            if(i == InventoryItem.SOLD_OUT)
+            {
+                continue;
+            }
+
+            if(this.hasItem(i))
+            {
+                return i;
+            }
+        }
+
+        return InventoryItem.NONE;
+    }
+    set adultTradeItem(item: InventoryItem) {
+        // More complex logic is required here because of flags
+    }
+
+    isChildTradeFinished(): boolean {
+        // This is going to require more complex flag checks
+        return true;
+    }
+    isAdultTradeFinished(): boolean {
+        // This should be done with flags also
+        return true;
+    }
+
+    getItemInSlot(slotId: number): InventoryItem {
+        if(slotId < 0 || slotId > 23)
+        {
+            return InventoryItem.NONE;
+        }
+
+        var itemId: number = this.emulator.rdramRead8(this.inventory_addr + slotId);
+        return <InventoryItem>itemId;
+    }
+
+    getSlotForItem(item: InventoryItem): number {
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == item)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    getSlotsForItem(item: InventoryItem): number[] {
+        var slots: number[] = new Array;
+
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == item)
+            {
+                slots.push(i);
+            }
+        }
+
+        return slots;
+    }
+
+    hasItem(item: InventoryItem): boolean {
+        return (this.getSlotForItem(item) != -1);
+    }
+
+    getAmmoForItem(item: InventoryItem): number {
+        if(!this.hasAmmo(item))
+        {
+            return 0;
+        }
+        
+        var ammo: number = 0;
+        var slots: number[] = this.getSlotsForItem(item);
+
+        for(var i = 0; i < slots.length; i++)
+        {
+            ammo += this.getAmmoForSlot(slots[i]);
+        }
+
+        return ammo;
+    }
+
+    hasAmmo(item: InventoryItem): boolean {
+        switch(item)
+        {
+            case InventoryItem.DEKU_STICK:
+            case InventoryItem.DEKU_NUT:
+            case InventoryItem.FAIRY_SLINGSHOT:
+            case InventoryItem.FAIRY_BOW:
+            case InventoryItem.BOMB:
+            case InventoryItem.BOMBCHU:
+            case InventoryItem.MAGIC_BEAN:
+                return true;
+        }
+
+        return false;
+    }
+
+    getAmmoForSlot(slotId: number): number {
+        if(slotId < 0 || slotId > 0xF)
+        {
+            return 0;
+        }
+
+        return this.emulator.rdramRead8(this.inventory_ammo_addr + slotId);
+    }
+
+    setAmmoInSlot(slot: number, amount: number): void
+    {
+        if(slot < 0 || slot >= 0xF)
+        {
+            return;
+        }
+
+        this.emulator.rdramWrite8(this.inventory_ammo_addr + slot, <UInt8>amount);
+    }
+
+    setItemInSlot(item: InventoryItem, slot: number): void {
+        if(slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM)
+        {
+            return;
+        }
+
+        this.emulator.rdramWrite8(this.inventory_addr, item.valueOf());
+    }
+
+    giveItem(item: InventoryItem, desiredSlot: InventorySlots)
+    {
+        if(this.getItemInSlot(desiredSlot) == InventoryItem.NONE || this.getItemInSlot(desiredSlot) == item)
+        {
+            this.setItemInSlot(item, desiredSlot);
+        }
+        else
+        {
+            this.setItemInSlot(item, this.getEmptySlots()[0]);
+        }
+    }
+
+    removeItem(item: InventoryItem): void
+    {
+        var slots = this.getSlotsForItem(item);
+        for(var i = 0; i < slots.length; i++)
+        {
+            this.setItemInSlot(InventoryItem.NONE, i);
+        }
+    }
+
+    getEmptySlots(): number[] {
+        var slots: number[] = new Array;
+
+        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
+        {
+            if(this.getItemInSlot(i) == InventoryItem.NONE)
+            {
+                slots.push(i);
+            }
+        }
+
+        return slots;
+    }
+}
+
+export class QuestStatus implements IQuestStatus {
+    private emulator: IMemory;
+    private instance: number = global.ModLoader.save_context;
+    private saveContext: ISaveContext;
+    private questFlags: FlagManager;
+
+    private skulltulaAddr: number = this.instance + 0x00D0;
+    private questFlagsAddr: number = this.instance + 0x00A4;
+
+    constructor(emu: IMemory, saveContext: ISaveContext)
+    {
+        this.emulator = emu;
+        this.saveContext = saveContext;
+        this.questFlags = new FlagManager(emu, this.questFlagsAddr);
+    }
+
+    private gerudoMembershipCardFlag = new Flag(3, 7);
+    get gerudoMembershipCard(): boolean {
+        return this.questFlags.isFlagSet(this.gerudoMembershipCardFlag);
+    }
+    set gerudoMembershipCard(bool: boolean) {
+        this.questFlags.setFlag(this.gerudoMembershipCardFlag, bool);
+    }
+
+    private stoneOfAgonyFlag = new Flag(3, 6);
+    get stoneOfAgony(): boolean {
+        return this.questFlags.isFlagSet(this.stoneOfAgonyFlag);
+    }
+    set stoneOfAgony(bool: boolean) {
+        this.questFlags.setFlag(this.stoneOfAgonyFlag, bool);
+    }
+
+    private displayGoldSkulltulasFlag = new Flag(3, 6);
+    get displayGoldSkulltulas(): boolean {
+        return this.questFlags.isFlagSet(this.displayGoldSkulltulasFlag);
+    }
+    set displayGoldSkulltulas(bool: boolean) {
+        this.questFlags.setFlag(this.displayGoldSkulltulasFlag, bool);
+    }
+
+    get goldSkulltulas(): number {
+        return this.emulator.rdramRead16(this.skulltulaAddr);
+    }
+    set goldSkulltulas(count: number) {
+        this.emulator.rdramWrite16(this.skulltulaAddr, count);
+    }
+
+    get heartPieces(): number {
+        return this.emulator.rdramRead8(this.questFlagsAddr + 3);
+    }
+    set heartPieces(count: number) {
+        var pieces: number = count % 4;
+        this.emulator.rdramWrite8(this.questFlagsAddr + 3, pieces);
+    }
+
+    private zeldaasLullabyFlag = new Flag(2, 5);
+    get zeldasLullaby(): boolean {
+        return this.questFlags.isFlagSet(this.zeldaasLullabyFlag);
+    }
+    set zeldasLullaby(bool: boolean) {
+        this.questFlags.setFlag(this.zeldaasLullabyFlag, bool);
+    }
+
+    private eponasSongFlag = new Flag(2, 6);
+    get eponasSong(): boolean {
+        return this.questFlags.isFlagSet(this.eponasSongFlag);
+    }
+    set eponasSong(bool: boolean) {
+        this.questFlags.setFlag(this.eponasSongFlag, bool);
+    }
+
+    private sariasSongFlag = new Flag(2, 7);
+    get sariasSong(): boolean {
+        return this.questFlags.isFlagSet(this.sariasSongFlag);
+    }
+    set sariasSong(bool: boolean) {
+        this.questFlags.setFlag(this.sariasSongFlag, bool);
+    }
+
+    private sunsSongFlag = new Flag(2, 8);
+    get sunsSong(): boolean {
+        return this.questFlags.isFlagSet(this.sunsSongFlag);
+    }
+    set sunsSong(bool: boolean) {
+        this.questFlags.setFlag(this.sunsSongFlag, bool);
+    }
+
+    private songOfTimeFlag = new Flag(3, 1);
+    get songOfTime(): boolean {
+        return this.questFlags.isFlagSet(this.songOfTimeFlag);
+    }
+    set songOfTime(bool: boolean) {
+        this.questFlags.setFlag(this.songOfTimeFlag, bool);
+    }
+
+    private songOfStormsFlag = new Flag(3, 2);
+    get songOfStorms(): boolean {
+        return this.questFlags.isFlagSet(this.songOfStormsFlag);
+    }
+    set songOfStorms(bool: boolean) {
+        this.questFlags.setFlag(this.songOfStormsFlag, bool);
+    }
+
+    private preludeOfLightFlag = new Flag(2, 4);
+    get preludeOfLight(): boolean {
+        return this.questFlags.isFlagSet(this.preludeOfLightFlag);
+    }
+    set preludeOfLight(bool: boolean) {
+        this.questFlags.setFlag(this.preludeOfLightFlag, bool);
+    }
+    
+    private minuetOfForestFlag = new Flag(1, 7);
+    get minuetOfForest(): boolean {
+        return this.questFlags.isFlagSet(this.minuetOfForestFlag);
+    }
+    set minuetOfForest(bool: boolean) {
+        this.questFlags.setFlag(this.minuetOfForestFlag, bool);
+    }
+
+    private boleroOfFireFlag = new Flag(1, 8);
+    get boleroOfFire(): boolean {
+        return this.questFlags.isFlagSet(this.boleroOfFireFlag);
+    }
+    set boleroOfFire(bool: boolean) {
+        this.questFlags.setFlag(this.boleroOfFireFlag, bool);
+    }
+
+    private serenadeOfWaterFlag = new Flag(2, 1);
+    get serenadeOfWater(): boolean {
+        return this.questFlags.isFlagSet(this.serenadeOfWaterFlag);
+    }
+    set serenadeOfWater(bool: boolean) {
+        this.questFlags.setFlag(this.serenadeOfWaterFlag, bool);
+    }
+
+    private nocturneOfShadowFlag = new Flag(2, 3);
+    get nocturneOfShadow(): boolean {
+        return this.questFlags.isFlagSet(this.nocturneOfShadowFlag);
+    }
+    set nocturneOfShadow(bool: boolean) {
+        this.questFlags.setFlag(this.nocturneOfShadowFlag, bool);
+    }
+
+    private requiemOfSpiritFlag = new Flag(2, 2);
+    get requiemOfSpirit(): boolean {
+        return this.questFlags.isFlagSet(this.requiemOfSpiritFlag);
+    }
+    set requiemOfSpirit(bool: boolean) {
+        this.questFlags.setFlag(this.requiemOfSpiritFlag, bool);
+    }
+
+    private lightMedallionFlag = new Flag(1, 6);
+    get lightMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.lightMedallionFlag);
+    }
+    set lightMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.lightMedallionFlag, bool);
+    }
+
+    private forestMedallionFlag = new Flag(1, 1);
+    get forestMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.forestMedallionFlag);
+    }
+    set forestMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.forestMedallionFlag, bool);
+    }
+
+    private fireMedallionFlag = new Flag(1, 2);
+    get fireMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.fireMedallionFlag);
+    }
+    set fireMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.fireMedallionFlag, bool);
+    }
+
+    private waterMedallionFlag = new Flag(1, 3);
+    get waterMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.waterMedallionFlag);
+    }
+    set waterMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.waterMedallionFlag, bool);
+    }
+
+    private shadowMedallionFlag = new Flag(1, 5);
+    get shadowMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.shadowMedallionFlag);
+    }
+    set shadowMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.shadowMedallionFlag, bool);
+    }
+
+    private spiritMedallionFlag = new Flag(1, 4);
+    get spiritMedallion(): boolean {
+        return this.questFlags.isFlagSet(this.spiritMedallionFlag);
+    }
+    set spiritMedallion(bool: boolean) {
+        this.questFlags.setFlag(this.spiritMedallionFlag, bool);
+    }
+
+    private kokiriEmeraldFlag = new Flag(3, 3);
+    get kokiriEmerald(): boolean {
+        return this.questFlags.isFlagSet(this.kokiriEmeraldFlag);
+    }
+    set kokiriEmerald(bool: boolean) {
+        this.questFlags.setFlag(this.kokiriEmeraldFlag, bool);
+    }
+
+    private goronRubyFlag = new Flag(3, 4);
+    get goronRuby(): boolean {
+        return this.questFlags.isFlagSet(this.goronRubyFlag);
+    }
+    set goronRuby(bool: boolean) {
+        this.questFlags.setFlag(this.goronRubyFlag, bool);
+    }
+
+    private zoraSapphireFlag = new Flag(3, 5);
+    get zoraSapphire(): boolean {
+        return this.questFlags.isFlagSet(this.zoraSapphireFlag);
+    }
+    set zoraSapphire(bool: boolean) {
+        this.questFlags.setFlag(this.zoraSapphireFlag, bool);
+    }
+}
+
 export class Link implements ILink {
     private emulator: IMemory
     private instance: number = 0x1DAA30
@@ -421,6 +1195,8 @@ export class SaveContext implements ISaveContext {
     shields: ShieldsEquipment
     tunics: TunicsEquipment
     boots: BootsEquipment
+    inventory: Inventory
+    questStatus: IQuestStatus
 
     constructor(emu: IMemory) {
         this.emulator = emu
@@ -428,6 +1204,8 @@ export class SaveContext implements ISaveContext {
         this.shields = new ShieldsEquipment(0, emu)
         this.tunics = new TunicsEquipment(0, emu)
         this.boots = new BootsEquipment(0, emu)
+        this.inventory = new Inventory(emu, this)
+        this.questStatus = new QuestStatus(emu, this)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table
