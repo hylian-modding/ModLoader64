@@ -77,8 +77,9 @@ namespace NetworkEngine {
 
     export class Server implements ILobbyManager {
         private app: any = express();
-        private http: any = http.createServer(this.app);
-        io: any = require('socket.io')(this.http);
+        private http: any
+        io: any
+        wireUpServer = require('socket.io-fix-close');
         logger: ILogger
         masterConfig: IConfig
         config: IServerConfig
@@ -94,10 +95,6 @@ namespace NetworkEngine {
             let temp = global.ModLoader.version.split(".")
             this.version = new Version(temp[0], temp[1], temp[2])
             this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
-            internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
-                this.http.close(() => {
-                });
-            });
             bus.on("setupLobbyVariable", (evt) => {
                 this.lobbyVariables.push(evt);
             });
@@ -130,84 +127,90 @@ namespace NetworkEngine {
         }
 
         setup() {
-            return (function (inst) {
-                NetworkSendBusServer.addListener("msg", (data: IPacketHeader) => {
-                    inst.sendToTarget(data.lobby, "msg", data)
+            this.http = this.app.listen(this.config.port, () => {
+                this.io = require('socket.io')(this.http);
+                this.wireUpServer(this.http, this.io);
+                internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+                    this.logger.info("SHUTDOWN DETECTED.")
+                    this.http.close();
                 });
-                NetworkSendBusServer.addListener("toPlayer", (data: any) => {
-                    inst.sendToTarget(data.player.uuid, "msg", data.packet)
-                });
-                inst.io.on('connection', function (socket: SocketIO.Socket) {
-                    inst.logger.info("Client " + socket.id + " connected.");
-                    inst.sendToTarget(socket.id, "uuid", { uuid: socket.id });
-                    socket.on('version', function (data: string) {
-                        let parse = data.split(".")
-                        let v = new Version(parse[0], parse[1], parse[2])
-                        if (inst.version.match(v)) {
-                            inst.sendToTarget(socket.id, "versionGood", { client: v, server: inst.version, uuid: socket.id })
-                        } else {
-                            inst.sendToTarget(socket.id, "versionBad", { client: v, server: inst.version })
-                            setTimeout(function () {
-                                socket.disconnect()
-                            }, 1000);
-                        }
+                this.logger.info("NetworkEngine.Server set up on port " + this.config.port + ".")
+                if (!this.modLoaderconfig.isClient) {
+                    internal_event_bus.emit("onNetworkConnect", { me: new FakeNetworkPlayer(), patch: Buffer.alloc(1) });
+                }
+                (function (inst) {
+                    NetworkSendBusServer.addListener("msg", (data: IPacketHeader) => {
+                        inst.sendToTarget(data.lobby, "msg", data)
                     });
-                    socket.on("LobbyRequest", function (lj: LobbyJoin) {
-                        if (inst.doesLobbyExist(lj.lobbyData.name)) {
-                            // Lobby already exists.
-                            var storage: ILobbyStorage = inst.getLobbyStorage(lj.lobbyData.name)
-                            if (storage.config.key === lj.lobbyData.key) {
-                                socket.join(storage.config.name)
+                    NetworkSendBusServer.addListener("toPlayer", (data: any) => {
+                        inst.sendToTarget(data.player.uuid, "msg", data.packet)
+                    });
+                    inst.io.on('connection', function (socket: SocketIO.Socket) {
+                        inst.logger.info("Client " + socket.id + " connected.");
+                        inst.sendToTarget(socket.id, "uuid", { uuid: socket.id });
+                        socket.on('version', function (data: string) {
+                            let parse = data.split(".")
+                            let v = new Version(parse[0], parse[1], parse[2])
+                            if (inst.version.match(v)) {
+                                inst.sendToTarget(socket.id, "versionGood", { client: v, server: inst.version, uuid: socket.id })
+                            } else {
+                                inst.sendToTarget(socket.id, "versionBad", { client: v, server: inst.version })
+                                setTimeout(function () {
+                                    socket.disconnect()
+                                }, 1000);
+                            }
+                        });
+                        socket.on("LobbyRequest", function (lj: LobbyJoin) {
+                            if (inst.doesLobbyExist(lj.lobbyData.name)) {
+                                // Lobby already exists.
+                                var storage: ILobbyStorage = inst.getLobbyStorage(lj.lobbyData.name)
+                                if (storage.config.key === lj.lobbyData.key) {
+                                    socket.join(storage.config.name)
+                                    bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
+                                    //@ts-ignore
+                                    socket["ModLoader64"] = { lobby: storage.config.name, player: lj.player }
+                                    inst.sendToTarget(socket.id, "LobbyReady", storage.config)
+                                } else {
+                                    inst.sendToTarget(socket.id, "LobbyDenied_BadPassword", lj)
+                                }
+                            } else {
+                                // Lobby does not exist.
+                                inst.logger.info("Creating lobby " + lj.lobbyData.name + ".");
+                                socket.join(lj.lobbyData.name)
+                                var storage: ILobbyStorage = inst.createLobbyStorage(lj.lobbyData, socket.id)
+                                inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
+                                    storage.data[value.objectKey] = {};
+                                    storage.data[value.objectKey][value.fieldName] = value.cloneTemplate();
+                                });
+                                bus.emit(EventsServer.ON_LOBBY_CREATE, storage)
                                 bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
                                 //@ts-ignore
                                 socket["ModLoader64"] = { lobby: storage.config.name, player: lj.player }
                                 inst.sendToTarget(socket.id, "LobbyReady", storage.config)
-                            } else {
-                                inst.sendToTarget(socket.id, "LobbyDenied_BadPassword", lj)
                             }
-                        } else {
-                            // Lobby does not exist.
-                            inst.logger.info("Creating lobby " + lj.lobbyData.name + ".");
-                            socket.join(lj.lobbyData.name)
-                            var storage: ILobbyStorage = inst.createLobbyStorage(lj.lobbyData, socket.id)
-                            inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
-                                storage.data[value.objectKey] = {};
-                                storage.data[value.objectKey][value.fieldName] = value.cloneTemplate();
-                            });
-                            bus.emit(EventsServer.ON_LOBBY_CREATE, storage)
-                            bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player)
-                            //@ts-ignore
-                            socket["ModLoader64"] = { lobby: storage.config.name, player: lj.player }
-                            inst.sendToTarget(socket.id, "LobbyReady", storage.config)
-                        }
-                    });
-                    socket.on('msg', function (data: IPacketHeader) {
-                        inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
-                            value.setField(inst.getLobbyStorage(data.lobby).data[value.objectKey][value.fieldName]);
                         });
-                        NetworkBusServer.emit(data.packet_id, data);
-                        NetworkChannelBusServer.emit(data.channel, data);
-                        if (data.forward) {
-                            socket.to(data.lobby).emit("msg", data);
-                        }
+                        socket.on('msg', function (data: IPacketHeader) {
+                            inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
+                                value.setField(inst.getLobbyStorage(data.lobby).data[value.objectKey][value.fieldName]);
+                            });
+                            NetworkBusServer.emit(data.packet_id, data);
+                            NetworkChannelBusServer.emit(data.channel, data);
+                            if (data.forward) {
+                                socket.to(data.lobby).emit("msg", data);
+                            }
+                        });
+                        socket.on('toSpecificPlayer', function (data: any) {
+                            inst.sendToTarget(data.player.uuid, "msg", data.packet)
+                        });
+                        socket.on("disconnect", () => {
+                            //@ts-ignore
+                            var ML = socket.ModLoader64;
+                            bus.emit(EventsServer.ON_LOBBY_LEAVE, ML.player as INetworkPlayer)
+                            inst.sendToTarget(ML.lobby, "left", ML.player as INetworkPlayer)
+                        });
                     });
-                    socket.on('toSpecificPlayer', function (data: any) {
-                        inst.sendToTarget(data.player.uuid, "msg", data.packet)
-                    });
-                    socket.on("disconnect", () => {
-                        //@ts-ignore
-                        var ML = socket.ModLoader64;
-                        bus.emit(EventsServer.ON_LOBBY_LEAVE, ML.player as INetworkPlayer)
-                        inst.sendToTarget(ML.lobby, "left", ML.player as INetworkPlayer)
-                    });
-                });
-                inst.http.listen(inst.config.port, function () {
-                    inst.logger.info("NetworkEngine.Server set up on port " + inst.config.port + ".")
-                    if (!inst.modLoaderconfig.isClient) {
-                        internal_event_bus.emit("onNetworkConnect", { me: new FakeNetworkPlayer(), patch: Buffer.alloc(1) });
-                    }
-                });
-            })(this)
+                })(this)
+            });
         }
     }
 

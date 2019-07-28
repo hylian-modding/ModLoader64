@@ -34,8 +34,23 @@ class ModLoader64 {
         this.plugins = new pluginLoader([path.resolve(path.join(process.cwd(), "mods"))], this.config, this.logger)
         this.Server = new NetworkEngine.Server(this.logger.child({}), this.config)
         this.Client = new NetworkEngine.Client(this.logger.child({}), this.config)
-        process.on('SIGTERM', () => {
+
+        if (process.platform === "win32") {
+            var rl = require("readline").createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+
+            rl.on("SIGINT", function () {
+                // @ts-ignore
+                process.emit("SIGINT");
+            });
+        }
+
+        process.on("SIGINT", function () {
+            //graceful shutdown
             internal_event_bus.emit("SHUTDOWN_EVERYTHING", {});
+            process.exit(0);
         });
     }
 
@@ -43,10 +58,13 @@ class ModLoader64 {
         var ofn = internal_event_bus.emit.bind(internal_event_bus);
         internal_event_bus.emit = function (event: string | symbol, ...args: any[]): boolean {
             if (process.send) {
-                process.send(JSON.stringify({id: event, data: args}));
+                process.send(JSON.stringify({ id: event, data: args }));
             }
             return ofn(event, args);
         }
+        internal_event_bus.on("SHUTDOWN_EVERYTHING", () => {
+            this.emulator.stopEmulator();
+        });
         this.preinit()
     }
 

@@ -27,6 +27,7 @@
     "portfinder": "^1.0.21",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
+    "socket.io-fix-close": "0.0.2",
     "typescript": "^3.5.2",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"

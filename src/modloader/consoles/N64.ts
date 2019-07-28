@@ -1,5 +1,3 @@
-import * as path from 'path';
-import * as fs from 'fs';
 import IMupen from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
@@ -37,6 +35,7 @@ class N64 implements IConsole {
     }
 
     stopEmulator(): void {
+        this.mupen.stopEmulator();
     }
 
     finishInjects(): void {
