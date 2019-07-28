@@ -34,6 +34,9 @@ class ModLoader64 {
         this.plugins = new pluginLoader([path.resolve(path.join(process.cwd(), "mods"))], this.config, this.logger)
         this.Server = new NetworkEngine.Server(this.logger.child({}), this.config)
         this.Client = new NetworkEngine.Client(this.logger.child({}), this.config)
+        process.on('SIGTERM', () => {
+            internal_event_bus.emit("SHUTDOWN_EVERYTHING", {});
+        });
     }
 
     start() {

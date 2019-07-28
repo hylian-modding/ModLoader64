@@ -7,6 +7,7 @@ import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, Ma
 import { bus } from 'modloader64_api/EventHandler';
 import ZeldaString from 'modloader64_api/OOT/ZeldaString';
 import { FlagManager, Flag } from 'modloader64_api/FlagManager';
+import { registerEndpoint } from 'modloader64_api/EndpointHandler';
 
 export const enum SwordBitMap {
     KOKIRI = 7,
@@ -57,7 +58,7 @@ export const enum InventorySlots {
     BOTTLE3,
     BOTTLE4,
     ADULT_TRADE_ITEM,
-    CHILD_TRADE_ITEM 
+    CHILD_TRADE_ITEM
 }
 
 export class BootsEquipment implements IBoots {
@@ -119,6 +120,26 @@ export class BootsEquipment implements IBoots {
             this.flags[BootsBitMap.HOVER] = 0
         }
         this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
+    }
+
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj: any = Object.assign({}, this);
+
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+                if (descriptor && key[0] !== '_') {
+                    try {
+                        const val = (this as any)[key];
+                        jsonObj[key] = val;
+                    } catch (error) {
+                        console.error(`Error calling getter ${key}`, error);
+                    }
+                }
+            });
+
+        return jsonObj;
     }
 }
 
@@ -182,6 +203,26 @@ export class TunicsEquipment implements ITunics {
         }
         this.emulator.rdramWrite8(this.equipment_addr, bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit]))
     }
+
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj: any = Object.assign({}, this);
+
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+                if (descriptor && key[0] !== '_') {
+                    try {
+                        const val = (this as any)[key];
+                        jsonObj[key] = val;
+                    } catch (error) {
+                        console.error(`Error calling getter ${key}`, error);
+                    }
+                }
+            });
+
+        return jsonObj;
+    }
 }
 
 export class ShieldsEquipment implements IShields {
@@ -241,6 +282,26 @@ export class ShieldsEquipment implements IShields {
     get mirrorShield(): boolean {
         this.update()
         return this.flags[ShieldBitMap.MIRROR] === 1
+    }
+
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj: any = Object.assign({}, this);
+
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+                if (descriptor && key[0] !== '_') {
+                    try {
+                        const val = (this as any)[key];
+                        jsonObj[key] = val;
+                    } catch (error) {
+                        console.error(`Error calling getter ${key}`, error);
+                    }
+                }
+            });
+
+        return jsonObj;
     }
 
 }
@@ -346,7 +407,6 @@ export class SwordsEquipment implements ISwords {
 export class Inventory implements IInventory {
     private emulator: IMemory
     private instance: number = global.ModLoader.save_context
-    private saveContext: ISaveContext
     private inventory_addr: number = this.instance + 0x0074
     private inventory_ammo_addr: number = this.instance + 0x008C
     private obtainedUpgrades: FlagManager;
@@ -359,9 +419,8 @@ export class Inventory implements IInventory {
     bulletBag!: AmmoUpgrade;
     quiver!: AmmoUpgrade;
 
-    constructor(emu: IMemory, saveContext: ISaveContext) {
+    constructor(emu: IMemory) {
         this.emulator = emu
-        this.saveContext = saveContext
         this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00A0);
     }
 
@@ -369,12 +428,10 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.DEKU_STICK);
     }
     set dekuSticks(bool: boolean) {
-        if(bool)
-        {
+        if (bool) {
             this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
         }
-        else
-        {
+        else {
             this.removeItem(InventoryItem.DEKU_STICK);
             this.dekuSticksCapacity = AmmoUpgrade.NONE;
         }
@@ -391,12 +448,10 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.DEKU_STICK);
     }
     set dekuNuts(bool: boolean) {
-        if(bool)
-        {
+        if (bool) {
             this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
         }
-        else
-        {
+        else {
             this.removeItem(InventoryItem.DEKU_STICK);
             this.dekuSticksCapacity = AmmoUpgrade.NONE;
         }
@@ -414,12 +469,10 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.BOMB);
     }
     set bombs(bool: boolean) {
-        if(bool)
-        {
+        if (bool) {
             this.giveItem(InventoryItem.BOMB, InventorySlots.BOMBS);
         }
-        else
-        {
+        else {
             this.removeItem(InventoryItem.BOMB);
             this.bombBag = AmmoUpgrade.NONE;
         }
@@ -431,13 +484,13 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.BOMB);
         this.setAmmoInSlot(slot, count);
     }
-    
+
 
     get bombchus(): boolean {
         return this.hasItem(InventoryItem.BOMBCHU);
     }
     set bombchus(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.BOMBCHU, InventorySlots.BOMBCHUS); }
+        if (bool) { this.giveItem(InventoryItem.BOMBCHU, InventorySlots.BOMBCHUS); }
         else { this.removeItem(InventoryItem.BOMBCHU); }
     }
     get bombchuCount(): number {
@@ -452,7 +505,7 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.DEKU_STICK);
     }
     set magicBeans(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.MAGIC_BEAN, InventorySlots.MAGIC_BEANS); }
+        if (bool) { this.giveItem(InventoryItem.MAGIC_BEAN, InventorySlots.MAGIC_BEANS); }
         else { this.removeItem(InventoryItem.MAGIC_BEAN); }
     }
     get magicBeansCount(): number {
@@ -467,12 +520,10 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.FAIRY_SLINGSHOT);
     }
     set fairySlingshot(bool: boolean) {
-        if(bool)
-        {
+        if (bool) {
             this.giveItem(InventoryItem.FAIRY_SLINGSHOT, InventorySlots.FAIRY_SLINGSHOT);
         }
-        else
-        {
+        else {
             this.removeItem(InventoryItem.FAIRY_SLINGSHOT);
             this.bulletBag = AmmoUpgrade.NONE;
         }
@@ -484,17 +535,15 @@ export class Inventory implements IInventory {
         var slot = this.getSlotForItem(InventoryItem.FAIRY_SLINGSHOT);
         this.setAmmoInSlot(slot, count);
     }
-    
+
     get fairyBow(): boolean {
         return this.hasItem(InventoryItem.FAIRY_BOW);
     }
     set fairyBow(bool: boolean) {
-        if(bool)
-        {
+        if (bool) {
             this.giveItem(InventoryItem.FAIRY_BOW, InventorySlots.FAIRY_BOW);
         }
-        else
-        {
+        else {
             this.removeItem(InventoryItem.FAIRY_BOW);
             this.quiver = AmmoUpgrade.NONE;
         }
@@ -511,7 +560,7 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.FIRE_ARROW);
     }
     set fireArrows(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.FIRE_ARROW, InventorySlots.FIRE_ARROWS); }
+        if (bool) { this.giveItem(InventoryItem.FIRE_ARROW, InventorySlots.FIRE_ARROWS); }
         else { this.removeItem(InventoryItem.FIRE_ARROW); }
     }
 
@@ -519,23 +568,23 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.ICE_ARROW);
     }
     set iceArrows(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.ICE_ARROW, InventorySlots.ICE_ARROWS); }
+        if (bool) { this.giveItem(InventoryItem.ICE_ARROW, InventorySlots.ICE_ARROWS); }
         else { this.removeItem(InventoryItem.ICE_ARROW); }
     }
-    
+
     get lightArrows(): boolean {
         return this.hasItem(InventoryItem.LIGHT_ARROW);
     }
     set lightArrows(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.LIGHT_ARROW, InventorySlots.LIGHT_ARROWS); }
+        if (bool) { this.giveItem(InventoryItem.LIGHT_ARROW, InventorySlots.LIGHT_ARROWS); }
         else { this.removeItem(InventoryItem.LIGHT_ARROW); }
     }
-    
+
     get dinsFire(): boolean {
         return this.hasItem(InventoryItem.DINS_FIRE);
     }
     set dinsFire(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.DINS_FIRE, InventorySlots.DINS_FIRE); }
+        if (bool) { this.giveItem(InventoryItem.DINS_FIRE, InventorySlots.DINS_FIRE); }
         else { this.removeItem(InventoryItem.DINS_FIRE); }
     }
 
@@ -543,7 +592,7 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.FARORES_WIND);
     }
     set faroresWind(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.FARORES_WIND, InventorySlots.FARORES_WIND); }
+        if (bool) { this.giveItem(InventoryItem.FARORES_WIND, InventorySlots.FARORES_WIND); }
         else { this.removeItem(InventoryItem.FARORES_WIND); }
     }
 
@@ -551,70 +600,62 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.NAYRUS_LOVE);
     }
     set nayrusLove(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.NAYRUS_LOVE, InventorySlots.NAYRUS_LOVE); }
+        if (bool) { this.giveItem(InventoryItem.NAYRUS_LOVE, InventorySlots.NAYRUS_LOVE); }
         else { this.removeItem(InventoryItem.NAYRUS_LOVE); }
     }
 
     get ocarina(): Ocarina {
-        if(this.hasItem(InventoryItem.OCARINA_OF_TIME)) { return Ocarina.OCARINA_OF_TIME; }
-        if(this.hasItem(InventoryItem.FAIRY_OCARINA)) { return Ocarina.FAIRY_OCARINA; }
+        if (this.hasItem(InventoryItem.OCARINA_OF_TIME)) { return Ocarina.OCARINA_OF_TIME; }
+        if (this.hasItem(InventoryItem.FAIRY_OCARINA)) { return Ocarina.FAIRY_OCARINA; }
         return Ocarina.NONE;
     }
     set ocarina(item: Ocarina) {
-        if(item == this.ocarina)
-        {
+        if (item == this.ocarina) {
             return;
         }
 
-        if(item == Ocarina.NONE)
-        {
+        if (item == Ocarina.NONE) {
             this.removeItem(InventoryItem.OCARINA_OF_TIME);
-            this.removeItem(InventoryItem.FAIRY_OCARINA);  
+            this.removeItem(InventoryItem.FAIRY_OCARINA);
         }
 
-        if(item == Ocarina.OCARINA_OF_TIME)
-        {
+        if (item == Ocarina.OCARINA_OF_TIME) {
             var slot: number = this.getSlotForItem(InventoryItem.FAIRY_OCARINA);
-            if(slot > -1) { this.setItemInSlot(InventoryItem.OCARINA_OF_TIME, slot); }
+            if (slot > -1) { this.setItemInSlot(InventoryItem.OCARINA_OF_TIME, slot); }
             else { this.giveItem(InventoryItem.OCARINA_OF_TIME, InventorySlots.OCARINA); }
         }
 
-        if(item == Ocarina.FAIRY_OCARINA)
-        {
+        if (item == Ocarina.FAIRY_OCARINA) {
             var slot: number = this.getSlotForItem(InventoryItem.OCARINA_OF_TIME);
-            if(slot > -1) { this.setItemInSlot(InventoryItem.FAIRY_OCARINA, slot); }
+            if (slot > -1) { this.setItemInSlot(InventoryItem.FAIRY_OCARINA, slot); }
             else { this.giveItem(InventoryItem.FAIRY_OCARINA, InventorySlots.OCARINA); }
         }
     }
 
     get hookshot(): Hookshot {
-        if(this.hasItem(InventoryItem.LONGSHOT)) { return Hookshot.LONGSHOT; }
-        if(this.hasItem(InventoryItem.HOOKSHOT)) { return Hookshot.LONGSHOT; }
+        if (this.hasItem(InventoryItem.LONGSHOT)) { return Hookshot.LONGSHOT; }
+        if (this.hasItem(InventoryItem.HOOKSHOT)) { return Hookshot.LONGSHOT; }
         return Hookshot.NONE;
     }
     set hookshot(item: Hookshot) {
-        if(item == this.hookshot)
-        {
+        if (item == this.hookshot) {
             return;
         }
 
-        if(item == Hookshot.NONE)
-        {
+        if (item == Hookshot.NONE) {
             this.removeItem(InventoryItem.HOOKSHOT);
-            this.removeItem(InventoryItem.LONGSHOT);  
+            this.removeItem(InventoryItem.LONGSHOT);
         }
 
-        if(item == Hookshot.LONGSHOT)
-        {
+        if (item == Hookshot.LONGSHOT) {
             var slot: number = this.getSlotForItem(InventoryItem.HOOKSHOT);
-            if(slot > -1) { this.setItemInSlot(InventoryItem.LONGSHOT, slot); }
+            if (slot > -1) { this.setItemInSlot(InventoryItem.LONGSHOT, slot); }
             else { this.giveItem(InventoryItem.LONGSHOT, InventorySlots.HOOKSHOT); }
         }
 
-        if(item == Hookshot.HOOKSHOT)
-        {
+        if (item == Hookshot.HOOKSHOT) {
             var slot: number = this.getSlotForItem(InventoryItem.LONGSHOT);
-            if(slot > -1) { this.setItemInSlot(InventoryItem.HOOKSHOT, slot); }
+            if (slot > -1) { this.setItemInSlot(InventoryItem.HOOKSHOT, slot); }
             else { this.giveItem(InventoryItem.HOOKSHOT, InventorySlots.HOOKSHOT); }
         }
     }
@@ -623,7 +664,7 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.BOOMERANG);
     }
     set boomerang(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.BOOMERANG, InventorySlots.BOOMERANG); }
+        if (bool) { this.giveItem(InventoryItem.BOOMERANG, InventorySlots.BOOMERANG); }
         else { this.removeItem(InventoryItem.BOOMERANG); }
     }
 
@@ -631,7 +672,7 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.LENS_OF_TRUTH);
     }
     set lensOfTruth(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.LENS_OF_TRUTH, InventorySlots.LENS_OF_TRUTH); }
+        if (bool) { this.giveItem(InventoryItem.LENS_OF_TRUTH, InventorySlots.LENS_OF_TRUTH); }
         else { this.removeItem(InventoryItem.LENS_OF_TRUTH); }
     }
 
@@ -639,16 +680,14 @@ export class Inventory implements IInventory {
         return this.hasItem(InventoryItem.MEGATON_HAMMER);
     }
     set megatonHammer(bool: boolean) {
-        if(bool) { this.giveItem(InventoryItem.MEGATON_HAMMER, InventorySlots.MEGATON_HAMMER); }
+        if (bool) { this.giveItem(InventoryItem.MEGATON_HAMMER, InventorySlots.MEGATON_HAMMER); }
         else { this.removeItem(InventoryItem.MEGATON_HAMMER); }
     }
 
     hasBottle(): boolean {
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
             var item: InventoryItem = this.getItemInSlot(i);
-            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
-            {
+            if (item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE) {
                 return true;
             }
         }
@@ -656,11 +695,9 @@ export class Inventory implements IInventory {
     }
     getBottleCount(): number {
         var bottles: number = 0;
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
             var item: InventoryItem = this.getItemInSlot(i);
-            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
-            {
+            if (item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE) {
                 bottles++;
             }
         }
@@ -668,11 +705,9 @@ export class Inventory implements IInventory {
     }
     getBottledItems(): InventoryItem[] {
         var bottles: InventoryItem[] = new Array;
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
             var item: InventoryItem = this.getItemInSlot(i);
-            if(item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE)
-            {
+            if (item >= InventoryItem.EMPTY_BOTTLE && item <= InventoryItem.BOTTLED_POE) {
                 bottles.push(item);
             }
         }
@@ -680,16 +715,13 @@ export class Inventory implements IInventory {
     }
 
     get childTradeItem(): InventoryItem {
-        for(var i = InventoryItem.MASK_OF_TRUTH; i >= InventoryItem.ZELDAS_LETTER; i--)
-        {
-            if(this.hasItem(i))
-            {
+        for (var i = InventoryItem.MASK_OF_TRUTH; i >= InventoryItem.ZELDAS_LETTER; i--) {
+            if (this.hasItem(i)) {
                 return i;
             }
         }
 
-        if(this.hasItem(InventoryItem.SOLD_OUT))
-        {
+        if (this.hasItem(InventoryItem.SOLD_OUT)) {
             // More complex logic is required here to grab the last mask the child had
         }
 
@@ -698,17 +730,14 @@ export class Inventory implements IInventory {
     set childTradeItem(item: InventoryItem) {
         // More complex logic is required here because of flags
     }
-    
+
     get adultTradeItem(): InventoryItem {
-        for(var i = InventoryItem.CLAIM_CHECK; i >= InventoryItem.POCKET_EGG; i--)
-        {
-            if(i == InventoryItem.SOLD_OUT)
-            {
+        for (var i = InventoryItem.CLAIM_CHECK; i >= InventoryItem.POCKET_EGG; i--) {
+            if (i == InventoryItem.SOLD_OUT) {
                 continue;
             }
 
-            if(this.hasItem(i))
-            {
+            if (this.hasItem(i)) {
                 return i;
             }
         }
@@ -729,8 +758,7 @@ export class Inventory implements IInventory {
     }
 
     getItemInSlot(slotId: number): InventoryItem {
-        if(slotId < 0 || slotId > 23)
-        {
+        if (slotId < 0 || slotId > 23) {
             return InventoryItem.NONE;
         }
 
@@ -739,10 +767,8 @@ export class Inventory implements IInventory {
     }
 
     getSlotForItem(item: InventoryItem): number {
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
-            if(this.getItemInSlot(i) == item)
-            {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
+            if (this.getItemInSlot(i) == item) {
                 return i;
             }
         }
@@ -753,10 +779,8 @@ export class Inventory implements IInventory {
     getSlotsForItem(item: InventoryItem): number[] {
         var slots: number[] = new Array;
 
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
-            if(this.getItemInSlot(i) == item)
-            {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
+            if (this.getItemInSlot(i) == item) {
                 slots.push(i);
             }
         }
@@ -769,16 +793,14 @@ export class Inventory implements IInventory {
     }
 
     getAmmoForItem(item: InventoryItem): number {
-        if(!this.hasAmmo(item))
-        {
+        if (!this.hasAmmo(item)) {
             return 0;
         }
-        
+
         var ammo: number = 0;
         var slots: number[] = this.getSlotsForItem(item);
 
-        for(var i = 0; i < slots.length; i++)
-        {
+        for (var i = 0; i < slots.length; i++) {
             ammo += this.getAmmoForSlot(slots[i]);
         }
 
@@ -786,8 +808,7 @@ export class Inventory implements IInventory {
     }
 
     hasAmmo(item: InventoryItem): boolean {
-        switch(item)
-        {
+        switch (item) {
             case InventoryItem.DEKU_STICK:
             case InventoryItem.DEKU_NUT:
             case InventoryItem.FAIRY_SLINGSHOT:
@@ -802,18 +823,15 @@ export class Inventory implements IInventory {
     }
 
     getAmmoForSlot(slotId: number): number {
-        if(slotId < 0 || slotId > 0xF)
-        {
+        if (slotId < 0 || slotId > 0xF) {
             return 0;
         }
 
         return this.emulator.rdramRead8(this.inventory_ammo_addr + slotId);
     }
 
-    setAmmoInSlot(slot: number, amount: number): void
-    {
-        if(slot < 0 || slot >= 0xF)
-        {
+    setAmmoInSlot(slot: number, amount: number): void {
+        if (slot < 0 || slot >= 0xF) {
             return;
         }
 
@@ -821,31 +839,25 @@ export class Inventory implements IInventory {
     }
 
     setItemInSlot(item: InventoryItem, slot: number): void {
-        if(slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM)
-        {
+        if (slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM) {
             return;
         }
 
         this.emulator.rdramWrite8(this.inventory_addr, item.valueOf());
     }
 
-    giveItem(item: InventoryItem, desiredSlot: InventorySlots)
-    {
-        if(this.getItemInSlot(desiredSlot) == InventoryItem.NONE || this.getItemInSlot(desiredSlot) == item)
-        {
+    giveItem(item: InventoryItem, desiredSlot: InventorySlots) {
+        if (this.getItemInSlot(desiredSlot) == InventoryItem.NONE || this.getItemInSlot(desiredSlot) == item) {
             this.setItemInSlot(item, desiredSlot);
         }
-        else
-        {
+        else {
             this.setItemInSlot(item, this.getEmptySlots()[0]);
         }
     }
 
-    removeItem(item: InventoryItem): void
-    {
+    removeItem(item: InventoryItem): void {
         var slots = this.getSlotsForItem(item);
-        for(var i = 0; i < slots.length; i++)
-        {
+        for (var i = 0; i < slots.length; i++) {
             this.setItemInSlot(InventoryItem.NONE, i);
         }
     }
@@ -853,31 +865,46 @@ export class Inventory implements IInventory {
     getEmptySlots(): number[] {
         var slots: number[] = new Array;
 
-        for(var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++)
-        {
-            if(this.getItemInSlot(i) == InventoryItem.NONE)
-            {
+        for (var i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
+            if (this.getItemInSlot(i) == InventoryItem.NONE) {
                 slots.push(i);
             }
         }
 
         return slots;
     }
+
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj: any = Object.assign({}, this);
+
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+                if (descriptor && key[0] !== '_') {
+                    try {
+                        const val = (this as any)[key];
+                        jsonObj[key] = val;
+                    } catch (error) {
+                        console.error(`Error calling getter ${key}`, error);
+                    }
+                }
+            });
+
+        return jsonObj;
+    }
 }
 
 export class QuestStatus implements IQuestStatus {
     private emulator: IMemory;
     private instance: number = global.ModLoader.save_context;
-    private saveContext: ISaveContext;
     private questFlags: FlagManager;
 
     private skulltulaAddr: number = this.instance + 0x00D0;
     private questFlagsAddr: number = this.instance + 0x00A4;
 
-    constructor(emu: IMemory, saveContext: ISaveContext)
-    {
+    constructor(emu: IMemory) {
         this.emulator = emu;
-        this.saveContext = saveContext;
         this.questFlags = new FlagManager(emu, this.questFlagsAddr);
     }
 
@@ -975,7 +1002,7 @@ export class QuestStatus implements IQuestStatus {
     set preludeOfLight(bool: boolean) {
         this.questFlags.setFlag(this.preludeOfLightFlag, bool);
     }
-    
+
     private minuetOfForestFlag = new Flag(3, 1);
     get minuetOfForest(): boolean {
         return this.questFlags.isFlagSet(this.minuetOfForestFlag);
@@ -1086,6 +1113,26 @@ export class QuestStatus implements IQuestStatus {
     }
     set zoraSapphire(bool: boolean) {
         this.questFlags.setFlag(this.zoraSapphireFlag, bool);
+    }
+
+    toJSON() {
+        const proto = Object.getPrototypeOf(this);
+        const jsonObj: any = Object.assign({}, this);
+
+        Object.entries(Object.getOwnPropertyDescriptors(proto))
+            .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+            .map(([key, descriptor]) => {
+                if (descriptor && key[0] !== '_') {
+                    try {
+                        const val = (this as any)[key];
+                        jsonObj[key] = val;
+                    } catch (error) {
+                        console.error(`Error calling getter ${key}`, error);
+                    }
+                }
+            });
+
+        return jsonObj;
     }
 }
 
@@ -1203,8 +1250,8 @@ export class SaveContext implements ISaveContext {
         this.shields = new ShieldsEquipment(0, emu)
         this.tunics = new TunicsEquipment(0, emu)
         this.boots = new BootsEquipment(0, emu)
-        this.inventory = new Inventory(emu, this)
-        this.questStatus = new QuestStatus(emu, this)
+        this.inventory = new Inventory(emu)
+        this.questStatus = new QuestStatus(emu)
     }
 
     // https://wiki.cloudmodding.com/oot/Entrance_Table
@@ -1374,8 +1421,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
     }
 
     init(): void {
-        this.eventTicks.set("contextScan", ()=>{
-            if (this.ModLoader.emulator.dereferencePointer(global.ModLoader.global_context_pointer) > 0){
+        this.eventTicks.set("contextScan", () => {
+            if (this.ModLoader.emulator.dereferencePointer(global.ModLoader.global_context_pointer) > 0) {
                 global.ModLoader.global_context = this.ModLoader.emulator.dereferencePointer(global.ModLoader.global_context_pointer)
                 this.ModLoader.logger.info("Located global context: 0x" + global.ModLoader.global_context.toString(16).toUpperCase() + ".")
                 this.eventTicks.delete("contextScan")
@@ -1394,6 +1441,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
         }
         this.link = new Link(this.ModLoader.emulator)
         this.save = new SaveContext(this.ModLoader.emulator)
+        registerEndpoint("/Oot_SaveContext", (req: any, res: any) => {
+            res.send(this.save);
+        });
+        registerEndpoint("/Oot_Link", (req: any, res: any) => {
+            res.send(this.link);
+        });
     }
 
     onTick(): void {

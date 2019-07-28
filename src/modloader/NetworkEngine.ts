@@ -8,6 +8,9 @@ import fs from 'fs';
 import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
 import { PluginMeta } from 'modloader64_api/LobbyVariable';
+import express from 'express';
+import http from 'http';
+import {EndpointBus, EndPointEvents, Endpoint} from 'modloader64_api/EndpointHandler';
 
 interface IServerConfig {
     port: number
@@ -73,8 +76,8 @@ class FakeNetworkPlayer implements INetworkPlayer {
 namespace NetworkEngine {
 
     export class Server implements ILobbyManager {
-        private app: any = require('express')();
-        private http: any = require('http').createServer(this.app);
+        private app: any = express();
+        private http: any = http.createServer(this.app);
         io: any = require('socket.io')(this.http);
         logger: ILogger
         masterConfig: IConfig
@@ -91,7 +94,7 @@ namespace NetworkEngine {
             let temp = global.ModLoader.version.split(".")
             this.version = new Version(temp[0], temp[1], temp[2])
             this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
-            process.on('SIGINT', () => {
+            internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
                 this.http.close(() => {
                 });
             });
@@ -208,6 +211,23 @@ namespace NetworkEngine {
         }
     }
 
+    export class EndpointServer{
+        EndPointApp = express();
+        EndPointServer = http.createServer(this.EndPointApp)
+    
+        constructor(){
+            this.EndPointApp.get('/', function (req, res) {
+                res.send('hello world')
+            });
+            this.EndPointServer.listen(8080, ()=>{
+            });
+            internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+                this.EndPointServer.close(() => {
+                });
+            });
+        }
+    }
+
     export class Client {
 
         private io: any = require('socket.io-client')
@@ -217,6 +237,7 @@ namespace NetworkEngine {
         modLoaderconfig: IModLoaderConfig
         masterConfig: IConfig
         me!: INetworkPlayer
+        endpoint: EndpointServer
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger
@@ -228,6 +249,12 @@ namespace NetworkEngine {
             config.setData("NetworkEngine.Client", "password", "")
             this.masterConfig = config
             this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
+            this.endpoint = new EndpointServer();
+            EndpointBus.on(EndPointEvents.CREATE_ENDPOINT, (endpoint: Endpoint)=>{
+                this.endpoint.EndPointApp.get(endpoint.path, function(res, req){
+                    endpoint.callback(res, req);
+                });
+            });
         }
 
         setup() {
@@ -279,7 +306,7 @@ namespace NetworkEngine {
                     NetworkBus.emit(data.packet_id, data);
                     NetworkChannelBus.emit(data.channel, data);
                 });
-            })(this)
+            })(this);
         }
     }
 }
