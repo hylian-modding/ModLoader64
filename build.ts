@@ -60,6 +60,7 @@ function prebuild() {
 }
 
 function build() {
+    execSync("build_api.bat", { stdio: "inherit" })
     ncp("./src", "./build/src", function (err) {
         if (err) {
             return console.error(err);
