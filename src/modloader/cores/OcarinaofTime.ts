@@ -1,13 +1,12 @@
-import { IModLoaderAPI, ICore } from '../../API/IModLoaderAPI'
-import IMemory from '../../API/IMemory';
+import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI'
+import IMemory from 'modloader64_api/IMemory';
 import { GameShark } from '../GameShark';
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types';
-import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from '../../API/OOT/OOTAPI';
-import { bus } from '../../API/EventHandler';
-import ZeldaString from '../../API/OOT/ZeldaString';
-import { FlagManager, Flag } from '../../API/FlagManager';
-
+import { ISwords, ISaveContext, LinkState, Tunic, Shield, Boots, Mask, Magic, MagicQuantities, InventoryItem, Ocarina, Hookshot, AmmoUpgrade, ILink, IOOTCore, IShields, ITunics, IBoots, IInventory, IQuestStatus, Wallet, Strength, ZoraScale } from 'modloader64_api/OOT/OOTAPI';
+import { bus } from 'modloader64_api/EventHandler';
+import ZeldaString from 'modloader64_api/OOT/ZeldaString';
+import { FlagManager, Flag } from 'modloader64_api/FlagManager';
 
 export const enum SwordBitMap {
     KOKIRI = 7,

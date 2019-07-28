@@ -1,7 +1,7 @@
 const assert = require('assert');
 import IMupen from '../src/modloader/consoles/IMupen';
 import sleep from 'thread-sleep';
-import IMemory from '../src/API/IMemory';
+import IMemory from 'modloader64_api/IMemory';
 
 console.log("Starting ram tests...")
 

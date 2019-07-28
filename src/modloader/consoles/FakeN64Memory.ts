@@ -1,4 +1,4 @@
-import IMemory from "../../API/IMemory";
+import IMemory from "modloader64_api/IMemory";
 
 export class FakeN64Memory implements IMemory {
 

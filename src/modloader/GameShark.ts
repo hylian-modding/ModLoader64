@@ -1,4 +1,4 @@
-import IMemory from "../API/IMemory";
+import IMemory from "modloader64_api/IMemory";
 import * as fs from 'fs';
 import * as path from 'path';
 

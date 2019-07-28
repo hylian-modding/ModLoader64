@@ -1,8 +1,8 @@
 const assert = require('assert');
 import IMupen from '../src/modloader/consoles/IMupen';
 import sleep from 'thread-sleep';
-import IMemory from '../src/API/IMemory';
-import { IRomMemory } from '../src/API/IRomMemory';
+import IMemory from 'modloader64_api/IMemory';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 process.chdir("./build")
 

@@ -1,9 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import IMupen from './IMupen';
-import IMemory from '../../API/IMemory';
-import IConsole from '../../API/IConsole';
-import { IRomMemory } from '../../API/IRomMemory';
+import IMemory from 'modloader64_api/IMemory';
+import IConsole from 'modloader64_api/IConsole';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 class N64 implements IConsole {
 

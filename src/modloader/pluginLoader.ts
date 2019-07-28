@@ -1,13 +1,13 @@
 import fs from 'fs'
 import path from 'path'
-import { ILogger, IConfig, IPlugin, IModLoaderAPI, ICore } from '../API/IModLoaderAPI';
-import IMemory from '../API/IMemory';
+import { ILogger, IConfig, IPlugin, IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
+import IMemory from 'modloader64_api/IMemory';
 import { GameShark, Code } from './GameShark';
-import { EventHandler, bus } from '../API/EventHandler';
-import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer, ClientController, ServerController } from '../API/NetworkHandler';
-import IConsole from '../API/IConsole';
+import { EventHandler, bus } from 'modloader64_api/EventHandler';
+import { NetworkBus, NetworkChannelBus, NetworkBusServer, NetworkChannelBusServer, ILobbyManager, INetworkPlayer, ClientController, ServerController } from 'modloader64_api/NetworkHandler';
+import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
-import { setupLobbyVariable } from '../API/LobbyVariable';
+import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
 
 class pluginLoader {
 

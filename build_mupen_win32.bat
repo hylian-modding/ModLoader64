@@ -1,3 +1,6 @@
+cd API
+npm run build
+cd ..
 mkdir build\emulator
 copy Mupen64Plus_Bundle_Windows_x86\* build\emulator
 copy Mupen64Plus_Bundle_Linux_x64\* build\emulator

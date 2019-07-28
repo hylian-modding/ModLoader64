@@ -1,7 +1,7 @@
 // Modloader configuration
 
 import fs from 'fs'
-import {IConfig} from '../API/IModLoaderAPI'
+import {IConfig} from 'modloader64_api/IModLoaderAPI'
 
 class configuration implements IConfig{
 

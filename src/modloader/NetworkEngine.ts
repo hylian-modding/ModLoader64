@@ -1,13 +1,13 @@
-import { ILogger, IConfig } from '../API/IModLoaderAPI'
-import { bus, EventsServer, EventsClient } from '../API/EventHandler';
-import { NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from '../API/NetworkHandler'
+import { ILogger, IConfig } from 'modloader64_api/IModLoaderAPI'
+import { bus, EventsServer, EventsClient } from 'modloader64_api/EventHandler';
+import { NetworkBus, IPacketHeader, NetworkChannelBus, NetworkChannelBusServer, NetworkBusServer, NetworkSendBusServer, NetworkSendBus, INetworkPlayer, LobbyData, ILobbyStorage, ILobbyManager } from 'modloader64_api/NetworkHandler'
 import crypto from 'crypto'
-import { NetworkPlayer } from '../API/ModLoaderDefaultImpls';
+import { NetworkPlayer } from 'modloader64_api/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
 import fs from 'fs';
 import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
-import { PluginMeta } from '../API/LobbyVariable';
+import { PluginMeta } from 'modloader64_api/LobbyVariable';
 
 interface IServerConfig {
     port: number

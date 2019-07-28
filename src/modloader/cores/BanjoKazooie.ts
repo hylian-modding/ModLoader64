@@ -1,5 +1,5 @@
-import { IModLoaderAPI, ICore } from '../../API/IModLoaderAPI'
-import * as API from '../../API/BK/BKAPI'
+import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI'
+import * as API from 'modloader64_api/BK/BKAPI'
 import * as bitwise from 'bitwise'
 import { UInt8, Bit } from 'bitwise/types'
 

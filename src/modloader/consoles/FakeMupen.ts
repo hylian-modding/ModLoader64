@@ -1,8 +1,8 @@
-import IConsole from "../../API/IConsole";
+import IConsole from "modloader64_api/IConsole";
 import { FakeN64Memory } from "./FakeN64Memory";
 import fs from 'fs';
 import { Rom } from "../Rom";
-import IMemory from "../../API/IMemory";
+import IMemory from "modloader64_api/IMemory";
 
 export class FakeMupen implements IConsole{
     
@@ -16,7 +16,7 @@ export class FakeMupen implements IConsole{
         this.ram = new FakeN64Memory();
     }
 
-    startEmulator(preStartCallback: Function): import("../../API/IMemory").default {
+    startEmulator(preStartCallback: Function): IMemory {
         preStartCallback(this.rom_data)
         return this.ram;
     }    

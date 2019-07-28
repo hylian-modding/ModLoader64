@@ -3,15 +3,15 @@ import pluginLoader from './pluginLoader'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
-import { ILogger, IConfig, ICore } from '../API/IModLoaderAPI';
+import { ILogger, IConfig, ICore } from 'modloader64_api/IModLoaderAPI';
 import IModLoaderConfig from './IModLoaderConfig'
 import NetworkEngine from './NetworkEngine'
 import N64 from './consoles/N64'
-import IMemory from '../API/IMemory';
-import { INetworkPlayer } from '../API/NetworkHandler';
-import IConsole from '../API/IConsole';
+import IMemory from 'modloader64_api/IMemory';
+import { INetworkPlayer } from 'modloader64_api/NetworkHandler';
+import IConsole from 'modloader64_api/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
-import { bus, EventBus } from '../API/EventHandler';
+import { bus, EventBus } from 'modloader64_api/EventHandler';
 
 export const internal_event_bus = new EventBus()
 

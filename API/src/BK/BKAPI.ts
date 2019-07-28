@@ -1,4 +1,4 @@
-import IMemory from '../../API/IMemory'
+import IMemory from '../IMemory';
 
 export * from './BKAPI_BITMAP'
 export * from './BKAPI_ENUMS'

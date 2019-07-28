@@ -1,5 +1,5 @@
-import IMemory from "../../API/IMemory";
-import { IRomMemory } from "../../API/IRomMemory";
+import IMemory from "modloader64_api/IMemory";
+import { IRomMemory } from "modloader64_api/IRomMemory";
 
 interface IMupen extends IMemory, IRomMemory{
 
