@@ -10,7 +10,7 @@ import { internal_event_bus } from './modloader64';
 import { PluginMeta } from 'modloader64_api/LobbyVariable';
 import express from 'express';
 import http from 'http';
-import {EndpointBus, EndPointEvents, Endpoint} from 'modloader64_api/EndpointHandler';
+import { EndpointBus, EndPointEvents, Endpoint } from 'modloader64_api/EndpointHandler';
 
 interface IServerConfig {
     port: number
@@ -98,7 +98,7 @@ namespace NetworkEngine {
                 this.http.close(() => {
                 });
             });
-            bus.on("setupLobbyVariable", (evt)=>{
+            bus.on("setupLobbyVariable", (evt) => {
                 this.lobbyVariables.push(evt);
             });
         }
@@ -170,7 +170,7 @@ namespace NetworkEngine {
                             inst.logger.info("Creating lobby " + lj.lobbyData.name + ".");
                             socket.join(lj.lobbyData.name)
                             var storage: ILobbyStorage = inst.createLobbyStorage(lj.lobbyData, socket.id)
-                            inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[])=>{
+                            inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
                                 storage.data[value.objectKey] = {};
                                 storage.data[value.objectKey][value.fieldName] = value.cloneTemplate();
                             });
@@ -182,12 +182,12 @@ namespace NetworkEngine {
                         }
                     });
                     socket.on('msg', function (data: IPacketHeader) {
-                        inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[])=>{
+                        inst.lobbyVariables.forEach((value: PluginMeta, index: number, array: PluginMeta[]) => {
                             value.setField(inst.getLobbyStorage(data.lobby).data[value.objectKey][value.fieldName]);
                         });
                         NetworkBusServer.emit(data.packet_id, data);
                         NetworkChannelBusServer.emit(data.channel, data);
-                        if (data.forward){
+                        if (data.forward) {
                             socket.to(data.lobby).emit("msg", data);
                         }
                     });
@@ -211,15 +211,21 @@ namespace NetworkEngine {
         }
     }
 
-    export class EndpointServer{
+    export class EndpointServer {
         EndPointApp = express();
         EndPointServer = http.createServer(this.EndPointApp)
-    
-        constructor(){
+        portfinder = require('portfinder');
+        logger: ILogger
+
+        constructor(logger: ILogger) {
+            this.logger = logger;
             this.EndPointApp.get('/', function (req, res) {
                 res.send('hello world')
             });
-            this.EndPointServer.listen(8080, ()=>{
+            this.portfinder.getPort((err: any, port: number) => {
+                this.EndPointServer.listen(port, () => {
+                    this.logger.info("Local JSON endpoint hosted on port " + port + ".")
+                });
             });
             internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
                 this.EndPointServer.close(() => {
@@ -249,9 +255,9 @@ namespace NetworkEngine {
             config.setData("NetworkEngine.Client", "password", "")
             this.masterConfig = config
             this.modLoaderconfig = this.masterConfig.registerConfigCategory("ModLoader64") as IModLoaderConfig
-            this.endpoint = new EndpointServer();
-            EndpointBus.on(EndPointEvents.CREATE_ENDPOINT, (endpoint: Endpoint)=>{
-                this.endpoint.EndPointApp.get(endpoint.path, function(res, req){
+            this.endpoint = new EndpointServer(this.logger);
+            EndpointBus.on(EndPointEvents.CREATE_ENDPOINT, (endpoint: Endpoint) => {
+                this.endpoint.EndPointApp.get(endpoint.path, function (res, req) {
                     endpoint.callback(res, req);
                 });
             });

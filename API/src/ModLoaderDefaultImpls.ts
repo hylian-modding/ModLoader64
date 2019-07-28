@@ -28,3 +28,13 @@ export class Packet implements IPacketHeader{
         this.forward = forward
     }
 }
+
+export class BufferPacket extends Packet{
+
+    buf: Buffer
+
+    constructor(packet_id: string, lobby: string, channel: string, player: INetworkPlayer, forward: boolean = true, buf: Buffer){
+        super(packet_id, lobby, channel, player, forward)
+        this.buf = buf;
+    }
+}

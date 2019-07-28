@@ -10,6 +10,7 @@
   "author": "Team-Ooto",
   "dependencies": {
     "bitwise": "^2.0.3",
+    "buffer-json": "^2.0.0",
     "typescript": "^3.5.3"
   },
   "devDependencies": {
