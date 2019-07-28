@@ -4,6 +4,8 @@ import { execSync } from 'child_process';
 import program from 'commander';
 import path from 'path';
 
+var isWin = process.platform === "win32";
+
 program.option('-s, --step <type>', 'build step')
 program.parse(process.argv);
 
@@ -49,7 +51,12 @@ function prebuild() {
 
     if (!fs.existsSync("./build/emulator/mupen64plus.node")) {
         console.log("Building Mupen...")
-        execSync("build_mupen_win32.bat", { stdio: "inherit" })
+        
+        if (isWin){
+            execSync("build_mupen_win32.bat", { stdio: "inherit" })
+        }else{
+            execSync("build_mupen_lin64.sh", { stdio: "inherit" })
+        }
         ncp("./Mupen64Plus-Script/mupen64plus-binding-npm/bin", "./build", function (err) {
             if (err) {
                 return console.error(err);
@@ -60,7 +67,11 @@ function prebuild() {
 }
 
 function build() {
-    execSync("build_api.bat", { stdio: "inherit" })
+    if (isWin){
+        execSync("build_api.bat", { stdio: "inherit" })
+    }else{
+        execSync("build_api.sh", { stdio: "inherit" })
+    }
     ncp("./src", "./build/src", function (err) {
         if (err) {
             return console.error(err);
