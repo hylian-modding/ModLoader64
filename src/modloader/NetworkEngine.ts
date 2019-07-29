@@ -204,6 +204,11 @@ namespace NetworkEngine {
                     player: lj.player,
                   };
                   inst.sendToTarget(socket.id, 'LobbyReady', storage.config);
+                  inst.sendToTarget(
+                    lj.lobbyData.name,
+                    'playerJoined',
+                    lj.player
+                  );
                 } else {
                   inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
                 }
@@ -231,7 +236,15 @@ namespace NetworkEngine {
                   player: lj.player,
                 };
                 inst.sendToTarget(socket.id, 'LobbyReady', storage.config);
+                inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
               }
+            });
+            socket.on('playerJoined_reply', function(data: any) {
+              inst.sendToTarget(
+                data.dest.uuid,
+                'playerJoined_bounce',
+                data.player
+              );
             });
             socket.on('msg', function(data: IPacketHeader) {
               inst.lobbyVariables.forEach(
@@ -332,6 +345,8 @@ namespace NetworkEngine {
           'http://' + inst.config.ip + ':' + inst.config.port
         );
         NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
+          data.player = inst.me;
+          data.lobby = inst.config.lobby;
           inst.socket.emit('msg', data);
         });
         NetworkSendBus.addListener('toPlayer', (data: any) => {
@@ -381,7 +396,21 @@ namespace NetworkEngine {
           inst.logger.error('Failed to join lobby. :(');
         });
         inst.socket.on('left', (player: INetworkPlayer) => {
-          bus.emit(EventsClient.ON_LOBBY_LEAVE, player);
+          bus.emit(EventsClient.ON_PLAYER_LEAVE, player);
+        });
+        inst.socket.on('playerJoined', (player: INetworkPlayer) => {
+          if (player.uuid !== inst.me.uuid) {
+            bus.emit(EventsClient.ON_PLAYER_JOIN, player);
+            inst.socket.emit('playerJoined_reply', {
+              player: inst.me,
+              dest: player,
+            });
+          }
+        });
+        inst.socket.on('playerJoined_bounce', (player: INetworkPlayer) => {
+          if (player.uuid !== inst.me.uuid) {
+            bus.emit(EventsClient.ON_PLAYER_JOIN, player);
+          }
         });
         inst.socket.on('msg', (data: IPacketHeader) => {
           NetworkBus.emit(data.packet_id, data);

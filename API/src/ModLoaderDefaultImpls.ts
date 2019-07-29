@@ -12,38 +12,23 @@ export class NetworkPlayer implements INetworkPlayer {
 
 export class Packet implements IPacketHeader {
   packet_id: string;
-  lobby: string;
+  lobby!: string;
   channel: string;
-  player: INetworkPlayer;
+  player!: INetworkPlayer;
   forward: boolean;
 
-  constructor(
-    packet_id: string,
-    lobby: string,
-    channel: string,
-    player: INetworkPlayer,
-    forward = true
-  ) {
+  constructor(packet_id: string, channel: string, forward = true) {
     this.packet_id = packet_id;
-    this.lobby = lobby;
     this.channel = channel;
-    this.player = player;
     this.forward = forward;
   }
 }
 
-export class BufferPacket extends Packet {
-  buf: Buffer;
-
-  constructor(
-    packet_id: string,
-    lobby: string,
-    channel: string,
-    player: INetworkPlayer,
-    forward = true,
-    buf: Buffer
-  ) {
-    super(packet_id, lobby, channel, player, forward);
-    this.buf = buf;
+class PacketHelper {
+  cloneDestination(_old: IPacketHeader, _new: IPacketHeader) {
+    _new.lobby = _old.lobby;
+    _new.player = _old.player;
   }
 }
+
+export const packetHelper: PacketHelper = new PacketHelper();

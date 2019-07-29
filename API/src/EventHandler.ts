@@ -30,7 +30,8 @@ export enum EventsClient {
   ON_LOBBY_CREATE = 'lobbyJoined',
   CONFIGURE_LOBBY = 'configureLobby',
   ON_SERVER_CONNECTION = 'onServerConnection',
-  ON_LOBBY_LEAVE = 'lobbyLeave',
+  ON_PLAYER_LEAVE = 'playerLeave',
+  ON_PLAYER_JOIN = 'playerJoin',
   ON_LOBBY_JOIN = 'lobbyJoined',
 }
 
