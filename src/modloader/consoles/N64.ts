@@ -39,7 +39,7 @@ class N64 implements IConsole {
     }
 
     finishInjects(): void {
-        //this.mupen.memoryCacheRefresh();
+        this.mupen.memoryCacheRefresh();
         this.mupen.hookFrameCallback();
     }
 
