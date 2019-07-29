@@ -1,7 +1,7 @@
-import IMemory from '../IMemory';
+import IMemory from '../IMemory'
 
 export * from './BKAPI_BITMAP'
-export * from './BKAPI_ENUMS'
+export * from './BKAPI_ENUM'
 export * from './BKAPI_INTERFACE'
 
 export class APIObject {

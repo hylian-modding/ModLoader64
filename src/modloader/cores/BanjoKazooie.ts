@@ -1,7 +1,39 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI'
+import { FlagManager } from 'modloader64_api/FlagManager'
+import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/BK/BKAPI'
-import * as bitwise from 'bitwise'
-import { UInt8, Bit } from 'bitwise/types'
+
+// ##################################################################
+// ##  Sub-Classes
+// ##################################################################
+
+export class MoveSet extends API.APIObject implements API.IMoveSet {
+    private instance: number = 0x37C3A0 // global.ModLoader["offset_moves"]
+    private manager: FlagManager
+
+    constructor(emu: IMemory) {
+        super(emu)
+        this.manager = new FlagManager(emu, this.instance);
+    }
+
+    get(move: API.MoveBitMap): boolean {
+        return this.manager.isBitSet(move);
+    }
+    set(move: API.MoveBitMap, value: boolean) {
+        this.manager.setBit(move, value)
+    }
+
+    get moves(): number {
+        return this.emulator.rdramRead32(this.instance)
+    }
+    set moves(value: number) {
+        this.emulator.rdramWrite32(this.instance, value)
+    }
+}
+
+// ##################################################################
+// ##  Primary-Classes
+// ##################################################################
 
 export class Banjo extends API.APIObject implements API.IBanjo {
     private instance: number = global.ModLoader["banjo"]
@@ -164,31 +196,60 @@ export class Runtime extends API.APIObject implements API.IRuntime {
 }
 
 export class SaveContext extends API.APIObject implements API.ISaveContext {
-    private instance: number = global.ModLoader["save_context"]
+    private instance: number = global.ModLoader["save_context"] // 383080
+    
+    // Progress Flags
+    private game_flags_addr: number =0x3831A8 //this.instance + 0x0128 // 0x3831A8
+    private honey_comb_flags_addr: number =0x3832E0 //this.instance + 0x0260 // 0x3832E0
+    private jiggy_flags_addr: number =0x3832C0 //this.instance + 0x0240 // 0x3832C0
+    private mumbo_token_flags_addr: number =0x3832F0 //this.instance + 0x0270 // 0x3832F0
+    private note_total_addr: number =0x385FF0 //this.instance + 0x2F70 // 0x385FF0
+    
+    private honey_combs_addr: number =0x385F7F //this.instance + 0x2EFF // 0x385F7F
 
-    //private game_prog_addr: 0x3831A8 // bitfield
-    private honey_combs_addr: number = 0x385F7F
-    private moves_addr: number = 0x37C3A0
-    private note_total_addr: number = 0x385FF0
+    // Bit Manipulators
+    moveset: API.IMoveSet
 
-
-
-    get moves(): number {
-        return this.emulator.rdramRead32(this.moves_addr)
+    constructor(emu: IMemory) {
+        super(emu)
+        this.moveset = new MoveSet(emu)
+    }   
+    
+    get_game_flags(): Buffer {
+        return this.emulator.rdramReadBuffer(this.game_flags_addr, 0x20)
     }
-    set moves(value: number) {
-        this.emulator.rdramWrite32(this.moves_addr, value)
+    set_game_flag(offset: number, value: number) {
+        this.emulator.rdramWrite8(this.game_flags_addr + offset, value)
+    }
+
+    get_honey_comb_flags(): Buffer {
+        return this.emulator.rdramReadBuffer(this.honey_comb_flags_addr, 0x03)
+    }
+    set_honey_comb_flag(offset: number, value: number) {
+        this.emulator.rdramWrite8(this.honey_comb_flags_addr + offset, value)
+    }
+
+    get_jiggy_flags(): Buffer {
+        return this.emulator.rdramReadBuffer(this.jiggy_flags_addr, 0x0D)
+    }
+    set_jiggy_flag(offset: number, value: number) {
+        this.emulator.rdramWrite8(this.jiggy_flags_addr + offset, value)
     }
     
+    get_mumbo_token_flags(): Buffer {
+        return this.emulator.rdramReadBuffer(this.mumbo_token_flags_addr, 0x10)
+    }
+    set_mumbo_token_flag(offset: number, value: number) {
+        this.emulator.rdramWrite8(this.mumbo_token_flags_addr + offset, value)
+    }
+
+    get_note_totals(): Buffer {
+        return this.emulator.rdramReadBuffer(this.note_total_addr, 0x0F)
+    }
     get_note_total(level: API.LevelID): number {
         return this.emulator.rdramRead8(this.note_total_addr + level)
     }
     set_note_total(level: API.LevelID, value: number) {
-        if (value > 100) {
-            value = 100
-        } else if (value < 0) {
-            value = 0
-        }
         this.emulator.rdramWrite8(this.note_total_addr + level, value)
     }
 
@@ -210,7 +271,10 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     preinit(): void {
         global.ModLoader["banjo"] = 0x37C0E0
         global.ModLoader["runtime"] = 0x0 // PLACEHOLDER
-        global.ModLoader["save_context"] = 0x0 // PLACEHOLDER
+        global.ModLoader["save_context"] = 0x383080
+
+        // Scattered Offsets
+        global.ModLoader["offset_moves"] = 0x37C3A0
     }
 
     init(): void { 
