@@ -1,3 +1,5 @@
+import IMemory from '../IMemory';
+
 export const enum LinkState {
   STANDING,
   SWIMMING,
@@ -296,12 +298,15 @@ export interface ISaveContext {
   checksum: number;
 }
 
-export interface ILink {
+export interface ILink extends IMemory {
   state: LinkState;
   tunic: Tunic;
   shield: Shield;
   boots: Boots;
   mask: Mask;
+  pos: Buffer;
+  rot: Buffer;
+  anim_data: Buffer;
   exists(): boolean;
 }
 
@@ -313,4 +318,8 @@ export interface IGlobalContext {
 export interface IOOTCore {
   link: ILink;
   save: ISaveContext;
+}
+
+export enum OotEvents {
+  ON_SAVE_LOADED = 'onSaveLoaded',
 }

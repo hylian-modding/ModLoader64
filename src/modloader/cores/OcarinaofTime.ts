@@ -27,6 +27,7 @@ import {
   Wallet,
   Strength,
   ZoraScale,
+  OotEvents,
 } from 'modloader64_api/OOT/OOTAPI';
 import { bus } from 'modloader64_api/EventHandler';
 import ZeldaString from 'modloader64_api/OOT/ZeldaString';
@@ -1282,6 +1283,12 @@ export class Link implements ILink {
   private shield_addr: number = this.instance + 0x013e;
   private boots_addr: number = this.instance + 0x013f;
   private mask_addr: number = this.instance + 0x014f;
+  private pos_addr: number = this.instance + 0x24;
+  private rot_addr: number = this.instance + 0xb4;
+  /*This is provided by OotCore's ASM. 
+    Anim data is safely copied into this space at the end of each rendering cycle.
+    This helps prevent jittering.*/
+  private anim_data_addr = 0x600000;
 
   constructor(emu: IMemory) {
     this.emulator = emu;
@@ -1333,6 +1340,65 @@ export class Link implements ILink {
 
   set mask(mask: Mask) {
     this.emulator.rdramWrite8(this.mask_addr, mask);
+  }
+
+  get pos(): Buffer {
+    return this.emulator.rdramReadBuffer(this.pos_addr, 0xc);
+  }
+
+  set pos(pos: Buffer) {
+    this.emulator.rdramWriteBuffer(this.pos_addr, pos);
+  }
+
+  get rot(): Buffer {
+    return this.emulator.rdramReadBuffer(this.rot_addr, 0x8);
+  }
+
+  set rot(rot: Buffer) {
+    this.emulator.rdramWriteBuffer(this.rot_addr, rot);
+  }
+
+  get anim_data(): Buffer {
+    return this.emulator.rdramReadBuffer(this.anim_data_addr, 0x86);
+  }
+
+  // Give ILink a complete IMemory implementation for shortcuts.
+
+  rdramRead8(addr: number): number {
+    return this.emulator.rdramRead8(this.instance + addr);
+  }
+  rdramWrite8(addr: number, value: number): void {
+    this.emulator.rdramWrite8(this.instance + addr, value);
+  }
+  rdramRead16(addr: number): number {
+    return this.emulator.rdramRead16(this.instance + addr);
+  }
+  rdramWrite16(addr: number, value: number): void {
+    this.emulator.rdramWrite16(this.instance + addr, value);
+  }
+  rdramWrite32(addr: number, value: number): void {
+    this.emulator.rdramWrite32(this.instance + addr, value);
+  }
+  rdramRead32(addr: number): number {
+    return this.emulator.rdramRead32(this.instance + addr);
+  }
+  rdramReadBuffer(addr: number, size: number): Buffer {
+    return this.emulator.rdramReadBuffer(this.instance + addr, size);
+  }
+  rdramWriteBuffer(addr: number, buf: Buffer): void {
+    this.emulator.rdramWriteBuffer(this.instance + addr, buf);
+  }
+  dereferencePointer(addr: number): number {
+    return this.emulator.dereferencePointer(this.instance + addr);
+  }
+  rdramReadS8(addr: number): number {
+    return this.emulator.rdramReadS8(this.instance + addr);
+  }
+  rdramReadS16(addr: number): number {
+    return this.emulator.rdramReadS16(this.instance + addr);
+  }
+  rdramReadS32(addr: number): number {
+    return this.emulator.rdramReadS32(this.instance + addr);
   }
 
   toJSON() {
@@ -1644,6 +1710,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
   global!: GlobalContext;
   helper!: OotHelper;
   eventTicks: Map<string, Function> = new Map<string, Function>();
+  // Client side variables
+  isSaveLoaded = false;
 
   preinit(): void {
     global.ModLoader['save_context'] = 0x11a5d0;
@@ -1651,7 +1719,15 @@ export class OcarinaofTime implements ICore, IOOTCore {
     global.ModLoader['global_context'] = 0;
   }
 
-  init(): void {}
+  init(): void {
+    this.eventTicks.set('waitingForSaveload', () => {
+      if (!this.helper.isTitleScreen() && !this.isSaveLoaded) {
+        bus.emit(OotEvents.ON_SAVE_LOADED, {});
+        this.isSaveLoaded = true;
+        this.eventTicks.delete('waitingForSaveload');
+      }
+    });
+  }
 
   postinit(): void {
     let gameshark = new GameShark(
