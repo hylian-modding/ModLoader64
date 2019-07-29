@@ -1,6 +1,5 @@
 mkdir build\emulator
-copy Mupen64Plus_Bundle_Windows_x86\* build\emulator
-copy Mupen64Plus_Bundle_Linux_x64\* build\emulator
+copy ModLoader64-M64P-Bundle\* build\emulator
 cd ModLoader64-M64P-Npm
 call script_build.bat
 cd ..
