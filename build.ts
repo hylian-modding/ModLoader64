@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { execSync } from 'child_process';
 import program from 'commander';
 import path from 'path';
+import findRemoveSync from 'find-remove';
 
 var isWin = process.platform === "win32";
 
@@ -76,6 +77,7 @@ function build() {
         if (err) {
             return console.error(err);
         }
+        findRemoveSync('./build', { extensions: ['.ts'] });
         console.log('done!');
     });
 
@@ -97,8 +99,6 @@ function build() {
 }
 
 function postbuild() {
-    var findRemoveSync = require('find-remove')
-    var result = findRemoveSync('./src', { extensions: ['.js'] })
-    result = findRemoveSync('./test', { extensions: ['.js'] })
-    result = findRemoveSync('./build', { extensions: ['.ts'] })
+    findRemoveSync('./src', { extensions: ['.js'] })
+    findRemoveSync('./test', { extensions: ['.js'] })
 }

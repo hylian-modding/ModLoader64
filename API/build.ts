@@ -26,23 +26,13 @@ function prebuild() {
     if (!fs.existsSync("./build")) {
         fs.mkdirSync("./build")
     }
-
-    if (!fs.existsSync("./build/src")) {
-        fs.mkdirSync("./build/src")
-    }
 }
 
 function build() {
-    ncp("./src", "./build/src", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        console.log('done!');
-    });
 }
 
 function postbuild() {
     var findRemoveSync = require('find-remove')
     var result = findRemoveSync('./src', { extensions: ['.js'] })
-    fs.writeFileSync("./build/src/package.json", fs.readFileSync("./package.json"))
+    fs.writeFileSync("./build/package.json", fs.readFileSync("./package.json"))
 }

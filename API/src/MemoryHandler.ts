@@ -1,6 +1,5 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from 'events';
 
-export class MemoryEventBus extends EventEmitter {
-}
+export class MemoryEventBus extends EventEmitter {}
 
-export const memoryBus: MemoryEventBus = new MemoryEventBus()
+export const memoryBus: MemoryEventBus = new MemoryEventBus();

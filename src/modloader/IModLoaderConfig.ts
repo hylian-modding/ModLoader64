@@ -1,8 +1,8 @@
-interface IModLoaderConfig{
-    rom: string
-    patch: string
-    isServer: boolean
-    isClient: boolean
+interface IModLoaderConfig {
+  rom: string;
+  patch: string;
+  isServer: boolean;
+  isClient: boolean;
 }
 
-export default IModLoaderConfig
+export default IModLoaderConfig;

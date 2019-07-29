@@ -1,44 +1,42 @@
-import IMemory from "modloader64_api/IMemory";
-import { IRomMemory } from "modloader64_api/IRomMemory";
+import IMemory from 'modloader64_api/IMemory';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
-interface IMupen extends IMemory, IRomMemory{
+interface IMupen extends IMemory, IRomMemory {
+  setCoreLib(path: string): void;
 
-    setCoreLib(path: string): void
+  setConfigDir(path: string): void;
 
-    setConfigDir(path: string): void
+  setDataDir(path: string): void;
 
-    setDataDir(path: string): void
+  setPluginDir(path: string): void;
 
-    setPluginDir(path: string): void
+  setPluginAudio(path: string): void;
 
-    setPluginAudio(path: string): void
+  setPluginGFX(path: string): void;
 
-    setPluginGFX(path: string): void
+  setPluginInput(path: string): void;
 
-    setPluginInput(path: string): void
+  setPluginRSP(path: string): void;
 
-    setPluginRSP(path: string): void
+  runEmulator(bool: boolean): void;
 
-    runEmulator(bool: boolean): void
+  memoryCacheRefresh(): void;
 
-    memoryCacheRefresh(): void
+  coreEmuState(): number;
 
-    coreEmuState(): number
+  setFrameCallback(fn: Function): void;
 
-    setFrameCallback(fn: Function): void
+  initialize(): void;
 
-    initialize(): void
+  loadRom(rom: string): number;
 
-    loadRom(rom: string): number
+  pauseEmulator(): void;
 
-    pauseEmulator(): void
+  stopEmulator(): void;
 
-    stopEmulator(): void
+  resumeEmulator(): void;
 
-    resumeEmulator(): void
-
-    hookFrameCallback (): void
-
+  hookFrameCallback(): void;
 }
 
-export default IMupen
+export default IMupen;

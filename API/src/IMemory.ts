@@ -1,29 +1,27 @@
-interface IMemory{
+interface IMemory {
+  rdramRead8(addr: number): number;
 
-    rdramRead8(addr: number): number
+  rdramWrite8(addr: number, value: number): void;
 
-    rdramWrite8(addr: number, value: number): void
+  rdramRead16(addr: number): number;
 
-    rdramRead16(addr: number): number
+  rdramWrite16(addr: number, value: number): void;
 
-    rdramWrite16(addr: number, value: number): void
+  rdramWrite32(addr: number, value: number): void;
 
-    rdramWrite32(addr: number, value: number): void
+  rdramRead32(addr: number): number;
 
-    rdramRead32(addr: number): number
+  rdramReadBuffer(addr: number, size: number): Buffer;
 
-    rdramReadBuffer(addr: number, size: number): Buffer
+  rdramWriteBuffer(addr: number, buf: Buffer): void;
 
-    rdramWriteBuffer(addr: number, buf: Buffer): void
+  dereferencePointer(addr: number): number;
 
-    dereferencePointer(addr: number): number
+  rdramReadS8(addr: number): number;
 
-    rdramReadS8(addr: number): number
+  rdramReadS16(addr: number): number;
 
-    rdramReadS16(addr: number): number
-
-    rdramReadS32(addr: number): number
-
+  rdramReadS32(addr: number): number;
 }
 
-export default IMemory
+export default IMemory;

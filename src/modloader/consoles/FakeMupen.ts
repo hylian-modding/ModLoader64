@@ -1,57 +1,50 @@
-import IConsole from "modloader64_api/IConsole";
-import { FakeN64Memory } from "./FakeN64Memory";
+import IConsole from 'modloader64_api/IConsole';
+import { FakeN64Memory } from './FakeN64Memory';
 import fs from 'fs';
-import { Rom } from "../Rom";
-import IMemory from "modloader64_api/IMemory";
+import { Rom } from '../Rom';
+import IMemory from 'modloader64_api/IMemory';
 
-export class FakeMupen implements IConsole{
-    
-    rom: string
-    rom_data: Buffer
-    ram: FakeN64Memory
-    
-    constructor(rom: string){
-        this.rom = rom
-        this.rom_data = new Rom(this.rom).bytes
-        this.ram = new FakeN64Memory();
-    }
+export class FakeMupen implements IConsole {
+  rom: string;
+  rom_data: Buffer;
+  ram: FakeN64Memory;
 
-    startEmulator(preStartCallback: Function): IMemory {
-        preStartCallback(this.rom_data)
-        return this.ram;
-    }    
+  constructor(rom: string) {
+    this.rom = rom;
+    this.rom_data = new Rom(this.rom).bytes;
+    this.ram = new FakeN64Memory();
+  }
 
-    stopEmulator(): void {
-    }
+  startEmulator(preStartCallback: Function): IMemory {
+    preStartCallback(this.rom_data);
+    return this.ram;
+  }
 
-    finishInjects(): void {
-    }
+  stopEmulator(): void {}
 
-    isEmulatorReady(): boolean {
-        return true
-    }
+  finishInjects(): void {}
 
-    getLoadedRom(): Buffer {
-        return this.rom_data
-    }
+  isEmulatorReady(): boolean {
+    return true;
+  }
 
-    setFrameCallback(fn: Function): void {
-    }
+  getLoadedRom(): Buffer {
+    return this.rom_data;
+  }
 
-    pauseEmulator(): void {
-    }
-    
-    resumeEmulator(): void {
-    }
+  setFrameCallback(fn: Function): void {}
 
-    getRomHeader(): Buffer{
-        var b: Buffer = Buffer.alloc(0x50)
-        this.rom_data.copy(b, 0, 0, 0x50)
-        return b
-    }
+  pauseEmulator(): void {}
 
-    getMemoryAccess(): IMemory{
-        return this.ram;
-    }
-    
+  resumeEmulator(): void {}
+
+  getRomHeader(): Buffer {
+    let b: Buffer = Buffer.alloc(0x50);
+    this.rom_data.copy(b, 0, 0, 0x50);
+    return b;
+  }
+
+  getMemoryAccess(): IMemory {
+    return this.ram;
+  }
 }

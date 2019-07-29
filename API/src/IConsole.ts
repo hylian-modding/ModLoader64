@@ -1,27 +1,25 @@
-import IMemory from "./IMemory";
+import IMemory from './IMemory';
 
-interface IConsole{
+interface IConsole {
+  startEmulator(preStartCallback: Function): IMemory;
 
-    startEmulator(preStartCallback: Function): IMemory
-    
-    stopEmulator(): void
+  stopEmulator(): void;
 
-    finishInjects(): void
+  finishInjects(): void;
 
-    isEmulatorReady(): boolean
+  isEmulatorReady(): boolean;
 
-    getLoadedRom(): Buffer
+  getLoadedRom(): Buffer;
 
-    getRomHeader(): Buffer
+  getRomHeader(): Buffer;
 
-    setFrameCallback(fn: Function): void
+  setFrameCallback(fn: Function): void;
 
-    pauseEmulator(): void
+  pauseEmulator(): void;
 
-    resumeEmulator(): void
+  resumeEmulator(): void;
 
-    getMemoryAccess(): IMemory
-
+  getMemoryAccess(): IMemory;
 }
 
-export default IConsole
+export default IConsole;

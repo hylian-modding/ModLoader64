@@ -4,20 +4,25 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "tsc": "tsc --listEmittedFiles",
-    "build": "npm install && tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild"
+    "tsc": "npm run fix && tsc --listEmittedFiles",
+    "build": "npm install && tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix"
   },
   "author": "Team-Ooto",
   "dependencies": {
     "bitwise": "^2.0.3",
-    "buffer-json": "^2.0.0",
-    "typescript": "^3.5.3"
+    "buffer-json": "^2.0.0"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
     "find-remove": "^1.2.2",
     "mocha": "^6.2.0",
     "recursive-readdir": "^2.2.2",
-    "thread-sleep": "^2.2.0"
+    "thread-sleep": "^2.2.0",
+    "gts": "^1.0.0",
+    "typescript": "^3.5.3"
   }
 }

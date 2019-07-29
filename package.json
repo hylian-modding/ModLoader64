@@ -4,31 +4,29 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "tsc": "tsc --listEmittedFiles",
+    "tsc": "npm run fix && tsc --listEmittedFiles",
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
     "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
     "start_debug": "node ./build/src/index.js --mode=cli --dir=build",
-    "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js"
+    "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix"
   },
   "author": "Team-Ooto",
   "dependencies": {
-    "@types/express": "^4.17.0",
-    "@types/ncp": "^2.0.1",
-    "@types/node": "^12.0.10",
-    "@types/socket.io": "^2.1.2",
-    "@types/uuid": "^3.4.5",
     "bitwise": "^2.0.3",
     "buffer-json": "^2.0.0",
     "commander": "^2.20.0",
     "express": "^4.17.1",
     "human-readable-ids": "^1.0.4",
-    "modloader64_api": "file:API/build/src",
+    "modloader64_api": "file:API/build",
     "ncp": "^2.0.0",
     "portfinder": "^1.0.21",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socket.io-fix-close": "0.0.2",
-    "typescript": "^3.5.2",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
   },
@@ -37,6 +35,13 @@
     "find-remove": "^1.2.2",
     "mocha": "^6.2.0",
     "recursive-readdir": "^2.2.2",
-    "thread-sleep": "^2.2.0"
+    "thread-sleep": "^2.2.0",
+    "gts": "^1.0.0",
+    "typescript": "^3.5.2",
+    "@types/express": "^4.17.0",
+    "@types/ncp": "^2.0.1",
+    "@types/node": "^12.0.10",
+    "@types/socket.io": "^2.1.2",
+    "@types/uuid": "^3.4.5"
   }
 }
