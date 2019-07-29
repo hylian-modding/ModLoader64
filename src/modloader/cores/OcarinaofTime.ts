@@ -1376,6 +1376,7 @@ export class SaveContext implements ISaveContext {
   private magic_flag_2_addr: number = this.instance + 0x003c;
   private rupees_address: number = this.instance + 0x0034;
   private navi_timer_addr: number = this.instance + 0x0038;
+  private checksum_addr: number = this.instance + 0x1352;
   private zs: ZeldaString = new ZeldaString();
   // Further abstractions
   swords: SwordsEquipment;
@@ -1550,6 +1551,10 @@ export class SaveContext implements ISaveContext {
     this.emulator.rdramWrite16(this.navi_timer_addr, time);
   }
 
+  get checksum() {
+    return this.emulator.rdramRead16(this.checksum_addr);
+  }
+
   toJSON() {
     const proto = Object.getPrototypeOf(this);
     const jsonObj: any = Object.assign({}, this);
@@ -1571,11 +1576,73 @@ export class SaveContext implements ISaveContext {
   }
 }
 
+export class GlobalContext {
+  private emulator: IMemory;
+  private current_scene_addr = global.ModLoader.global_context + 0x0000a4;
+  private switch_flags_addr = global.ModLoader.global_context + 0x001d28;
+  private temp_switch_flags_addr = global.ModLoader.global_context + 0x001d2c;
+  private chest_flags_addr = global.ModLoader.global_context + 0x001d38;
+  private room_clear_flags_addr = global.ModLoader.global_context + 0x001d3c;
+  private current_room_addr = global.ModLoader.global_context + 0x011cbc;
+
+  constructor(emulator: IMemory) {
+    this.emulator = emulator;
+  }
+
+  get scene(): number {
+    return this.emulator.rdramRead16(this.current_scene_addr);
+  }
+
+  get room(): number {
+    return this.emulator.rdramRead8(this.current_room_addr);
+  }
+
+  toJSON() {
+    const proto = Object.getPrototypeOf(this);
+    const jsonObj: any = Object.assign({}, this);
+
+    Object.entries(Object.getOwnPropertyDescriptors(proto))
+      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
+      .map(([key, descriptor]) => {
+        if (descriptor && key[0] !== '_') {
+          try {
+            const val = (this as any)[key];
+            jsonObj[key] = val;
+          } catch (error) {
+            console.error(`Error calling getter ${key}`, error);
+          }
+        }
+      });
+
+    return jsonObj;
+  }
+}
+
+export class OotHelper {
+  private save: ISaveContext;
+
+  constructor(save: ISaveContext) {
+    this.save = save;
+  }
+
+  isTitleScreen() {
+    return this.save.checksum === 0;
+  }
+
+  toJSON() {
+    const jsonObj: any = {};
+    jsonObj['isTitleScreen'] = this.isTitleScreen();
+    return jsonObj;
+  }
+}
+
 export class OcarinaofTime implements ICore, IOOTCore {
   header = 'THE LEGEND OF ZELDA';
   ModLoader!: IModLoaderAPI;
   link!: ILink;
-  save!: SaveContext;
+  save!: ISaveContext;
+  global!: GlobalContext;
+  helper!: OotHelper;
   eventTicks: Map<string, Function> = new Map<string, Function>();
 
   preinit(): void {
@@ -1584,25 +1651,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     global.ModLoader['global_context'] = 0;
   }
 
-  init(): void {
-    this.eventTicks.set('contextScan', () => {
-      if (
-        this.ModLoader.emulator.dereferencePointer(
-          global.ModLoader.global_context_pointer
-        ) > 0
-      ) {
-        global.ModLoader.global_context = this.ModLoader.emulator.dereferencePointer(
-          global.ModLoader.global_context_pointer
-        );
-        this.ModLoader.logger.info(
-          'Located global context: 0x' +
-            global.ModLoader.global_context.toString(16).toUpperCase() +
-            '.'
-        );
-        this.eventTicks.delete('contextScan');
-      }
-    });
-  }
+  init(): void {}
 
   postinit(): void {
     let gameshark = new GameShark(
@@ -1616,13 +1665,24 @@ export class OcarinaofTime implements ICore, IOOTCore {
     } else {
       this.ModLoader.logger.error('injection failed?');
     }
+    global.ModLoader.global_context = this.ModLoader.emulator.dereferencePointer(
+      global.ModLoader.global_context_pointer
+    );
+    this.global = new GlobalContext(this.ModLoader.emulator);
     this.link = new Link(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
+    this.helper = new OotHelper(this.save);
     registerEndpoint('/Oot_SaveContext', (req: any, res: any) => {
       res.send(this.save);
     });
     registerEndpoint('/Oot_Link', (req: any, res: any) => {
       res.send(this.link);
+    });
+    registerEndpoint('/Oot_GlobalContext', (req: any, res: any) => {
+      res.send(this.global);
+    });
+    registerEndpoint('/Oot_Helper', (req: any, res: any) => {
+      res.send(this.helper);
     });
   }
 

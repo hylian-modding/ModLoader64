@@ -293,6 +293,7 @@ export interface ISaveContext {
   magic_current: number;
   rupee_count: number;
   navi_timer: number;
+  checksum: number;
 }
 
 export interface ILink {
@@ -301,6 +302,12 @@ export interface ILink {
   shield: Shield;
   boots: Boots;
   mask: Mask;
+  exists(): boolean;
+}
+
+export interface IGlobalContext {
+  scene: number;
+  room: number;
 }
 
 export interface IOOTCore {
