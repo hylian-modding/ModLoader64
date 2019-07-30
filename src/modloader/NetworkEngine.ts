@@ -101,6 +101,8 @@ namespace NetworkEngine {
     version!: Version;
     modLoaderconfig: IModLoaderConfig;
     lobbyVariables: PluginMeta[] = new Array<PluginMeta>();
+    currently_processing_lobby = '';
+    fakePlayer: FakeNetworkPlayer = new FakeNetworkPlayer();
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -158,12 +160,18 @@ namespace NetworkEngine {
         );
         if (!this.modLoaderconfig.isClient) {
           internal_event_bus.emit('onNetworkConnect', {
-            me: new FakeNetworkPlayer(),
+            me: this.fakePlayer,
             patch: Buffer.alloc(1),
           });
         }
         (function(inst) {
           NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
+            if (data.lobby === undefined) {
+              data.lobby = inst.currently_processing_lobby;
+            }
+            if (data.player === undefined) {
+              data.player = inst.fakePlayer;
+            }
             inst.sendToTarget(data.lobby, 'msg', data);
           });
           NetworkSendBusServer.addListener('toPlayer', (data: any) => {
@@ -249,6 +257,7 @@ namespace NetworkEngine {
               );
             });
             socket.on('msg', function(data: IPacketHeader) {
+              inst.currently_processing_lobby = data.lobby;
               inst.lobbyVariables.forEach(
                 (value: PluginMeta, index: number, array: PluginMeta[]) => {
                   value.setField(
@@ -263,6 +272,7 @@ namespace NetworkEngine {
               if (data.forward) {
                 socket.to(data.lobby).emit('msg', data);
               }
+              inst.currently_processing_lobby = '';
             });
             socket.on('toSpecificPlayer', function(data: any) {
               inst.sendToTarget(data.player.uuid, 'msg', data.packet);
