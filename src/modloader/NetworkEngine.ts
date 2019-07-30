@@ -94,6 +94,7 @@ namespace NetworkEngine {
     private http: any;
     io: any;
     wireUpServer = require('socket.io-fix-close');
+    encrypt = require('socket.io-encrypt');
     logger: ILogger;
     masterConfig: IConfig;
     config: IServerConfig;
@@ -146,6 +147,7 @@ namespace NetworkEngine {
     setup() {
       this.http = this.app.listen(this.config.port, () => {
         this.io = require('socket.io')(this.http);
+        this.io.use(this.encrypt(global.ModLoader.version));
         this.wireUpServer(this.http, this.io);
         internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
           this.logger.info('SHUTDOWN DETECTED.');
@@ -311,6 +313,7 @@ namespace NetworkEngine {
     masterConfig: IConfig;
     me!: INetworkPlayer;
     endpoint: EndpointServer;
+    encrypt = require('socket.io-encrypt');
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -344,6 +347,7 @@ namespace NetworkEngine {
         inst.socket = inst.io.connect(
           'http://' + inst.config.ip + ':' + inst.config.port
         );
+        inst.encrypt(global.ModLoader.version)(inst.socket);
         NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
           data.player = inst.me;
           data.lobby = inst.config.lobby;

@@ -23,6 +23,18 @@ switch (program.step) {
         postbuild();
         break;
     }
+    case "forceAPI": {
+        forceAPI();
+        break;
+    }
+}
+
+function forceAPI(){
+    if (isWin){
+        execSync("build_api.bat", { stdio: "inherit" })
+    }else{
+        execSync("build_api.sh", { stdio: "inherit" })
+    }
 }
 
 function prebuild() {
@@ -63,16 +75,12 @@ function prebuild() {
                 return console.error(err);
             }
             console.log('done!');
+            forceAPI();
         });
     }
 }
 
 function build() {
-    if (isWin){
-        execSync("build_api.bat", { stdio: "inherit" })
-    }else{
-        execSync("build_api.sh", { stdio: "inherit" })
-    }
     ncp("./src", "./build/src", function (err) {
         if (err) {
             return console.error(err);

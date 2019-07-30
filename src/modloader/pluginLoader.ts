@@ -58,7 +58,10 @@ class pluginLoader {
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.child({});
         plugin['ModLoader']['config'] = this.config;
-        if (plugin.core_dependency === this.selected_core) {
+        if (
+          plugin.core_dependency === this.selected_core ||
+          plugin.core_dependency === '*'
+        ) {
           // TODO: Clean this up. Could be done generically.
           if (p.prototype.hasOwnProperty('ModLoader')) {
             // Setup event decorator handlers

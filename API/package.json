@@ -6,9 +6,6 @@
   "scripts": {
     "tsc": "npm run fix && tsc --listEmittedFiles",
     "build": "npm install && tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
-    "check": "gts check",
-    "clean": "gts clean",
-    "compile": "tsc -p .",
     "fix": "gts fix"
   },
   "author": "Team-Ooto",
