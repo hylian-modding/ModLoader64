@@ -62,7 +62,6 @@ class pluginLoader {
           value: parse.name,
           writable: false,
         });
-        console.log((plugin as any).pluginName);
         if (
           plugin.core_dependency === this.selected_core ||
           plugin.core_dependency === '*'
