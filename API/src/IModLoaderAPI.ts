@@ -29,6 +29,8 @@ export interface IModLoaderAPI {
 export interface IPlugin {
   core_dependency: string;
   ModLoader: IModLoaderAPI;
+  // This is set by the ModLoader.
+  pluginName?: string;
   preinit(): void;
   init(): void;
   postinit(): void;

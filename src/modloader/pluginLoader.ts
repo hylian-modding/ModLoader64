@@ -9,7 +9,12 @@ import {
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import { GameShark, Code } from './GameShark';
-import { EventHandler, bus } from 'modloader64_api/EventHandler';
+import {
+  EventHandler,
+  bus,
+  EventsClient,
+  EventsServer,
+} from 'modloader64_api/EventHandler';
 import {
   NetworkBus,
   NetworkChannelBus,
@@ -23,6 +28,7 @@ import {
 import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
 import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
+import IModLoaderConfig from './IModLoaderConfig';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -232,11 +238,20 @@ class pluginLoader {
         }
       }
     });
+    let mainConfig = this.config.registerConfigCategory(
+      'ModLoader64'
+    ) as IModLoaderConfig;
     this.loaded_core.ModLoader.emulator = emulator;
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
       plugin.postinit();
+      if (mainConfig.isClient) {
+        bus.emit(EventsClient.ON_PLUGIN_READY, plugin);
+      }
+      if (mainConfig.isServer) {
+        bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
+      }
     });
     (function(inst) {
       inst.onTickHandle = function(frame: number) {

@@ -21,18 +21,20 @@ function EventHandler(key: string) {
 }
 
 export enum EventsServer {
-  ON_LOBBY_CREATE = 'lobbyCreated',
-  ON_LOBBY_JOIN = 'lobbyJoin',
-  ON_LOBBY_LEAVE = 'lobbyLeave',
+  ON_LOBBY_CREATE = 'lobbyCreated_server',
+  ON_LOBBY_JOIN = 'lobbyJoin_server',
+  ON_LOBBY_LEAVE = 'lobbyLeave_server',
+  ON_PLUGIN_READY = 'pluginReady_server',
 }
 
 export enum EventsClient {
-  ON_LOBBY_CREATE = 'lobbyJoined',
-  CONFIGURE_LOBBY = 'configureLobby',
-  ON_SERVER_CONNECTION = 'onServerConnection',
-  ON_PLAYER_LEAVE = 'playerLeave',
-  ON_PLAYER_JOIN = 'playerJoin',
-  ON_LOBBY_JOIN = 'lobbyJoined',
+  ON_LOBBY_CREATE = 'lobbyJoined_client',
+  CONFIGURE_LOBBY = 'configureLobby_client',
+  ON_SERVER_CONNECTION = 'onServerConnection_client',
+  ON_PLAYER_LEAVE = 'playerLeave_client',
+  ON_PLAYER_JOIN = 'playerJoin_client',
+  ON_LOBBY_JOIN = 'lobbyJoined_client',
+  ON_PLUGIN_READY = 'pluginReady_client',
 }
 
 export { bus, EventHandler };
