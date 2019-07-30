@@ -1,27 +1,34 @@
-export const enum AnimalType {  
-    UNKNOWN = 0x00,
-    BEAR_BIRD = 0x01,
-    TERMITE = 0x02,
-    PUMPKIN = 0x03,
-    WALRUS = 0x04,
-    CROCODILE = 0x05,
-    BEE = 0x06,
-    WASHING_MACHINE = 0x07
+export enum AnimalType {
+  UNKNOWN = 0x00,
+  BEAR_BIRD = 0x01,
+  TERMITE = 0x02,
+  PUMPKIN = 0x03,
+  WALRUS = 0x04,
+  CROCODILE = 0x05,
+  BEE = 0x06,
+  WASHING_MACHINE = 0x07,
 }
 
-export const enum LevelID {
-    UNKNOWN = 0x00,
-    MUMBOS_MOUNTAIN = 0x01,
-    TREASURE_TROVE_COVE = 0x02,
-    CLANKERS_CAVERN = 0x03,
-    BUBBLE_GLOOP_SWAMP = 0x04,
-    FREEZEEZY_PEAK = 0x05,
-    GRUNTILDAS_LAIR = 0x06,
-    GOBEYS_VALEY = 0x07,
-    CLICK_CLOCK_WOODS = 0x08,
-    RUSTY_BUCKET_BAY = 0x09,
-    MAD_MONSTER_MANSION = 0x0A,
-    SPIRAL_MOUNTAIN = 0x0B,
-    UNKNOWN_PLACEHOLDER = 0x0C,
-    TITLE_SCREEN = 0x0D
+export enum LevelID {
+  UNKNOWN = 0x00,
+  MUMBOS_MOUNTAIN = 0x01,
+  TREASURE_TROVE_COVE = 0x02,
+  CLANKERS_CAVERN = 0x03,
+  BUBBLE_GLOOP_SWAMP = 0x04,
+  FREEZEEZY_PEAK = 0x05,
+  GRUNTILDAS_LAIR = 0x06,
+  GOBEYS_VALEY = 0x07,
+  CLICK_CLOCK_WOODS = 0x08,
+  RUSTY_BUCKET_BAY = 0x09,
+  MAD_MONSTER_MANSION = 0x0a,
+  SPIRAL_MOUNTAIN = 0x0b,
+  GRUNTILDA_LAIR_ROOF = 0x0c,
+  TITLE_SCREEN = 0x0d,
+}
+
+export enum ProfileID {
+  Title = -1,
+  A = 0,
+  B = 2,
+  C = 1,
 }
