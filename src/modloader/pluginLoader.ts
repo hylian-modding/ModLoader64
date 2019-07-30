@@ -58,6 +58,11 @@ class pluginLoader {
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.child({});
         plugin['ModLoader']['config'] = this.config;
+        Object.defineProperty(plugin, 'pluginName', {
+          value: parse.name,
+          writable: false
+        });
+        console.log((plugin as any).pluginName);
         if (
           plugin.core_dependency === this.selected_core ||
           plugin.core_dependency === '*'
@@ -70,8 +75,7 @@ class pluginLoader {
                 value: string,
                 key: string
               ) {
-                // @ts-ignore
-                let a = plugin[value].bind(plugin);
+                let a = (plugin as any)[value].bind(plugin)
                 bus.addListener(key, a);
               });
             }
@@ -84,8 +88,7 @@ class pluginLoader {
               ) {
                 p.prototype.ModLoader.NetworkHandler.PacketHandlers.forEach(
                   function(value: string, key: string) {
-                    // @ts-ignore
-                    let a = plugin[value].bind(plugin);
+                    let a = (plugin as any)[value].bind(plugin)
                     NetworkBus.addListener(key, a);
                   }
                 );
@@ -98,8 +101,7 @@ class pluginLoader {
                 // Setup channel decorator handlers
                 p.prototype.ModLoader.NetworkHandler.ChannelHandlers.forEach(
                   function(value: string, key: string) {
-                    // @ts-ignore
-                    let a = plugin[value].bind(plugin);
+                    let a = (plugin as any)[value].bind(plugin)
                     NetworkChannelBus.addListener(key, a);
                   }
                 );
@@ -114,8 +116,7 @@ class pluginLoader {
               ) {
                 p.prototype.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(
                   function(value: string, key: string) {
-                    // @ts-ignore
-                    let a = plugin[value].bind(plugin);
+                    let a = (plugin as any)[value].bind(plugin)
                     NetworkBusServer.addListener(key, a);
                   }
                 );
@@ -128,8 +129,7 @@ class pluginLoader {
                 // Setup server-side channel decorator handlers
                 p.prototype.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(
                   function(value: string, key: string) {
-                    // @ts-ignore
-                    let a = plugin[value].bind(plugin);
+                    let a = (plugin as any)[value].bind(plugin)
                     NetworkChannelBusServer.addListener(key, a);
                   }
                 );
@@ -137,10 +137,7 @@ class pluginLoader {
             }
             if (p.prototype.ModLoader.hasOwnProperty('InjectCore')) {
               // Inject the core.
-              //@ts-ignore
-              plugin[
-                p.prototype.ModLoader.InjectCore.get('field')()
-              ] = this.loaded_core;
+              (plugin as any)[p.prototype.ModLoader.InjectCore.get('field')()] = this.loaded_core;
             }
           }
           setupLobbyVariable(plugin, p.prototype);
