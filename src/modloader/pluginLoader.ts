@@ -142,9 +142,14 @@ class pluginLoader {
             }
             if (p.prototype.ModLoader.hasOwnProperty('InjectCore')) {
               // Inject the core.
-              (plugin as any)[
-                p.prototype.ModLoader.InjectCore.get('field')()
-              ] = this.loaded_core;
+              Object.defineProperty(
+                plugin,
+                p.prototype.ModLoader.InjectCore.get('field')(),
+                {
+                  value: this.loaded_core,
+                  writable: false,
+                }
+              );
             }
           }
           setupLobbyVariable(plugin, p.prototype);
