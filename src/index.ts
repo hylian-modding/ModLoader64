@@ -2,6 +2,7 @@ import modloader64 from './modloader/modloader64';
 import winston from 'winston';
 import program from 'commander';
 import path from 'path';
+import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
@@ -51,6 +52,12 @@ if (program.dirforce) {
   process.chdir(program.dirforce);
   logger.info('Setting running directory: ' + process.cwd());
 }
+
+// Monkey patches
+let stringify = new MonkeyPatch_Stringify();
+stringify.patch();
+let parse = new MonkeyPatch_Parse();
+parse.patch();
 
 if (program.mode === 'cli') {
   logger.info('Starting in CLI Mode...');

@@ -1,8 +1,6 @@
 import { IPlugin } from './IModLoaderAPI';
 import { bus } from './EventHandler';
 
-const BJSON = require('buffer-json');
-
 export function LobbyVariable(objectKey: string) {
   return function(target: any, key: string) {
     if (target.ModLoader === undefined) {
@@ -33,7 +31,7 @@ export class PluginMeta {
     this.prototype = prototype;
     this.fieldName = fieldName;
     this.objectKey = objectKey;
-    this.template = BJSON.stringify(field);
+    this.template = JSON.stringify(field);
   }
 
   setField(data: any) {
@@ -42,7 +40,7 @@ export class PluginMeta {
   }
 
   cloneTemplate(): any {
-    return BJSON.parse(this.template);
+    return JSON.parse(this.template);
   }
 }
 

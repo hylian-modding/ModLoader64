@@ -10,15 +10,11 @@
   },
   "author": "Team-Ooto",
   "dependencies": {
-    "bitwise": "^2.0.3",
-    "buffer-json": "^2.0.0"
+    "bitwise": "^2.0.3"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.7",
     "find-remove": "^1.2.2",
-    "mocha": "^6.2.0",
     "recursive-readdir": "^2.2.2",
-    "thread-sleep": "^2.2.0",
     "gts": "^1.0.0",
     "typescript": "^3.5.3"
   }
