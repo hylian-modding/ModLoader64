@@ -9,8 +9,8 @@ export class NetworkPlayer implements INetworkPlayer {
     this.uuid = uuid;
   }
 
-  isSamePlayer(player: INetworkPlayer) {
-    return player.nickname === this.nickname && player.uuid === this.uuid;
+  isSamePlayer(compare: INetworkPlayer): boolean {
+    return compare.nickname === this.nickname && compare.uuid === this.uuid;
   }
 }
 

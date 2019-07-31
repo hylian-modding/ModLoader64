@@ -130,6 +130,7 @@ export const ClientController: INetwork = new Client();
 export interface INetworkPlayer {
   nickname: string;
   uuid: string;
+  isSamePlayer(compare: INetworkPlayer): boolean;
 }
 
 export interface IPacketHeader {

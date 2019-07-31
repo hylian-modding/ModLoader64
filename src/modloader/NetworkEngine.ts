@@ -86,6 +86,10 @@ class FakeNetworkPlayer implements INetworkPlayer {
     this.nickname = 'FakeNetworkPlayer';
     this.uuid = uuid.v4();
   }
+
+  isSamePlayer(compare: INetworkPlayer): boolean {
+    return compare.nickname === this.nickname && compare.uuid === this.uuid;
+  }
 }
 
 namespace NetworkEngine {
