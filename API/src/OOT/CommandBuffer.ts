@@ -40,11 +40,27 @@ export class CommandBufferSlot {
 }
 
 export class CommandBuffer {
-  readonly slots: CommandBufferSlot[] = new Array<CommandBufferSlot>(slotCount);
+  private readonly slots: CommandBufferSlot[] = new Array<CommandBufferSlot>(
+    slotCount
+  );
 
   constructor(emulator: IMemory) {
     for (let i = 0; i < slotCount; i++) {
       this.slots[i] = new CommandBufferSlot(instance + i * slotSize, emulator);
     }
+  }
+
+  runCommand(command: Command, param: number): boolean {
+    let success = false;
+    for (let i = 0; i < slotCount; i++) {
+      if (this.slots[i].cmd === 0) {
+        // Free slot.
+        this.slots[i].param = param;
+        this.slots[i].cmd = command;
+        success = true;
+        break;
+      }
+    }
+    return success;
   }
 }
