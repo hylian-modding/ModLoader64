@@ -36,7 +36,10 @@ import { bus } from 'modloader64_api/EventHandler';
 import ZeldaString from 'modloader64_api/OOT/ZeldaString';
 import { FlagManager, Flag } from 'modloader64_api/FlagManager';
 import { registerEndpoint } from 'modloader64_api/EndpointHandler';
-import {CommandBuffer, CommandBufferSlot} from 'modloader64_api/OOT/CommandBuffer';
+import {
+  CommandBuffer,
+  CommandBufferSlot,
+} from 'modloader64_api/OOT/CommandBuffer';
 
 export const enum SwordBitMap {
   KOKIRI = 7,
@@ -1626,7 +1629,7 @@ export class SaveContext implements ISaveContext {
     return this.emulator.rdramRead16(this.checksum_addr);
   }
 
-  get age(): Age{
+  get age(): Age {
     return this.emulator.rdramRead32(this.age_addr);
   }
 
@@ -1651,7 +1654,7 @@ export class SaveContext implements ISaveContext {
   }
 }
 
-export class GlobalContext implements IGlobalContext{
+export class GlobalContext implements IGlobalContext {
   private emulator: IMemory;
   private current_scene_addr = global.ModLoader.global_context + 0x0000a4;
   private switch_flags_addr = global.ModLoader.global_context + 0x001d28;
@@ -1693,7 +1696,7 @@ export class GlobalContext implements IGlobalContext{
   }
 }
 
-export class OotHelper implements IOotHelper{
+export class OotHelper implements IOotHelper {
   private save: ISaveContext;
 
   constructor(save: ISaveContext) {

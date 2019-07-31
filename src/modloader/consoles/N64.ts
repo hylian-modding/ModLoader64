@@ -8,7 +8,7 @@ class N64 implements IConsole {
   rom_size: number;
 
   constructor(rom: string) {
-    this.mupen = require(process.cwd() + "/mupen64plus.node") as IMupen;
+    this.mupen = require(process.cwd() + '/mupen64plus.node') as IMupen;
 
     this.mupen.dereferencePointer = (addr: number) => {
       return this.mupen.rdramRead32(addr) - 0x80000000;
