@@ -13,6 +13,7 @@ import IConsole from 'modloader64_api/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
 
+const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
 
 class ModLoader64 {
@@ -88,6 +89,13 @@ class ModLoader64 {
     this.config.setData('ModLoader64', 'patch', '');
     this.config.setData('ModLoader64', 'isServer', true);
     this.config.setData('ModLoader64', 'isClient', true);
+    this.config.setData(
+      'ModLoader64',
+      'supportedConsoles',
+      SUPPORTED_CONSOLES,
+      true
+    );
+    this.config.setData('ModLoader64', 'selectedConsole', 'N64');
 
     this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
 
@@ -103,10 +111,20 @@ class ModLoader64 {
     );
 
     if (this.data.isServer) {
-      this.emulator = new FakeMupen(this.rom_path);
+      switch (this.data.selectedConsole) {
+        case 'N64': {
+          this.emulator = new FakeMupen(this.rom_path);
+          break;
+        }
+      }
     }
     if (this.data.isClient) {
-      this.emulator = new N64(this.rom_path);
+      switch (this.data.selectedConsole) {
+        case 'N64': {
+          this.emulator = new N64(this.rom_path);
+          break;
+        }
+      }
     }
     internal_event_bus.emit('preinit_done', {});
     this.init();

@@ -16,8 +16,8 @@ class configuration implements IConfig {
     }
   }
 
-  setData(category: string, key: string, value: any) {
-    if (!this.data[category].hasOwnProperty(key)) {
+  setData(category: string, key: string, value: any, override = false) {
+    if (!this.data[category].hasOwnProperty(key) || override) {
       this.data[category][key] = value;
       this.save();
     }

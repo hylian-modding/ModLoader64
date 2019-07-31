@@ -10,7 +10,7 @@ export interface ILogger {
 export interface IConfig {
   data: any;
   file: string;
-  setData(category: string, key: string, value: any): void;
+  setData(category: string, key: string, value: any, override?: boolean): void;
   registerConfigCategory(category: string): object;
   save(): void;
 }
