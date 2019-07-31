@@ -1306,13 +1306,33 @@ export class Link implements ILink {
   }
 
   get state(): LinkState {
-    switch (this.emulator.rdramRead16(this.state_addr)) {
+    switch (this.emulator.rdramRead32(this.state_addr)) {
       case 0:
         return LinkState.STANDING;
-      case 0x20:
+      case 0x20000000:
         return LinkState.BUSY;
-      case 0x30:
+      case 0x30000000:
         return LinkState.OCARINA;
+      case 0x20000001:
+        return LinkState.LOADING_ZONE;
+      case 0x80000000:
+        return LinkState.ENTERING_GROTTO;
+      case 0x00100000:
+        return LinkState.FIRST_PERSON;
+      case 0x00040000:
+        return LinkState.JUMPING;
+      case 0x08000000:
+        return LinkState.SWIMMING;
+      case 0x00004000:
+        return LinkState.CLIMBING_OUT_OF_WATER;
+      case 0x00002000:
+        return LinkState.HANGING_FROM_LEDGE;
+      case 0x00800000:
+        return LinkState.RIDING_EPONA;
+      case 0x00000080:
+        return LinkState.DYING;
+      case 0x04000000:
+        return LinkState.TAKING_DAMAGE;
     }
     return LinkState.UNKNOWN;
   }
@@ -1725,6 +1745,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
   eventTicks: Map<string, Function> = new Map<string, Function>();
   // Client side variables
   isSaveLoaded = false;
+  last_known_scene = -1;
+  touching_loading_zone = false;
 
   preinit(): void {
     global.ModLoader['save_context'] = 0x11a5d0;
@@ -1734,10 +1756,27 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
   init(): void {
     this.eventTicks.set('waitingForSaveload', () => {
-      if (!this.helper.isTitleScreen() && !this.isSaveLoaded) {
+      if (!this.isSaveLoaded) {
         bus.emit(OotEvents.ON_SAVE_LOADED, {});
         this.isSaveLoaded = true;
         this.eventTicks.delete('waitingForSaveload');
+      }
+    });
+    this.eventTicks.set('waitingForSceneChange', () => {
+      let cur = this.global.scene;
+      if (cur !== this.last_known_scene && cur <= 101) {
+        this.last_known_scene = cur;
+        bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
+        this.touching_loading_zone = false;
+      }
+    });
+    this.eventTicks.set('waitingForLoadingZoneTrigger', () => {
+      if (
+        this.link.state === LinkState.LOADING_ZONE &&
+        !this.touching_loading_zone
+      ) {
+        bus.emit(OotEvents.ON_LOADING_ZONE, {});
+        this.touching_loading_zone = true;
       }
     });
   }
@@ -1762,6 +1801,9 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.save = new SaveContext(this.ModLoader.emulator);
     this.helper = new OotHelper(this.save);
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
+    this.eventTicks.set('commandBuffer', () => {
+      this.commandBuffer.onTick();
+    });
     registerEndpoint('/Oot_SaveContext', (req: any, res: any) => {
       res.send(this.save);
     });
@@ -1777,8 +1819,10 @@ export class OcarinaofTime implements ICore, IOOTCore {
   }
 
   onTick(): void {
-    this.eventTicks.forEach((value: Function, key: string) => {
-      value();
-    });
+    if (!this.helper.isTitleScreen()) {
+      this.eventTicks.forEach((value: Function, key: string) => {
+        value();
+      });
+    }
   }
 }

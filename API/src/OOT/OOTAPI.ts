@@ -1,12 +1,25 @@
 import IMemory from '../IMemory';
 import { CommandBuffer } from './CommandBuffer';
 
-export const enum LinkState {
+export declare const enum LinkState {
+  UNKNOWN,
   STANDING,
   SWIMMING,
   OCARINA,
   BUSY,
-  UNKNOWN,
+  LOADING_ZONE,
+  ENTERING_GROTTO,
+  FIRST_PERSON,
+  JUMPING,
+  CLIMBING_OUT_OF_WATER,
+  HANGING_FROM_LEDGE,
+  CHARGING_SPIN_ATTACK,
+  HOLDING_ACTOR,
+  GETTING_ITEM,
+  SHOOTING_BOW_OR_HOOKSHOT,
+  RIDING_EPONA,
+  DYING,
+  TAKING_DAMAGE,
 }
 
 export const enum Tunic {
@@ -336,4 +349,6 @@ export interface IOOTCore {
 
 export enum OotEvents {
   ON_SAVE_LOADED = 'onSaveLoaded',
+  ON_SCENE_CHANGE = 'onSceneChange',
+  ON_LOADING_ZONE = 'onLoadingZone',
 }

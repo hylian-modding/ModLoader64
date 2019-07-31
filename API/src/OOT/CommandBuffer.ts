@@ -15,6 +15,7 @@ export class CommandBufferSlot {
   private readonly addr_cmd: number;
   private readonly addr_result: number;
   private readonly emulator: IMemory;
+  callback: Function = () => {};
 
   constructor(addr: number, emulator: IMemory) {
     this.addr_cmd = addr;
@@ -43,6 +44,7 @@ export class CommandBuffer {
   private readonly slots: CommandBufferSlot[] = new Array<CommandBufferSlot>(
     slotCount
   );
+  private tickingSlots: number[] = new Array<number>();
 
   constructor(emulator: IMemory) {
     for (let i = 0; i < slotCount; i++) {
@@ -50,17 +52,51 @@ export class CommandBuffer {
     }
   }
 
-  runCommand(command: Command, param: number): boolean {
+  runCommand(
+    command: Command,
+    param: number,
+    callback: Function = () => {}
+  ): boolean {
     let success = false;
     for (let i = 0; i < slotCount; i++) {
       if (this.slots[i].cmd === 0) {
         // Free slot.
         this.slots[i].param = param;
         this.slots[i].cmd = command;
+        this.slots[i].callback = callback;
+        this.tickingSlots.push(i);
         success = true;
         break;
       }
     }
     return success;
+  }
+
+  nukeBuffer() {
+    if (this.tickingSlots.length > 0) {
+      this.tickingSlots.splice(0, this.tickingSlots.length);
+    }
+    for (let i = 0; i < this.slots.length; i++) {
+      this.slots[i].cmd = 0;
+      this.slots[i].param = 0;
+    }
+  }
+
+  onTick() {
+    if (this.tickingSlots.length > 0) {
+      this.tickingSlots.forEach(
+        (value: number, index: number, arr: number[]) => {
+          if (this.slots[value].cmd === 0) {
+            // command is finished.
+            this.slots[value].callback(
+              this.slots[value].cmd === 0,
+              this.slots[value].result
+            );
+            this.slots[value].param = 0x00000000;
+            this.tickingSlots.splice(index, 1);
+          }
+        }
+      );
+    }
   }
 }
