@@ -5,9 +5,11 @@
   "main": "./src/index.js",
   "scripts": {
     "tsc": "tsc --listEmittedFiles",
+    "modules": "npm run build && node ./build.js --step=pushModules",
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
     "build_api": "tsc ./build.ts --esModuleInterop && node ./build.js --step=forceAPI",
     "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
+    "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --mode=cli --dir=build",
     "start_debug": "node ./build/src/index.js --mode=cli --dir=build",
     "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
     "fix": "gts fix"
@@ -41,6 +43,7 @@
     "@types/node": "^12.0.10",
     "@types/socket.io": "^2.1.2",
     "@types/uuid": "^3.4.5",
+    "copy-node-modules": "^1.1.1",
     "find-remove": "^1.2.2",
     "gts": "^1.0.0",
     "mocha": "^6.2.0",

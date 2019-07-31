@@ -52,17 +52,6 @@ if (program.dirforce) {
   logger.info('Setting running directory: ' + process.cwd());
 }
 
-let isWin = process.platform === 'win32';
-
-if (isWin) {
-  logger.info('We are on Windows.');
-  logger.info('Checking for PATH...');
-  if (process.env.PATH) {
-    logger.info('Attempting to modify path...');
-    process.env.PATH = process.env.PATH + path.resolve('./emulator') + ';';
-  }
-}
-
 if (program.mode === 'cli') {
   logger.info('Starting in CLI Mode...');
   let instance = new modloader64(logger.child({}));

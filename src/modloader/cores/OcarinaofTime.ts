@@ -28,11 +28,15 @@ import {
   Strength,
   ZoraScale,
   OotEvents,
+  IOotHelper,
+  IGlobalContext,
+  Age,
 } from 'modloader64_api/OOT/OOTAPI';
 import { bus } from 'modloader64_api/EventHandler';
 import ZeldaString from 'modloader64_api/OOT/ZeldaString';
 import { FlagManager, Flag } from 'modloader64_api/FlagManager';
 import { registerEndpoint } from 'modloader64_api/EndpointHandler';
+import {CommandBuffer, CommandBufferSlot} from 'modloader64_api/OOT/CommandBuffer';
 
 export const enum SwordBitMap {
   KOKIRI = 7,
@@ -1426,6 +1430,7 @@ export class SaveContext implements ISaveContext {
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private entrance_index_addr: number = this.instance + 0x0000;
+  private age_addr = this.instance + 0x0004;
   private cutscene_number_addr: number = this.instance + 0x000a;
   private world_time_addr: number = this.instance + 0x000c;
   private world_night_addr: number = this.instance + 0x0010;
@@ -1621,6 +1626,10 @@ export class SaveContext implements ISaveContext {
     return this.emulator.rdramRead16(this.checksum_addr);
   }
 
+  get age(): Age{
+    return this.emulator.rdramRead32(this.age_addr);
+  }
+
   toJSON() {
     const proto = Object.getPrototypeOf(this);
     const jsonObj: any = Object.assign({}, this);
@@ -1642,7 +1651,7 @@ export class SaveContext implements ISaveContext {
   }
 }
 
-export class GlobalContext {
+export class GlobalContext implements IGlobalContext{
   private emulator: IMemory;
   private current_scene_addr = global.ModLoader.global_context + 0x0000a4;
   private switch_flags_addr = global.ModLoader.global_context + 0x001d28;
@@ -1684,7 +1693,7 @@ export class GlobalContext {
   }
 }
 
-export class OotHelper {
+export class OotHelper implements IOotHelper{
   private save: ISaveContext;
 
   constructor(save: ISaveContext) {
@@ -1707,8 +1716,9 @@ export class OcarinaofTime implements ICore, IOOTCore {
   ModLoader!: IModLoaderAPI;
   link!: ILink;
   save!: ISaveContext;
-  global!: GlobalContext;
-  helper!: OotHelper;
+  global!: IGlobalContext;
+  helper!: IOotHelper;
+  commandBuffer!: CommandBuffer;
   eventTicks: Map<string, Function> = new Map<string, Function>();
   // Client side variables
   isSaveLoaded = false;
@@ -1748,6 +1758,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.link = new Link(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
     this.helper = new OotHelper(this.save);
+    this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
     registerEndpoint('/Oot_SaveContext', (req: any, res: any) => {
       res.send(this.save);
     });

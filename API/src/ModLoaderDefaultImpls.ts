@@ -8,6 +8,10 @@ export class NetworkPlayer implements INetworkPlayer {
     this.nickname = nickname;
     this.uuid = uuid;
   }
+
+  isSamePlayer(player: INetworkPlayer) {
+    return player.nickname === this.nickname && player.uuid === this.uuid;
+  }
 }
 
 export class Packet implements IPacketHeader {

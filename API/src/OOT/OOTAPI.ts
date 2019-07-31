@@ -149,6 +149,11 @@ export const enum AmmoUpgrade {
   MAX,
 }
 
+export const enum Age {
+  ADULT,
+  CHILD,
+}
+
 export interface ISwords {
   kokiriSword: boolean;
   masterSword: boolean;
@@ -296,6 +301,7 @@ export interface ISaveContext {
   rupee_count: number;
   navi_timer: number;
   checksum: number;
+  age: Age;
 }
 
 export interface ILink extends IMemory {
@@ -313,6 +319,10 @@ export interface ILink extends IMemory {
 export interface IGlobalContext {
   scene: number;
   room: number;
+}
+
+export interface IOotHelper {
+  isTitleScreen(): boolean;
 }
 
 export interface IOOTCore {

@@ -7,6 +7,8 @@ import findRemoveSync from 'find-remove';
 
 var isWin = process.platform === "win32";
 
+const copyNodeModules = require('copy-node-modules');
+
 program.option('-s, --step <type>', 'build step')
 program.parse(process.argv);
 
@@ -27,14 +29,39 @@ switch (program.step) {
         forceAPI();
         break;
     }
+    case "pushModules": {
+        pushModules();
+        break;
+    }
 }
 
-function forceAPI(){
-    if (isWin){
+function forceAPI() {
+    if (isWin) {
         execSync("build_api.bat", { stdio: "inherit" })
-    }else{
+    } else {
         execSync("build_api.sh", { stdio: "inherit" })
     }
+}
+
+function pushModules() {
+    const srcDir = '.';
+    const dstDir = './build';
+    copyNodeModules(srcDir, dstDir, { devDependencies: false }, (err, results) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        forceAPI();
+        if (!fs.existsSync("./build/node_modules/modloader64_api")){
+            fs.mkdirSync("./build/node_modules/modloader64_api");
+        }
+        ncp("./API/build", "./build/node_modules/modloader64_api", function (err) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log('done!');
+        });
+    });
 }
 
 function prebuild() {
@@ -62,12 +89,19 @@ function prebuild() {
         fs.mkdirSync("./build/roms")
     }
 
-    if (!fs.existsSync("./build/emulator/mupen64plus.node")) {
+    if (!fs.existsSync("./build/emulator/mupen64plus.dll")) {
         console.log("Building Mupen...")
-        
-        if (isWin){
+
+        ncp("./ModLoader64-M64P-Bundle", "./build", function (err) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log('done!');
+        });
+
+        if (isWin) {
             execSync("build_mupen_win32.bat", { stdio: "inherit" })
-        }else{
+        } else {
             execSync("build_mupen_lin64.sh", { stdio: "inherit" })
         }
         ncp("./Mupen64Plus-Script/mupen64plus-binding-npm/bin", "./build", function (err) {

@@ -8,16 +8,15 @@ class N64 implements IConsole {
   rom_size: number;
 
   constructor(rom: string) {
-    this.mupen = require(process.cwd() +
-      '/emulator/mupen64plus.node') as IMupen;
+    this.mupen = require(process.cwd() + "/mupen64plus.node") as IMupen;
 
     this.mupen.dereferencePointer = (addr: number) => {
       return this.mupen.rdramRead32(addr) - 0x80000000;
     };
 
-    this.mupen.setConfigDir(process.cwd() + '/emulator');
-    this.mupen.setDataDir(process.cwd() + '/emulator');
-    this.mupen.setPluginDir(process.cwd() + '/emulator');
+    this.mupen.setConfigDir(process.cwd());
+    this.mupen.setDataDir(process.cwd());
+    this.mupen.setPluginDir(process.cwd());
 
     this.mupen.initialize();
 
