@@ -265,7 +265,7 @@ class pluginLoader {
           plugin.onTick();
         });
       };
-      global.ModLoader["DO_NOT_TOUCH"] = inst.onTickHandle;
+      global.ModLoader['DO_NOT_TOUCH'] = inst.onTickHandle;
       console.setFrameCallback(inst.onTickHandle);
     })(this);
     console.resumeEmulator();

@@ -100,10 +100,10 @@ export class JSONTemplate {
     const jsonObj: any = {};
 
     for (let i = 0; i < this.jsonFields.length; i++) {
-      let v = (this as any)[this.jsonFields[i]]
-      if (v instanceof JSONTemplate){
+      let v = (this as any)[this.jsonFields[i]];
+      if (v instanceof JSONTemplate) {
         jsonObj[this.jsonFields[i]] = v.toJSON();
-      }else{
+      } else {
         jsonObj[this.jsonFields[i]] = v;
       }
     }
@@ -1350,7 +1350,7 @@ export class Link extends JSONTemplate implements ILink {
         return LinkState.FALLING;
       case 0xa0040000:
         return LinkState.VOIDING_OUT;
-      case 0x20000C00:
+      case 0x20000c00:
         return LinkState.GETTING_ITEM;
     }
     return LinkState.UNKNOWN;
@@ -1503,12 +1503,12 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     'navi_timer',
     'checksum',
     'age',
-    "swords",
-    "shields",
-    "tunics",
-    "boots",
-    "inventory",
-    "questStatus"
+    'swords',
+    'shields',
+    'tunics',
+    'boots',
+    'inventory',
+    'questStatus',
   ];
 
   constructor(emu: IMemory) {
