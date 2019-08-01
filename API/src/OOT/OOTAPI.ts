@@ -20,6 +20,8 @@ export declare const enum LinkState {
   RIDING_EPONA,
   DYING,
   TAKING_DAMAGE,
+  FALLING,
+  VOIDING_OUT,
 }
 
 export const enum Tunic {
@@ -333,6 +335,7 @@ export interface ILink extends IMemory {
 export interface IGlobalContext {
   scene: number;
   room: number;
+  framecount: number;
 }
 
 export interface IOotHelper {
@@ -351,4 +354,5 @@ export enum OotEvents {
   ON_SAVE_LOADED = 'onSaveLoaded',
   ON_SCENE_CHANGE = 'onSceneChange',
   ON_LOADING_ZONE = 'onLoadingZone',
+  ON_VOID_OUT = 'onVoidOut',
 }

@@ -1333,6 +1333,10 @@ export class Link implements ILink {
         return LinkState.DYING;
       case 0x04000000:
         return LinkState.TAKING_DAMAGE;
+      case 0x00040000:
+        return LinkState.FALLING;
+      case 0xa0040000:
+        return LinkState.VOIDING_OUT;
     }
     return LinkState.UNKNOWN;
   }
@@ -1682,6 +1686,7 @@ export class GlobalContext implements IGlobalContext {
   private chest_flags_addr = global.ModLoader.global_context + 0x001d38;
   private room_clear_flags_addr = global.ModLoader.global_context + 0x001d3c;
   private current_room_addr = global.ModLoader.global_context + 0x011cbc;
+  private frame_count_addr = global.ModLoader.global_context + 0x011de4;
 
   constructor(emulator: IMemory) {
     this.emulator = emulator;
@@ -1693,6 +1698,10 @@ export class GlobalContext implements IGlobalContext {
 
   get room(): number {
     return this.emulator.rdramRead8(this.current_room_addr);
+  }
+
+  get framecount(): number {
+    return this.emulator.rdramRead32(this.frame_count_addr);
   }
 
   toJSON() {
@@ -1747,6 +1756,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
   isSaveLoaded = false;
   last_known_scene = -1;
   touching_loading_zone = false;
+  last_known_frame = -1;
+  frame_count_reset_scene = -1;
+  frame_count_crush_timer = -1;
+  readonly frame_count_crush_timer_max = 25;
+  voiding_out = false;
 
   preinit(): void {
     global.ModLoader['save_context'] = 0x11a5d0;
@@ -1777,6 +1791,35 @@ export class OcarinaofTime implements ICore, IOOTCore {
       ) {
         bus.emit(OotEvents.ON_LOADING_ZONE, {});
         this.touching_loading_zone = true;
+      }
+    });
+    this.eventTicks.set('waitingForFrameCount', () => {
+      let frame = this.global.framecount;
+      if (frame > this.last_known_frame) {
+        this.last_known_frame = frame;
+      } else {
+        this.last_known_frame = 0;
+        this.frame_count_reset_scene = this.global.scene;
+        if (this.link.state === LinkState.VOIDING_OUT) {
+          return;
+        }
+        this.eventTicks.set('temp_waitingForCrush', () => {
+          if (this.frame_count_reset_scene !== this.global.scene) {
+            // We are in a new scene, didn't get crushed.
+            this.frame_count_crush_timer = 0;
+            this.eventTicks.delete('temp_waitingForCrush');
+            return;
+          }
+          if (
+            this.frame_count_crush_timer >= this.frame_count_crush_timer_max
+          ) {
+            bus.emit(OotEvents.ON_VOID_OUT, this.frame_count_crush_timer);
+            this.frame_count_crush_timer = 0;
+            this.eventTicks.delete('temp_waitingForCrush');
+            return;
+          }
+          this.frame_count_crush_timer++;
+        });
       }
     });
   }
@@ -1823,6 +1866,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.eventTicks.forEach((value: Function, key: string) => {
         value();
       });
+    } else {
     }
   }
 }
