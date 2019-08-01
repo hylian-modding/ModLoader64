@@ -258,6 +258,11 @@ export interface IInventory {
   giveItem(item: InventoryItem, desiredSlot: number): void;
   removeItem(item: InventoryItem): void;
   getEmptySlots(): number[];
+
+  bottle_1: InventoryItem;
+  bottle_2: InventoryItem;
+  bottle_3: InventoryItem;
+  bottle_4: InventoryItem;
 }
 
 export interface IQuestStatus {

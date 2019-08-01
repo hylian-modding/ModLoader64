@@ -100,7 +100,12 @@ export class JSONTemplate {
     const jsonObj: any = {};
 
     for (let i = 0; i < this.jsonFields.length; i++) {
-      jsonObj[this.jsonFields[i]] = (this as any)[this.jsonFields[i]];
+      let v = (this as any)[this.jsonFields[i]]
+      if (v instanceof JSONTemplate){
+        jsonObj[this.jsonFields[i]] = v.toJSON();
+      }else{
+        jsonObj[this.jsonFields[i]] = v;
+      }
     }
 
     return jsonObj;
@@ -493,13 +498,13 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
 
   get dekuNuts(): boolean {
-    return this.hasItem(InventoryItem.DEKU_STICK);
+    return this.hasItem(InventoryItem.DEKU_NUT);
   }
   set dekuNuts(bool: boolean) {
     if (bool) {
-      this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
+      this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_NUTS);
     } else {
-      this.removeItem(InventoryItem.DEKU_STICK);
+      this.removeItem(InventoryItem.DEKU_NUT);
       this.dekuSticksCapacity = AmmoUpgrade.NONE;
     }
   }
@@ -549,7 +554,7 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
 
   get magicBeans(): boolean {
-    return this.hasItem(InventoryItem.DEKU_STICK);
+    return this.hasItem(InventoryItem.MAGIC_BEAN);
   }
   set magicBeans(bool: boolean) {
     if (bool) {
@@ -785,35 +790,35 @@ export class Inventory extends JSONTemplate implements IInventory {
     }
   }
 
-  get bottle_1(): number {
+  get bottle_1(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE1);
   }
 
-  set bottle_1(content: number) {
+  set bottle_1(content: InventoryItem) {
     this.setItemInSlot(content, InventorySlots.BOTTLE1);
   }
 
-  get bottle_2(): number {
+  get bottle_2(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE2);
   }
 
-  set bottle_2(content: number) {
+  set bottle_2(content: InventoryItem) {
     this.setItemInSlot(content, InventorySlots.BOTTLE2);
   }
 
-  get bottle_3(): number {
+  get bottle_3(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE3);
   }
 
-  set bottle_3(content: number) {
+  set bottle_3(content: InventoryItem) {
     this.setItemInSlot(content, InventorySlots.BOTTLE3);
   }
 
-  get bottle_4(): number {
+  get bottle_4(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE4);
   }
 
-  set bottle_4(content: number) {
+  set bottle_4(content: InventoryItem) {
     this.setItemInSlot(content, InventorySlots.BOTTLE4);
   }
 
@@ -1345,6 +1350,8 @@ export class Link extends JSONTemplate implements ILink {
         return LinkState.FALLING;
       case 0xa0040000:
         return LinkState.VOIDING_OUT;
+      case 0x20000C00:
+        return LinkState.GETTING_ITEM;
     }
     return LinkState.UNKNOWN;
   }
@@ -1496,6 +1503,12 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     'navi_timer',
     'checksum',
     'age',
+    "swords",
+    "shields",
+    "tunics",
+    "boots",
+    "inventory",
+    "questStatus"
   ];
 
   constructor(emu: IMemory) {
