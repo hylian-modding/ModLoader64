@@ -125,13 +125,10 @@ export declare const enum scene {
   DEATH_MOUNTAIN_CRATER,
   GORON_CITY,
   LON_LON_RANCH,
-  GANONS_CASTLE_EXTERIOR
+  GANONS_CASTLE_EXTERIOR,
 }
 
-export interface ISceneInfo 
-{
-
-}
+export interface ISceneInfo {}
 
 export const enum Tunic {
   KOKIRI,
@@ -432,6 +429,7 @@ export interface ISaveContext {
   navi_timer: number;
   checksum: number;
   age: Age;
+  magic_beans_purchased: number;
 }
 
 export interface ILink extends IMemory {

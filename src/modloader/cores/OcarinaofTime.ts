@@ -1478,6 +1478,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private rupees_address: number = this.instance + 0x0034;
   private navi_timer_addr: number = this.instance + 0x0038;
   private checksum_addr: number = this.instance + 0x1352;
+  private magic_beans_addr: number = this.instance + 0x009B;
   private zs: ZeldaString = new ZeldaString();
   // Further abstractions
   swords: SwordsEquipment;
@@ -1683,6 +1684,14 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
 
   get age(): Age {
     return this.emulator.rdramRead32(this.age_addr);
+  }
+
+  get magic_beans_purchased(): number{
+    return this.emulator.rdramRead8(this.magic_beans_addr);
+  }
+
+  set magic_beans_purchased(amt: number){
+    this.emulator.rdramWrite8(this.magic_beans_addr, amt);
   }
 }
 
