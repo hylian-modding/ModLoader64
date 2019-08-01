@@ -52,7 +52,7 @@ function pushModules() {
             return;
         }
         forceAPI();
-        if (!fs.existsSync("./build/node_modules/modloader64_api")){
+        if (!fs.existsSync("./build/node_modules/modloader64_api")) {
             fs.mkdirSync("./build/node_modules/modloader64_api");
         }
         ncp("./API/build", "./build/node_modules/modloader64_api", function (err) {
@@ -143,4 +143,19 @@ function build() {
 function postbuild() {
     findRemoveSync('./src', { extensions: ['.js'] })
     findRemoveSync('./test', { extensions: ['.js'] })
+    if (!fs.existsSync("./build2")) {
+        fs.mkdirSync("./build2");
+    }
+    ncp("./build", "./build2", function (err) {
+        if (err) {
+            return console.error(err);
+        }
+        if (fs.existsSync("./build2/ModLoader64-config.json")) {
+            let config = JSON.parse(fs.readFileSync("./build2/ModLoader64-config.json", 'utf8'));
+            config.ModLoader64.isServer = false;
+            config["NetworkEngine.Client"].nickname = "Test";
+            fs.writeFileSync("./build2/ModLoader64-config.json", JSON.stringify(config));
+        }
+        console.log('done!');
+    });
 }

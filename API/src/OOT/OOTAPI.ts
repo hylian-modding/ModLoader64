@@ -329,6 +329,7 @@ export interface ILink extends IMemory {
   pos: Buffer;
   rot: Buffer;
   anim_data: Buffer;
+  current_sound_id: number;
   exists(): boolean;
 }
 

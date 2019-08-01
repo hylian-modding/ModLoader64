@@ -93,13 +93,29 @@ export const enum InventorySlots {
   CHILD_TRADE_ITEM,
 }
 
-export class BootsEquipment implements IBoots {
+export class JSONTemplate {
+  jsonFields!: string[];
+
+  toJSON() {
+    const jsonObj: any = {};
+
+    for (let i = 0; i < this.jsonFields.length; i++) {
+      jsonObj[this.jsonFields[i]] = (this as any)[this.jsonFields[i]];
+    }
+
+    return jsonObj;
+  }
+}
+
+export class BootsEquipment extends JSONTemplate implements IBoots {
   private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c;
+  jsonFields: string[] = ['kokiri', 'iron', 'hover'];
 
   constructor(data: number, emulator: IMemory) {
+    super();
     this.emulator = emulator;
     this.flags = bitwise.byte.read(data as UInt8);
   }
@@ -163,35 +179,17 @@ export class BootsEquipment implements IBoots {
       bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
     );
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class TunicsEquipment implements ITunics {
+export class TunicsEquipment extends JSONTemplate implements ITunics {
   private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c;
+  jsonFields: string[] = ['kokiri', 'goron', 'zora'];
 
   constructor(data: number, emulator: IMemory) {
+    super();
     this.emulator = emulator;
     this.flags = bitwise.byte.read(data as UInt8);
   }
@@ -255,35 +253,17 @@ export class TunicsEquipment implements ITunics {
       bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
     );
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class ShieldsEquipment implements IShields {
+export class ShieldsEquipment extends JSONTemplate implements IShields {
   private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c + 1;
+  jsonFields: string[] = ['dekuShield', 'hylianShield', 'mirrorShield'];
 
   constructor(data: number, emulator: IMemory) {
+    super();
     this.emulator = emulator;
     this.flags = bitwise.byte.read(data as UInt8);
   }
@@ -345,36 +325,23 @@ export class ShieldsEquipment implements IShields {
     this.update();
     return this.flags[ShieldBitMap.MIRROR] === 1;
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class SwordsEquipment implements ISwords {
+export class SwordsEquipment extends JSONTemplate implements ISwords {
   private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c + 1;
   private biggoron_flag_addr: number = this.instance + 0x003e;
+  jsonFields: string[] = [
+    'kokiriSword',
+    'masterSword',
+    'giantKnife',
+    'biggoronSword',
+  ];
 
   constructor(data: number, emulator: IMemory) {
+    super();
     this.emulator = emulator;
     this.flags = bitwise.byte.read(data as UInt8);
   }
@@ -457,29 +424,9 @@ export class SwordsEquipment implements ISwords {
     );
     this.emulator.rdramWrite8(this.biggoron_flag_addr, 1);
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class Inventory implements IInventory {
+export class Inventory extends JSONTemplate implements IInventory {
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private inventory_addr: number = this.instance + 0x0074;
@@ -493,8 +440,35 @@ export class Inventory implements IInventory {
   bombBag!: AmmoUpgrade;
   bulletBag!: AmmoUpgrade;
   quiver!: AmmoUpgrade;
+  jsonFields: string[] = [
+    'dekuSticks',
+    'dekuNuts',
+    'bombs',
+    'bombchus',
+    'magicBeans',
+    'fairySlingshot',
+    'fairyBow',
+    'fireArrows',
+    'iceArrows',
+    'lightArrows',
+    'dinsFire',
+    'faroresWind',
+    'nayrusLove',
+    'ocarina',
+    'hookshot',
+    'boomerang',
+    'lensOfTruth',
+    'megatonHammer',
+    'bottle_1',
+    'bottle_2',
+    'bottle_3',
+    'bottle_4',
+    'childTradeItem',
+    'adultTradeItem',
+  ];
 
   constructor(emu: IMemory) {
+    super();
     this.emulator = emu;
     this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00a0);
   }
@@ -811,6 +785,38 @@ export class Inventory implements IInventory {
     }
   }
 
+  get bottle_1(): number {
+    return this.getItemInSlot(InventorySlots.BOTTLE1);
+  }
+
+  set bottle_1(content: number) {
+    this.setItemInSlot(content, InventorySlots.BOTTLE1);
+  }
+
+  get bottle_2(): number {
+    return this.getItemInSlot(InventorySlots.BOTTLE2);
+  }
+
+  set bottle_2(content: number) {
+    this.setItemInSlot(content, InventorySlots.BOTTLE2);
+  }
+
+  get bottle_3(): number {
+    return this.getItemInSlot(InventorySlots.BOTTLE3);
+  }
+
+  set bottle_3(content: number) {
+    this.setItemInSlot(content, InventorySlots.BOTTLE3);
+  }
+
+  get bottle_4(): number {
+    return this.getItemInSlot(InventorySlots.BOTTLE4);
+  }
+
+  set bottle_4(content: number) {
+    this.setItemInSlot(content, InventorySlots.BOTTLE4);
+  }
+
   hasBottle(): boolean {
     for (let i = 0; i <= InventorySlots.CHILD_TRADE_ITEM; i++) {
       let item: InventoryItem = this.getItemInSlot(i);
@@ -1019,37 +1025,46 @@ export class Inventory implements IInventory {
 
     return slots;
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class QuestStatus implements IQuestStatus {
+export class QuestStatus extends JSONTemplate implements IQuestStatus {
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private questFlags: FlagManager;
 
   private skulltulaAddr: number = this.instance + 0x00d0;
   private questFlagsAddr: number = this.instance + 0x00a4;
+  jsonFields: string[] = [
+    'gerudoMembershipCard',
+    'stoneOfAgony',
+    'displayGoldSkulltulas',
+    'goldSkulltulas',
+    'heartPieces',
+    'zeldasLullaby',
+    'eponasSong',
+    'sariasSong',
+    'sunsSong',
+    'songOfTime',
+    'songOfStorms',
+    'preludeOfLight',
+    'minuetOfForest',
+    'boleroOfFire',
+    'serenadeOfWater',
+    'nocturneOfShadow',
+    'requiemOfSpirit',
+    'lightMedallion',
+    'forestMedallion',
+    'waterMedallion',
+    'fireMedallion',
+    'spiritMedallion',
+    'shadowMedallion',
+    'kokiriEmerald',
+    'goronRuby',
+    'zoraSapphire',
+  ];
 
   constructor(emu: IMemory) {
+    super();
     this.emulator = emu;
     this.questFlags = new FlagManager(emu, this.questFlagsAddr);
   }
@@ -1260,29 +1275,9 @@ export class QuestStatus implements IQuestStatus {
   set zoraSapphire(bool: boolean) {
     this.questFlags.setFlag(this.zoraSapphireFlag, bool);
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class Link implements ILink {
+export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
   private instance = 0x1daa30;
   private state_addr: number = this.instance + 0x066c;
@@ -1295,9 +1290,22 @@ export class Link implements ILink {
   /*This is provided by OotCore's ASM. 
     Anim data is safely copied into this space at the end of each rendering cycle.
     This helps prevent jittering.*/
+  private sound_addr: number = 0x600000 + 0x88;
   private anim_data_addr = 0x600000;
+  jsonFields: string[] = [
+    'state',
+    'tunic',
+    'shield',
+    'boots',
+    'mask',
+    'pos',
+    'rot',
+    'anim_data',
+    'current_sound_id',
+  ];
 
   constructor(emu: IMemory) {
+    super();
     this.emulator = emu;
   }
 
@@ -1393,6 +1401,14 @@ export class Link implements ILink {
     return this.emulator.rdramReadBuffer(this.anim_data_addr, 0x86);
   }
 
+  get current_sound_id(): number {
+    return this.emulator.rdramRead16(this.sound_addr);
+  }
+
+  set current_sound_id(s: number) {
+    this.emulator.rdramWrite16(this.sound_addr, s);
+  }
+
   // Give ILink a complete IMemory implementation for shortcuts.
 
   rdramRead8(addr: number): number {
@@ -1431,29 +1447,9 @@ export class Link implements ILink {
   rdramReadS32(addr: number): number {
     return this.emulator.rdramReadS32(this.instance + addr);
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class SaveContext implements ISaveContext {
+export class SaveContext extends JSONTemplate implements ISaveContext {
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private entrance_index_addr: number = this.instance + 0x0000;
@@ -1483,8 +1479,27 @@ export class SaveContext implements ISaveContext {
   boots: BootsEquipment;
   inventory: Inventory;
   questStatus: IQuestStatus;
+  jsonFields: string[] = [
+    'entrance_index',
+    'cutscene_number',
+    'world_time',
+    'world_night_flag',
+    'zeldaz_string',
+    'death_counter',
+    'player_name',
+    'dd_flag',
+    'heart_containers',
+    'health',
+    'magic_meter_size',
+    'magic_current',
+    'rupee_count',
+    'navi_timer',
+    'checksum',
+    'age',
+  ];
 
   constructor(emu: IMemory) {
+    super();
     this.emulator = emu;
     this.swords = new SwordsEquipment(0, emu);
     this.shields = new ShieldsEquipment(0, emu);
@@ -1656,29 +1671,9 @@ export class SaveContext implements ISaveContext {
   get age(): Age {
     return this.emulator.rdramRead32(this.age_addr);
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class GlobalContext implements IGlobalContext {
+export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private emulator: IMemory;
   private current_scene_addr = global.ModLoader.global_context + 0x0000a4;
   private switch_flags_addr = global.ModLoader.global_context + 0x001d28;
@@ -1687,8 +1682,10 @@ export class GlobalContext implements IGlobalContext {
   private room_clear_flags_addr = global.ModLoader.global_context + 0x001d3c;
   private current_room_addr = global.ModLoader.global_context + 0x011cbc;
   private frame_count_addr = global.ModLoader.global_context + 0x011de4;
+  jsonFields: string[] = ['scene', 'room', 'framecount'];
 
   constructor(emulator: IMemory) {
+    super();
     this.emulator = emulator;
   }
 
@@ -1703,32 +1700,13 @@ export class GlobalContext implements IGlobalContext {
   get framecount(): number {
     return this.emulator.rdramRead32(this.frame_count_addr);
   }
-
-  toJSON() {
-    const proto = Object.getPrototypeOf(this);
-    const jsonObj: any = Object.assign({}, this);
-
-    Object.entries(Object.getOwnPropertyDescriptors(proto))
-      .filter(([key, descriptor]) => typeof descriptor.get === 'function')
-      .map(([key, descriptor]) => {
-        if (descriptor && key[0] !== '_') {
-          try {
-            const val = (this as any)[key];
-            jsonObj[key] = val;
-          } catch (error) {
-            console.error(`Error calling getter ${key}`, error);
-          }
-        }
-      });
-
-    return jsonObj;
-  }
 }
 
-export class OotHelper implements IOotHelper {
+export class OotHelper extends JSONTemplate implements IOotHelper {
   private save: ISaveContext;
 
   constructor(save: ISaveContext) {
+    super();
     this.save = save;
   }
 
@@ -1737,7 +1715,7 @@ export class OotHelper implements IOotHelper {
   }
 
   toJSON() {
-    const jsonObj: any = {};
+    let jsonObj: any = {};
     jsonObj['isTitleScreen'] = this.isTitleScreen();
     return jsonObj;
   }

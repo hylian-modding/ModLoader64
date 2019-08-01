@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { INetworkPlayer } from './NetworkHandler';
 
 export class EventBus extends EventEmitter {}
 
@@ -19,6 +20,18 @@ function EventHandler(key: string) {
     target.ModLoader.eventHandlers.set(key, propertyKey);
   };
 }
+
+export class EventServerJoined {
+  readonly player: INetworkPlayer;
+  readonly lobby: string;
+
+  constructor(player: INetworkPlayer, lobby: string) {
+    this.player = player;
+    this.lobby = lobby;
+  }
+}
+
+export class EventServerLeft extends EventServerJoined {}
 
 export enum EventsServer {
   ON_LOBBY_CREATE = 'lobbyCreated_server',

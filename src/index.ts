@@ -3,6 +3,7 @@ import winston from 'winston';
 import program from 'commander';
 import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
+require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];

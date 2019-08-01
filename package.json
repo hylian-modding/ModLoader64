@@ -9,6 +9,7 @@
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
     "build_api": "tsc ./build.ts --esModuleInterop && node ./build.js --step=forceAPI",
     "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
+    "start_2": "node ./build2/src/index.js --mode=cli --dir=build2",
     "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --mode=cli --dir=build",
     "start_debug": "node ./build/src/index.js --mode=cli --dir=build",
     "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
@@ -49,6 +50,7 @@
     "mocha": "^6.2.0",
     "pre-commit": "^1.2.2",
     "recursive-readdir": "^2.2.2",
+    "source-map-support": "^0.5.13",
     "thread-sleep": "^2.2.0",
     "typescript": "^3.5.2"
   }

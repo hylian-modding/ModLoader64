@@ -1,5 +1,11 @@
 import { ILogger, IConfig } from 'modloader64_api/IModLoaderAPI';
-import { bus, EventsServer, EventsClient } from 'modloader64_api/EventHandler';
+import {
+  bus,
+  EventsServer,
+  EventsClient,
+  EventServerJoined,
+  EventServerLeft,
+} from 'modloader64_api/EventHandler';
 import {
   NetworkBus,
   IPacketHeader,
@@ -211,7 +217,10 @@ namespace NetworkEngine {
                 );
                 if (storage.config.key === lj.lobbyData.key) {
                   socket.join(storage.config.name);
-                  bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player);
+                  bus.emit(
+                    EventsServer.ON_LOBBY_JOIN,
+                    new EventServerJoined(lj.player, lj.lobbyData.name)
+                  );
                   //@ts-ignore
                   socket['ModLoader64'] = {
                     lobby: storage.config.name,
@@ -243,7 +252,10 @@ namespace NetworkEngine {
                   }
                 );
                 bus.emit(EventsServer.ON_LOBBY_CREATE, storage);
-                bus.emit(EventsServer.ON_LOBBY_JOIN, lj.player);
+                bus.emit(
+                  EventsServer.ON_LOBBY_JOIN,
+                  new EventServerJoined(lj.player, lj.lobbyData.name)
+                );
                 //@ts-ignore
                 socket['ModLoader64'] = {
                   lobby: storage.config.name,
@@ -279,14 +291,14 @@ namespace NetworkEngine {
               inst.currently_processing_lobby = '';
             });
             socket.on('toSpecificPlayer', function(data: any) {
-              inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+              inst.sendToTarget(data.player.uuid, 'msg', data);
             });
             socket.on('disconnect', () => {
               //@ts-ignore
               let ML = socket.ModLoader64;
               bus.emit(
                 EventsServer.ON_LOBBY_LEAVE,
-                ML.player as INetworkPlayer
+                new EventServerLeft(ML.player, ML.lobby)
               );
               inst.sendToTarget(ML.lobby, 'left', ML.player as INetworkPlayer);
             });
@@ -368,6 +380,8 @@ namespace NetworkEngine {
           inst.socket.emit('msg', data);
         });
         NetworkSendBus.addListener('toPlayer', (data: any) => {
+          data.player = inst.me;
+          data.lobby = inst.config.lobby;
           inst.socket.emit('toSpecificPlayer', data);
         });
         inst.socket.on('connect', () => {
