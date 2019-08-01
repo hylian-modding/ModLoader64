@@ -63,7 +63,6 @@ parse.patch();
 if (program.mode === 'cli') {
   logger.info('Starting in CLI Mode...');
   const instance = new modloader64(logger.child({}));
-  global.ModLoader['MASTER_INSTANCE'] = instance;
   instance.start();
 } else if (program.mode === 'gui') {
   logger.info('Starting in GUI mode...');
