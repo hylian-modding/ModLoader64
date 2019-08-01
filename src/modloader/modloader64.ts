@@ -218,6 +218,13 @@ class ModLoader64 {
           internal_event_bus.emit('postinit_done', {});
           instance.done = true;
         }, 3000);
+        // Detect if the user closed Mupen. Exit with code 1.
+        setInterval(() => {
+          if (!instance.emulator.isEmulatorReady()) {
+            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
+            process.exit(1);
+          }
+        }, 1000);
       });
     }
   }
