@@ -1,8 +1,6 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import { GameShark } from '../GameShark';
-import * as bitwise from 'bitwise';
-import { UInt8, Bit } from 'bitwise/types';
 import {
   ISwords,
   ISaveContext,
@@ -36,10 +34,7 @@ import { bus } from 'modloader64_api/EventHandler';
 import ZeldaString from 'modloader64_api/OOT/ZeldaString';
 import { FlagManager, Flag } from 'modloader64_api/FlagManager';
 import { registerEndpoint } from 'modloader64_api/EndpointHandler';
-import {
-  CommandBuffer,
-  CommandBufferSlot,
-} from 'modloader64_api/OOT/CommandBuffer';
+import { CommandBuffer } from 'modloader64_api/OOT/CommandBuffer';
 
 export const enum SwordBitMap {
   KOKIRI = 7,
@@ -113,227 +108,128 @@ export class JSONTemplate {
 }
 
 export class BootsEquipment extends JSONTemplate implements IBoots {
-  private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c;
   jsonFields: string[] = ['kokiri', 'iron', 'hover'];
 
-  constructor(data: number, emulator: IMemory) {
+  constructor(emulator: IMemory) {
     super();
     this.emulator = emulator;
-    this.flags = bitwise.byte.read(data as UInt8);
-  }
-
-  update() {
-    this.flags = bitwise.byte.read(this.emulator.rdramRead8(
-      this.equipment_addr
-    ) as UInt8);
   }
 
   get kokiri() {
-    this.update();
-    return this.flags[BootsBitMap.KOKIRI] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.KOKIRI);
   }
 
   set kokiri(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[BootsBitMap.KOKIRI] = 1;
-    } else {
-      this.flags[BootsBitMap.KOKIRI] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.KOKIRI, bool);
   }
 
   get iron() {
-    this.update();
-    return this.flags[BootsBitMap.IRON] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.IRON);
   }
 
   set iron(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[BootsBitMap.IRON] = 1;
-    } else {
-      this.flags[BootsBitMap.IRON] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.IRON, bool);
   }
 
   get hover() {
-    this.update();
-    return this.flags[BootsBitMap.HOVER] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.HOVER);
   }
 
   set hover(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[BootsBitMap.HOVER] = 1;
-    } else {
-      this.flags[BootsBitMap.HOVER] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.HOVER, bool);
   }
 }
 
 export class TunicsEquipment extends JSONTemplate implements ITunics {
-  private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c;
   jsonFields: string[] = ['kokiri', 'goron', 'zora'];
 
-  constructor(data: number, emulator: IMemory) {
+  constructor(emulator: IMemory) {
     super();
     this.emulator = emulator;
-    this.flags = bitwise.byte.read(data as UInt8);
-  }
-
-  update() {
-    this.flags = bitwise.byte.read(this.emulator.rdramRead8(
-      this.equipment_addr
-    ) as UInt8);
   }
 
   get kokiri() {
-    this.update();
-    return this.flags[TunicBitMap.KOKIRI] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.KOKIRI);
   }
 
   set kokiri(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[TunicBitMap.KOKIRI] = 1;
-    } else {
-      this.flags[TunicBitMap.KOKIRI] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.KOKIRI, bool);
   }
 
   get goron() {
-    this.update();
-    return this.flags[TunicBitMap.GORON] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.GORON);
   }
 
   set goron(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[TunicBitMap.GORON] = 1;
-    } else {
-      this.flags[TunicBitMap.GORON] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.GORON, bool);
   }
 
   get zora() {
-    this.update();
-    return this.flags[TunicBitMap.ZORA] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.ZORA);
   }
 
   set zora(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[TunicBitMap.ZORA] = 1;
-    } else {
-      this.flags[TunicBitMap.ZORA] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.ZORA, bool);
   }
 }
 
 export class ShieldsEquipment extends JSONTemplate implements IShields {
-  private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c + 1;
   jsonFields: string[] = ['dekuShield', 'hylianShield', 'mirrorShield'];
 
-  constructor(data: number, emulator: IMemory) {
+  constructor(emulator: IMemory) {
     super();
     this.emulator = emulator;
-    this.flags = bitwise.byte.read(data as UInt8);
-  }
-
-  update() {
-    this.flags = bitwise.byte.read(this.emulator.rdramRead8(
-      this.equipment_addr
-    ) as UInt8);
   }
 
   set dekuShield(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[ShieldBitMap.DEKU] = 1;
-    } else {
-      this.flags[ShieldBitMap.DEKU] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, ShieldBitMap.DEKU, bool);
   }
 
   get dekuShield(): boolean {
-    return this.flags[ShieldBitMap.DEKU] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, ShieldBitMap.DEKU);
   }
 
   set hylianShield(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[ShieldBitMap.HYLIAN] = 1;
-    } else {
-      this.flags[ShieldBitMap.HYLIAN] = 0;
-    }
-    this.emulator.rdramWrite8(
+    this.emulator.rdramWriteBit8(
       this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
+      ShieldBitMap.HYLIAN,
+      bool
     );
   }
 
   get hylianShield(): boolean {
-    return this.flags[ShieldBitMap.HYLIAN] === 1;
+    return this.emulator.rdramReadBit8(
+      this.equipment_addr,
+      ShieldBitMap.HYLIAN
+    );
   }
 
   set mirrorShield(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[ShieldBitMap.MIRROR] = 1;
-    } else {
-      this.flags[ShieldBitMap.MIRROR] = 0;
-    }
-    this.emulator.rdramWrite8(
+    this.emulator.rdramWriteBit8(
       this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
+      ShieldBitMap.MIRROR,
+      bool
     );
   }
 
   get mirrorShield(): boolean {
-    this.update();
-    return this.flags[ShieldBitMap.MIRROR] === 1;
+    return this.emulator.rdramReadBit8(
+      this.equipment_addr,
+      ShieldBitMap.MIRROR
+    );
   }
 }
 
 export class SwordsEquipment extends JSONTemplate implements ISwords {
-  private flags: Bit[];
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c + 1;
@@ -345,87 +241,47 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
     'biggoronSword',
   ];
 
-  constructor(data: number, emulator: IMemory) {
+  constructor(emulator: IMemory) {
     super();
     this.emulator = emulator;
-    this.flags = bitwise.byte.read(data as UInt8);
-  }
-
-  update() {
-    this.flags = bitwise.byte.read(this.emulator.rdramRead8(
-      this.equipment_addr
-    ) as UInt8);
   }
 
   get kokiriSword() {
-    this.update();
-    return this.flags[SwordBitMap.KOKIRI] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.KOKIRI);
   }
 
   set kokiriSword(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[SwordBitMap.KOKIRI] = 1;
-    } else {
-      this.flags[SwordBitMap.KOKIRI] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.KOKIRI, bool);
   }
 
   get masterSword() {
-    this.update();
-    return this.flags[SwordBitMap.MASTER] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.MASTER);
   }
 
   set masterSword(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[SwordBitMap.MASTER] = 1;
-    } else {
-      this.flags[SwordBitMap.MASTER] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.MASTER, bool);
   }
 
   get giantKnife() {
-    this.update();
-    return this.flags[SwordBitMap.GIANT] === 1;
+    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.GIANT);
   }
 
   set giantKnife(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[SwordBitMap.GIANT] = 1;
-    } else {
-      this.flags[SwordBitMap.GIANT] = 0;
-    }
-    this.emulator.rdramWrite8(
-      this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
-    );
+    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.GIANT, bool);
   }
 
   get biggoronSword() {
-    this.update();
-    return this.flags[SwordBitMap.BIGGORON] === 1;
+    return this.emulator.rdramReadBit8(
+      this.equipment_addr,
+      SwordBitMap.BIGGORON
+    );
   }
 
   set biggoronSword(bool: boolean) {
-    this.update();
-    if (bool) {
-      this.flags[SwordBitMap.BIGGORON] = 1;
-    } else {
-      this.flags[SwordBitMap.BIGGORON] = 0;
-    }
-    this.emulator.rdramWrite8(
+    this.emulator.rdramWriteBit8(
       this.equipment_addr,
-      bitwise.byte.write(this.flags as [Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit])
+      SwordBitMap.BIGGORON,
+      true
     );
     this.emulator.rdramWrite8(this.biggoron_flag_addr, 1);
   }
@@ -989,8 +845,7 @@ export class Inventory extends JSONTemplate implements IInventory {
     if (slot < 0 || slot >= 0xf) {
       return;
     }
-
-    this.emulator.rdramWrite8(this.inventory_ammo_addr + slot, amount as UInt8);
+    this.emulator.rdramWrite8(this.inventory_ammo_addr + slot, amount);
   }
 
   setItemInSlot(item: InventoryItem, slot: number): void {
@@ -1460,7 +1315,7 @@ export class Link extends JSONTemplate implements ILink {
   rdramReadBits8(addr: number): Buffer {
     return this.emulator.rdramReadBits8(this.instance + addr);
   }
-  rdramReadBit8(addr: number, bitoffset: number): number {
+  rdramReadBit8(addr: number, bitoffset: number): boolean {
     return this.emulator.rdramReadBit8(this.instance + addr, bitoffset);
   }
   rdramWriteBitsBuffer(addr: number, buf: Buffer): void {
@@ -1469,7 +1324,7 @@ export class Link extends JSONTemplate implements ILink {
   rdramWriteBits8(addr: number, buf: Buffer): void {
     this.emulator.rdramWriteBits8(this.instance + addr, buf);
   }
-  rdramWriteBit8(addr: number, bitoffset: number, bit: number): void {
+  rdramWriteBit8(addr: number, bitoffset: number, bit: boolean): void {
     this.emulator.rdramWriteBit8(this.instance + addr, bitoffset, bit);
   }
   rdramReadPtr8(addr: number, offset: number): number {
@@ -1524,7 +1379,7 @@ export class Link extends JSONTemplate implements ILink {
     let pointer = this.dereferencePointer(addr);
     return this.emulator.rdramReadBits8(pointer + offset);
   }
-  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): number {
+  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean {
     let pointer = this.dereferencePointer(addr);
     return this.emulator.rdramReadBit8(pointer + offset, bitoffset);
   }
@@ -1540,7 +1395,7 @@ export class Link extends JSONTemplate implements ILink {
     addr: number,
     offset: number,
     bitoffset: number,
-    bit: number
+    bit: boolean
   ): void {
     let pointer = this.dereferencePointer(addr);
     this.emulator.rdramWriteBit8(pointer + offset, bitoffset, bit);
@@ -1606,10 +1461,10 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   constructor(emu: IMemory) {
     super();
     this.emulator = emu;
-    this.swords = new SwordsEquipment(0, emu);
-    this.shields = new ShieldsEquipment(0, emu);
-    this.tunics = new TunicsEquipment(0, emu);
-    this.boots = new BootsEquipment(0, emu);
+    this.swords = new SwordsEquipment(emu);
+    this.shields = new ShieldsEquipment(emu);
+    this.tunics = new TunicsEquipment(emu);
+    this.boots = new BootsEquipment(emu);
     this.inventory = new Inventory(emu);
     this.questStatus = new QuestStatus(emu);
   }
