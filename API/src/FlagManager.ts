@@ -1,31 +1,20 @@
 import IMemory from './IMemory';
-import bitwise from 'bitwise';
-import { Bit, UInt8 } from 'bitwise/types';
 
 export class FlagManager {
   private emulator: IMemory;
-  private offset: number;
+  private addr: number;
 
   constructor(emulator: IMemory, offset: number) {
     this.emulator = emulator;
-    this.offset = offset;
+    this.addr = offset;
   }
 
   isFlagSet(flag: Flag): boolean {
-    return (
-      bitwise.byte.read(this.emulator.rdramRead8(
-        this.offset + flag.byte
-      ) as UInt8)[flag.bit] === 1
-    );
+    return this.emulator.rdramReadBit8(this.addr + flag.byte, flag.bit);
   }
 
   setFlag(flag: Flag, bool: boolean) {
-    let i: Bit = bool ? 1 : 0;
-    let org = this.emulator.rdramRead8(this.offset + flag.byte) as UInt8;
-    let bits = bitwise.byte.read(org);
-    bits[flag.bit] = i;
-    let byte = bitwise.byte.write(bits);
-    this.emulator.rdramWrite8(this.offset + flag.byte, byte);
+    this.emulator.rdramWriteBit8(this.addr + flag.byte, flag.bit, bool);
   }
 
   isBitSet(bit: number) {
