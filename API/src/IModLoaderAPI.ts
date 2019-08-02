@@ -1,5 +1,6 @@
 import IMemory from './IMemory';
 import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
+import IUtils from './IUtils';
 
 export interface ILogger {
   info(msg: string): void;
@@ -24,6 +25,7 @@ export interface IModLoaderAPI {
   clientSide: INetwork;
   serverSide: INetwork;
   clientLobby: string;
+  utils: IUtils;
 }
 
 export interface IPlugin {

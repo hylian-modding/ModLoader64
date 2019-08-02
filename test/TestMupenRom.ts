@@ -11,16 +11,7 @@ let rom: IRomMemory;
 
 console.log('Starting rom tests...');
 
-mupen = require(process.cwd() + '/node/m64pnpm.node');
-mupen.setCoreLib(process.cwd() + '/mupen64plus.dll');
-mupen.setConfigDir(process.cwd());
-mupen.setDataDir(process.cwd());
-
-mupen.setPluginDir(process.cwd());
-mupen.setPluginAudio(process.cwd() + '/mupen64plus-audio-sdl.dll');
-mupen.setPluginGFX(process.cwd() + '/mupen64plus-video-rice.dll');
-mupen.setPluginInput(process.cwd() + '/mupen64plus-input-sdl.dll');
-mupen.setPluginRSP(process.cwd() + '/mupen64plus-rsp-hle.dll');
+mupen = require(process.cwd() + '/mupen64plus.node');
 
 mupen.initialize();
 

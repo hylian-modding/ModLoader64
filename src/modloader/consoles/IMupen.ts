@@ -1,7 +1,8 @@
 import IMemory from 'modloader64_api/IMemory';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import IUtils from 'modloader64_api/IUtils';
 
-interface IMupen extends IMemory, IRomMemory {
+interface IMupen extends IMemory, IRomMemory, IUtils {
   setCoreLib(path: string): void;
 
   setConfigDir(path: string): void;

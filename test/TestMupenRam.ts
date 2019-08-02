@@ -2,6 +2,7 @@ const assert = require('assert');
 import IMupen from '../src/modloader/consoles/IMupen';
 import sleep from 'thread-sleep';
 import IMemory from 'modloader64_api/IMemory';
+import IUtils from 'modloader64_api/IUtils';
 
 console.log('Starting ram tests...');
 
@@ -10,16 +11,7 @@ process.chdir('./build');
 let mupen: IMupen;
 let ram: IMemory;
 
-mupen = require(process.cwd() + '/node/m64pnpm.node');
-mupen.setCoreLib(process.cwd() + '/mupen64plus.dll');
-mupen.setConfigDir(process.cwd());
-mupen.setDataDir(process.cwd());
-
-mupen.setPluginDir(process.cwd());
-mupen.setPluginAudio(process.cwd() + '/mupen64plus-audio-sdl.dll');
-mupen.setPluginGFX(process.cwd() + '/mupen64plus-video-rice.dll');
-mupen.setPluginInput(process.cwd() + '/mupen64plus-input-sdl.dll');
-mupen.setPluginRSP(process.cwd() + '/mupen64plus-rsp-hle.dll');
+mupen = require(process.cwd() + '/mupen64plus.node');
 
 mupen.initialize();
 
@@ -29,6 +21,8 @@ mupen.runEmulator(true);
 
 ram = mupen as IMemory;
 
+let utils = mupen as IUtils;
+
 while (mupen.coreEmuState() !== 2) {}
 
 sleep(3000);
@@ -37,7 +31,20 @@ mupen.pauseEmulator();
 
 sleep(1000);
 
-// Read tests. I'll make the write tests later.
+describe('IMemory', function() {
+  beforeEach(function() {
+    for (let i = 0; i < 0x800000; i++) {
+      ram.rdramWrite8(i, 0xab);
+    }
+  });
+  afterEach(function() {});
+  describe('utilBitCount8', function() {
+    it('Should return 8 if ok or 0 if emulation failure', function() {
+      assert.equal(8, utils.utilBitCount8(0xff));
+    });
+  });
+});
+
 describe('IMemory', function() {
   beforeEach(function() {
     for (let i = 0; i < 0x800000; i++) {
@@ -99,10 +106,27 @@ describe('IMemory', function() {
     it('Should return 0xFFFFFFFFFFFFFFFF if ok or 0 if emulation failure', function() {
       let fn = () => {
         ram.rdramWriteBuffer(0x0, Buffer.from('FFFFFFFFFFFFFFFF', 'hex'));
-        return JSON.stringify(Buffer.from(ram.rdramReadBuffer(0x0, 0x8)));
+        return JSON.stringify(ram.rdramReadBuffer(0x0, 0x8));
       };
       assert.equal(
         JSON.stringify(Buffer.from('FFFFFFFFFFFFFFFF', 'hex')),
+        fn()
+      );
+    });
+  });
+  describe('rdramReadBit8', function() {
+    it('Should return true', function() {
+      assert.equal(true, ram.rdramReadBit8(0x0, 0));
+    });
+  });
+  describe('rdramReadBitsBuffer', function() {
+    it('Should return 0x0101010101010101 if ok or 0 if emulation failure', function() {
+      let fn = () => {
+        ram.rdramWriteBuffer(0x0, Buffer.from('FFFFFFFF', 'hex'));
+        return JSON.stringify(ram.rdramReadBitsBuffer(0x0, 0x1));
+      };
+      assert.equal(
+        JSON.stringify(Buffer.from('0101010101010101', 'hex')),
         fn()
       );
     });

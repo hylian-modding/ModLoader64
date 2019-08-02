@@ -31,10 +31,10 @@ export class FakeN64Memory implements IMemory {
     return buf;
   }
 
-  rdramReadBit8(addr: number, bitoffset: number): number {
+  rdramReadBit8(addr: number, bitoffset: number): boolean {
     let data: UInt8 = this.buf.readUInt8(addr) as UInt8;
     let bits = bitwise.byte.read(data);
-    return bits[bitoffset];
+    return bits[bitoffset] === 1;
   }
 
   rdramWriteBitsBuffer(addr: number, buf: Buffer): void {
@@ -62,10 +62,10 @@ export class FakeN64Memory implements IMemory {
     this.buf.writeUInt8(data, addr);
   }
 
-  rdramWriteBit8(addr: number, bitoffset: number, bit: number): void {
+  rdramWriteBit8(addr: number, bitoffset: number, bit: boolean): void {
     let data: UInt8 = this.buf.readUInt8(addr) as UInt8;
     let bits = bitwise.byte.read(data);
-    bits[bitoffset] = bit as Bit;
+    bits[bitoffset] = (bit ? 1 : 0) as Bit;
     data = bitwise.byte.write(bits);
     this.buf.writeUInt8(data, addr);
   }
@@ -135,7 +135,7 @@ export class FakeN64Memory implements IMemory {
     return this.rdramReadBits8(pointer + offset);
   }
 
-  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): number {
+  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean {
     let pointer: number = this.dereferencePointer(addr);
     return this.rdramReadBit8(pointer + offset, bitoffset);
   }
@@ -154,7 +154,7 @@ export class FakeN64Memory implements IMemory {
     addr: number,
     offset: number,
     bitoffset: number,
-    bit: number
+    bit: boolean
   ): void {
     let pointer: number = this.dereferencePointer(addr);
     this.rdramWriteBit8(pointer + offset, bitoffset, bit);

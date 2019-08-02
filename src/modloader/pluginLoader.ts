@@ -29,6 +29,7 @@ import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
 import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
 import IModLoaderConfig from './IModLoaderConfig';
+import IUtils from 'modloader64_api/IUtils';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -247,9 +248,11 @@ class pluginLoader {
       'ModLoader64'
     ) as IModLoaderConfig;
     this.loaded_core.ModLoader.emulator = emulator;
+    this.loaded_core.ModLoader.utils = (emulator as unknown) as IUtils;
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
+      plugin.ModLoader.utils = (emulator as unknown) as IUtils;
       plugin.postinit();
       if (mainConfig.isClient) {
         bus.emit(EventsClient.ON_PLUGIN_READY, plugin);

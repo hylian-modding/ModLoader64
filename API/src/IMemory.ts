@@ -35,13 +35,13 @@ interface IMemory {
 
   rdramReadBits8(addr: number): Buffer;
 
-  rdramReadBit8(addr: number, bitoffset: number): number;
+  rdramReadBit8(addr: number, bitoffset: number): boolean;
 
   rdramWriteBitsBuffer(addr: number, buf: Buffer): void;
 
   rdramWriteBits8(addr: number, buf: Buffer): void;
 
-  rdramWriteBit8(addr: number, bitoffset: number, bit: number): void;
+  rdramWriteBit8(addr: number, bitoffset: number, bit: boolean): void;
 
   //--------------------
   // Pointer ram functions
@@ -79,7 +79,7 @@ interface IMemory {
 
   rdramReadPtrBits8(addr: number, offset: number): Buffer;
 
-  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): number;
+  rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean;
 
   rdramWritePtrBitsBuffer(addr: number, offset: number, buf: Buffer): void;
 
@@ -89,7 +89,7 @@ interface IMemory {
     addr: number,
     offset: number,
     bitoffset: number,
-    bit: number
+    bit: boolean
   ): void;
 }
 
