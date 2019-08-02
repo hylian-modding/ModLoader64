@@ -1425,6 +1425,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private navi_timer_addr: number = this.instance + 0x0038;
   private checksum_addr: number = this.instance + 0x1352;
   private magic_beans_addr: number = this.instance + 0x009b;
+  private scene_data_addr: number = this.instance + 0x00d4;
   private zs: ZeldaString = new ZeldaString();
   // Further abstractions
   swords: SwordsEquipment;
@@ -1456,6 +1457,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     'boots',
     'inventory',
     'questStatus',
+    'magic_beans_purchased',
   ];
 
   constructor(emu: IMemory) {
@@ -1639,6 +1641,14 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   set magic_beans_purchased(amt: number) {
     this.emulator.rdramWrite8(this.magic_beans_addr, amt);
   }
+
+  get permSceneData(): Buffer {
+    return this.emulator.rdramReadBuffer(this.scene_data_addr, 0xb0c);
+  }
+
+  set permSceneData(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.scene_data_addr, buf);
+  }
 }
 
 export class GlobalContext extends JSONTemplate implements IGlobalContext {
@@ -1650,6 +1660,7 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private room_clear_flags_addr = global.ModLoader.global_context + 0x001d3c;
   private current_room_addr = global.ModLoader.global_context + 0x011cbc;
   private frame_count_addr = global.ModLoader.global_context + 0x011de4;
+  private collectable_flag_addr = global.ModLoader.global_context + 0x01d44;
   jsonFields: string[] = ['scene', 'room', 'framecount'];
 
   constructor(emulator: IMemory) {
@@ -1668,18 +1679,64 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
   get framecount(): number {
     return this.emulator.rdramRead32(this.frame_count_addr);
   }
+
+  get liveSceneData_chests(): Buffer {
+    return this.emulator.rdramReadBuffer(this.chest_flags_addr, 0x4);
+  }
+
+  set liveSceneData_chests(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.chest_flags_addr, buf);
+  }
+
+  get liveSceneData_clear(): Buffer {
+    return this.emulator.rdramReadBuffer(this.room_clear_flags_addr, 0x4);
+  }
+
+  set liveSceneData_clear(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.room_clear_flags_addr, buf);
+  }
+
+  get liveSceneData_switch(): Buffer {
+    return this.emulator.rdramReadBuffer(this.switch_flags_addr, 0x4);
+  }
+
+  set liveSceneData_switch(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.switch_flags_addr, buf);
+  }
+
+  get liveSceneData_temp(): Buffer {
+    return this.emulator.rdramReadBuffer(this.temp_switch_flags_addr, 0x4);
+  }
+
+  set liveSceneData_temp(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.temp_switch_flags_addr, buf);
+  }
+
+  get liveSceneData_collectable(): Buffer {
+    return this.emulator.rdramReadBuffer(this.collectable_flag_addr, 0x8);
+  }
+
+  set liveSceneData_collectable(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.collectable_flag_addr, buf);
+  }
 }
 
 export class OotHelper extends JSONTemplate implements IOotHelper {
   private save: ISaveContext;
+  private global: IGlobalContext;
 
-  constructor(save: ISaveContext) {
+  constructor(save: ISaveContext, global: IGlobalContext) {
     super();
     this.save = save;
+    this.global = global;
   }
 
-  isTitleScreen() {
+  isTitleScreen(): boolean {
     return this.save.checksum === 0;
+  }
+
+  isSceneNumberValid(): boolean {
+    return this.global.scene <= 101;
   }
 
   toJSON() {
@@ -1716,7 +1773,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
   init(): void {
     this.eventTicks.set('waitingForSaveload', () => {
-      if (!this.isSaveLoaded) {
+      if (!this.isSaveLoaded && this.helper.isSceneNumberValid()) {
         bus.emit(OotEvents.ON_SAVE_LOADED, {});
         this.isSaveLoaded = true;
         this.eventTicks.delete('waitingForSaveload');
@@ -1788,7 +1845,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.global = new GlobalContext(this.ModLoader.emulator);
     this.link = new Link(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
-    this.helper = new OotHelper(this.save);
+    this.helper = new OotHelper(this.save, this.global);
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
     this.eventTicks.set('commandBuffer', () => {
       this.commandBuffer.onTick();

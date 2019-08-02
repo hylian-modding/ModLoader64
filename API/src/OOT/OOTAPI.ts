@@ -430,6 +430,7 @@ export interface ISaveContext {
   checksum: number;
   age: Age;
   magic_beans_purchased: number;
+  permSceneData: Buffer;
 }
 
 export interface ILink extends IMemory {
@@ -449,10 +450,16 @@ export interface IGlobalContext {
   scene: number;
   room: number;
   framecount: number;
+  liveSceneData_chests: Buffer;
+  liveSceneData_clear: Buffer;
+  liveSceneData_switch: Buffer;
+  liveSceneData_temp: Buffer;
+  liveSceneData_collectable: Buffer;
 }
 
 export interface IOotHelper {
   isTitleScreen(): boolean;
+  isSceneNumberValid(): boolean;
 }
 
 export interface IOOTCore {
