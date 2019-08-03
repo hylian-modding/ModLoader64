@@ -153,7 +153,7 @@ namespace NetworkEngine {
     }
 
     sendToTarget(target: string, internalChannel: string, packet: any) {
-      this.io.sockets.to(target).emit(internalChannel, packet);
+      this.io.to(target).emit(internalChannel, packet);
     }
 
     setup() {
@@ -291,7 +291,7 @@ namespace NetworkEngine {
               inst.currently_processing_lobby = '';
             });
             socket.on('toSpecificPlayer', function(data: any) {
-              inst.sendToTarget(data.player.uuid, 'msg', data);
+              inst.sendToTarget(data.player.uuid, 'msg', data.packet);
             });
             socket.on('disconnect', () => {
               //@ts-ignore
@@ -380,8 +380,8 @@ namespace NetworkEngine {
           inst.socket.emit('msg', data);
         });
         NetworkSendBus.addListener('toPlayer', (data: any) => {
-          data.player = inst.me;
-          data.lobby = inst.config.lobby;
+          data.packet.player = inst.me;
+          data.packet.lobby = inst.config.lobby;
           inst.socket.emit('toSpecificPlayer', data);
         });
         inst.socket.on('connect', () => {
