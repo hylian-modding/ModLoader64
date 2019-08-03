@@ -1139,7 +1139,7 @@ export class QuestStatus extends JSONTemplate implements IQuestStatus {
 
 export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
-  private instance = 0x1daa30;
+  private instance = 0x1DAA30;
   private state_addr: number = this.instance + 0x066c;
   private tunic_addr: number = this.instance + 0x013c;
   private shield_addr: number = this.instance + 0x013e;
@@ -1795,7 +1795,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
       }
     });
     this.eventTicks.set('waitingForFrameCount', () => {
-      if (this.global.scene_framecount === 1) {
+      if (this.global.scene_framecount === 1 && !this.helper.isTitleScreen() && this.helper.isSceneNumberValid()) {
         let cur = this.global.scene;
         this.last_known_scene = cur;
         bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
