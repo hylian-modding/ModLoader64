@@ -1846,7 +1846,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.eventTicks.forEach((value: Function, key: string) => {
         value();
       });
-    } else {
     }
   }
 }
