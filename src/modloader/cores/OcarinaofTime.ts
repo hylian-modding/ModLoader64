@@ -1660,7 +1660,9 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private room_clear_flags_addr = global.ModLoader.global_context + 0x001d3c;
   private current_room_addr = global.ModLoader.global_context + 0x011cbc;
   private frame_count_addr = global.ModLoader.global_context + 0x011de4;
+  private scene_frame_count_addr = global.ModLoader.global_context + 0x9c;
   private collectable_flag_addr = global.ModLoader.global_context + 0x01d44;
+  private continue_state_addr = global.ModLoader.global_context + 0x98;
   jsonFields: string[] = ['scene', 'room', 'framecount'];
 
   constructor(emulator: IMemory) {
@@ -1678,6 +1680,10 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
 
   get framecount(): number {
     return this.emulator.rdramRead32(this.frame_count_addr);
+  }
+
+  get scene_framecount(): number {
+    return this.emulator.rdramRead32(this.scene_frame_count_addr);
   }
 
   get liveSceneData_chests(): Buffer {
@@ -1719,6 +1725,10 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
   set liveSceneData_collectable(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.collectable_flag_addr, buf);
   }
+
+  get continue_state(): boolean {
+    return this.emulator.rdramRead32(this.continue_state_addr) === 1;
+  }
 }
 
 export class OotHelper extends JSONTemplate implements IOotHelper {
@@ -1759,11 +1769,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   isSaveLoaded = false;
   last_known_scene = -1;
   touching_loading_zone = false;
-  last_known_frame = -1;
   frame_count_reset_scene = -1;
-  frame_count_crush_timer = -1;
-  readonly frame_count_crush_timer_max = 25;
-  voiding_out = false;
 
   preinit(): void {
     global.ModLoader['save_context'] = 0x11a5d0;
@@ -1779,14 +1785,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
         this.eventTicks.delete('waitingForSaveload');
       }
     });
-    this.eventTicks.set('waitingForSceneChange', () => {
-      let cur = this.global.scene;
-      if (cur !== this.last_known_scene && cur <= 101) {
-        this.last_known_scene = cur;
-        bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
-        this.touching_loading_zone = false;
-      }
-    });
     this.eventTicks.set('waitingForLoadingZoneTrigger', () => {
       if (
         this.link.state === LinkState.LOADING_ZONE &&
@@ -1797,32 +1795,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
       }
     });
     this.eventTicks.set('waitingForFrameCount', () => {
-      let frame = this.global.framecount;
-      if (frame > this.last_known_frame) {
-        this.last_known_frame = frame;
-      } else {
-        this.last_known_frame = 0;
-        this.frame_count_reset_scene = this.global.scene;
-        if (this.link.state === LinkState.VOIDING_OUT) {
-          return;
-        }
-        this.eventTicks.set('temp_waitingForCrush', () => {
-          if (this.frame_count_reset_scene !== this.global.scene) {
-            // We are in a new scene, didn't get crushed.
-            this.frame_count_crush_timer = 0;
-            this.eventTicks.delete('temp_waitingForCrush');
-            return;
-          }
-          if (
-            this.frame_count_crush_timer >= this.frame_count_crush_timer_max
-          ) {
-            bus.emit(OotEvents.ON_VOID_OUT, this.frame_count_crush_timer);
-            this.frame_count_crush_timer = 0;
-            this.eventTicks.delete('temp_waitingForCrush');
-            return;
-          }
-          this.frame_count_crush_timer++;
-        });
+      if (this.global.scene_framecount === 1) {
+        let cur = this.global.scene;
+        this.last_known_scene = cur;
+        bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
+        this.touching_loading_zone = false;
       }
     });
   }

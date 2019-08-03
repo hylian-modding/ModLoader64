@@ -450,6 +450,8 @@ export interface IGlobalContext {
   scene: number;
   room: number;
   framecount: number;
+  scene_framecount: number;
+  continue_state: boolean;
   liveSceneData_chests: Buffer;
   liveSceneData_clear: Buffer;
   liveSceneData_switch: Buffer;
@@ -474,5 +476,4 @@ export enum OotEvents {
   ON_SAVE_LOADED = 'onSaveLoaded',
   ON_SCENE_CHANGE = 'onSceneChange',
   ON_LOADING_ZONE = 'onLoadingZone',
-  ON_VOID_OUT = 'onVoidOut',
 }
