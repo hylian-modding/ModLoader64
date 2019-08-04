@@ -6,7 +6,7 @@
   "scripts": {
     "tsc": "npm run fix && tsc --listEmittedFiles",
     "build": "npm run tsc",
-    "start": "npm run build && node ./build/pc.js --input=./En_Link_Puppet_N0.nonovl --output=puppet.payload --base=0x608000",
+    "start": "npm run build && node ./build/pc.js --dir=./test",
     "fix": "gts fix"
   },
   "author": "",
