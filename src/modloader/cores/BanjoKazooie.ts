@@ -1,6 +1,6 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
-import * as API from 'modloader64_api/BK/BKAPI';
+import * as API from 'modloader64_api/BK/Api';
 
 // ##################################################################
 // ##  Sub-Classes
@@ -65,10 +65,6 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   private visible_addr: number = this.instance + 0x08;
   private z_forward_addr: number = this.instance + 0x07;
 
-  get exists(): boolean {
-    return !(this.emulator.rdramRead32(this.instance) === 0x0000);
-  }
-
   get animal(): API.AnimalType {
     let animal: number = this.emulator.rdramRead8(this.animal_addr);
     if (animal < 0x01 || animal > 0x07) {
@@ -81,6 +77,35 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     this.emulator.rdramWrite8(this.animal_addr, val);
   }
 
+  get animation(): Buffer {
+    return Buffer.from([
+      this.anim_frame,
+      this.anim_id,
+    ]);
+  }
+  set animation(val: Buffer) {
+    this.anim_frame = val[0];
+    this.anim_id = val[1];
+  }
+
+  get anim_frame(): number {
+    return 0;
+  }
+  set anim_frame(val: number) {
+    return;
+  }
+
+  get anim_id(): number {
+    return 0;
+  }
+  set anim_id(val: number) {
+    return;
+  }
+
+  get exists(): boolean {
+    return !(this.emulator.rdramRead32(this.instance) === 0x0000);
+  }
+
   get opacity(): number {
     return this.emulator.rdramRead8(this.opacity_addr);
   }
@@ -91,6 +116,19 @@ export class Banjo extends API.APIObject implements API.IBanjo {
       val = 255;
     }
     this.emulator.rdramWrite8(this.opacity_addr, val);
+  }
+
+  get position(): Buffer {
+    return Buffer.from([
+      this.pos_x,
+      this.pos_y,
+      this.pos_z,
+    ]);
+  }
+  set position(val: Buffer) {
+    this.pos_x = val[0];
+    this.pos_y = val[1];
+    this.pos_z = val[2];
   }
 
   get pos_x(): number {
@@ -112,6 +150,19 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
   set pos_z(val: number) {
     this.emulator.rdramWrite32(this.pos_z_addr, val);
+  }
+
+  get rotation(): Buffer {
+    return Buffer.from([
+      this.rot_x,
+      this.rot_y,
+      this.rot_z,
+    ]);
+  }
+  set rotation(val: Buffer) {
+    this.rot_x = val[0];
+    this.rot_y = val[1];
+    this.rot_z = val[2];
   }
 
   get rot_x(): number {
@@ -174,29 +225,23 @@ export class Banjo extends API.APIObject implements API.IBanjo {
 
 export class Runtime extends API.APIObject implements API.IRuntime {
   private ptr_actor_arr_addr = 0x36e560;
-  private lvl_addr = 0x383301;
-  private lvl_notes_addr = 0x385f63;
+  private scene_addr = 0x383301;
+  private scene_notes_addr = 0x385f63;
   private jiggies_available_addr = 0x385fcb;
   private jiggies_label_addr = 0x385fdf;
   private profile_addr = 0x365e00;
 
-  get level(): API.LevelID {
-    let level: number = this.emulator.rdramRead16(this.lvl_addr);
-    if (level < 0x01 || level > 0x0d) {
-      return API.LevelID.UNKNOWN;
-    } else {
-      return level as API.LevelID;
-    }
+  get_current_scene(): number {
+    return this.emulator.rdramRead16(this.scene_addr);
   }
 
-  get profile(): API.ProfileID {
+  get_current_profile(): API.ProfileID {
     return this.emulator.rdramReadS32(this.profile_addr) as API.ProfileID;
   }
 }
 
 export class SaveContext extends API.APIObject implements API.ISaveContext {
-  // Misc
-  private honey_combs_addr = 0x385f7f;
+  private honey_combs_held_addr = 0x385f7f;
 
   // Abstraction
   game_flags: API.IBuffered;
@@ -224,11 +269,11 @@ export class BanjoKazooie implements ICore, API.IBKCore {
 
   banjo!: API.IBanjo;
   runtime!: API.IRuntime;
-  save!: SaveContext;
+  save!: API.ISaveContext;
 
   isPlaying(): boolean {
     return !(
-      this.banjo.state === 0 || this.runtime.profile === API.ProfileID.Title
+      this.banjo.state === 0 || this.runtime.get_current_profile() === API.ProfileID.Title
     );
   }
 

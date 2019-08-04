@@ -1,5 +1,5 @@
-import * as apiBit from './BKAPI_BITMAP';
-import * as apiEnum from './BKAPI_ENUM';
+import * as apiBit from './Bitmaps';
+import * as apiEnum from './Enums';
 
 // ##################################################################
 // ##  Sub-Classes
@@ -18,21 +18,29 @@ export interface IBuffered {
 // ##################################################################
 
 export interface IBanjo {
+  animal: apiEnum.AnimalType;
+  animation: Buffer;
+  anim_frame: number;
+  anim_id: number;
   exists: boolean;
   opacity: number;
-  z_forward: boolean;
-  visible: boolean;
-  scale: number;
-  state: number;
+  position: Buffer;
   pos_x: number;
   pos_y: number;
   pos_z: number;
-  animal: apiEnum.AnimalType;
+  rotation: Buffer;
+  rot_x: number;
+  rot_y: number;
+  rot_z: number;
+  scale: number;
+  state: number;
+  visible: boolean;
+  z_forward: boolean;
 }
 
 export interface IRuntime {
-  level: apiEnum.LevelID;
-  profile: apiEnum.ProfileID;
+  get_current_scene(): number;
+  get_current_profile(): apiEnum.ProfileID;
 }
 
 export interface ISaveContext {
