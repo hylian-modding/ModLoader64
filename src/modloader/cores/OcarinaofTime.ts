@@ -281,9 +281,9 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
     this.emulator.rdramWriteBit8(
       this.equipment_addr,
       SwordBitMap.BIGGORON,
-      true
+      bool
     );
-    this.emulator.rdramWrite8(this.biggoron_flag_addr, 1);
+    this.emulator.rdramWrite8(this.biggoron_flag_addr, bool ? 1 : 0);
   }
 }
 
@@ -1207,6 +1207,8 @@ export class Link extends JSONTemplate implements ILink {
         return LinkState.VOIDING_OUT;
       case 0x20000c00:
         return LinkState.GETTING_ITEM;
+      case 0x20010040:
+        return LinkState.TALKING;
     }
     return LinkState.UNKNOWN;
   }
@@ -1426,6 +1428,9 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private checksum_addr: number = this.instance + 0x1352;
   private magic_beans_addr: number = this.instance + 0x009b;
   private scene_data_addr: number = this.instance + 0x00d4;
+  private event_data_addr: number = this.instance + 0x0ed4;
+  private item_flag_addr: number = this.instance + 0x0ef0;
+  private inf_table_addr: number = this.instance + 0x0ef8;
   private zs: ZeldaString = new ZeldaString();
   // Further abstractions
   swords: SwordsEquipment;
@@ -1648,6 +1653,30 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
 
   set permSceneData(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.scene_data_addr, buf);
+  }
+
+  get eventFlags(): Buffer {
+    return this.emulator.rdramReadBuffer(this.event_data_addr, 0x1c);
+  }
+
+  set eventFlags(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.event_data_addr, buf);
+  }
+
+  get itemFlags(): Buffer {
+    return this.emulator.rdramReadBuffer(this.item_flag_addr, 0x8);
+  }
+
+  set itemFlags(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.item_flag_addr, buf);
+  }
+
+  get infTable(): Buffer {
+    return this.emulator.rdramReadBuffer(this.inf_table_addr, 0x3c);
+  }
+
+  set infTable(buf: Buffer) {
+    this.emulator.rdramWriteBuffer(this.inf_table_addr, buf);
   }
 }
 

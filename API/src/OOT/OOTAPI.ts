@@ -22,6 +22,7 @@ export declare const enum LinkState {
   TAKING_DAMAGE,
   FALLING,
   VOIDING_OUT,
+  TALKING,
 }
 
 export declare const enum scene {
@@ -431,6 +432,9 @@ export interface ISaveContext {
   age: Age;
   magic_beans_purchased: number;
   permSceneData: Buffer;
+  eventFlags: Buffer;
+  itemFlags: Buffer;
+  infTable: Buffer;
 }
 
 export interface ILink extends IMemory {
