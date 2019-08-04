@@ -33,6 +33,7 @@ import {
   EndPointEvents,
   Endpoint,
 } from 'modloader64_api/EndpointHandler';
+import zlib from 'zlib';
 
 interface IServerConfig {
   port: number;
@@ -402,9 +403,9 @@ namespace NetworkEngine {
           );
           bus.emit(EventsClient.CONFIGURE_LOBBY, ld);
           if (inst.modLoaderconfig.patch !== '') {
-            ld.data['patch'] = fs
-              .readFileSync(inst.modLoaderconfig.patch)
-              .toString('base64');
+            ld.data['patch'] = zlib.gzipSync(
+              fs.readFileSync(inst.modLoaderconfig.patch)
+            );
           }
           inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
           bus.emit(EventsClient.ON_SERVER_CONNECTION, {});
@@ -416,7 +417,7 @@ namespace NetworkEngine {
           inst.logger.info('Joined lobby ' + ld.name + '.');
           let p: Buffer = Buffer.alloc(1);
           if (ld.data.hasOwnProperty('patch')) {
-            p = Buffer.from(ld.data.patch, 'base64');
+            p = zlib.gunzipSync(ld.data.patch);
           }
           internal_event_bus.emit('onNetworkConnect', {
             me: inst.me,
