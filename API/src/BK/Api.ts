@@ -1,9 +1,9 @@
 import IMemory from '../IMemory';
 import { FlagManager } from '../FlagManager';
 
-export * from './BKAPI_BITMAP';
-export * from './BKAPI_ENUM';
-export * from './BKAPI_INTERFACE';
+export * from './Bitmaps';
+export * from './Enums';
+export * from './Interfaces';
 
 export class APIObject {
   protected emulator: IMemory;
