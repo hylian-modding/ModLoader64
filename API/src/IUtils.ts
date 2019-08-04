@@ -6,6 +6,8 @@ interface IUtils {
   utilBitCount32(value: number): number;
 
   utilBitCountBuffer(buf: Buffer): number;
+
+  memoryCacheRefresh(): void;
 }
 
 export default IUtils;
