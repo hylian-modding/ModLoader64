@@ -11,11 +11,11 @@ let rom: IRomMemory;
 
 console.log('Starting rom tests...');
 
-mupen = require(process.cwd() + '/mupen64plus.node');
+mupen = require(process.cwd() + '/emulator/mupen64plus.node');
 
 mupen.initialize();
 
-let rom_size: number = mupen.loadRom(process.cwd() + '/mupen64plus.v64');
+let rom_size: number = mupen.loadRom(process.cwd() + '/emulator/mupen64plus.v64');
 
 rom = mupen as IRomMemory;
 

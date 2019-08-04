@@ -11,11 +11,11 @@ process.chdir('./build');
 let mupen: IMupen;
 let ram: IMemory;
 
-mupen = require(process.cwd() + '/mupen64plus.node');
+mupen = require(process.cwd() + '/emulator/mupen64plus.node');
 
 mupen.initialize();
 
-let rom_size: number = mupen.loadRom('./mupen64plus.v64');
+let rom_size: number = mupen.loadRom('./emulator/mupen64plus.v64');
 
 mupen.runEmulator(true);
 
