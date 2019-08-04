@@ -290,15 +290,15 @@ export interface IShields {
 }
 
 export interface ITunics {
-  kokiri: boolean;
-  goron: boolean;
-  zora: boolean;
+  kokiriTunic: boolean;
+  goronTunic: boolean;
+  zoraTunic: boolean;
 }
 
 export interface IBoots {
-  kokiri: boolean;
-  iron: boolean;
-  hover: boolean;
+  kokiriBoots: boolean;
+  ironBoots: boolean;
+  hoverBoots: boolean;
 }
 
 export interface IInventory {
