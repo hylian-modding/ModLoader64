@@ -1,6 +1,7 @@
 import IMemory from './IMemory';
 import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
 import IUtils from './IUtils';
+import ISaveState from './ISaveState';
 
 export interface ILogger {
   info(msg: string): void;
@@ -26,6 +27,7 @@ export interface IModLoaderAPI {
   serverSide: INetwork;
   clientLobby: string;
   utils: IUtils;
+  savestates: ISaveState;
 }
 
 export interface IPlugin {

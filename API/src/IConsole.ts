@@ -5,6 +5,14 @@ interface IConsole {
 
   stopEmulator(): void;
 
+  softReset(): void;
+
+  hardReset(): void;
+
+  saveState(file: string): void;
+
+  loadState(file: string): void;
+
   finishInjects(): void;
 
   isEmulatorReady(): boolean;

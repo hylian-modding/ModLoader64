@@ -47,4 +47,12 @@ export class FakeMupen implements IConsole {
   getMemoryAccess(): IMemory {
     return this.ram;
   }
+
+  softReset(): void {}
+
+  hardReset(): void {}
+
+  saveState(file: string): void {}
+
+  loadState(file: string): void {}
 }

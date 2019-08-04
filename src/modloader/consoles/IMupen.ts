@@ -1,23 +1,14 @@
 import IMemory from 'modloader64_api/IMemory';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import IUtils from 'modloader64_api/IUtils';
+import ISaveState from 'modloader64_api/ISaveState';
 
-interface IMupen extends IMemory, IRomMemory, IUtils {
-  setCoreLib(path: string): void;
-
+interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
   setConfigDir(path: string): void;
 
   setDataDir(path: string): void;
 
   setPluginDir(path: string): void;
-
-  setPluginAudio(path: string): void;
-
-  setPluginGFX(path: string): void;
-
-  setPluginInput(path: string): void;
-
-  setPluginRSP(path: string): void;
 
   runEmulator(bool: boolean): void;
 
@@ -38,6 +29,10 @@ interface IMupen extends IMemory, IRomMemory, IUtils {
   resumeEmulator(): void;
 
   hookFrameCallback(): void;
+
+  softReset(): void;
+
+  hardReset(): void;
 }
 
 export default IMupen;

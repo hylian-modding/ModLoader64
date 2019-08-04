@@ -67,6 +67,22 @@ class N64 implements IConsole {
   getMemoryAccess(): IMemory {
     return this.mupen;
   }
+
+  softReset(): void {
+    this.mupen.softReset();
+  }
+
+  hardReset(): void {
+    this.mupen.hardReset();
+  }
+
+  saveState(file: string): void {
+    this.mupen.saveState(file);
+  }
+
+  loadState(file: string): void {
+    this.mupen.loadState(file);
+  }
 }
 
 export default N64;

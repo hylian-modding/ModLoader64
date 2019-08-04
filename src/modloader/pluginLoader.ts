@@ -30,6 +30,7 @@ import { internal_event_bus } from './modloader64';
 import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
 import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
+import ISaveState from 'modloader64_api/ISaveState';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -249,10 +250,12 @@ class pluginLoader {
     ) as IModLoaderConfig;
     this.loaded_core.ModLoader.emulator = emulator;
     this.loaded_core.ModLoader.utils = (emulator as unknown) as IUtils;
+    this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
       plugin.ModLoader.utils = (emulator as unknown) as IUtils;
+      plugin.ModLoader.savestates = (emulator as unknown) as ISaveState;
       plugin.postinit();
       if (mainConfig.isClient) {
         bus.emit(EventsClient.ON_PLUGIN_READY, plugin);
