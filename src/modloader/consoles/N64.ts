@@ -2,6 +2,7 @@ import IMupen from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import { MonkeyPatch_rdramWriteBit8 } from '../../monkeypatches/Mupen';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -15,6 +16,10 @@ class N64 implements IConsole {
     this.mupen.setPluginDir(process.cwd());
 
     this.mupen.initialize();
+
+    // This function seems broken right now. Monkey patch it for now.
+    let monkey = new MonkeyPatch_rdramWriteBit8(this.mupen);
+    monkey.patch();
 
     this.rom_size = this.mupen.loadRom(rom);
   }

@@ -37,7 +37,7 @@ class ModLoader64 {
     this.plugins = new pluginLoader(
       [path.resolve(path.join(process.cwd(), 'mods'))],
       this.config,
-      this.logger
+      this.logger.child({})
     );
     this.Server = new NetworkEngine.Server(this.logger.child({}), this.config);
     this.Client = new NetworkEngine.Client(this.logger.child({}), this.config);
