@@ -1,0 +1,21 @@
+{
+  "name": "payloadconverter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/pc.ts",
+  "scripts": {
+    "tsc": "npm run fix && tsc --listEmittedFiles",
+    "build": "npm run tsc",
+    "start": "npm run build && node ./build/pc.js --input=./En_Link_Puppet_N0.nonovl --output=puppet.payload --base=0x608000",
+    "fix": "gts fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gts": "^1.1.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "commander": "^2.20.0"
+  }
+}
