@@ -15,7 +15,6 @@ import { OotHelper } from './OOT/OotHelper';
 import { GlobalContext } from './OOT/GlobalContext';
 import { Link } from './OOT/Link';
 import { SaveContext } from './OOT/SaveContext';
-import { ICommandBuffer } from 'modloader64_api/OOT/ICommandBuffer';
 import { CommandBuffer } from './OOT/CommandBuffer';
 
 export class OcarinaofTime implements ICore, IOOTCore {
