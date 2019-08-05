@@ -100,11 +100,14 @@ class ModLoader64 {
 
     fs.readdirSync(path.resolve(path.join(__dirname, '/cores'))).forEach(
       file => {
-        let parse = path.parse(file);
-        if (parse.ext === '.js') {
-          let p = require(path.join(__dirname, '/cores', file))[parse.name];
-          this.plugins.registerCorePlugin(parse.name, new p() as ICore);
-          this.logger.info('Auto-wiring core: ' + parse.name);
+        let f = path.join(__dirname, '/cores', file);
+        if (!fs.lstatSync(f).isDirectory()) {
+          let parse = path.parse(file);
+          if (parse.ext === '.js') {
+            let p = require(f)[parse.name];
+            this.plugins.registerCorePlugin(parse.name, new p() as ICore);
+            this.logger.info('Auto-wiring core: ' + parse.name);
+          }
         }
       }
     );
