@@ -1,5 +1,5 @@
 import IMemory from '../IMemory';
-import { CommandBuffer } from './CommandBuffer';
+import { ICommandBuffer } from './ICommandBuffer';
 
 export declare const enum LinkState {
   UNKNOWN,
@@ -473,7 +473,7 @@ export interface IOOTCore {
   save: ISaveContext;
   helper: IOotHelper;
   global: IGlobalContext;
-  commandBuffer: CommandBuffer;
+  commandBuffer: ICommandBuffer;
 }
 
 export enum OotEvents {

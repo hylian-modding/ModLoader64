@@ -1,15 +1,9 @@
-import IMemory from '../IMemory';
+import IMemory from "modloader64_api/IMemory";
+import { Command, ICommandBuffer } from "modloader64_api/OOT/ICommandBuffer";
 
 const instance: number = 0x600000 + 0x0090;
 const slotSize = 0x8;
 const slotCount = 16;
-
-export const enum Command {
-  NULL,
-  SPAWN_ACTOR,
-  UPDATE_C_BUTTON_ICON,
-  PLAY_SOUND,
-}
 
 export class CommandBufferSlot {
   private readonly addr_cmd: number;
@@ -40,7 +34,7 @@ export class CommandBufferSlot {
   }
 }
 
-export class CommandBuffer {
+export class CommandBuffer implements ICommandBuffer{
   private readonly slots: CommandBufferSlot[] = new Array<CommandBufferSlot>(
     slotCount
   );
