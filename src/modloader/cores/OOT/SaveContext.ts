@@ -6,7 +6,6 @@ import {
   IQuestStatus,
   Age,
 } from 'modloader64_api/OOT/OOTAPI';
-import ZeldaString from 'modloader64_api/OOT/ZeldaString';
 import { JSONTemplate } from './JSONTemplate';
 import { BootsEquipment } from './BootsEquipment';
 import { TunicsEquipment } from './TunicsEquipment';
@@ -14,6 +13,7 @@ import { ShieldsEquipment } from './ShieldsEquipment';
 import { SwordsEquipment } from './SwordsEquipment';
 import { Inventory } from './Inventory';
 import { QuestStatus } from './QuestStatus';
+import { zeldaString } from 'modloader64_api/OOT/ZeldaString';
 
 export class SaveContext extends JSONTemplate implements ISaveContext {
   private emulator: IMemory;
@@ -42,7 +42,6 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private event_data_addr: number = this.instance + 0x0ed4;
   private item_flag_addr: number = this.instance + 0x0ef0;
   private inf_table_addr: number = this.instance + 0x0ef8;
-  private zs: ZeldaString = new ZeldaString();
   // Further abstractions
   swords: SwordsEquipment;
   shields: ShieldsEquipment;
@@ -126,7 +125,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     this.emulator.rdramWrite16(this.death_addr, deaths);
   }
   get player_name(): string {
-    return this.zs.decode(
+    return zeldaString.decode(
       this.emulator.rdramReadBuffer(this.player_name_addr, 8)
     );
   }
