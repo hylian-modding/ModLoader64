@@ -1,5 +1,5 @@
-import IMemory from "modloader64_api/IMemory";
-import { Command, ICommandBuffer } from "modloader64_api/OOT/ICommandBuffer";
+import IMemory from 'modloader64_api/IMemory';
+import { Command, ICommandBuffer } from 'modloader64_api/OOT/ICommandBuffer';
 
 const instance: number = 0x600000 + 0x0090;
 const slotSize = 0x8;
@@ -34,7 +34,7 @@ export class CommandBufferSlot {
   }
 }
 
-export class CommandBuffer implements ICommandBuffer{
+export class CommandBuffer implements ICommandBuffer {
   private readonly slots: CommandBufferSlot[] = new Array<CommandBufferSlot>(
     slotCount
   );
