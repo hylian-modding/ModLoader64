@@ -4,8 +4,8 @@
 author: https://www.smwcentral.net/?p=profile&id=1686
 smc support by randomdude999 (https://smwc.me/u/32552) */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 class BPS {
   constructor() {}
