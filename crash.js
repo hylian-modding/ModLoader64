@@ -15,7 +15,7 @@ function setup(p) {
 
     p.on('exit', function (code, signal) {
         console.log(code)
-        if (code === 0){
+        if (code === 3221225477){
             go()
         }
     });

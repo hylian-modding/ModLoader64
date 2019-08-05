@@ -23,17 +23,14 @@ export class Mario extends API.APIObject implements API.IMario {
   private pos_z_addr = 0x28;
   private rot_x_addr = 0x54;
   private rot_y_addr = 0x58;
-  private rot_z_addr = 0x5C;
+  private rot_z_addr = 0x5c;
 
   get exists(): boolean {
     return !(this.emulator.rdramRead32(this.instance) === 0x00000000);
   }
 
   get animation(): Buffer {
-    return Buffer.from([
-      this.anim_frame,
-      this.anim_id,
-    ]);
+    return Buffer.from([this.anim_frame, this.anim_id]);
   }
   set animation(val: Buffer) {
     this.anim_frame = val[0];
@@ -55,11 +52,7 @@ export class Mario extends API.APIObject implements API.IMario {
   }
 
   get position(): Buffer {
-    return Buffer.from([
-      this.pos_x,
-      this.pos_y,
-      this.pos_z,
-    ]);
+    return Buffer.from([this.pos_x, this.pos_y, this.pos_z]);
   }
   set position(val: Buffer) {
     this.pos_x = val[0];
@@ -89,11 +82,7 @@ export class Mario extends API.APIObject implements API.IMario {
   }
 
   get rotation(): Buffer {
-    return Buffer.from([
-      this.rot_x,
-      this.rot_y,
-      this.rot_z,
-    ]);
+    return Buffer.from([this.rot_x, this.rot_y, this.rot_z]);
   }
   set rotation(val: Buffer) {
     this.rot_x = val[0];
@@ -142,7 +131,7 @@ export class Runtime extends API.APIObject implements API.IRuntime {
   get_current_profile(): number {
     return this.emulator.rdramRead8(this.cur_prof_addr) - 1;
   }
-  
+
   get star_count(): number {
     return this.emulator.rdramRead16(this.star_count_addr);
   }
@@ -166,12 +155,12 @@ export class SuperMario64 implements ICore, API.ISM64Core {
     // Save Context
     global.ModLoader['SM64:fileA'] = 0x207700;
     global.ModLoader['SM64:fileB'] = 0x207770;
-    global.ModLoader['SM64:fileC'] = 0x2077E0;
+    global.ModLoader['SM64:fileC'] = 0x2077e0;
     global.ModLoader['SM64:fileD'] = 0x207850;
 
     // Floating Data
     global.ModLoader['SM64:current_scene'] = 0x32ddf8;
-    global.ModLoader['SM64:current_profile'] = 0x32DDF5;
+    global.ModLoader['SM64:current_profile'] = 0x32ddf5;
     global.ModLoader['SM64:star_count'] = 0x33b21a;
   }
 
@@ -180,7 +169,7 @@ export class SuperMario64 implements ICore, API.ISM64Core {
   postinit(): void {
     this.mario = new Mario(this.ModLoader.emulator);
     this.runtime = new Runtime(this.ModLoader.emulator);
-    
+
     // Save Context
     this.save = [
       new SaveFile(this.ModLoader.emulator, global.ModLoader['SM64:fileA']),

@@ -78,10 +78,7 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get animation(): Buffer {
-    return Buffer.from([
-      this.anim_frame,
-      this.anim_id,
-    ]);
+    return Buffer.from([this.anim_frame, this.anim_id]);
   }
   set animation(val: Buffer) {
     this.anim_frame = val[0];
@@ -119,11 +116,7 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get position(): Buffer {
-    return Buffer.from([
-      this.pos_x,
-      this.pos_y,
-      this.pos_z,
-    ]);
+    return Buffer.from([this.pos_x, this.pos_y, this.pos_z]);
   }
   set position(val: Buffer) {
     this.pos_x = val[0];
@@ -153,11 +146,7 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get rotation(): Buffer {
-    return Buffer.from([
-      this.rot_x,
-      this.rot_y,
-      this.rot_z,
-    ]);
+    return Buffer.from([this.rot_x, this.rot_y, this.rot_z]);
   }
   set rotation(val: Buffer) {
     this.rot_x = val[0];
@@ -273,7 +262,8 @@ export class BanjoKazooie implements ICore, API.IBKCore {
 
   isPlaying(): boolean {
     return !(
-      this.banjo.state === 0 || this.runtime.get_current_profile() === API.ProfileID.Title
+      this.banjo.state === 0 ||
+      this.runtime.get_current_profile() === API.ProfileID.Title
     );
   }
 
