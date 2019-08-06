@@ -5,7 +5,7 @@ interface IUtils {
 
   utilBitCount32(value: number): number;
 
-  utilBitCountBuffer(buf: Buffer): number;
+  utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
 
   memoryCacheRefresh(): void;
 }
