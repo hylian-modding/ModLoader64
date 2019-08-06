@@ -45,7 +45,7 @@ class pluginLoader {
   config: IConfig;
   logger: ILogger;
   onTickHandle!: Function;
-  onInjectHandler!: any;
+  onFakeFrameHandler!: any;
   internalFrameCount = -1;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
@@ -183,6 +183,31 @@ class pluginLoader {
         bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
       }
     });
+    this.onFakeFrameHandler = setInterval(() => {
+      if (this.internalFrameCount === 0) {
+        clearInterval(this.onFakeFrameHandler);
+        iconsole.pauseEmulator();
+        let gameshark = new GameShark(this.logger, emulator);
+        this.plugin_folders.forEach((dir: string) => {
+          let test = path.join(dir, 'payloads');
+          if (fs.existsSync(test)) {
+            if (fs.lstatSync(test).isDirectory) {
+              fs.readdirSync(test).forEach((payload: string) => {
+                gameshark.read(path.resolve(path.join(test, payload)));
+              });
+            }
+          }
+        });
+        bus.emit(EventsClient.ON_INJECT_FINISHED, {});
+        iconsole.finishInjects();
+        iconsole.resumeEmulator();
+      } else {
+        this.loaded_core.onTick();
+        this.plugins.forEach((plugin: IPlugin) => {
+          plugin.onTick();
+        });
+      }
+    }, 50);
     (function(inst) {
       inst.onTickHandle = function(frame: number) {
         inst.internalFrameCount = frame;
@@ -192,26 +217,6 @@ class pluginLoader {
         });
       };
       iconsole.setFrameCallback(inst.onTickHandle);
-      inst.onInjectHandler = setInterval(function() {
-        if (inst.internalFrameCount >= 0) {
-          iconsole.pauseEmulator();
-          let gameshark = new GameShark(inst.logger, emulator);
-          inst.plugin_folders.forEach((dir: string) => {
-            let test = path.join(dir, 'payloads');
-            if (fs.existsSync(test)) {
-              if (fs.lstatSync(test).isDirectory) {
-                fs.readdirSync(test).forEach((payload: string) => {
-                  gameshark.read(path.resolve(path.join(test, payload)));
-                });
-              }
-            }
-          });
-          bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-          clearInterval(inst.onInjectHandler);
-          iconsole.finishInjects();
-          iconsole.resumeEmulator();
-        }
-      }, 1);
     })(this);
   }
 }
