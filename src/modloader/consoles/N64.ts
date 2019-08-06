@@ -41,7 +41,6 @@ class N64 implements IConsole {
 
   finishInjects(): void {
     this.mupen.memoryCacheRefresh();
-    this.mupen.hookFrameCallback();
   }
 
   isEmulatorReady(): boolean {
@@ -56,6 +55,7 @@ class N64 implements IConsole {
 
   setFrameCallback(fn: Function): void {
     this.mupen.setFrameCallback(fn);
+    this.mupen.hookFrameCallback();
   }
 
   pauseEmulator(): void {

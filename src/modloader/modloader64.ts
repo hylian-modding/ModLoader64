@@ -213,13 +213,10 @@ class ModLoader64 {
         resolve();
       });
       load_mupen.then(function() {
-        setTimeout(function() {
-          instance.logger.info('Finishing plugin init...');
-          instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
-          instance.emulator.finishInjects();
-          internal_event_bus.emit('postinit_done', {});
-          instance.done = true;
-        }, 3000);
+        instance.logger.info('Finishing plugin init...');
+        instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
+        internal_event_bus.emit('postinit_done', {});
+        instance.done = true;
         // Detect if the user closed Mupen. Exit with code 1.
         setInterval(() => {
           if (!instance.emulator.isEmulatorReady()) {

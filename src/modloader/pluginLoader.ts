@@ -14,6 +14,7 @@ import {
   bus,
   EventsClient,
   EventsServer,
+  setupEventHandlers,
 } from 'modloader64_api/EventHandler';
 import {
   NetworkBus,
@@ -24,6 +25,7 @@ import {
   INetworkPlayer,
   ClientController,
   ServerController,
+  setupNetworkHandlers,
 } from 'modloader64_api/NetworkHandler';
 import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
@@ -31,6 +33,7 @@ import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
 import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
+import { setupCoreInject } from 'modloader64_api/CoreInjection';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -41,7 +44,9 @@ class pluginLoader {
   loaded_core: ICore = {} as ICore;
   config: IConfig;
   logger: ILogger;
-  onTickHandle: any;
+  onTickHandle!: Function;
+  onInjectHandler!: any;
+  internalFrameCount = -1;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
     this.plugin_directories = dirs;
@@ -74,87 +79,10 @@ class pluginLoader {
           plugin.core_dependency === this.selected_core ||
           plugin.core_dependency === '*'
         ) {
-          // TODO: Clean this up. Could be done generically.
-          if (p.prototype.hasOwnProperty('ModLoader')) {
-            // Setup event decorator handlers
-            if (p.prototype.ModLoader.hasOwnProperty('eventHandlers')) {
-              p.prototype.ModLoader.eventHandlers.forEach(function(
-                value: string,
-                key: string
-              ) {
-                let a = (plugin as any)[value].bind(plugin);
-                bus.addListener(key, a);
-              });
-            }
-            if (p.prototype.ModLoader.hasOwnProperty('NetworkHandler')) {
-              // Setup packet decorator handlers
-              if (
-                p.prototype.ModLoader.NetworkHandler.hasOwnProperty(
-                  'PacketHandlers'
-                ) !== null
-              ) {
-                p.prototype.ModLoader.NetworkHandler.PacketHandlers.forEach(
-                  function(value: string, key: string) {
-                    let a = (plugin as any)[value].bind(plugin);
-                    NetworkBus.addListener(key, a);
-                  }
-                );
-              }
-              if (
-                p.prototype.ModLoader.NetworkHandler.hasOwnProperty(
-                  'ChannelHandlers'
-                )
-              ) {
-                // Setup channel decorator handlers
-                p.prototype.ModLoader.NetworkHandler.ChannelHandlers.forEach(
-                  function(value: string, key: string) {
-                    let a = (plugin as any)[value].bind(plugin);
-                    NetworkChannelBus.addListener(key, a);
-                  }
-                );
-              }
-            }
-            if (p.prototype.ModLoader.hasOwnProperty('ServerNetworkHandler')) {
-              // Setup server-side packet decorator handlers
-              if (
-                p.prototype.ModLoader.ServerNetworkHandler.hasOwnProperty(
-                  'PacketHandlers'
-                ) !== null
-              ) {
-                p.prototype.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(
-                  function(value: string, key: string) {
-                    let a = (plugin as any)[value].bind(plugin);
-                    NetworkBusServer.addListener(key, a);
-                  }
-                );
-              }
-              if (
-                p.prototype.ModLoader.ServerNetworkHandler.hasOwnProperty(
-                  'ChannelHandlers'
-                )
-              ) {
-                // Setup server-side channel decorator handlers
-                p.prototype.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(
-                  function(value: string, key: string) {
-                    let a = (plugin as any)[value].bind(plugin);
-                    NetworkChannelBusServer.addListener(key, a);
-                  }
-                );
-              }
-            }
-            if (p.prototype.ModLoader.hasOwnProperty('InjectCore')) {
-              // Inject the core.
-              Object.defineProperty(
-                plugin,
-                p.prototype.ModLoader.InjectCore.get('field')(),
-                {
-                  value: this.loaded_core,
-                  writable: false,
-                }
-              );
-            }
-          }
-          setupLobbyVariable(plugin, p.prototype);
+          setupEventHandlers(plugin);
+          setupNetworkHandlers(plugin);
+          setupCoreInject(plugin, this.loaded_core);
+          setupLobbyVariable(plugin);
           this.registerPlugin(plugin);
           this.plugin_folders.push(parse.dir);
         } else {
@@ -177,6 +105,9 @@ class pluginLoader {
     core['ModLoader']['logger'] = this.logger.child({});
     core['ModLoader']['config'] = this.config;
     this.loaded_core = core;
+
+    setupEventHandlers(this.loaded_core);
+    setupNetworkHandlers(this.loaded_core);
 
     // Start external plugins.
     this.plugin_directories.forEach((dir: string) => {
@@ -232,19 +163,7 @@ class pluginLoader {
     });
   }
 
-  loadPluginsPostinit(emulator: IMemory, console: IConsole) {
-    console.pauseEmulator();
-    let gameshark = new GameShark(this.logger, emulator);
-    this.plugin_folders.forEach((dir: string) => {
-      let test = path.join(dir, 'payloads');
-      if (fs.existsSync(test)) {
-        if (fs.lstatSync(test).isDirectory) {
-          fs.readdirSync(test).forEach((payload: string) => {
-            gameshark.read(path.resolve(path.join(test, payload)));
-          });
-        }
-      }
-    });
+  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole) {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
@@ -266,14 +185,34 @@ class pluginLoader {
     });
     (function(inst) {
       inst.onTickHandle = function(frame: number) {
+        inst.internalFrameCount = frame;
         inst.loaded_core.onTick();
         inst.plugins.forEach((plugin: IPlugin) => {
           plugin.onTick();
         });
       };
-      console.setFrameCallback(inst.onTickHandle);
+      iconsole.setFrameCallback(inst.onTickHandle);
+      inst.onInjectHandler = setInterval(function() {
+        if (inst.internalFrameCount >= 0) {
+          iconsole.pauseEmulator();
+          let gameshark = new GameShark(inst.logger, emulator);
+          inst.plugin_folders.forEach((dir: string) => {
+            let test = path.join(dir, 'payloads');
+            if (fs.existsSync(test)) {
+              if (fs.lstatSync(test).isDirectory) {
+                fs.readdirSync(test).forEach((payload: string) => {
+                  gameshark.read(path.resolve(path.join(test, payload)));
+                });
+              }
+            }
+          });
+          bus.emit(EventsClient.ON_INJECT_FINISHED, {});
+          clearInterval(inst.onInjectHandler);
+          iconsole.finishInjects();
+          iconsole.resumeEmulator();
+        }
+      }, 1);
     })(this);
-    console.resumeEmulator();
   }
 }
 

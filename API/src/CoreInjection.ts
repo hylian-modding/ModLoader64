@@ -1,3 +1,5 @@
+import { ICore } from './IModLoaderAPI';
+
 export function InjectCore() {
   return function(target: any, key: string) {
     if (target.ModLoader === undefined) {
@@ -8,4 +10,17 @@ export function InjectCore() {
     }
     target.ModLoader.InjectCore.set('field', () => key);
   };
+}
+
+export function setupCoreInject(instance: any, core: ICore) {
+  let p = Object.getPrototypeOf(instance);
+  if (p.hasOwnProperty('ModLoader')) {
+    if (p.ModLoader.hasOwnProperty('InjectCore')) {
+      // Inject the core.
+      Object.defineProperty(instance, p.ModLoader.InjectCore.get('field')(), {
+        value: core,
+        writable: false,
+      });
+    }
+  }
 }

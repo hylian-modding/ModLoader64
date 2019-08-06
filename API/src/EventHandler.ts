@@ -48,6 +48,19 @@ export enum EventsClient {
   ON_PLAYER_JOIN = 'playerJoin_client',
   ON_LOBBY_JOIN = 'lobbyJoined_client',
   ON_PLUGIN_READY = 'pluginReady_client',
+  ON_INJECT_FINISHED = 'plugins_injectFinished',
+}
+
+export function setupEventHandlers(instance: any) {
+  let p = Object.getPrototypeOf(instance);
+  if (p.hasOwnProperty('ModLoader')) {
+    if (p.ModLoader.hasOwnProperty('eventHandlers')) {
+      p.ModLoader.eventHandlers.forEach(function(value: string, key: string) {
+        let a = (instance as any)[value].bind(instance);
+        bus.addListener(key, a);
+      });
+    }
+  }
 }
 
 export { bus, EventHandler };

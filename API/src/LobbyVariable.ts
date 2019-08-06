@@ -1,4 +1,3 @@
-import { IPlugin } from './IModLoaderAPI';
 import { bus } from './EventHandler';
 
 export function LobbyVariable(objectKey: string) {
@@ -14,14 +13,14 @@ export function LobbyVariable(objectKey: string) {
 }
 
 export class PluginMeta {
-  instance: IPlugin;
+  instance: any;
   prototype: any;
   fieldName: string;
   template: string;
   objectKey: string;
 
   constructor(
-    instance: IPlugin,
+    instance: any,
     prototype: any,
     objectKey: string,
     fieldName: string,
@@ -44,7 +43,8 @@ export class PluginMeta {
   }
 }
 
-export function setupLobbyVariable(plugin: IPlugin, prototype: any) {
+export function setupLobbyVariable(plugin: any) {
+  let prototype = Object.getPrototypeOf(plugin);
   if (prototype.hasOwnProperty('ModLoader')) {
     if (prototype.ModLoader.hasOwnProperty('LobbyVariable')) {
       prototype.ModLoader.LobbyVariable.forEach(function(
