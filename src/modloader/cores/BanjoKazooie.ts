@@ -1,3 +1,4 @@
+import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/BK/Api';
@@ -12,8 +13,7 @@ export class GameFlags extends API.APIBufferedObject implements API.IBuffered {
   }
 }
 
-export class HoneyCombFlags extends API.APIBufferedObject
-  implements API.IBuffered {
+export class HoneyCombFlags extends API.APIBufferedObject implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:honeycomb_flags'], 0x03);
   }
@@ -31,15 +31,13 @@ export class MoveFlags extends API.APIBufferedObject implements API.IBuffered {
   }
 }
 
-export class MumboTokenFlags extends API.APIBufferedObject
-  implements API.IBuffered {
+export class MumboTokenFlags extends API.APIBufferedObject implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:mumbo_token_flags'], 0x10);
   }
 }
 
-export class NoteTotalBuffer extends API.APIBufferedObject
-  implements API.IBuffered {
+export class NoteTotalBuffer extends API.APIBufferedObject implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:note_totals'], 0x0f);
   }
@@ -373,12 +371,16 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   }
 
   preinit(): void {
+    // Hidden Data
+    global.ModLoader['BK:beta_menu'] = 0x383080;
+
     // Banjo Data
-    global.ModLoader['BK:banjo_animal'] = 0x37D188;
+    global.ModLoader['BK:banjo_animal'] = 0x37d188;
     global.ModLoader['BK:banjo_animation'] = 0x37bf20;
     global.ModLoader['BK:banjo_flip_facing'] = 0x37c0e7;
     global.ModLoader['BK:banjo_model_index'] = 0x37c0e4;
     global.ModLoader['BK:banjo_model_ptr'] = 0x37c0e0;
+    global.ModLoader['BK:banjo_opacity'] = 0x37c0e6;
     global.ModLoader['BK:banjo_pos_x'] = 0x37c5a0;
     global.ModLoader['BK:banjo_pos_y'] = 0x37c5a4;
     global.ModLoader['BK:banjo_pos_z'] = 0x37c5a8;
@@ -386,9 +388,8 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     global.ModLoader['BK:banjo_rot_y'] = 0x37c5f8;
     global.ModLoader['BK:banjo_rot_z'] = 0x37c5f4;
     global.ModLoader['BK:banjo_scale'] = 0x37c0ec;
-    global.ModLoader['BK:banjo_state'] = 0x37C4A0;
-    global.ModLoader['BK:banjo_opacity'] = 0x37c0e6;
-    global.ModLoader['BK:banjo_visible'] = 0x37c0e8;    
+    global.ModLoader['BK:banjo_state'] = 0x37c4a0;
+    global.ModLoader['BK:banjo_visible'] = 0x37c0e8;
 
     // Runtime Data
     global.ModLoader['BK:actor_arr_ptr'] = 0x36e560;
@@ -424,7 +425,10 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     this.runtime = new Runtime(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
   }
-
+   
+  @EventHandler(EventsClient.ON_INJECT_FINISHED)
+  onCore_InjectFinished(evt: any) {}
+    
   onTick(): void {
     this.eventTicks.forEach((value: Function, key: string) => {
       value();
