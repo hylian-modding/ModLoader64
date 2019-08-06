@@ -77,28 +77,29 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get animation(): Buffer {    
-    let buf: Buffer = Buffer.alloc(12);
-    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x14), 0);
-    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x10), 4);
+    let buf: Buffer = Buffer.alloc(8);
+    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x04), 0);
+    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x1c), 4);
     return buf;
   }
   set animation(val: Buffer) {
-    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x14, val.slice(0, 4));
-    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x10, val.slice(4, 8));
+    let animStructPtr = this.emulator.dereferencePointer(this.anim_addr);
+    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x04, val.slice(0, 4));
+    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x1c, val.slice(4, 8));
   }
 
   get anim_frame(): number {
-    return this.emulator.rdramReadPtr32(this.anim_addr, 0x14);
+    return this.emulator.rdramReadPtr32(this.anim_addr, 0x04);
   }
   set anim_frame(val: number) {
-    this.emulator.rdramWritePtr32(this.anim_addr, 0x14, val);
+    this.emulator.rdramWritePtr32(this.anim_addr, 0x04, val);
   }
 
   get anim_id(): number {
-    return this.emulator.rdramReadPtr32(this.anim_addr, 0x10);
+    return this.emulator.rdramReadPtr32(this.anim_addr, 0x1c);
   }
   set anim_id(val: number) {
-    this.emulator.rdramWritePtr32(this.anim_addr, 0x10, val);
+    this.emulator.rdramWritePtr32(this.anim_addr, 0x1c, val);
   }
 
   get flip_facing(): boolean {
@@ -384,9 +385,9 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     global.ModLoader['BK:banjo_pos_x'] = 0x37c5a0;
     global.ModLoader['BK:banjo_pos_y'] = 0x37c5a4;
     global.ModLoader['BK:banjo_pos_z'] = 0x37c5a8;
-    global.ModLoader['BK:banjo_rot_x'] = 0x37c0f0;
-    global.ModLoader['BK:banjo_rot_y'] = 0x37c5f8;
-    global.ModLoader['BK:banjo_rot_z'] = 0x37c5f4;
+    global.ModLoader['BK:banjo_rot_x'] = 0x37C540;
+    global.ModLoader['BK:banjo_rot_y'] = 0x37C690;
+    global.ModLoader['BK:banjo_rot_z'] = 0x37C680;
     global.ModLoader['BK:banjo_scale'] = 0x37c0ec;
     global.ModLoader['BK:banjo_state'] = 0x37c4a0;
     global.ModLoader['BK:banjo_visible'] = 0x37c0e8;
