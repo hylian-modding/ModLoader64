@@ -50,20 +50,21 @@ export class NoteTotalBuffer extends API.APIBufferedObject
 // ##################################################################
 
 export class Banjo extends API.APIObject implements API.IBanjo {
-  private instance: number = global.ModLoader['BK:banjo'];
-
-  private animal_addr: number = this.instance + 0x10a8;
-  private opacity_addr: number = this.instance + 0x06;
-  private pos_x_addr: number = this.instance + 0x04c0;
-  private pos_y_addr: number = this.instance + 0x04c4;
-  private pos_z_addr: number = this.instance + 0x04c8;
-  private rot_x_addr: number = this.instance + 0x0460;
-  private rot_y_addr: number = this.instance + 0x05b0;
-  private rot_z_addr: number = this.instance + 0x05a0;
-  private scale_addr: number = this.instance + 0x0c;
-  private state_addr: number = this.instance + 0x03c0;
-  private visible_addr: number = this.instance + 0x08;
-  private z_forward_addr: number = this.instance + 0x07;
+  private animal_addr: number = global.ModLoader['BK:banjo_animal'];
+  private anim_addr: number = global.ModLoader['BK:banjo_animation'];
+  private flip_facing_addr: number = global.ModLoader['BK:banjo_flip_facing'];
+  private model_index_addr: number = global.ModLoader['BK:banjo_model_index'];
+  private model_ptr_addr: number = global.ModLoader['BK:banjo_model_ptr'];
+  private opacity_addr: number = global.ModLoader['BK:banjo_opacity'];
+  private pos_x_addr: number = global.ModLoader['BK:banjo_pos_x'];
+  private pos_y_addr: number = global.ModLoader['BK:banjo_pos_y'];
+  private pos_z_addr: number = global.ModLoader['BK:banjo_pos_z'];
+  private rot_x_addr: number = global.ModLoader['BK:banjo_rot_x'];
+  private rot_y_addr: number = global.ModLoader['BK:banjo_rot_y'];
+  private rot_z_addr: number = global.ModLoader['BK:banjo_rot_z'];
+  private scale_addr: number = global.ModLoader['BK:banjo_scale'];
+  private state_addr: number = global.ModLoader['BK:banjo_state'];
+  private visible_addr: number = global.ModLoader['BK:banjo_visible'];
 
   get animal(): API.AnimalType {
     let animal: number = this.emulator.rdramRead8(this.animal_addr);
@@ -77,30 +78,54 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     this.emulator.rdramWrite8(this.animal_addr, val);
   }
 
-  get animation(): Buffer {
-    return Buffer.from([this.anim_frame, this.anim_id]);
+  get animation(): Buffer {    
+    let buf: Buffer = Buffer.alloc(12);
+    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x14), 0);
+    buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x10), 4);
+    return buf;
   }
   set animation(val: Buffer) {
-    this.anim_frame = val[0];
-    this.anim_id = val[1];
+    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x14, val.slice(0, 4));
+    this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x10, val.slice(4, 8));
   }
 
   get anim_frame(): number {
-    return 0;
+    return this.emulator.rdramReadPtr32(this.anim_addr, 0x14);
   }
   set anim_frame(val: number) {
-    return;
+    this.emulator.rdramWritePtr32(this.anim_addr, 0x14, val);
   }
 
   get anim_id(): number {
-    return 0;
+    return this.emulator.rdramReadPtr32(this.anim_addr, 0x10);
   }
   set anim_id(val: number) {
-    return;
+    this.emulator.rdramWritePtr32(this.anim_addr, 0x10, val);
   }
 
-  get exists(): boolean {
-    return !(this.emulator.rdramRead32(this.instance) === 0x0000);
+  get flip_facing(): boolean {
+    return this.emulator.rdramRead8(this.flip_facing_addr) === 0x01;
+  }
+  set flip_facing(val: boolean) {
+    if (val) {
+      this.emulator.rdramWrite8(this.flip_facing_addr, 0x01);
+    } else {
+      this.emulator.rdramWrite8(this.flip_facing_addr, 0x00);
+    }
+  }
+
+  get model_index(): number {
+    return this.emulator.rdramRead16(this.model_index_addr);
+  }
+  set model_index(val: number) {
+    this.emulator.rdramWrite16(this.model_index_addr, val);
+  }
+
+  get model_ptr(): number {
+    return this.emulator.dereferencePointer(this.model_ptr_addr);
+  }
+  set model_ptr(val: number) {
+    this.emulator.rdramWrite32(this.model_ptr_addr, val);
   }
 
   get opacity(): number {
@@ -116,12 +141,16 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get position(): Buffer {
-    return Buffer.from([this.pos_x, this.pos_y, this.pos_z]);
+    let buf: Buffer = Buffer.alloc(12);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_x_addr), 0);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_y_addr), 4);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_z_addr), 8);
+    return buf;
   }
   set position(val: Buffer) {
-    this.pos_x = val[0];
-    this.pos_y = val[1];
-    this.pos_z = val[2];
+    this.emulator.rdramWriteBuffer(this.pos_x_addr, val.slice(0, 4));
+    this.emulator.rdramWriteBuffer(this.pos_y_addr, val.slice(4, 8));
+    this.emulator.rdramWriteBuffer(this.pos_z_addr, val.slice(8, 12));
   }
 
   get pos_x(): number {
@@ -146,12 +175,16 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 
   get rotation(): Buffer {
-    return Buffer.from([this.rot_x, this.rot_y, this.rot_z]);
+    let buf: Buffer = Buffer.alloc(12);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_x_addr), 0);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_y_addr), 4);
+    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_z_addr), 8);
+    return buf;
   }
-  set rotation(val: Buffer) {
-    this.rot_x = val[0];
-    this.rot_y = val[1];
-    this.rot_z = val[2];
+  set rotation(val: Buffer) {    
+    this.emulator.rdramWriteBuffer(this.rot_x_addr, val.slice(0, 4));
+    this.emulator.rdramWriteBuffer(this.rot_y_addr, val.slice(4, 8));
+    this.emulator.rdramWriteBuffer(this.rot_z_addr, val.slice(8, 12));
   }
 
   get rot_x(): number {
@@ -200,37 +233,73 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     }
   }
 
-  get z_forward(): boolean {
-    return this.emulator.rdramRead8(this.z_forward_addr) === 0x01;
-  }
-  set z_forward(val: boolean) {
-    if (val) {
-      this.emulator.rdramWrite8(this.z_forward_addr, 0x01);
-    } else {
-      this.emulator.rdramWrite8(this.z_forward_addr, 0x00);
-    }
-  }
 }
 
 export class Runtime extends API.APIObject implements API.IRuntime {
-  private ptr_actor_arr_addr = 0x36e560;
-  private scene_addr = 0x383301;
-  private scene_notes_addr = 0x385f63;
-  private jiggies_available_addr = 0x385fcb;
-  private jiggies_label_addr = 0x385fdf;
-  private profile_addr = 0x365e00;
+  private actor_arr_ptr_addr = global.ModLoader['BK:actor_arr_ptr'];
+  private cur_health_addr = global.ModLoader['BK:current_health'];
+  private cur_profile_addr = global.ModLoader['BK:current_profile'];
+  private cur_exit_addr = global.ModLoader['BK:current_exit'];
+  private cur_map_addr = global.ModLoader['BK:current_map'];
+  private cur_level_addr = global.ModLoader['BK:current_level'];
+  private cur_level_notes_addr = global.ModLoader['BK:current_level_notes'];
 
-  get_current_scene(): number {
-    return this.emulator.rdramRead16(this.scene_addr);
+  private loading_status_addr = global.ModLoader['BK:loading_state'];  
+  private transition_state_addr = global.ModLoader['BK:transition_state'];
+  
+  get_current_profile(): API.ProfileID {
+    return this.emulator.rdramReadS32(this.cur_profile_addr) as API.ProfileID;
   }
 
-  get_current_profile(): API.ProfileID {
-    return this.emulator.rdramReadS32(this.profile_addr) as API.ProfileID;
+  get current_exit(): number {
+    return this.emulator.rdramRead8(this.cur_exit_addr);
+  }
+  set current_exit(val: number) {
+    this.emulator.rdramWrite8(this.cur_exit_addr, val);
+  }
+
+  get current_level(): number {
+    return this.emulator.rdramRead16(this.cur_level_addr);
+  }  
+  set current_level(val: number) {
+    this.emulator.rdramWrite8(this.cur_level_addr, val);
+  }
+
+  get current_scene(): number {
+    return this.emulator.rdramRead16(this.cur_map_addr);
+  }  
+  set current_scene(val: number) {
+    this.emulator.rdramWrite8(this.cur_map_addr, val);
+  }
+
+  get current_health(): number {
+    return this.emulator.rdramRead8(this.cur_health_addr);
+  }
+  set current_health(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite8(this.cur_health_addr, val);
+  }
+
+  get loading_state(): boolean {
+    return this.emulator.rdramRead8(this.loading_status_addr) === 1;
+  }
+  set loading_state(val: boolean) {
+    let value: number = 0;
+    if (val) value = 1;
+    this.emulator.rdramWrite8(this.loading_status_addr, value);
+  }
+
+  get_transition_state(): number {
+    return this.emulator.rdramRead8(this.transition_state_addr);
   }
 }
 
 export class SaveContext extends API.APIObject implements API.ISaveContext {
-  private honey_combs_held_addr = 0x385f7f;
+  private held_honeycombs_addr = global.ModLoader['BK:held_honeycombs'];
+  private held_jiggies_addr = global.ModLoader['BK:held_jiggies'];
+  private held_mumbo_tokens_addr = global.ModLoader['BK:held_mumbo_tokens'];
+  private health_upgrade_addr = global.ModLoader['BK:health_upgrade'];
+  private jiggy_count_addr = global.ModLoader['BK:jiggy_count'];
 
   // Abstraction
   game_flags: API.IBuffered;
@@ -249,6 +318,43 @@ export class SaveContext extends API.APIObject implements API.ISaveContext {
     this.mumbo_token_flags = new MumboTokenFlags(emu);
     this.note_totals = new NoteTotalBuffer(emu);
   }
+
+  get held_honeycombs(): number {
+    return this.emulator.rdramRead8(this.held_honeycombs_addr);
+  }
+  set held_honeycombs(val: number) {
+    if (val > 6) {
+      val = 6;
+    } else if (val < 0) {
+      val = 0;
+    }
+    this.emulator.rdramWrite8(this.held_honeycombs_addr, val);
+  }
+
+  get held_jiggies(): number {
+    return this.emulator.rdramRead8(this.held_jiggies_addr);
+  }
+  set held_jiggies(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite8(this.held_jiggies_addr, val);
+    this.emulator.rdramWrite8(this.jiggy_count_addr, val);
+  }
+
+  get held_mumbo_tokens(): number {
+    return this.emulator.rdramRead8(this.held_mumbo_tokens_addr);
+  }
+  set held_mumbo_tokens(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite8(this.held_mumbo_tokens_addr, val);
+  }
+
+  get health_upgrades(): number {
+    return this.emulator.rdramRead8(this.health_upgrade_addr) - 5;
+  }
+  set health_upgrades(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite8(this.health_upgrade_addr, val + 5);
+  }
 }
 
 export class BanjoKazooie implements ICore, API.IBKCore {
@@ -262,14 +368,39 @@ export class BanjoKazooie implements ICore, API.IBKCore {
 
   isPlaying(): boolean {
     return !(
-      this.banjo.state === 0 ||
-      this.runtime.get_current_profile() === API.ProfileID.Title
+      this.banjo.state === 0 || this.runtime.get_current_profile() === API.ProfileID.Title
     );
   }
 
   preinit(): void {
-    global.ModLoader['BK:banjo'] = 0x37c0e0;
+    // Banjo Data
+    global.ModLoader['BK:banjo_animal'] = 0x37D188;
+    global.ModLoader['BK:banjo_animation'] = 0x37bf20;
+    global.ModLoader['BK:banjo_flip_facing'] = 0x37c0e7;
+    global.ModLoader['BK:banjo_model_index'] = 0x37c0e4;
+    global.ModLoader['BK:banjo_model_ptr'] = 0x37c0e0;
+    global.ModLoader['BK:banjo_pos_x'] = 0x37c5a0;
+    global.ModLoader['BK:banjo_pos_y'] = 0x37c5a4;
+    global.ModLoader['BK:banjo_pos_z'] = 0x37c5a8;
+    global.ModLoader['BK:banjo_rot_x'] = 0x37c0f0;
+    global.ModLoader['BK:banjo_rot_y'] = 0x37c5f8;
+    global.ModLoader['BK:banjo_rot_z'] = 0x37c5f4;
+    global.ModLoader['BK:banjo_scale'] = 0x37c0ec;
+    global.ModLoader['BK:banjo_state'] = 0x37C4A0;
+    global.ModLoader['BK:banjo_opacity'] = 0x37c0e6;
+    global.ModLoader['BK:banjo_visible'] = 0x37c0e8;    
 
+    // Runtime Data
+    global.ModLoader['BK:actor_arr_ptr'] = 0x36e560;
+    global.ModLoader['BK:current_health'] = 0x385f83;
+    global.ModLoader['BK:current_profile'] = 0x365e00;   
+    global.ModLoader['BK:current_exit'] = 0x37E8F6;    
+    global.ModLoader['BK:current_map'] = 0x37E8F5;  
+    global.ModLoader['BK:current_level'] = 0x383301;
+    global.ModLoader['BK:current_level_notes'] = 0x385f63;
+    global.ModLoader['BK:loading_state'] = 0x37E8F4;   
+    global.ModLoader['BK:transition_state'] = 0x382438;
+    
     // Save Data
     global.ModLoader['BK:game_flags'] = 0x3831a8;
     global.ModLoader['BK:honeycomb_flags'] = 0x3832e0;
@@ -277,6 +408,13 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     global.ModLoader['BK:move_flags'] = 0x37c3a0;
     global.ModLoader['BK:mumbo_token_flags'] = 0x3832f0;
     global.ModLoader['BK:note_totals'] = 0x385ff0;
+
+    global.ModLoader['BK:held_honeycombs'] = 0x385f7f;
+    global.ModLoader['BK:held_jiggies'] = 0x385FCB;
+    global.ModLoader['BK:held_mumbo_tokens'] = 0x0;
+    
+    global.ModLoader['BK:health_upgrade'] = 0x385f87;
+    global.ModLoader['BK:jiggy_count'] = 0x385FDF;
   }
 
   init(): void {}
