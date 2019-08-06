@@ -190,29 +190,30 @@ export function setupNetworkHandlers(instance: any) {
         });
       }
     }
-  }
-  if (p.ModLoader.hasOwnProperty('ServerNetworkHandler')) {
-    // Setup server-side packet decorator handlers
-    if (
-      p.ModLoader.ServerNetworkHandler.hasOwnProperty('PacketHandlers') !== null
-    ) {
-      p.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(function(
-        value: string,
-        key: string
+    if (p.ModLoader.hasOwnProperty('ServerNetworkHandler')) {
+      // Setup server-side packet decorator handlers
+      if (
+        p.ModLoader.ServerNetworkHandler.hasOwnProperty('PacketHandlers') !==
+        null
       ) {
-        let a = (instance as any)[value].bind(instance);
-        NetworkBusServer.addListener(key, a);
-      });
-    }
-    if (p.ModLoader.ServerNetworkHandler.hasOwnProperty('ChannelHandlers')) {
-      // Setup server-side channel decorator handlers
-      p.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(function(
-        value: string,
-        key: string
-      ) {
-        let a = (instance as any)[value].bind(instance);
-        NetworkChannelBusServer.addListener(key, a);
-      });
+        p.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(function(
+          value: string,
+          key: string
+        ) {
+          let a = (instance as any)[value].bind(instance);
+          NetworkBusServer.addListener(key, a);
+        });
+      }
+      if (p.ModLoader.ServerNetworkHandler.hasOwnProperty('ChannelHandlers')) {
+        // Setup server-side channel decorator handlers
+        p.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(function(
+          value: string,
+          key: string
+        ) {
+          let a = (instance as any)[value].bind(instance);
+          NetworkChannelBusServer.addListener(key, a);
+        });
+      }
     }
   }
 }
