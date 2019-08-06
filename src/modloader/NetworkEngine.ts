@@ -366,6 +366,10 @@ namespace NetworkEngine {
           endpoint.callback(res, req);
         });
       });
+      internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+        this.socket.removeAllListeners();
+        this.socket.disconnect();
+      });
     }
 
     setup() {
