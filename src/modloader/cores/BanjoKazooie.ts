@@ -13,7 +13,8 @@ export class GameFlags extends API.APIBufferedObject implements API.IBuffered {
   }
 }
 
-export class HoneyCombFlags extends API.APIBufferedObject implements API.IBuffered {
+export class HoneyCombFlags extends API.APIBufferedObject
+  implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:honeycomb_flags'], 0x03);
   }
@@ -31,13 +32,15 @@ export class MoveFlags extends API.APIBufferedObject implements API.IBuffered {
   }
 }
 
-export class MumboTokenFlags extends API.APIBufferedObject implements API.IBuffered {
+export class MumboTokenFlags extends API.APIBufferedObject
+  implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:mumbo_token_flags'], 0x10);
   }
 }
 
-export class NoteTotalBuffer extends API.APIBufferedObject implements API.IBuffered {
+export class NoteTotalBuffer extends API.APIBufferedObject
+  implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader['BK:note_totals'], 0x0f);
   }
@@ -76,7 +79,7 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     this.emulator.rdramWrite8(this.animal_addr, val);
   }
 
-  get animation(): Buffer {    
+  get animation(): Buffer {
     let buf: Buffer = Buffer.alloc(8);
     buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x04), 0);
     buf.writeUInt32BE(this.emulator.rdramReadPtr32(this.anim_addr, 0x1c), 4);
@@ -180,7 +183,7 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_z_addr), 8);
     return buf;
   }
-  set rotation(val: Buffer) {    
+  set rotation(val: Buffer) {
     this.emulator.rdramWriteBuffer(this.rot_x_addr, val.slice(0, 4));
     this.emulator.rdramWriteBuffer(this.rot_y_addr, val.slice(4, 8));
     this.emulator.rdramWriteBuffer(this.rot_z_addr, val.slice(8, 12));
@@ -231,7 +234,6 @@ export class Banjo extends API.APIObject implements API.IBanjo {
       this.emulator.rdramWrite8(this.visible_addr, 0x00);
     }
   }
-
 }
 
 export class Runtime extends API.APIObject implements API.IRuntime {
@@ -243,9 +245,9 @@ export class Runtime extends API.APIObject implements API.IRuntime {
   private cur_level_addr = global.ModLoader['BK:current_level'];
   private cur_level_notes_addr = global.ModLoader['BK:current_level_notes'];
 
-  private loading_status_addr = global.ModLoader['BK:loading_state'];  
+  private loading_status_addr = global.ModLoader['BK:loading_state'];
   private transition_state_addr = global.ModLoader['BK:transition_state'];
-  
+
   get_current_profile(): API.ProfileID {
     return this.emulator.rdramReadS32(this.cur_profile_addr) as API.ProfileID;
   }
@@ -259,14 +261,14 @@ export class Runtime extends API.APIObject implements API.IRuntime {
 
   get current_level(): number {
     return this.emulator.rdramRead16(this.cur_level_addr);
-  }  
+  }
   set current_level(val: number) {
     this.emulator.rdramWrite8(this.cur_level_addr, val);
   }
 
   get current_scene(): number {
     return this.emulator.rdramRead16(this.cur_map_addr);
-  }  
+  }
   set current_scene(val: number) {
     this.emulator.rdramWrite8(this.cur_map_addr, val);
   }
@@ -283,7 +285,7 @@ export class Runtime extends API.APIObject implements API.IRuntime {
     return this.emulator.rdramRead8(this.loading_status_addr) === 1;
   }
   set loading_state(val: boolean) {
-    let value: number = 0;
+    let value = 0;
     if (val) value = 1;
     this.emulator.rdramWrite8(this.loading_status_addr, value);
   }
@@ -367,7 +369,8 @@ export class BanjoKazooie implements ICore, API.IBKCore {
 
   isPlaying(): boolean {
     return !(
-      this.banjo.state === 0 || this.runtime.get_current_profile() === API.ProfileID.Title
+      this.banjo.state === 0 ||
+      this.runtime.get_current_profile() === API.ProfileID.Title
     );
   }
 
@@ -385,9 +388,9 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     global.ModLoader['BK:banjo_pos_x'] = 0x37c5a0;
     global.ModLoader['BK:banjo_pos_y'] = 0x37c5a4;
     global.ModLoader['BK:banjo_pos_z'] = 0x37c5a8;
-    global.ModLoader['BK:banjo_rot_x'] = 0x37C540;
-    global.ModLoader['BK:banjo_rot_y'] = 0x37C690;
-    global.ModLoader['BK:banjo_rot_z'] = 0x37C680;
+    global.ModLoader['BK:banjo_rot_x'] = 0x37c540;
+    global.ModLoader['BK:banjo_rot_y'] = 0x37c0f8;
+    global.ModLoader['BK:banjo_rot_z'] = 0x37c680;
     global.ModLoader['BK:banjo_scale'] = 0x37c0ec;
     global.ModLoader['BK:banjo_state'] = 0x37c4a0;
     global.ModLoader['BK:banjo_visible'] = 0x37c0e8;
@@ -395,14 +398,14 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     // Runtime Data
     global.ModLoader['BK:actor_arr_ptr'] = 0x36e560;
     global.ModLoader['BK:current_health'] = 0x385f83;
-    global.ModLoader['BK:current_profile'] = 0x365e00;   
-    global.ModLoader['BK:current_exit'] = 0x37E8F6;    
-    global.ModLoader['BK:current_map'] = 0x37E8F5;  
+    global.ModLoader['BK:current_profile'] = 0x365e00;
+    global.ModLoader['BK:current_exit'] = 0x37e8f6;
+    global.ModLoader['BK:current_map'] = 0x37e8f5;
     global.ModLoader['BK:current_level'] = 0x383301;
     global.ModLoader['BK:current_level_notes'] = 0x385f63;
-    global.ModLoader['BK:loading_state'] = 0x37E8F4;   
+    global.ModLoader['BK:loading_state'] = 0x37e8f4;
     global.ModLoader['BK:transition_state'] = 0x382438;
-    
+
     // Save Data
     global.ModLoader['BK:game_flags'] = 0x3831a8;
     global.ModLoader['BK:honeycomb_flags'] = 0x3832e0;
@@ -412,11 +415,11 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     global.ModLoader['BK:note_totals'] = 0x385ff0;
 
     global.ModLoader['BK:held_honeycombs'] = 0x385f7f;
-    global.ModLoader['BK:held_jiggies'] = 0x385FCB;
+    global.ModLoader['BK:held_jiggies'] = 0x385fcb;
     global.ModLoader['BK:held_mumbo_tokens'] = 0x0;
-    
+
     global.ModLoader['BK:health_upgrade'] = 0x385f87;
-    global.ModLoader['BK:jiggy_count'] = 0x385FDF;
+    global.ModLoader['BK:jiggy_count'] = 0x385fdf;
   }
 
   init(): void {}
@@ -426,10 +429,10 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     this.runtime = new Runtime(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
   }
-   
+
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {}
-    
+
   onTick(): void {
     this.eventTicks.forEach((value: Function, key: string) => {
       value();

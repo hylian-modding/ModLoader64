@@ -28,6 +28,7 @@
     "express": "^4.17.1",
     "human-readable-ids": "^1.0.4",
     "modloader64_api": "file:API/build",
+    "nat-upnp": "^1.1.1",
     "ncp": "^2.0.0",
     "portfinder": "^1.0.21",
     "socket.io": "^2.2.0",

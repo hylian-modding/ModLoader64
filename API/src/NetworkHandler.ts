@@ -133,12 +133,18 @@ export interface INetworkPlayer {
   isSamePlayer(compare: INetworkPlayer): boolean;
 }
 
+export const enum SocketType {
+  TCP,
+  UDP,
+}
+
 export interface IPacketHeader {
   packet_id: string;
   lobby: string;
   channel: string;
   player: INetworkPlayer;
   forward: boolean;
+  socketType: SocketType;
 }
 
 export class LobbyData {
