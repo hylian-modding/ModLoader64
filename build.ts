@@ -102,15 +102,8 @@ function prebuild() {
         if (isWin) {
             execSync("build_mupen_win32.bat", { stdio: "inherit" })
         } else {
-            execSync("build_mupen_lin64.sh", { stdio: "inherit" })
+            execSync("./build_mupen_lin64.sh", { stdio: "inherit" })
         }
-        ncp("./Mupen64Plus-Script/mupen64plus-binding-npm/bin", "./build", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            console.log('done!');
-            forceAPI();
-        });
     }
 }
 
