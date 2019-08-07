@@ -269,13 +269,15 @@ namespace NetworkEngine {
                       lobby: storage.config.name,
                       player: lj.player,
                     };
-                    inst.sendToTarget(socket.id, 'LobbyReady', storage.config);
+                    inst.sendToTarget(socket.id, 'LobbyReady', {
+                      storage: storage.config,
+                      udp: inst.udpPort,
+                    });
                     inst.sendToTarget(
                       lj.lobbyData.name,
                       'playerJoined',
                       lj.player
                     );
-                    inst.sendToTarget(socket.id, 'udpPort', inst.udpPort);
                   } else {
                     inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
                   }
