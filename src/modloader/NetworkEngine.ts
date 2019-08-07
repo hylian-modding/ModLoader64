@@ -376,6 +376,9 @@ namespace NetworkEngine {
               inst.currently_processing_lobby = data.lobby;
               inst.lobbyVariables.forEach(
                 (value: PluginMeta, index: number, array: PluginMeta[]) => {
+                  if (inst.getLobbyStorage(data.lobby) === null){
+                    return;
+                  }
                   value.setField(
                     inst.getLobbyStorage(data.lobby).data[value.objectKey][
                       value.fieldName
