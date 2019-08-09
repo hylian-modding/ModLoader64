@@ -3,7 +3,7 @@ import {
   IOotHelper,
   IGlobalContext,
 } from 'modloader64_api/OOT/OOTAPI';
-import { JSONTemplate } from './JSONTemplate';
+import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 
 export class OotHelper extends JSONTemplate implements IOotHelper {
   private save: ISaveContext;

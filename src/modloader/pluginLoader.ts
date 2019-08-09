@@ -8,7 +8,6 @@ import {
   ICore,
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
-import { GameShark, Code } from './GameShark';
 import {
   EventHandler,
   bus,
@@ -34,6 +33,7 @@ import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
+import { GameShark } from 'modloader64_api/GameShark';
 
 class pluginLoader {
   plugin_directories: string[];

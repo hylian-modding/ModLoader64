@@ -1,5 +1,5 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
-import { GameShark } from '../GameShark';
+import { GameShark } from 'modloader64_api/GameShark';
 import {
   ISaveContext,
   LinkState,
@@ -37,6 +37,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   preinit(): void {
     global.ModLoader['save_context'] = 0x11a5d0;
     global.ModLoader['global_context_pointer'] = 0x11f248;
+    global.ModLoader['overlay_table'] = 0x0e8530;
   }
 
   init(): void {
@@ -82,7 +83,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     );
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
-      //this.actorManager.onTick();
+      this.actorManager.onTick();
     });
     registerEndpoint('/Oot_SaveContext', (req: any, res: any) => {
       res.send(this.save);

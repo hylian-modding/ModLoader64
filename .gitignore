@@ -3,9 +3,10 @@ build/
 node_modules/
 m64pnpm.zip
 build.js
-mods/
 roms/
+mods/
 flips/
 Tool64_v1.11/
 build2/
 mods.zip
+PayloadConverter/test/

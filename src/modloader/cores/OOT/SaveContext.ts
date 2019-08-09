@@ -6,7 +6,7 @@ import {
   IQuestStatus,
   Age,
 } from 'modloader64_api/OOT/OOTAPI';
-import { JSONTemplate } from './JSONTemplate';
+import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import { BootsEquipment } from './BootsEquipment';
 import { TunicsEquipment } from './TunicsEquipment';
 import { ShieldsEquipment } from './ShieldsEquipment';

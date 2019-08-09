@@ -476,8 +476,12 @@ export interface IOOTCore {
   commandBuffer: ICommandBuffer;
 }
 
+// Note: ON_ACTOR_SPAWN/ON_ACTOR_DESPAWN won't detect anything created by ICommandBuffer. This is intentional behavior.
+
 export enum OotEvents {
   ON_SAVE_LOADED = 'onSaveLoaded',
   ON_SCENE_CHANGE = 'onSceneChange',
   ON_LOADING_ZONE = 'onLoadingZone',
+  ON_ACTOR_SPAWN = 'onActorSpawn',
+  ON_ACTOR_DESPAWN = 'onActorDespawn',
 }

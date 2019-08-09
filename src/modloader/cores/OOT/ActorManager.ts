@@ -1,20 +1,10 @@
 import IMemory from 'modloader64_api/IMemory';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
-
-export const enum ActorCategory {
-  SWITCH,
-  BACKGROUNDS,
-  PLAYER,
-  BOMB,
-  NPC,
-  ENEMY,
-  PROP_2,
-  ITEM_ACTION,
-  MISC,
-  BOSS,
-  DOOR,
-  CHEST,
-}
+import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
+import { ActorBase } from './Actor';
+import crypto from 'crypto';
+import { bus } from 'modloader64_api/EventHandler';
+import { OotEvents } from 'modloader64_api/OOT/OOTAPI';
 
 export class ActorManager {
   emulator: IMemory;
@@ -25,15 +15,27 @@ export class ActorManager {
   private readonly ringbuffer_entry_size: number = 0x10;
   private readonly ringbuffer_max: number = 0x100;
   private readonly actor_next_offset: number = 0x124;
-  private actors_this_frame: number[] = new Array<number>();
+  private actors_pointers_this_frame: number[] = new Array<number>();
+  private actors_this_frame: Map<ActorCategory, ActorBase[]> = new Map<
+    ActorCategory,
+    ActorBase[]
+  >();
+  private actors_without_rom_ids_this_frame: Map<number, number> = new Map<
+    number,
+    number
+  >();
 
   constructor(emulator: IMemory, logger: ILogger) {
     this.emulator = emulator;
     this.logger = logger;
+    for (let i = 0; i < 12; i++) {
+      this.actors_this_frame.set(i, new Array<ActorBase>());
+    }
   }
 
   onTick() {
-    this.actors_this_frame.length = 0;
+    this.actors_pointers_this_frame.length = 0;
+    this.actors_without_rom_ids_this_frame.clear();
     for (let i = 0; i < 12 * 8; i += 8) {
       let count = this.emulator.rdramReadPtr32(
         global.ModLoader.global_context_pointer,
@@ -46,12 +48,12 @@ export class ActorManager {
         let pointer = this.emulator.dereferencePointer(
           ptr + this.actor_array_addr + (i + 4)
         );
-        this.actors_this_frame.push(pointer);
+        this.actors_pointers_this_frame.push(pointer);
         let next = this.emulator.dereferencePointer(
           pointer + this.actor_next_offset
         );
         while (next > 0) {
-          this.actors_this_frame.push(next);
+          this.actors_pointers_this_frame.push(next);
           next = this.emulator.dereferencePointer(
             next + this.actor_next_offset
           );
@@ -74,26 +76,32 @@ export class ActorManager {
       let addr = this.emulator.dereferencePointer(
         this.ringbuffer_start_addr + i + 4
       );
-      let parent = this.emulator.dereferencePointer(
-        this.ringbuffer_start_addr + i + 8
-      );
-      let rom = this.emulator.rdramRead32(this.ringbuffer_start_addr + i + 12);
+      let rom = this.emulator.rdramRead32(this.ringbuffer_start_addr + i + 8);
+      let n = 0;
 
       if (addr > 0) {
-        if (this.actors_this_frame.indexOf(addr) > -1) {
-          this.logger.info(
-            category +
-              ' | ' +
-              addr.toString(16) +
-              ' | ' +
-              parent.toString(16) +
-              ' | ' +
-              rom.toString(16)
-          );
-        } else {
-          this.logger.info(
-            'Actor ' + rom.toString(16) + ' not found this frame.'
-          );
+        if (this.actors_pointers_this_frame.indexOf(addr) > -1) {
+          let actor = new ActorBase(this.emulator, addr);
+          if (!this.actors_without_rom_ids_this_frame.has(actor.actorID)) {
+            this.actors_without_rom_ids_this_frame.set(actor.actorID, 0);
+          }
+          n = this.actors_without_rom_ids_this_frame.get(actor.actorID)!;
+          n++;
+          this.actors_without_rom_ids_this_frame.set(actor.actorID, n);
+          let uuid = crypto
+            .createHash('md5')
+            .update(
+              Buffer.from(
+                rom.toString(16) +
+                  actor.actorID.toString(16) +
+                  actor.room.toString(16) +
+                  n.toString(16)
+              )
+            )
+            .digest('hex');
+          actor.actorUUID = uuid;
+          this.actors_this_frame.get(actor.actorType)!.push(actor);
+          bus.emit(OotEvents.ON_ACTOR_SPAWN, actor);
         }
       }
 
@@ -103,6 +111,15 @@ export class ActorManager {
       this.emulator.rdramWrite32(this.ringbuffer_start_addr + i + 8, 0);
       this.emulator.rdramWrite32(this.ringbuffer_start_addr + i + 12, 0);
     }
+    this.actors_this_frame.forEach((value: ActorBase[], key: ActorCategory) => {
+      for (let i = 0; i < value.length; i++) {
+        if (this.actors_pointers_this_frame.indexOf(value[i].instance) === -1) {
+          value[i].exists = false;
+          let removed: ActorBase = value.splice(i, 1)[0];
+          bus.emit(OotEvents.ON_ACTOR_DESPAWN, removed);
+        }
+      }
+    });
     // Clear the ring buffer index so it snaps back to the top.
     this.emulator.rdramWrite32(this.ringbuffer_index_addr, 0);
   }

@@ -1,13 +1,13 @@
 import IMemory from 'modloader64_api/IMemory';
 import { IGlobalContext } from 'modloader64_api/OOT/OOTAPI';
-import { JSONTemplate } from './JSONTemplate';
+import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 
 export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private emulator: IMemory;
   private current_scene_addr = 0x0000a4;
   private switch_flags_addr = 0x001d28;
   private temp_switch_flags_addr = 0x001d2c;
-  private chest_flags_addr = global.ModLoader.global_context + 0x001d38;
+  private chest_flags_addr = 0x001d38;
   private room_clear_flags_addr = 0x001d3c;
   private current_room_addr = 0x011cbc;
   private frame_count_addr = 0x011de4;

@@ -3,7 +3,12 @@ import pluginLoader from './pluginLoader';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { ILogger, IConfig, ICore } from 'modloader64_api/IModLoaderAPI';
+import {
+  ILogger,
+  IConfig,
+  ICore,
+  ModLoaderEvents,
+} from 'modloader64_api/IModLoaderAPI';
 import IModLoaderConfig from './IModLoaderConfig';
 import NetworkEngine from './NetworkEngine';
 import N64 from './consoles/N64';
@@ -168,9 +173,11 @@ class ModLoader64 {
       }
       // Load the plugins
       this.plugins.loadPluginsConstruct();
-      bus.emit('romPath', this.rom_path);
+      bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
+      bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
     }
     this.plugins.loadPluginsPreInit(this.Server);
+    internal_event_bus.emit('onPreInitDone', {});
     // Set up networking.
     internal_event_bus.on('onNetworkConnect', (evt: any) => {
       this.postinit(evt);
@@ -183,7 +190,7 @@ class ModLoader64 {
         this.Client.setup();
       }
     })();
-    internal_event_bus.emit('init_done', {});
+    internal_event_bus.emit('onInitDone', {});
   }
 
   private postinit(result: any) {
@@ -203,6 +210,7 @@ class ModLoader64 {
             let BPS = require('./BPS');
             let _BPS = new BPS();
             rom_data = _BPS.tryPatch(rom_data, p);
+            bus.emit(ModLoaderEvents.ON_ROM_PATCHED, { rom: rom_data });
             return rom_data;
           } else {
             return p;
@@ -215,7 +223,7 @@ class ModLoader64 {
       load_mupen.then(function() {
         instance.logger.info('Finishing plugin init...');
         instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
-        internal_event_bus.emit('postinit_done', {});
+        internal_event_bus.emit('onPostInitDone', {});
         instance.done = true;
         // Detect if the user closed Mupen. Exit with code 1.
         setInterval(() => {

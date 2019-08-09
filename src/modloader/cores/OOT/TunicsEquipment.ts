@@ -1,6 +1,6 @@
 import IMemory from 'modloader64_api/IMemory';
 import { ITunics } from 'modloader64_api/OOT/OOTAPI';
-import { JSONTemplate } from './JSONTemplate';
+import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 
 export const enum TunicBitMap {
   KOKIRI = 7,

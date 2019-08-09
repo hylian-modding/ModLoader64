@@ -49,3 +49,9 @@ export interface ICore {
   postinit(): void;
   onTick(): void;
 }
+
+export const enum ModLoaderEvents {
+  ON_ROM_PATH = 'ON_ROM_PATH',
+  ON_ROM_PATCHED = 'ON_ROM_PATCHED',
+  ON_ROM_HEADER_PARSED = 'ON_ROM_HEADER_PARSED',
+}

@@ -1,6 +1,6 @@
-import IMemory from 'modloader64_api/IMemory';
 import * as fs from 'fs';
 import * as path from 'path';
+import IMemory from './IMemory';
 
 export interface Code {
   type: string;

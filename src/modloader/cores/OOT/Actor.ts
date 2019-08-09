@@ -1,132 +1,215 @@
 import IMemory from 'modloader64_api/IMemory';
-import {
-  LinkState,
-  Tunic,
-  Shield,
-  Boots,
-  Mask,
-  ILink,
-} from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
+import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
+import { IRotation } from 'modloader64_api/OOT/IRotation';
+import { IPosition } from 'modloader64_api/OOT/IPosition';
+import { IActor } from 'modloader64_api/OOT/IActor';
 
-export class Link extends JSONTemplate implements ILink {
-  private emulator: IMemory;
-  private instance = 0x1daa30;
-  private state_addr: number = this.instance + 0x066c;
-  private tunic_addr: number = this.instance + 0x013c;
-  private shield_addr: number = this.instance + 0x013e;
-  private boots_addr: number = this.instance + 0x013f;
-  private mask_addr: number = this.instance + 0x014f;
-  private pos_addr: number = this.instance + 0x24;
-  private rot_addr: number = this.instance + 0xb4;
-  /*This is provided by OotCore's ASM.
-    Anim data is safely copied into this space at the end of each rendering cycle.
-    This helps prevent jittering.*/
-  private sound_addr: number = 0x600000 + 0x88;
-  private anim_data_addr = 0x600000;
-  jsonFields: string[] = [
-    'state',
-    'tunic',
-    'shield',
-    'boots',
-    'mask',
-    'pos',
-    'rot',
-    'anim_data',
-    'current_sound_id',
-  ];
-  constructor(emu: IMemory) {
+const ROTATION_OFFSET = 0xb4;
+const ROTATION_SIZE = 0x6;
+const POSITION_OFFSET = 0x24;
+const POSITION_SIZE = 0xc;
+
+export class Position extends JSONTemplate implements IPosition {
+  private readonly parent: IMemory;
+  jsonFields: string[] = ['x', 'y', 'z'];
+
+  constructor(parent: IMemory) {
     super();
-    this.emulator = emu;
+    this.parent = parent;
   }
-  exists(): boolean {
-    return this.emulator.rdramRead32(this.instance) === 0x2ff;
+
+  get x(): number {
+    return this.parent.rdramReadS32(POSITION_OFFSET + 0);
   }
-  get state(): LinkState {
-    switch (this.emulator.rdramRead32(this.state_addr)) {
-      case 0:
-        return LinkState.STANDING;
-      case 0x20000000:
-        return LinkState.BUSY;
-      case 0x30000000:
-        return LinkState.OCARINA;
-      case 0x20000001:
-        return LinkState.LOADING_ZONE;
-      case 0x80000000:
-        return LinkState.ENTERING_GROTTO;
-      case 0x00100000:
-        return LinkState.FIRST_PERSON;
-      case 0x00040000:
-        return LinkState.JUMPING;
-      case 0x08000000:
-        return LinkState.SWIMMING;
-      case 0x00004000:
-        return LinkState.CLIMBING_OUT_OF_WATER;
-      case 0x00002000:
-        return LinkState.HANGING_FROM_LEDGE;
-      case 0x00800000:
-        return LinkState.RIDING_EPONA;
-      case 0x00000080:
-        return LinkState.DYING;
-      case 0x04000000:
-        return LinkState.TAKING_DAMAGE;
-      case 0x00040000:
-        return LinkState.FALLING;
-      case 0xa0040000:
-        return LinkState.VOIDING_OUT;
-      case 0x20000c00:
-        return LinkState.GETTING_ITEM;
-      case 0x20010040:
-        return LinkState.TALKING;
+  set x(x: number) {
+    this.parent.rdramWrite32(POSITION_OFFSET + 0, x);
+  }
+
+  get y(): number {
+    return this.parent.rdramReadS32(POSITION_OFFSET + 4);
+  }
+  set y(y: number) {
+    this.parent.rdramWrite32(POSITION_OFFSET + 4, y);
+  }
+
+  get z(): number {
+    return this.parent.rdramReadS32(POSITION_OFFSET + 8);
+  }
+  set z(z: number) {
+    this.parent.rdramWrite32(POSITION_OFFSET + 8, z);
+  }
+
+  getRawPos(): Buffer {
+    return this.parent.rdramReadBuffer(POSITION_OFFSET, POSITION_SIZE);
+  }
+}
+
+export class Rotation extends JSONTemplate implements IRotation {
+  private readonly parent: IMemory;
+  jsonFields: string[] = ['x', 'y', 'z'];
+
+  constructor(parent: IMemory) {
+    super();
+    this.parent = parent;
+  }
+
+  get x(): number {
+    return this.parent.rdramReadS16(ROTATION_OFFSET + 0);
+  }
+  set x(x: number) {
+    this.parent.rdramWrite16(ROTATION_OFFSET + 0, x);
+  }
+
+  get y(): number {
+    return this.parent.rdramReadS16(ROTATION_OFFSET + 2);
+  }
+  set y(y: number) {
+    this.parent.rdramWrite16(ROTATION_OFFSET + 2, y);
+  }
+
+  get z(): number {
+    return this.parent.rdramReadS16(ROTATION_OFFSET + 4);
+  }
+  set z(z: number) {
+    this.parent.rdramWrite16(ROTATION_OFFSET + 4, z);
+  }
+
+  getRawRot(): Buffer {
+    return this.parent.rdramReadBuffer(ROTATION_OFFSET, ROTATION_SIZE);
+  }
+}
+
+export class ActorDeathBehavior {
+  offset: number;
+  behavior_calc: number;
+
+  constructor(offset: number, behavior_calc: number) {
+    this.offset = offset;
+    this.behavior_calc = behavior_calc;
+  }
+}
+
+export const actorDeathBehaviorMap: Map<number, ActorDeathBehavior> = new Map<
+  number,
+  ActorDeathBehavior
+>();
+
+actorDeathBehaviorMap.set(0x14e, new ActorDeathBehavior(0x13c, 0x10ac));
+actorDeathBehaviorMap.set(0x55, new ActorDeathBehavior(0x1b0, 0x2750));
+actorDeathBehaviorMap.set(0x37, new ActorDeathBehavior(0x180, 0x1c8c));
+
+export function setActorBehavior(
+  emulator: IMemory,
+  actor: IActor,
+  offset: number,
+  behavior: number
+) {
+  let id: number = actor.actorID;
+  let overlay_table: number = global.ModLoader['overlay_table'];
+  let overlay_entry = overlay_table + id * 32;
+  let behavior_start = overlay_entry + 0x10;
+  let pointer = emulator.dereferencePointer(behavior_start);
+  let behavior_result = pointer + behavior;
+  actor.rdramWrite32(offset, behavior_result + 0x80000000);
+}
+
+export function getActorBehavior(
+  emulator: IMemory,
+  actor: IActor,
+  offset: number
+): number {
+  let id: number = actor.actorID;
+  let overlay_table: number = global.ModLoader['overlay_table'];
+  let overlay_entry = overlay_table + id * 32;
+  let behavior_start = overlay_entry + 0x10;
+  let pointer = emulator.dereferencePointer(behavior_start);
+  let behavior = actor.dereferencePointer(offset);
+  return behavior - pointer;
+}
+
+export class ActorBase extends JSONTemplate implements IActor {
+  actorUUID = '';
+  private readonly emulator: IMemory;
+  instance: number;
+  exists = true;
+  rotation: IRotation;
+  position: IPosition;
+  jsonFields: string[] = ['actorUUID', 'health', 'rotation', 'position'];
+
+  constructor(emulator: IMemory, pointer: number) {
+    super();
+    this.emulator = emulator;
+    this.instance = pointer;
+    this.rotation = new Rotation(this);
+    this.position = new Position(this);
+  }
+
+  get actorID(): number {
+    return this.rdramRead16(0x0);
+  }
+
+  get actorType(): ActorCategory {
+    return this.rdramRead8(0x2);
+  }
+
+  get room(): number {
+    return this.rdramRead8(0x3);
+  }
+  set room(r: number) {
+    this.rdramWrite8(0x3, r);
+  }
+
+  get renderingFlags(): number {
+    return this.rdramRead32(0x4);
+  }
+
+  set renderingFlags(flags: number) {
+    this.rdramWrite32(0x4, flags);
+  }
+
+  get variable(): number {
+    return this.rdramRead16(0x1c);
+  }
+
+  get objectTableIndex(): number {
+    return this.rdramRead8(0x1e);
+  }
+
+  get soundEffect(): number {
+    return this.rdramRead16(0x20);
+  }
+
+  set soundEffect(s: number) {
+    this.rdramWrite16(0x20, s);
+  }
+
+  get health(): number {
+    return this.rdramRead8(0xaf);
+  }
+
+  set health(h: number) {
+    this.rdramWrite8(0xaf, h);
+  }
+
+  get redeadFreeze(): number {
+    return this.rdramReadS16(0x110);
+  }
+
+  set redeadFreeze(f: number) {
+    this.rdramWrite16(0x110, f);
+  }
+
+  destroy(): void {
+    if (actorDeathBehaviorMap.has(this.actorID)) {
+      let b: ActorDeathBehavior = actorDeathBehaviorMap.get(this.actorID)!;
+      setActorBehavior(this.emulator, this, b.offset, b.behavior_calc);
+    } else {
+      this.rdramWrite32(0x130, 0x0);
+      this.rdramWrite32(0x134, 0x0);
     }
-    return LinkState.UNKNOWN;
   }
-  get tunic(): Tunic {
-    return this.emulator.rdramRead8(this.tunic_addr);
-  }
-  set tunic(tunic: Tunic) {
-    this.emulator.rdramWrite8(this.tunic_addr, tunic);
-  }
-  get shield(): Shield {
-    return this.emulator.rdramRead8(this.shield_addr);
-  }
-  set shield(shield: Shield) {
-    this.emulator.rdramWrite8(this.shield_addr, shield);
-  }
-  get boots(): Boots {
-    return this.emulator.rdramRead8(this.boots_addr);
-  }
-  set boots(boots: Boots) {
-    this.emulator.rdramWrite8(this.boots_addr, boots);
-  }
-  get mask(): Mask {
-    return this.emulator.rdramRead8(this.mask_addr);
-  }
-  set mask(mask: Mask) {
-    this.emulator.rdramWrite8(this.mask_addr, mask);
-  }
-  get pos(): Buffer {
-    return this.emulator.rdramReadBuffer(this.pos_addr, 0xc);
-  }
-  set pos(pos: Buffer) {
-    this.emulator.rdramWriteBuffer(this.pos_addr, pos);
-  }
-  get rot(): Buffer {
-    return this.emulator.rdramReadBuffer(this.rot_addr, 0x8);
-  }
-  set rot(rot: Buffer) {
-    this.emulator.rdramWriteBuffer(this.rot_addr, rot);
-  }
-  get anim_data(): Buffer {
-    return this.emulator.rdramReadBuffer(this.anim_data_addr, 0x86);
-  }
-  get current_sound_id(): number {
-    return this.emulator.rdramRead16(this.sound_addr);
-  }
-  set current_sound_id(s: number) {
-    this.emulator.rdramWrite16(this.sound_addr, s);
-  }
-  // Give ILink a complete IMemory implementation for shortcuts.
+
   rdramRead8(addr: number): number {
     return this.emulator.rdramRead8(this.instance + addr);
   }

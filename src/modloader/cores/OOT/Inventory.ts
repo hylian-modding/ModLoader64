@@ -10,7 +10,7 @@ import {
   ZoraScale,
 } from 'modloader64_api/OOT/OOTAPI';
 import { FlagManager } from 'modloader64_api/FlagManager';
-import { JSONTemplate } from './JSONTemplate';
+import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 
 export const enum InventorySlots {
   DEKU_STICKS,
