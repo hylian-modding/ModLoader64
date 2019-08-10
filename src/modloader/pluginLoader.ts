@@ -9,17 +9,12 @@ import {
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import {
-  EventHandler,
   bus,
   EventsClient,
   EventsServer,
   setupEventHandlers,
 } from 'modloader64_api/EventHandler';
 import {
-  NetworkBus,
-  NetworkChannelBus,
-  NetworkBusServer,
-  NetworkChannelBusServer,
   ILobbyManager,
   INetworkPlayer,
   ClientController,
@@ -48,6 +43,7 @@ class pluginLoader {
   onTickHandle!: Function;
   onFakeFrameHandler!: any;
   internalFrameCount = -1;
+  header!: IRomHeader;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
     this.plugin_directories = dirs;
@@ -98,6 +94,7 @@ class pluginLoader {
 
   loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
     // Start the core plugin.
+    this.header = header;
     if (overrideCore !== '') {
       this.selected_core = overrideCore;
     }
@@ -195,7 +192,11 @@ class pluginLoader {
         iconsole.pauseEmulator();
         let gameshark = new GameShark(this.logger, emulator);
         this.plugin_folders.forEach((dir: string) => {
-          let test = path.join(dir, 'payloads');
+          let test = path.join(
+            dir,
+            'payloads',
+            this.header.revision.toString()
+          );
           if (fs.existsSync(test)) {
             if (fs.lstatSync(test).isDirectory) {
               fs.readdirSync(test).forEach((payload: string) => {

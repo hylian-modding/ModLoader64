@@ -469,7 +469,7 @@ export interface IOotHelper {
   isSceneNumberValid(): boolean;
 }
 
-export interface IOOTCore extends ICore{
+export interface IOOTCore extends ICore {
   link: ILink;
   save: ISaveContext;
   helper: IOotHelper;
