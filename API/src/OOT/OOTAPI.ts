@@ -1,5 +1,6 @@
 import IMemory from '../IMemory';
 import { ICommandBuffer } from './ICommandBuffer';
+import { ICore } from '../IModLoaderAPI';
 
 export declare const enum LinkState {
   UNKNOWN,
@@ -468,7 +469,7 @@ export interface IOotHelper {
   isSceneNumberValid(): boolean;
 }
 
-export interface IOOTCore {
+export interface IOOTCore extends ICore{
   link: ILink;
   save: ISaveContext;
   helper: IOotHelper;
