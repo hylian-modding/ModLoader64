@@ -17,30 +17,14 @@ export interface IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface IMario {
-  exists: boolean;
-  animation: Buffer;
-  anim_frame: number;
-  anim_id: number;
-  position: Buffer;
-  pos_x: number;
-  pos_y: number;
-  pos_z: number;
-  rotation: Buffer;
-  rot_x: number;
-  rot_y: number;
-  rot_z: number;
-  cap: number;
-}
+export interface ILink {}
 
-export interface IRuntime {
-  get_current_scene(): number;
-  get_current_profile(): number;
-  star_count: number;
-}
+export interface IRuntime {}
 
-export interface ISM64Core {
-  mario: IMario;
+export interface ISaveContext {}
+
+export interface IMMCore {
+  link: ILink;
   runtime: IRuntime;
-  save: IBuffered[];
+  save: ISaveContext;
 }

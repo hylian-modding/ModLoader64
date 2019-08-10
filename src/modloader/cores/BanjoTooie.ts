@@ -1,7 +1,7 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
-import * as API from 'modloader64_api/BT/Api';
+import * as API from 'modloader64_api/BT/Imports';
 
-export class Banjo extends API.APIObject implements API.IBanjo {
+export class Banjo extends API.BaseObj implements API.IBanjo {
   private instance: number = global.ModLoader['banjo'];
 
   exists(): boolean {
@@ -9,11 +9,11 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 }
 
-export class Runtime extends API.APIObject implements API.IRuntime {
+export class Runtime extends API.BaseObj implements API.IRuntime {
   private instance: number = global.ModLoader['runtime'];
 }
 
-export class SaveContext extends API.APIObject implements API.ISaveContext {
+export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private instance: number = global.ModLoader['save_context'];
 }
 

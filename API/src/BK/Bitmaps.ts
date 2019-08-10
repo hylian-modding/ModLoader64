@@ -1,4 +1,4 @@
-export enum GameBitMap {
+export enum GameBMP {
   TEXT_FIRST_NOTE = 0x03,
   TEXT_FIRST_MUMBO_TOKEN = 0x04,
   TEXT_FIRST_EGG = 0x05,
@@ -252,7 +252,7 @@ export enum GameBitMap {
   DEFEATED_GRUNTY = 0xfc,
 }
 
-export enum HoneyCombBitMap {
+export enum HoneyCombBMP {
   MM_HILL = 0x01,
   MM_JUJU = 0x02,
 
@@ -287,7 +287,7 @@ export enum HoneyCombBitMap {
   SM_QUARRIES = 0x18,
 }
 
-export enum JiggyBitMap {
+export enum JiggyBMP {
   MM_JINJO = 0x01,
   MM_TICKERS_TOWER = 0x02,
   MM_MUMBOS_SKULL = 0x03,
@@ -399,7 +399,7 @@ export enum JiggyBitMap {
   MMM_LOGGO = 0x64,
 }
 
-export enum MoveBitMap {
+export enum MoveBMP {
   BEAK_BARGE = 0x00,
   BEAK_BOMB = 0x01,
   BEAK_BUSTER = 0x02,
@@ -422,7 +422,7 @@ export enum MoveBitMap {
   FIRST_NOTE_DOOR_MOLEHILL = 0x13,
 }
 
-export enum MumboTokenBitmap {
+export enum MumboTokenBMP {
   MM_BY_CONGA = 0x01,
   MM_BEHIND_RUINS = 0x02,
   MM_MUMBOS_HUT_RAMP = 0x03,
