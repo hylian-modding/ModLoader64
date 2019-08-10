@@ -8,9 +8,29 @@ import * as apiEnum from './Enums';
 export interface IBuffered {
   get_all(): Buffer;
   get_bit(flag: number): boolean;
-  set_bit(flag: number, value: boolean): any;
+  set_bit(flag: number, value: boolean): void;
   get(offset: number): number;
-  set(offset: number, value: number): any;
+  set(offset: number, value: number): void;
+}
+
+export interface ICurrentLevel {
+  id: apiEnum.LevelType;
+  acorn: number;
+  caterpillar: number;
+  gold_bullions: number;
+  jinjos: number;
+  notes: number;
+  present_green: number;
+  present_blue: number;
+  present_red: number;
+  orange: number;
+}
+
+export interface IInventory {
+  health_upgrades: number;
+  honeycombs: number;
+  jiggies: number;
+  mumbo_tokens: number;
 }
 
 // ##################################################################
@@ -25,6 +45,7 @@ export interface IBanjo {
   flip_facing: boolean;
   model_index: number;
   model_ptr: number;
+  movement_state: number;
   opacity: number;
   position: Buffer;
   pos_x: number;
@@ -35,41 +56,40 @@ export interface IBanjo {
   rot_y: number;
   rot_z: number;
   scale: number;
-  state: number;
   visible: boolean;
 }
 
 export interface IRuntime {
-  get_current_profile(): apiEnum.ProfileID;
-
   current_exit: number;
-  current_level: number;
-  current_scene: number;
   current_health: number;
+  current_level: ICurrentLevel;
+  current_scene: apiEnum.SceneType;
 
-  loading_state: boolean;
-  get_transition_state(): number;
+  get_current_profile(): apiEnum.ProfileType;
+  get_cutscene_state(): number;
+
+  is_loading(): boolean;
+  goto_scene(scene: apiEnum.SceneType, exit: apiEnum.ExitType): void;
 }
 
 export interface ISaveContext {
+  inventory: IInventory;
+
   game_flags: IBuffered;
   honeycomb_flags: IBuffered;
   jiggy_flags: IBuffered;
   move_flags: IBuffered;
   mumbo_token_flags: IBuffered;
+
   note_totals: IBuffered;
-
-  held_honeycombs: number;
-  held_jiggies: number;
-  held_mumbo_tokens: number;
-
-  health_upgrades: number;
 }
 
 export interface IBKCore {
   banjo: IBanjo;
   runtime: IRuntime;
   save: ISaveContext;
+  version: string;
+  revision: number;
 
   isPlaying(): boolean;
 }

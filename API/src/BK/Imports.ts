@@ -5,7 +5,7 @@ export * from './Bitmaps';
 export * from './Enums';
 export * from './Interfaces';
 
-export class APIObject {
+export class BaseObj {
   protected emulator: IMemory;
 
   constructor(emu: IMemory) {
@@ -33,7 +33,7 @@ export class APIObject {
   }
 }
 
-export class APIBufferedObject extends APIObject {
+export class BufferObj extends BaseObj {
   private manager: FlagManager;
   private instance: number;
   private length: number;

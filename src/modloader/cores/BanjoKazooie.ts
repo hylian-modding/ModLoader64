@@ -1,48 +1,182 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
+import { IModLoaderAPI, ICore, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
+import { VersionHandler } from './BK/VersionHandler';
 import IMemory from 'modloader64_api/IMemory';
-import * as API from 'modloader64_api/BK/Api';
+import * as API from 'modloader64_api/BK/Imports';
 
 // ##################################################################
 // ##  Sub-Classes
 // ##################################################################
 
-export class GameFlags extends API.APIBufferedObject implements API.IBuffered {
+export class GameFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:game_flags'], 0x20);
+    super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0x20);
   }
 }
 
-export class HoneyCombFlags extends API.APIBufferedObject
-  implements API.IBuffered {
+export class HoneyCombFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:honeycomb_flags'], 0x03);
+    super(emu, global.ModLoader[API.AddressType.SAVE_HONEYCOMB_FLAGS], 0x03);
   }
 }
 
-export class JiggyFlags extends API.APIBufferedObject implements API.IBuffered {
+export class JiggyFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:jiggy_flags'], 0x0d);
+    super(emu, global.ModLoader[API.AddressType.SAVE_JIGGY_FLAGS], 0x0d);
   }
 }
 
-export class MoveFlags extends API.APIBufferedObject implements API.IBuffered {
+export class MoveFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:move_flags'], 0x04);
+    super(emu, global.ModLoader[API.AddressType.SAVE_MOVE_FLAGS], 0x04);
   }
 }
 
-export class MumboTokenFlags extends API.APIBufferedObject
-  implements API.IBuffered {
+export class MumboTokenFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:mumbo_token_flags'], 0x10);
+    super(emu, global.ModLoader[API.AddressType.SAVE_MUMBO_TOKEN_FLAGS], 0x10);
   }
 }
 
-export class NoteTotalBuffer extends API.APIBufferedObject
-  implements API.IBuffered {
+export class NoteTotalBuffer extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader['BK:note_totals'], 0x0f);
+    super(emu, global.ModLoader[API.AddressType.SAVE_NOTE_TOTALS], 0x0f);
+  }
+}
+
+export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
+  private id_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL];
+  private acorn_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN];
+  private caterpillar_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR];
+  private gold_bullions_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION];
+  private jinjos_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS];
+  private notes_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_NOTES];
+  private present_green_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_GREEN];
+  private present_blue_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_BLUE];
+  private present_red_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_RED];
+  private orange_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE];
+
+  get id(): API.LevelType {
+    let level: number = this.emulator.rdramRead8(this.id_addr);
+    if (level < API.LevelType.MUMBOS_MOUNTAIN || level > API.LevelType.TITLE_SCREEN) {
+      return API.LevelType.UNKNOWN;
+    } else {
+      return level as API.LevelType;
+    }
+  }
+  set id(val: API.LevelType) {
+    this.emulator.rdramWrite8(this.id_addr, val);
+  }
+
+  get acorn(): number {
+    return this.emulator.rdramRead32(this.acorn_addr);
+  }
+  set acorn(val: number) {
+    this.emulator.rdramWrite32(this.acorn_addr, val);
+  }
+
+  get caterpillar(): number {
+    return this.emulator.rdramRead32(this.caterpillar_addr);
+  }
+  set caterpillar(val: number) {
+    this.emulator.rdramWrite32(this.caterpillar_addr, val);
+  }
+
+  get gold_bullions(): number {
+    return this.emulator.rdramRead32(this.gold_bullions_addr);
+  }
+  set gold_bullions(val: number) {
+    this.emulator.rdramWrite32(this.gold_bullions_addr, val);
+  }
+
+  get jinjos(): number {
+    return this.emulator.rdramRead32(this.jinjos_addr);
+  }
+  set jinjos(val: number) {
+    this.emulator.rdramWrite32(this.jinjos_addr, val);
+  }
+
+  get notes(): number {
+    return this.emulator.rdramRead32(this.notes_addr);
+  }
+  set notes(val: number) {
+    this.emulator.rdramWrite32(this.notes_addr, val);
+  }
+
+  get present_green(): number {
+    return this.emulator.rdramRead32(this.present_green_addr);
+  }
+  set present_green(val: number) {
+    this.emulator.rdramWrite32(this.present_green_addr, val);
+  }
+
+  get present_blue(): number {
+    return this.emulator.rdramRead32(this.present_blue_addr);
+  }
+  set present_blue(val: number) {
+    this.emulator.rdramWrite32(this.present_blue_addr, val);
+  }
+
+  get present_red(): number {
+    return this.emulator.rdramRead32(this.present_red_addr);
+  }
+  set present_red(val: number) {
+    this.emulator.rdramWrite32(this.present_red_addr, val);
+  }
+
+  get orange(): number {
+    return this.emulator.rdramRead32(this.orange_addr);
+  }
+  set orange(val: number) {
+    this.emulator.rdramWrite32(this.orange_addr, val);
+  }
+}
+
+export class Inventory extends API.BaseObj implements API.IInventory {
+  private health_upgrade_addr = global.ModLoader[API.AddressType.INV_HEALTH_UPGRADES];
+  private honeycombs_addr = global.ModLoader[API.AddressType.INV_HONEYCOMBS];
+  private jiggies_addr = global.ModLoader[API.AddressType.INV_JIGGIES];
+  private mumbo_tokens_addr = global.ModLoader[API.AddressType.INV_MUMBO_TOKENS];  
+
+  private text_jiggies_addr = global.ModLoader[API.AddressType.INV_TEXT_JIGGIES];
+  private text_mumbo_tokens_addr = global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS];
+
+  get health_upgrades(): number {
+    return this.emulator.rdramRead32(this.health_upgrade_addr) - 5;
+  }
+  set health_upgrades(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite32(this.health_upgrade_addr, val + 5);
+  }
+    
+  get honeycombs(): number {
+    return this.emulator.rdramRead32(this.honeycombs_addr);
+  }
+  set honeycombs(val: number) {
+    if (val > 6) {
+      val = 6;
+    } else if (val < 0) {
+      val = 0;
+    }
+    this.emulator.rdramWrite32(this.honeycombs_addr, val);
+  }
+
+  get jiggies(): number {
+    return this.emulator.rdramRead32(this.jiggies_addr);
+  }
+  set jiggies(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite32(this.jiggies_addr, val);
+    this.emulator.rdramWrite32(this.text_jiggies_addr, val);
+  }
+
+  get mumbo_tokens(): number {
+    return this.emulator.rdramRead32(this.mumbo_tokens_addr);
+  }
+  set mumbo_tokens(val: number) {
+    if (val < 0) val = 0;
+    this.emulator.rdramWrite32(this.mumbo_tokens_addr, val);
+    this.emulator.rdramWrite32(this.text_mumbo_tokens_addr, val);
   }
 }
 
@@ -50,30 +184,27 @@ export class NoteTotalBuffer extends API.APIBufferedObject
 // ##  Primary-Classes
 // ##################################################################
 
-export class Banjo extends API.APIObject implements API.IBanjo {
-  private animal_addr: number = global.ModLoader['BK:banjo_animal'];
-  private anim_addr: number = global.ModLoader['BK:banjo_animation'];
-  private flip_facing_addr: number = global.ModLoader['BK:banjo_flip_facing'];
-  private model_index_addr: number = global.ModLoader['BK:banjo_model_index'];
-  private model_ptr_addr: number = global.ModLoader['BK:banjo_model_ptr'];
-  private opacity_addr: number = global.ModLoader['BK:banjo_opacity'];
-  private pos_x_addr: number = global.ModLoader['BK:banjo_pos_x'];
-  private pos_y_addr: number = global.ModLoader['BK:banjo_pos_y'];
-  private pos_z_addr: number = global.ModLoader['BK:banjo_pos_z'];
-  private rot_x_addr: number = global.ModLoader['BK:banjo_rot_x'];
-  private rot_y_addr: number = global.ModLoader['BK:banjo_rot_y'];
-  private rot_z_addr: number = global.ModLoader['BK:banjo_rot_z'];
-  private scale_addr: number = global.ModLoader['BK:banjo_scale'];
-  private state_addr: number = global.ModLoader['BK:banjo_state'];
-  private visible_addr: number = global.ModLoader['BK:banjo_visible'];
+export class Banjo extends API.BaseObj implements API.IBanjo {
+  private animal_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMAL];
+  private anim_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMATION];
+  private flip_facing_addr: number = global.ModLoader[API.AddressType.PLYR_FLIP_FACING];
+  private model_index_addr: number = global.ModLoader[API.AddressType.PLYR_MODEL_INDEX];
+  private model_ptr_addr: number = global.ModLoader[API.AddressType.PLYR_MODEL_PTR];
+  private movement_state_addr: number = global.ModLoader[API.AddressType.PLYR_MOVEMENT_STATE];
+  private opacity_addr: number = global.ModLoader[API.AddressType.PLYR_OPACITY];
+  private pos_x_addr: number = global.ModLoader[API.AddressType.PLYR_POS_X];
+  private pos_y_addr: number = global.ModLoader[API.AddressType.PLYR_POS_Y];
+  private pos_z_addr: number = global.ModLoader[API.AddressType.PLYR_POS_Z];
+  private rot_x_addr: number = global.ModLoader[API.AddressType.PLYR_ROT_X];
+  private rot_y_addr: number = global.ModLoader[API.AddressType.PLYR_ROT_Y];
+  private rot_z_addr: number = global.ModLoader[API.AddressType.PLYR_ROT_Z];
+  private scale_addr: number = global.ModLoader[API.AddressType.PLYR_SCALE];
+  private visible_addr: number = global.ModLoader[API.AddressType.PLYR_VISIBLE];
 
   get animal(): API.AnimalType {
     let animal: number = this.emulator.rdramRead8(this.animal_addr);
-    if (animal < 0x01 || animal > 0x07) {
-      return API.AnimalType.UNKNOWN;
-    } else {
-      return animal as API.AnimalType;
-    }
+    if (animal < 0x01 || animal > 0x07) return API.AnimalType.UNKNOWN;
+    return animal as API.AnimalType;
   }
   set animal(val: API.AnimalType) {
     this.emulator.rdramWrite8(this.animal_addr, val);
@@ -86,7 +217,6 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     return buf;
   }
   set animation(val: Buffer) {
-    let animStructPtr = this.emulator.dereferencePointer(this.anim_addr);
     this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x04, val.slice(0, 4));
     this.emulator.rdramWritePtrBuffer(this.anim_addr, 0x1c, val.slice(4, 8));
   }
@@ -128,6 +258,13 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
   set model_ptr(val: number) {
     this.emulator.rdramWrite32(this.model_ptr_addr, val);
+  }
+
+  get movement_state(): number {
+    return this.emulator.rdramRead32(this.movement_state_addr);
+  }
+  set movement_state(val: number) {
+    this.emulator.rdramWrite32(this.movement_state_addr, val);
   }
 
   get opacity(): number {
@@ -217,13 +354,6 @@ export class Banjo extends API.APIObject implements API.IBanjo {
     this.emulator.rdramWrite32(this.scale_addr, val);
   }
 
-  get state(): number {
-    return this.emulator.rdramRead32(this.state_addr);
-  }
-  set state(val: number) {
-    this.emulator.rdramWrite32(this.state_addr, val);
-  }
-
   get visible(): boolean {
     return this.emulator.rdramRead8(this.visible_addr) === 0x01;
   }
@@ -236,125 +366,100 @@ export class Banjo extends API.APIObject implements API.IBanjo {
   }
 }
 
-export class Runtime extends API.APIObject implements API.IRuntime {
-  private actor_arr_ptr_addr = global.ModLoader['BK:actor_arr_ptr'];
-  private cur_health_addr = global.ModLoader['BK:current_health'];
-  private cur_profile_addr = global.ModLoader['BK:current_profile'];
-  private cur_exit_addr = global.ModLoader['BK:current_exit'];
-  private cur_map_addr = global.ModLoader['BK:current_map'];
-  private cur_level_addr = global.ModLoader['BK:current_level'];
-  private cur_level_notes_addr = global.ModLoader['BK:current_level_notes'];
+export class Runtime extends API.BaseObj implements API.IRuntime {
+  private actor_arr_ptr_addr = global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
+  private cur_exit_addr = global.ModLoader[API.AddressType.RT_CUR_EXIT];
+  private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];  
+  private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
+  private cur_scene_addr = global.ModLoader[API.AddressType.RT_CUR_SCENE];
+  private cutscene_state_addr = global.ModLoader[API.AddressType.RT_CUTSCENE_STATE];
+  private is_loading_addr = global.ModLoader[API.AddressType.RT_IS_LOADING];
+  
+  // Abstraction
+  current_level: API.ICurrentLevel;
 
-  private loading_status_addr = global.ModLoader['BK:loading_state'];
-  private transition_state_addr = global.ModLoader['BK:transition_state'];
+  constructor(emu: IMemory) {
+    super(emu);
 
-  get_current_profile(): API.ProfileID {
-    return this.emulator.rdramReadS32(this.cur_profile_addr) as API.ProfileID;
+    this.current_level = new CurrentLevel(emu);
   }
 
-  get current_exit(): number {
-    return this.emulator.rdramRead8(this.cur_exit_addr);
+  get current_exit(): API.ExitType {
+    let exit: number = this.emulator.rdramRead8(this.cur_exit_addr);
+    if (exit < API.LevelType.MUMBOS_MOUNTAIN || exit > API.LevelType.TITLE_SCREEN) {
+      return API.ExitType.UNKNOWN;
+    } else {
+      return exit as API.ExitType;
+    }
   }
-  set current_exit(val: number) {
+  set current_exit(val: API.ExitType) {
     this.emulator.rdramWrite8(this.cur_exit_addr, val);
   }
 
-  get current_level(): number {
-    return this.emulator.rdramRead16(this.cur_level_addr);
-  }
-  set current_level(val: number) {
-    this.emulator.rdramWrite8(this.cur_level_addr, val);
-  }
-
-  get current_scene(): number {
-    return this.emulator.rdramRead16(this.cur_map_addr);
-  }
-  set current_scene(val: number) {
-    this.emulator.rdramWrite8(this.cur_map_addr, val);
-  }
-
   get current_health(): number {
-    return this.emulator.rdramRead8(this.cur_health_addr);
+    return this.emulator.rdramRead32(this.cur_health_addr);
   }
   set current_health(val: number) {
     if (val < 0) val = 0;
-    this.emulator.rdramWrite8(this.cur_health_addr, val);
+    this.emulator.rdramWrite32(this.cur_health_addr, val);
   }
 
-  get loading_state(): boolean {
-    return this.emulator.rdramRead8(this.loading_status_addr) === 1;
+  get current_scene(): API.SceneType {    
+    let scene: number = this.emulator.rdramRead8(this.cur_scene_addr);
+    if (scene < API.SceneType.SM_MAIN || scene > API.SceneType.INTRO_GRUNTY_THREAT_2) {
+      return API.SceneType.UNKNOWN;
+    } else {
+      return scene as API.SceneType;
+    }
   }
-  set loading_state(val: boolean) {
-    let value = 0;
-    if (val) value = 1;
-    this.emulator.rdramWrite8(this.loading_status_addr, value);
+  set current_scene(val: API.SceneType) {
+    this.emulator.rdramWrite8(this.cur_scene_addr, val);
   }
 
-  get_transition_state(): number {
-    return this.emulator.rdramRead8(this.transition_state_addr);
+  get_current_profile(): API.ProfileType {
+    return this.emulator.rdramReadS32(this.cur_profile_addr) as API.ProfileType;
   }
+
+  get_cutscene_state(): number {
+    return this.emulator.rdramRead8(this.cutscene_state_addr);
+  }
+  
+  is_loading(): boolean {
+    return this.emulator.rdramRead8(this.is_loading_addr) === 1;
+  }
+
+  goto_scene(scene: API.SceneType, exit: API.ExitType) {
+    this.emulator.rdramWrite8(this.cur_scene_addr, scene);
+    this.emulator.rdramWrite8(this.cur_exit_addr, exit);
+    this.emulator.rdramWrite8(this.is_loading_addr, 1);
+  }
+
 }
 
-export class SaveContext extends API.APIObject implements API.ISaveContext {
-  private held_honeycombs_addr = global.ModLoader['BK:held_honeycombs'];
-  private held_jiggies_addr = global.ModLoader['BK:held_jiggies'];
-  private held_mumbo_tokens_addr = global.ModLoader['BK:held_mumbo_tokens'];
-  private health_upgrade_addr = global.ModLoader['BK:health_upgrade'];
-  private jiggy_count_addr = global.ModLoader['BK:jiggy_count'];
-
+export class SaveContext extends API.BaseObj implements API.ISaveContext {
   // Abstraction
+  inventory: API.IInventory;
+
   game_flags: API.IBuffered;
   honeycomb_flags: API.IBuffered;
   jiggy_flags: API.IBuffered;
   move_flags: API.IBuffered;
   mumbo_token_flags: API.IBuffered;
+
   note_totals: API.IBuffered;
 
   constructor(emu: IMemory) {
     super(emu);
+
+    this.inventory = new Inventory(emu);
+
     this.game_flags = new GameFlags(emu);
     this.honeycomb_flags = new HoneyCombFlags(emu);
     this.jiggy_flags = new JiggyFlags(emu);
     this.move_flags = new MoveFlags(emu);
     this.mumbo_token_flags = new MumboTokenFlags(emu);
+
     this.note_totals = new NoteTotalBuffer(emu);
-  }
-
-  get held_honeycombs(): number {
-    return this.emulator.rdramRead8(this.held_honeycombs_addr);
-  }
-  set held_honeycombs(val: number) {
-    if (val > 6) {
-      val = 6;
-    } else if (val < 0) {
-      val = 0;
-    }
-    this.emulator.rdramWrite8(this.held_honeycombs_addr, val);
-  }
-
-  get held_jiggies(): number {
-    return this.emulator.rdramRead8(this.held_jiggies_addr);
-  }
-  set held_jiggies(val: number) {
-    if (val < 0) val = 0;
-    this.emulator.rdramWrite8(this.held_jiggies_addr, val);
-    this.emulator.rdramWrite8(this.jiggy_count_addr, val);
-  }
-
-  get held_mumbo_tokens(): number {
-    return this.emulator.rdramRead8(this.held_mumbo_tokens_addr);
-  }
-  set held_mumbo_tokens(val: number) {
-    if (val < 0) val = 0;
-    this.emulator.rdramWrite8(this.held_mumbo_tokens_addr, val);
-  }
-
-  get health_upgrades(): number {
-    return this.emulator.rdramRead8(this.health_upgrade_addr) - 5;
-  }
-  set health_upgrades(val: number) {
-    if (val < 0) val = 0;
-    this.emulator.rdramWrite8(this.health_upgrade_addr, val + 5);
   }
 }
 
@@ -366,68 +471,50 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   banjo!: API.IBanjo;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
+  version!: string;
+  revision!: number;
 
   isPlaying(): boolean {
     return !(
-      this.banjo.state === 0 ||
-      this.runtime.get_current_profile() === API.ProfileID.Title
+      this.banjo.movement_state === 0 ||
+      this.runtime.get_current_profile() === API.ProfileType.Title
     );
   }
 
-  preinit(): void {
-    // Hidden Data
-    global.ModLoader['BK:beta_menu'] = 0x383080;
-
-    // Banjo Data
-    global.ModLoader['BK:banjo_animal'] = 0x37d188;
-    global.ModLoader['BK:banjo_animation'] = 0x37bf20;
-    global.ModLoader['BK:banjo_flip_facing'] = 0x37c0e7;
-    global.ModLoader['BK:banjo_model_index'] = 0x37c0e4;
-    global.ModLoader['BK:banjo_model_ptr'] = 0x37c0e0;
-    global.ModLoader['BK:banjo_opacity'] = 0x37c0e6;
-    global.ModLoader['BK:banjo_pos_x'] = 0x37c5a0;
-    global.ModLoader['BK:banjo_pos_y'] = 0x37c5a4;
-    global.ModLoader['BK:banjo_pos_z'] = 0x37c5a8;
-    global.ModLoader['BK:banjo_rot_x'] = 0x37c540;
-    global.ModLoader['BK:banjo_rot_y'] = 0x37c0f8;
-    global.ModLoader['BK:banjo_rot_z'] = 0x37c680;
-    global.ModLoader['BK:banjo_scale'] = 0x37c0ec;
-    global.ModLoader['BK:banjo_state'] = 0x37c4a0;
-    global.ModLoader['BK:banjo_visible'] = 0x37c0e8;
-
-    // Runtime Data
-    global.ModLoader['BK:actor_arr_ptr'] = 0x36e560;
-    global.ModLoader['BK:current_health'] = 0x385f83;
-    global.ModLoader['BK:current_profile'] = 0x365e00;
-    global.ModLoader['BK:current_exit'] = 0x37e8f6;
-    global.ModLoader['BK:current_map'] = 0x37e8f5;
-    global.ModLoader['BK:current_level'] = 0x383301;
-    global.ModLoader['BK:current_level_notes'] = 0x385f63;
-    global.ModLoader['BK:loading_state'] = 0x37e8f4;
-    global.ModLoader['BK:transition_state'] = 0x382438;
-
-    // Save Data
-    global.ModLoader['BK:game_flags'] = 0x3831a8;
-    global.ModLoader['BK:honeycomb_flags'] = 0x3832e0;
-    global.ModLoader['BK:jiggy_flags'] = 0x3832c0;
-    global.ModLoader['BK:move_flags'] = 0x37c3a0;
-    global.ModLoader['BK:mumbo_token_flags'] = 0x3832f0;
-    global.ModLoader['BK:note_totals'] = 0x385ff0;
-
-    global.ModLoader['BK:held_honeycombs'] = 0x385f7f;
-    global.ModLoader['BK:held_jiggies'] = 0x385fcb;
-    global.ModLoader['BK:held_mumbo_tokens'] = 0x0;
-
-    global.ModLoader['BK:health_upgrade'] = 0x385f87;
-    global.ModLoader['BK:jiggy_count'] = 0x385fdf;
+  preinit(): void {    
+    switch(this.version) {
+      case 'NBKE':
+        if (this.revision === 1) {
+          this.ModLoader.logger.info('Version = USA 1.1');
+          VersionHandler.load_usa_1_1();
+        } else {
+          this.ModLoader.logger.info('Version = USA 1.0');
+          VersionHandler.load_usa_1_0();
+        }
+        break;
+      case 'NBKP':
+        this.ModLoader.logger.info('Version = PAL 1.0');
+        VersionHandler.load_pal_1_0();
+        break;
+      case 'NBKJ':
+        this.ModLoader.logger.info('Version = JP 1.0');
+        VersionHandler.load_jp_1_0();
+        break;
+    }
   }
 
-  init(): void {}
+  init(): void { }
 
   postinit(): void {
     this.banjo = new Banjo(this.ModLoader.emulator);
     this.runtime = new Runtime(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
+  }
+
+  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED) 
+  onModLoader_RomHeaderParsed(header: Buffer) {
+    this.version = header.toString('utf8', 0x3b, 0x3f);
+    this.revision = header[0x00003f];
   }
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)

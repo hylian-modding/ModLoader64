@@ -1,12 +1,12 @@
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
-import * as API from 'modloader64_api/SM64/Api';
+import * as API from 'modloader64_api/SM64/Imports';
 
 // ##################################################################
 // ##  Sub-Classes
 // ##################################################################
 
-export class SaveFile extends API.APIBufferedObject implements API.IBuffered {
+export class SaveFile extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory, profile_instance: number) {
     super(emu, profile_instance, 0x70);
   }
@@ -16,7 +16,7 @@ export class SaveFile extends API.APIBufferedObject implements API.IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export class Mario extends API.APIObject implements API.IMario {
+export class Mario extends API.BaseObj implements API.IMario {
   private instance: number = global.ModLoader['SM64:mario'];
   private pos_x_addr = 0x20;
   private pos_y_addr = 0x24;
@@ -119,7 +119,7 @@ export class Mario extends API.APIObject implements API.IMario {
   }
 }
 
-export class Runtime extends API.APIObject implements API.IRuntime {
+export class Runtime extends API.BaseObj implements API.IRuntime {
   private cur_scene_addr = global.ModLoader['SM64:current_scene'];
   private cur_prof_addr = global.ModLoader['SM64:current_profile'];
   private star_count_addr = global.ModLoader['SM64:star_count'];
