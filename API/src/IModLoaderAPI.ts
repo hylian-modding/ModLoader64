@@ -2,6 +2,7 @@ import IMemory from './IMemory';
 import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
 import IUtils from './IUtils';
 import ISaveState from './ISaveState';
+import { IRomHeader } from './IRomHeader';
 
 export interface ILogger {
   info(msg: string): void;
@@ -44,6 +45,7 @@ export interface IPlugin {
 export interface ICore {
   header: string;
   ModLoader: IModLoaderAPI;
+  rom_header?: IRomHeader;
   preinit(): void;
   init(): void;
   postinit(): void;

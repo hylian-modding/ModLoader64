@@ -34,6 +34,7 @@ import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { GameShark } from 'modloader64_api/GameShark';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -95,7 +96,7 @@ class pluginLoader {
     }
   }
 
-  loadPluginsConstruct(overrideCore = '') {
+  loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
     // Start the core plugin.
     if (overrideCore !== '') {
       this.selected_core = overrideCore;
@@ -105,6 +106,11 @@ class pluginLoader {
     core['ModLoader']['logger'] = this.logger.child({});
     core['ModLoader']['config'] = this.config;
     this.loaded_core = core;
+
+    Object.defineProperty(this.loaded_core, 'rom_header', {
+      value: header,
+      writable: false,
+    });
 
     setupEventHandlers(this.loaded_core);
     setupNetworkHandlers(this.loaded_core);

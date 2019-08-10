@@ -142,7 +142,6 @@ class ModLoader64 {
     if (fs.existsSync(this.rom_path)) {
       this.logger.info('Parsing rom header...');
       loaded_rom_header = this.emulator.getRomHeader();
-      console.log(loaded_rom_header);
       let core_match: any = null;
       let core_key = '';
       Object.keys(this.plugins.core_plugins).forEach((key: string) => {
@@ -160,7 +159,7 @@ class ModLoader64 {
         );
       }
       // Load the plugins
-      this.plugins.loadPluginsConstruct();
+      this.plugins.loadPluginsConstruct(loaded_rom_header);
       bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
       bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
     }

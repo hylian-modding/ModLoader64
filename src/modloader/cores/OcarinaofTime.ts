@@ -1,8 +1,4 @@
-import {
-  IModLoaderAPI,
-  ICore,
-  ModLoaderEvents,
-} from 'modloader64_api/IModLoaderAPI';
+import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import { GameShark } from 'modloader64_api/GameShark';
 import {
   ISaveContext,
@@ -44,8 +40,27 @@ export class OcarinaofTime implements ICore, IOOTCore {
   last_known_scene = -1;
   touching_loading_zone = false;
   frame_count_reset_scene = -1;
+  rom_header!: IRomHeader;
 
-  preinit(): void {}
+  preinit(): void {
+    this.ModLoader.logger.info(
+      'OOT VERSION: ' + ROM_VERSIONS[this.rom_header.revision] + '.'
+    );
+    switch (this.rom_header.revision) {
+      case ROM_VERSIONS.N0: {
+        global.ModLoader['save_context'] = 0x11a5d0;
+        global.ModLoader['global_context_pointer'] = 0x11f248;
+        global.ModLoader['overlay_table'] = 0x0e8530;
+        this.payloads.push(__dirname + '/OcarinaofTime.payload');
+        break;
+      }
+      case ROM_VERSIONS.DEBUG: {
+        global.ModLoader['save_context'] = 0x15e660;
+        global.ModLoader['global_context_pointer'] = 0x157da0;
+        global.ModLoader['overlay_table'] = 0x1159b0;
+      }
+    }
+  }
 
   init(): void {
     this.eventTicks.set('waitingForSaveload', () => {
@@ -111,27 +126,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.eventTicks.forEach((value: Function, key: string) => {
         value();
       });
-    }
-  }
-
-  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
-  onHeader(header: IRomHeader) {
-    this.ModLoader.logger.info(
-      'OOT VERSION: ' + ROM_VERSIONS[header.revision] + '.'
-    );
-    switch (header.revision) {
-      case ROM_VERSIONS.N0: {
-        global.ModLoader['save_context'] = 0x11a5d0;
-        global.ModLoader['global_context_pointer'] = 0x11f248;
-        global.ModLoader['overlay_table'] = 0x0e8530;
-        this.payloads.push(__dirname + '/OcarinaofTime.payload');
-        break;
-      }
-      case ROM_VERSIONS.DEBUG: {
-        global.ModLoader['save_context'] = 0x15e660;
-        global.ModLoader['global_context_pointer'] = 0x157da0;
-        global.ModLoader['overlay_table'] = 0x1159b0;
-      }
     }
   }
 
