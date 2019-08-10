@@ -1,4 +1,8 @@
-import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
+import {
+  IModLoaderAPI,
+  ICore,
+  ModLoaderEvents,
+} from 'modloader64_api/IModLoaderAPI';
 import { GameShark } from 'modloader64_api/GameShark';
 import {
   ISaveContext,
@@ -18,9 +22,15 @@ import { SaveContext } from './OOT/SaveContext';
 import { CommandBuffer } from './OOT/CommandBuffer';
 import { ActorManager } from './OOT/ActorManager';
 
+enum ROM_VERSIONS {
+  N0 = 0x00,
+  DEBUG = 0x0f,
+}
+
 export class OcarinaofTime implements ICore, IOOTCore {
   header = 'THE LEGEND OF ZELDA';
   ModLoader!: IModLoaderAPI;
+  payloads: string[] = new Array<string>();
   link!: ILink;
   save!: ISaveContext;
   global!: IGlobalContext;
@@ -34,11 +44,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   touching_loading_zone = false;
   frame_count_reset_scene = -1;
 
-  preinit(): void {
-    global.ModLoader['save_context'] = 0x11a5d0;
-    global.ModLoader['global_context_pointer'] = 0x11f248;
-    global.ModLoader['overlay_table'] = 0x0e8530;
-  }
+  preinit(): void {}
 
   init(): void {
     this.eventTicks.set('waitingForSaveload', () => {
@@ -107,18 +113,34 @@ export class OcarinaofTime implements ICore, IOOTCore {
     }
   }
 
+  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
+  onHeader(header: Buffer) {
+    let v = header.readUInt8(0x3f);
+    this.ModLoader.logger.info('OOT VERSION: ' + ROM_VERSIONS[v] + '.');
+    switch (v) {
+      case ROM_VERSIONS.N0: {
+        global.ModLoader['save_context'] = 0x11a5d0;
+        global.ModLoader['global_context_pointer'] = 0x11f248;
+        global.ModLoader['overlay_table'] = 0x0e8530;
+        this.payloads.push(__dirname + '/OcarinaofTime.payload');
+        break;
+      }
+      case ROM_VERSIONS.DEBUG: {
+        global.ModLoader['save_context'] = 0x15e660;
+        global.ModLoader['global_context_pointer'] = 0x157da0;
+        global.ModLoader['overlay_table'] = 0x1159b0;
+      }
+    }
+  }
+
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onInject(evt: any) {
     let gameshark = new GameShark(
       this.ModLoader.logger,
       this.ModLoader.emulator
     );
-    gameshark.read(__dirname + '/OcarinaofTime.payload');
-    this.ModLoader.logger.info('Checking for core ASM injection...');
-    if (this.ModLoader.emulator.rdramRead32(0x089710) === 0x8fa80080) {
-      this.ModLoader.logger.info('confirmed.');
-    } else {
-      this.ModLoader.logger.error('injection failed?');
+    for (let i = 0; i < this.payloads.length; i++) {
+      gameshark.read(this.payloads[i]);
     }
   }
 }
