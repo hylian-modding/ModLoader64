@@ -1,5 +1,9 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import { IModLoaderAPI, ICore, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
+import {
+  IModLoaderAPI,
+  ICore,
+  ModLoaderEvents,
+} from 'modloader64_api/IModLoaderAPI';
 import { VersionHandler } from './BK/VersionHandler';
 import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/BK/Imports';
@@ -47,18 +51,26 @@ export class NoteTotalBuffer extends API.BufferObj implements API.IBuffered {
 export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
   private id_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL];
   private acorn_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN];
-  private caterpillar_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR];
-  private gold_bullions_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION];
+  private caterpillar_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR];
+  private gold_bullions_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION];
   private jinjos_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS];
   private notes_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_NOTES];
-  private present_green_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_GREEN];
-  private present_blue_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_BLUE];
-  private present_red_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_RED];
+  private present_green_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_GREEN];
+  private present_blue_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_BLUE];
+  private present_red_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_PRESENT_RED];
   private orange_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE];
 
   get id(): API.LevelType {
     let level: number = this.emulator.rdramRead8(this.id_addr);
-    if (level < API.LevelType.MUMBOS_MOUNTAIN || level > API.LevelType.TITLE_SCREEN) {
+    if (
+      level < API.LevelType.MUMBOS_MOUNTAIN ||
+      level > API.LevelType.TITLE_SCREEN
+    ) {
       return API.LevelType.UNKNOWN;
     } else {
       return level as API.LevelType;
@@ -133,13 +145,17 @@ export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
 }
 
 export class Inventory extends API.BaseObj implements API.IInventory {
-  private health_upgrade_addr = global.ModLoader[API.AddressType.INV_HEALTH_UPGRADES];
+  private health_upgrade_addr =
+    global.ModLoader[API.AddressType.INV_HEALTH_UPGRADES];
   private honeycombs_addr = global.ModLoader[API.AddressType.INV_HONEYCOMBS];
   private jiggies_addr = global.ModLoader[API.AddressType.INV_JIGGIES];
-  private mumbo_tokens_addr = global.ModLoader[API.AddressType.INV_MUMBO_TOKENS];  
+  private mumbo_tokens_addr =
+    global.ModLoader[API.AddressType.INV_MUMBO_TOKENS];
 
-  private text_jiggies_addr = global.ModLoader[API.AddressType.INV_TEXT_JIGGIES];
-  private text_mumbo_tokens_addr = global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS];
+  private text_jiggies_addr =
+    global.ModLoader[API.AddressType.INV_TEXT_JIGGIES];
+  private text_mumbo_tokens_addr =
+    global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS];
 
   get health_upgrades(): number {
     return this.emulator.rdramRead32(this.health_upgrade_addr) - 5;
@@ -148,7 +164,7 @@ export class Inventory extends API.BaseObj implements API.IInventory {
     if (val < 0) val = 0;
     this.emulator.rdramWrite32(this.health_upgrade_addr, val + 5);
   }
-    
+
   get honeycombs(): number {
     return this.emulator.rdramRead32(this.honeycombs_addr);
   }
@@ -187,10 +203,14 @@ export class Inventory extends API.BaseObj implements API.IInventory {
 export class Banjo extends API.BaseObj implements API.IBanjo {
   private animal_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMAL];
   private anim_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMATION];
-  private flip_facing_addr: number = global.ModLoader[API.AddressType.PLYR_FLIP_FACING];
-  private model_index_addr: number = global.ModLoader[API.AddressType.PLYR_MODEL_INDEX];
-  private model_ptr_addr: number = global.ModLoader[API.AddressType.PLYR_MODEL_PTR];
-  private movement_state_addr: number = global.ModLoader[API.AddressType.PLYR_MOVEMENT_STATE];
+  private flip_facing_addr: number =
+    global.ModLoader[API.AddressType.PLYR_FLIP_FACING];
+  private model_index_addr: number =
+    global.ModLoader[API.AddressType.PLYR_MODEL_INDEX];
+  private model_ptr_addr: number =
+    global.ModLoader[API.AddressType.PLYR_MODEL_PTR];
+  private movement_state_addr: number =
+    global.ModLoader[API.AddressType.PLYR_MOVEMENT_STATE];
   private opacity_addr: number = global.ModLoader[API.AddressType.PLYR_OPACITY];
   private pos_x_addr: number = global.ModLoader[API.AddressType.PLYR_POS_X];
   private pos_y_addr: number = global.ModLoader[API.AddressType.PLYR_POS_Y];
@@ -367,14 +387,16 @@ export class Banjo extends API.BaseObj implements API.IBanjo {
 }
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private actor_arr_ptr_addr = global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
+  private actor_arr_ptr_addr =
+    global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
   private cur_exit_addr = global.ModLoader[API.AddressType.RT_CUR_EXIT];
-  private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];  
+  private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];
   private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
   private cur_scene_addr = global.ModLoader[API.AddressType.RT_CUR_SCENE];
-  private cutscene_state_addr = global.ModLoader[API.AddressType.RT_CUTSCENE_STATE];
+  private cutscene_state_addr =
+    global.ModLoader[API.AddressType.RT_CUTSCENE_STATE];
   private is_loading_addr = global.ModLoader[API.AddressType.RT_IS_LOADING];
-  
+
   // Abstraction
   current_level: API.ICurrentLevel;
 
@@ -386,7 +408,10 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
 
   get current_exit(): API.ExitType {
     let exit: number = this.emulator.rdramRead8(this.cur_exit_addr);
-    if (exit < API.LevelType.MUMBOS_MOUNTAIN || exit > API.LevelType.TITLE_SCREEN) {
+    if (
+      exit < API.LevelType.MUMBOS_MOUNTAIN ||
+      exit > API.LevelType.TITLE_SCREEN
+    ) {
       return API.ExitType.UNKNOWN;
     } else {
       return exit as API.ExitType;
@@ -404,9 +429,12 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     this.emulator.rdramWrite32(this.cur_health_addr, val);
   }
 
-  get current_scene(): API.SceneType {    
+  get current_scene(): API.SceneType {
     let scene: number = this.emulator.rdramRead8(this.cur_scene_addr);
-    if (scene < API.SceneType.SM_MAIN || scene > API.SceneType.INTRO_GRUNTY_THREAT_2) {
+    if (
+      scene < API.SceneType.SM_MAIN ||
+      scene > API.SceneType.INTRO_GRUNTY_THREAT_2
+    ) {
       return API.SceneType.UNKNOWN;
     } else {
       return scene as API.SceneType;
@@ -423,7 +451,7 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   get_cutscene_state(): number {
     return this.emulator.rdramRead8(this.cutscene_state_addr);
   }
-  
+
   is_loading(): boolean {
     return this.emulator.rdramRead8(this.is_loading_addr) === 1;
   }
@@ -433,7 +461,6 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     this.emulator.rdramWrite8(this.cur_exit_addr, exit);
     this.emulator.rdramWrite8(this.is_loading_addr, 1);
   }
-
 }
 
 export class SaveContext extends API.BaseObj implements API.ISaveContext {
@@ -481,8 +508,8 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     );
   }
 
-  preinit(): void {    
-    switch(this.version) {
+  preinit(): void {
+    switch (this.version) {
       case 'NBKE':
         if (this.revision === 1) {
           this.ModLoader.logger.info('Version = USA 1.1');
@@ -503,7 +530,7 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     }
   }
 
-  init(): void { }
+  init(): void {}
 
   postinit(): void {
     this.banjo = new Banjo(this.ModLoader.emulator);
@@ -511,7 +538,7 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     this.save = new SaveContext(this.ModLoader.emulator);
   }
 
-  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED) 
+  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
   onModLoader_RomHeaderParsed(header: Buffer) {
     this.version = header.toString('utf8', 0x3b, 0x3f);
     this.revision = header[0x00003f];

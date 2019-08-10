@@ -3,6 +3,8 @@ import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { MonkeyPatch_rdramWriteBit8 } from '../../monkeypatches/Mupen';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
+import { N64Header } from './N64Header';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -66,8 +68,9 @@ class N64 implements IConsole {
     this.mupen.resumeEmulator();
   }
 
-  getRomHeader(): Buffer {
-    return this.mupen.romReadBuffer(0x0, 0x50);
+  getRomHeader(): IRomHeader {
+    let raw = this.mupen.romReadBuffer(0x0, 0x50);
+    return new N64Header(raw);
   }
 
   getMemoryAccess(): IMemory {

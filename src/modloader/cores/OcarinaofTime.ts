@@ -21,6 +21,7 @@ import { Link } from './OOT/Link';
 import { SaveContext } from './OOT/SaveContext';
 import { CommandBuffer } from './OOT/CommandBuffer';
 import { ActorManager } from './OOT/ActorManager';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
 
 enum ROM_VERSIONS {
   N0 = 0x00,
@@ -114,10 +115,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
   }
 
   @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
-  onHeader(header: Buffer) {
-    let v = header.readUInt8(0x3f);
-    this.ModLoader.logger.info('OOT VERSION: ' + ROM_VERSIONS[v] + '.');
-    switch (v) {
+  onHeader(header: IRomHeader) {
+    this.ModLoader.logger.info(
+      'OOT VERSION: ' + ROM_VERSIONS[header.revision] + '.'
+    );
+    switch (header.revision) {
       case ROM_VERSIONS.N0: {
         global.ModLoader['save_context'] = 0x11a5d0;
         global.ModLoader['global_context_pointer'] = 0x11f248;

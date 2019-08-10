@@ -7,23 +7,15 @@ import * as API from 'modloader64_api/DK64/Imports';
 // ##  Sub-Classes
 // ##################################################################
 
-
-
 // ##################################################################
 // ##  Primary-Classes
 // ##################################################################
 
-export class Kong extends API.BaseObj implements API.IKong {
+export class Kong extends API.BaseObj implements API.IKong {}
 
-}
+export class Runtime extends API.BaseObj implements API.IRuntime {}
 
-export class Runtime extends API.BaseObj implements API.IRuntime {
-  
-}
-
-export class SaveContext extends API.BaseObj implements API.ISaveContext {
-  
-}
+export class SaveContext extends API.BaseObj implements API.ISaveContext {}
 
 export class DonkeyKong64 implements ICore, API.IDK64Core {
   header = 'DONKEY KONG 64';
@@ -34,8 +26,7 @@ export class DonkeyKong64 implements ICore, API.IDK64Core {
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
 
-  preinit(): void {
-  }
+  preinit(): void {}
 
   init(): void {}
 

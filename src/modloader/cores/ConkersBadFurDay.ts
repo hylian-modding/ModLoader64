@@ -7,23 +7,15 @@ import * as API from 'modloader64_api/CBFD/Imports';
 // ##  Sub-Classes
 // ##################################################################
 
-
-
 // ##################################################################
 // ##  Primary-Classes
 // ##################################################################
 
-export class Conker extends API.BaseObj implements API.IConker {
+export class Conker extends API.BaseObj implements API.IConker {}
 
-}
+export class Runtime extends API.BaseObj implements API.IRuntime {}
 
-export class Runtime extends API.BaseObj implements API.IRuntime {
-  
-}
-
-export class SaveContext extends API.BaseObj implements API.ISaveContext {
-  
-}
+export class SaveContext extends API.BaseObj implements API.ISaveContext {}
 
 export class ConkersBadFurDay implements ICore, API.IDK64Core {
   header = 'CONKER BFD';

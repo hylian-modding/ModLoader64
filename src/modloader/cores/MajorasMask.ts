@@ -7,23 +7,15 @@ import * as API from 'modloader64_api/MM/Imports';
 // ##  Sub-Classes
 // ##################################################################
 
-
-
 // ##################################################################
 // ##  Primary-Classes
 // ##################################################################
 
-export class Link extends API.BaseObj implements API.ILink {
+export class Link extends API.BaseObj implements API.ILink {}
 
-}
+export class Runtime extends API.BaseObj implements API.IRuntime {}
 
-export class Runtime extends API.BaseObj implements API.IRuntime {
-
-}
-
-export class SaveContext extends API.BaseObj implements API.ISaveContext {
-  
-}
+export class SaveContext extends API.BaseObj implements API.ISaveContext {}
 
 export class MajorasMask implements ICore, API.IMMCore {
   header = "ZELDA MAJORA'S MASK";
@@ -34,9 +26,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
 
-  preinit(): void {
-    
-  }
+  preinit(): void {}
 
   init(): void {}
 

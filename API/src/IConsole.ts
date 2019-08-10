@@ -1,4 +1,5 @@
 import IMemory from './IMemory';
+import { IRomHeader } from './IRomHeader';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -19,7 +20,7 @@ interface IConsole {
 
   getLoadedRom(): Buffer;
 
-  getRomHeader(): Buffer;
+  getRomHeader(): IRomHeader;
 
   setFrameCallback(fn: Function): void;
 

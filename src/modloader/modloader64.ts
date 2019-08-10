@@ -2,7 +2,6 @@ import configuration from './config';
 import pluginLoader from './pluginLoader';
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 import {
   ILogger,
   IConfig,
@@ -16,6 +15,7 @@ import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -138,33 +138,21 @@ class ModLoader64 {
   }
 
   private init() {
-    let loaded_rom_header: Buffer;
+    let loaded_rom_header: IRomHeader;
     if (fs.existsSync(this.rom_path)) {
       this.logger.info('Parsing rom header...');
       loaded_rom_header = this.emulator.getRomHeader();
+      console.log(loaded_rom_header);
       let core_match: any = null;
       let core_key = '';
       Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-        if (
-          loaded_rom_header.includes(
-            this.plugins.core_plugins[key].header,
-            0,
-            'utf8'
-          )
-        ) {
+        if (loaded_rom_header.name === this.plugins.core_plugins[key].header) {
           core_match = this.plugins.core_plugins[key];
           core_key = key;
         }
       });
       if (core_match !== null) {
         this.logger.info('Auto-selected core: ' + core_key);
-        this.logger.info(
-          'Header hash: ' +
-            crypto
-              .createHash('md5')
-              .update(loaded_rom_header)
-              .digest('hex')
-        );
         this.plugins.selected_core = core_key;
       } else {
         this.logger.error(
