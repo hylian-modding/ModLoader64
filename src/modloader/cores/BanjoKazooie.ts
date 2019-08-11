@@ -4,6 +4,7 @@ import {
   ICore,
   ModLoaderEvents,
 } from 'modloader64_api/IModLoaderAPI';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { VersionHandler } from './BK/VersionHandler';
 import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/BK/Imports';
@@ -494,12 +495,12 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   header = 'Banjo-Kazooie';
   ModLoader: IModLoaderAPI = {} as IModLoaderAPI;
   eventTicks: Map<string, Function> = new Map<string, Function>();
+  rom_header!: IRomHeader;
 
   banjo!: API.IBanjo;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
-  version!: string;
-  revision!: number;
+  version!: API.GameVersion;
 
   isPlaying(): boolean {
     return !(
@@ -509,23 +510,24 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   }
 
   preinit(): void {
-    switch (this.version) {
-      case 'NBKE':
-        if (this.revision === 1) {
-          this.ModLoader.logger.info('Version = USA 1.1');
-          VersionHandler.load_usa_1_1();
-        } else {
-          this.ModLoader.logger.info('Version = USA 1.0');
-          VersionHandler.load_usa_1_0();
-        }
+    
+    switch (this.rom_header.country_code) {
+      case 'J':
+        this.version = API.GameVersion.JP_1_0;
+        VersionHandler.load_jp_1_0();
         break;
-      case 'NBKP':
-        this.ModLoader.logger.info('Version = PAL 1.0');
+      case 'P':
+        this.version = API.GameVersion.PAL_1_0;
         VersionHandler.load_pal_1_0();
         break;
-      case 'NBKJ':
-        this.ModLoader.logger.info('Version = JP 1.0');
-        VersionHandler.load_jp_1_0();
+      case 'E':
+        if (this.rom_header.revision === 1) {
+          this.version = API.GameVersion.USA_1_1;
+          VersionHandler.load_usa_1_1();
+        } else {
+          this.version = API.GameVersion.USA_1_0;
+          VersionHandler.load_usa_1_0();
+        }
         break;
     }
   }
@@ -538,20 +540,17 @@ export class BanjoKazooie implements ICore, API.IBKCore {
     this.save = new SaveContext(this.ModLoader.emulator);
   }
 
-  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
-  onModLoader_RomHeaderParsed(header: Buffer) {
-    this.version = header.toString('utf8', 0x3b, 0x3f);
-    this.revision = header[0x00003f];
-  }
-
-  @EventHandler(EventsClient.ON_INJECT_FINISHED)
-  onCore_InjectFinished(evt: any) {}
-
   onTick(): void {
     this.eventTicks.forEach((value: Function, key: string) => {
       value();
     });
   }
+
+  @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
+  onModLoader_RomHeaderParsed(header: Buffer) {}
+
+  @EventHandler(EventsClient.ON_INJECT_FINISHED)
+  onCore_InjectFinished(evt: any) {}
 }
 
 export default BanjoKazooie;

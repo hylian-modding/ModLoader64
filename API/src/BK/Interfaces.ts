@@ -1,3 +1,4 @@
+import { IRomHeader } from '../IRomHeader';
 import * as apiBit from './Bitmaps';
 import * as apiEnum from './Enums';
 
@@ -88,8 +89,7 @@ export interface IBKCore {
   banjo: IBanjo;
   runtime: IRuntime;
   save: ISaveContext;
-  version: string;
-  revision: number;
+  version: apiEnum.GameVersion;
 
   isPlaying(): boolean;
 }
