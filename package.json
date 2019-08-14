@@ -37,6 +37,7 @@
     "socket.io-client": "^2.2.0",
     "socket.io-encrypt": "^0.1.0",
     "socket.io-fix-close": "0.0.2",
+    "source-map-support": "^0.5.13",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
   },
@@ -54,7 +55,6 @@
     "mocha": "^6.2.0",
     "pre-commit": "^1.2.2",
     "recursive-readdir": "^2.2.2",
-    "source-map-support": "^0.5.13",
     "thread-sleep": "^2.2.0",
     "typescript": "^3.5.2",
     "v8-profiler-next": "^1.1.1"

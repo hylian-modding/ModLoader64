@@ -452,6 +452,7 @@ namespace NetworkEngine {
     serverUDPPort = -1;
     isUDPEnabled = false;
     udpTestHandle!: any;
+    packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -481,6 +482,14 @@ namespace NetworkEngine {
         this.socket.removeAllListeners();
         this.socket.disconnect();
       });
+    }
+
+    onTick() {
+      while (this.packetBuffer.length > 0) {
+        let data: IPacketHeader = this.packetBuffer.shift() as IPacketHeader;
+        NetworkBus.emit(data.packet_id, data);
+        NetworkChannelBus.emit(data.channel, data);
+      }
     }
 
     setup() {
@@ -580,8 +589,7 @@ namespace NetworkEngine {
           }
         });
         inst.socket.on('msg', (data: IPacketHeader) => {
-          NetworkBus.emit(data.packet_id, data);
-          NetworkChannelBus.emit(data.channel, data);
+          inst.packetBuffer.push(data);
         });
         inst.socket.on('udpTest', (data: IPacketHeader) => {
           inst.isUDPEnabled = true;

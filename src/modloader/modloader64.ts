@@ -209,7 +209,11 @@ class ModLoader64 {
       });
       load_mupen.then(function() {
         instance.logger.info('Finishing plugin init...');
-        instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
+        instance.plugins.loadPluginsPostinit(
+          mupen,
+          instance.emulator,
+          instance.Client
+        );
         internal_event_bus.emit('onPostInitDone', {});
         instance.done = true;
         // Detect if the user closed Mupen. Exit with code 1.

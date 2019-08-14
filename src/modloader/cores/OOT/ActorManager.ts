@@ -4,9 +4,10 @@ import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
 import { ActorBase } from './Actor';
 import crypto from 'crypto';
 import { bus } from 'modloader64_api/EventHandler';
-import { OotEvents } from 'modloader64_api/OOT/OOTAPI';
+import { OotEvents, IActorManager } from 'modloader64_api/OOT/OOTAPI';
+import { IActor } from 'modloader64_api/OOT/IActor';
 
-export class ActorManager {
+export class ActorManager implements IActorManager {
   emulator: IMemory;
   logger: ILogger;
   private readonly actor_array_addr: number = 0x001c30;
@@ -31,6 +32,10 @@ export class ActorManager {
     for (let i = 0; i < 12; i++) {
       this.actors_this_frame.set(i, new Array<ActorBase>());
     }
+  }
+
+  createIActorFromPointer(pointer: number): IActor {
+    return new ActorBase(this.emulator, pointer);
   }
 
   onTick() {

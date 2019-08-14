@@ -1,6 +1,7 @@
 import IMemory from '../IMemory';
 import { ICommandBuffer } from './ICommandBuffer';
 import { ICore } from '../IModLoaderAPI';
+import { IActor } from './IActor';
 
 export declare const enum LinkState {
   UNKNOWN,
@@ -475,6 +476,7 @@ export interface IOOTCore extends ICore {
   helper: IOotHelper;
   global: IGlobalContext;
   commandBuffer: ICommandBuffer;
+  actorManager: IActorManager;
 }
 
 // Note: ON_ACTOR_SPAWN/ON_ACTOR_DESPAWN won't detect anything created by ICommandBuffer. This is intentional behavior.
@@ -485,4 +487,9 @@ export enum OotEvents {
   ON_LOADING_ZONE = 'onLoadingZone',
   ON_ACTOR_SPAWN = 'onActorSpawn',
   ON_ACTOR_DESPAWN = 'onActorDespawn',
+}
+
+export interface IActorManager {
+  // Returns IActor if the actor exists or undefined if the pointer doesn't lead to an actor.
+  createIActorFromPointer(pointer: number): IActor;
 }

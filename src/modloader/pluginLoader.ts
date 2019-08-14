@@ -30,6 +30,7 @@ import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { GameShark } from 'modloader64_api/GameShark';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
+import NetworkEngine from './NetworkEngine';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -166,7 +167,11 @@ class pluginLoader {
     });
   }
 
-  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole) {
+  loadPluginsPostinit(
+    emulator: IMemory,
+    iconsole: IConsole,
+    net: NetworkEngine.Client
+  ) {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
@@ -187,7 +192,7 @@ class pluginLoader {
       }
     });
     this.onFakeFrameHandler = setInterval(() => {
-      if (this.internalFrameCount === 0) {
+      if (this.internalFrameCount >= 0) {
         clearInterval(this.onFakeFrameHandler);
         iconsole.pauseEmulator();
         let gameshark = new GameShark(this.logger, emulator);
@@ -195,7 +200,7 @@ class pluginLoader {
           let test = path.join(
             dir,
             'payloads',
-            this.header.revision.toString()
+            this.header.country_code + this.header.revision.toString()
           );
           if (fs.existsSync(test)) {
             if (fs.lstatSync(test).isDirectory) {
@@ -222,6 +227,7 @@ class pluginLoader {
         inst.plugins.forEach((plugin: IPlugin) => {
           plugin.onTick();
         });
+        net.onTick();
       };
       iconsole.setFrameCallback(inst.onTickHandle);
     })(this);
