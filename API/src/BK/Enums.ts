@@ -1,3 +1,10 @@
+export const enum GameVersion {
+  JP_1_0,
+  PAL_1_0,
+  USA_1_0,
+  USA_1_1,
+}
+
 export const enum AddressType {
   BETA_MENU = 'BK:beta_menu',
 
