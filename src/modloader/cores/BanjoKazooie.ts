@@ -454,7 +454,7 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   }
 
   is_loading(): boolean {
-    return this.emulator.rdramRead8(this.is_loading_addr) === 1;
+    return this.emulator.rdramRead8(this.is_loading_addr) !== 0;
   }
 
   goto_scene(scene: API.SceneType, exit: API.ExitType) {
