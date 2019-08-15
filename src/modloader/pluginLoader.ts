@@ -213,11 +213,6 @@ class pluginLoader {
         bus.emit(EventsClient.ON_INJECT_FINISHED, {});
         iconsole.finishInjects();
         iconsole.resumeEmulator();
-      } else {
-        this.loaded_core.onTick();
-        this.plugins.forEach((plugin: IPlugin) => {
-          plugin.onTick();
-        });
       }
     }, 50);
     (function(inst) {
