@@ -67,7 +67,7 @@ export interface IRuntime {
   current_scene: apiEnum.SceneType;
 
   get_current_profile(): apiEnum.ProfileType;
-  get_cutscene_state(): number;
+  get_transition_state(): number;
 
   is_loading(): boolean;
   goto_scene(scene: apiEnum.SceneType, exit: apiEnum.ExitType): void;

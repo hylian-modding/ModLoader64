@@ -394,9 +394,9 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];
   private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
   private cur_scene_addr = global.ModLoader[API.AddressType.RT_CUR_SCENE];
-  private cutscene_state_addr =
-    global.ModLoader[API.AddressType.RT_CUTSCENE_STATE];
   private is_loading_addr = global.ModLoader[API.AddressType.RT_IS_LOADING];
+  private transition_state_addr =
+    global.ModLoader[API.AddressType.RT_TRANSITION_STATE];
 
   // Abstraction
   current_level: API.ICurrentLevel;
@@ -449,12 +449,12 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     return this.emulator.rdramReadS32(this.cur_profile_addr) as API.ProfileType;
   }
 
-  get_cutscene_state(): number {
-    return this.emulator.rdramRead8(this.cutscene_state_addr);
-  }
-
   is_loading(): boolean {
     return this.emulator.rdramRead8(this.is_loading_addr) !== 0;
+  }
+
+  get_transition_state(): number {
+    return this.emulator.rdramRead8(this.transition_state_addr);
   }
 
   goto_scene(scene: API.SceneType, exit: API.ExitType) {

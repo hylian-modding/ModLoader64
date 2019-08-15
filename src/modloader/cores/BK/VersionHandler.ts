@@ -45,8 +45,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37e8f5;
-    global.ModLoader[API.AddressType.RT_CUTSCENE_STATE] = 0x382438;
     global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
+    global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x3831a8;
@@ -120,8 +120,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37daf5;
-    // global.ModLoader[API.AddressType.RT_CUTSCENE_STATE] = 0x382438;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
+    // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x3823f8;
@@ -195,8 +195,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f2c5;
-    // global.ModLoader[API.AddressType.RT_CUTSCENE_STATE] = 0x382438;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
+    // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x383b88;
@@ -270,8 +270,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f405;
-    // global.ModLoader[API.AddressType.RT_CUTSCENE_STATE] = 0x382438;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
+    // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x383d18;
