@@ -441,6 +441,7 @@ export interface ISaveContext {
 
 export interface ILink extends IMemory {
   state: LinkState;
+  rawStateValue: number;
   tunic: Tunic;
   shield: Shield;
   boots: Boots;
@@ -468,6 +469,7 @@ export interface IGlobalContext {
 export interface IOotHelper {
   isTitleScreen(): boolean;
   isSceneNumberValid(): boolean;
+  isLinkEnteringLoadingZone(): boolean;
 }
 
 export interface IOOTCore extends ICore {

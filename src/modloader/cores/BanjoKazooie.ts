@@ -510,7 +510,6 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   }
 
   preinit(): void {
-    
     switch (this.rom_header.country_code) {
       case 'J':
         this.version = API.GameVersion.JP_1_0;

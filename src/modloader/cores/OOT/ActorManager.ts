@@ -4,12 +4,17 @@ import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
 import { ActorBase } from './Actor';
 import crypto from 'crypto';
 import { bus } from 'modloader64_api/EventHandler';
-import { OotEvents, IActorManager } from 'modloader64_api/OOT/OOTAPI';
+import {
+  OotEvents,
+  IActorManager,
+  IOotHelper,
+} from 'modloader64_api/OOT/OOTAPI';
 import { IActor } from 'modloader64_api/OOT/IActor';
 
 export class ActorManager implements IActorManager {
   emulator: IMemory;
   logger: ILogger;
+  helper: IOotHelper;
   private readonly actor_array_addr: number = 0x001c30;
   private readonly ringbuffer_start_addr: number = 0x600000 + 0x1e0;
   private readonly ringbuffer_index_addr: number = 0x600000 + 0x11e0;
@@ -26,9 +31,10 @@ export class ActorManager implements IActorManager {
     number
   >();
 
-  constructor(emulator: IMemory, logger: ILogger) {
+  constructor(emulator: IMemory, logger: ILogger, helper: IOotHelper) {
     this.emulator = emulator;
     this.logger = logger;
+    this.helper = helper;
     for (let i = 0; i < 12; i++) {
       this.actors_this_frame.set(i, new Array<ActorBase>());
     }
@@ -41,27 +47,29 @@ export class ActorManager implements IActorManager {
   onTick() {
     this.actors_pointers_this_frame.length = 0;
     this.actors_without_rom_ids_this_frame.clear();
-    for (let i = 0; i < 12 * 8; i += 8) {
-      let count = this.emulator.rdramReadPtr32(
-        global.ModLoader.global_context_pointer,
-        this.actor_array_addr + i
-      );
-      let ptr = this.emulator.dereferencePointer(
-        global.ModLoader.global_context_pointer
-      );
-      if (count > 0) {
-        let pointer = this.emulator.dereferencePointer(
-          ptr + this.actor_array_addr + (i + 4)
+    if (!this.helper.isLinkEnteringLoadingZone()) {
+      for (let i = 0; i < 12 * 8; i += 8) {
+        let count = this.emulator.rdramReadPtr32(
+          global.ModLoader.global_context_pointer,
+          this.actor_array_addr + i
         );
-        this.actors_pointers_this_frame.push(pointer);
-        let next = this.emulator.dereferencePointer(
-          pointer + this.actor_next_offset
+        let ptr = this.emulator.dereferencePointer(
+          global.ModLoader.global_context_pointer
         );
-        while (next > 0) {
-          this.actors_pointers_this_frame.push(next);
-          next = this.emulator.dereferencePointer(
-            next + this.actor_next_offset
+        if (count > 0) {
+          let pointer = this.emulator.dereferencePointer(
+            ptr + this.actor_array_addr + (i + 4)
           );
+          this.actors_pointers_this_frame.push(pointer);
+          let next = this.emulator.dereferencePointer(
+            pointer + this.actor_next_offset
+          );
+          while (next > 0) {
+            this.actors_pointers_this_frame.push(next);
+            next = this.emulator.dereferencePointer(
+              next + this.actor_next_offset
+            );
+          }
         }
       }
     }

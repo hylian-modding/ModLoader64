@@ -42,6 +42,11 @@ export class Link extends JSONTemplate implements ILink {
   exists(): boolean {
     return this.emulator.rdramRead32(this.instance) === 0x2ff;
   }
+
+  get rawStateValue(): number {
+    return this.emulator.rdramRead32(this.state_addr);
+  }
+
   get state(): LinkState {
     switch (this.emulator.rdramRead32(this.state_addr)) {
       case 0:

@@ -72,7 +72,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     });
     this.eventTicks.set('waitingForLoadingZoneTrigger', () => {
       if (
-        this.link.state === LinkState.LOADING_ZONE &&
+        this.helper.isLinkEnteringLoadingZone() &&
         !this.touching_loading_zone
       ) {
         bus.emit(OotEvents.ON_LOADING_ZONE, {});
@@ -97,11 +97,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.global = new GlobalContext(this.ModLoader.emulator);
     this.link = new Link(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
-    this.helper = new OotHelper(this.save, this.global);
+    this.helper = new OotHelper(this.save, this.global, this.link);
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
     this.actorManager = new ActorManager(
       this.ModLoader.emulator,
-      this.ModLoader.logger
+      this.ModLoader.logger,
+      this.helper
     );
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();

@@ -1,0 +1,6 @@
+export const enum LinkStateRawValues {
+  BUSY = 0x20000000,
+  LOADING_ZONE = 0x00000001,
+  SWIMMING = 0x08000000,
+  RIDING_EPONA = 0x00800000,
+}
