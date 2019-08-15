@@ -128,7 +128,7 @@ class ModLoader64 {
     if (this.data.isClient) {
       switch (this.data.selectedConsole) {
         case 'N64': {
-          this.emulator = new N64(this.rom_path);
+          this.emulator = new N64(this.rom_path, this.logger.child({}));
           break;
         }
       }

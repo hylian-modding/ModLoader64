@@ -10,7 +10,7 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
 
   setPluginDir(path: string): void;
 
-  runEmulator(bool: boolean): void;
+  runEmulator(bool: boolean): number;
 
   memoryCacheRefresh(): void;
 
@@ -18,7 +18,7 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
 
   setFrameCallback(fn: Function): void;
 
-  initialize(): void;
+  initialize(): number;
 
   loadRom(rom: string): number;
 
