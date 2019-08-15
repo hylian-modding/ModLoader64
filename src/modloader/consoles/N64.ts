@@ -48,7 +48,6 @@ class N64 implements IConsole {
     if (code > 0) {
       this.logger.error('MUPEN START RETURNED ' + code.toString() + '.');
     }
-    console.log(code);
     return this.mupen;
   }
 
