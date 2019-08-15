@@ -304,58 +304,57 @@ export interface IBoots {
   hoverBoots: boolean;
 }
 
-export interface IInventory {
+export interface IInventoryCounts {
+  dekuSticksCount: number;
+  dekuNutsCount: number;
+  bombsCount: number;
+  bombchuCount: number;
+  magicBeansCount: number;
+  dekuSeeds: number;
+  arrows: number;
+}
+
+export interface IInventoryFields {
   wallet: Wallet;
   strength: Strength;
   swimming: ZoraScale;
-
   dekuSticks: boolean;
-  dekuSticksCount: number;
   dekuSticksCapacity: AmmoUpgrade;
   dekuNuts: boolean;
-  dekuNutsCount: number;
   dekuNutsCapacity: AmmoUpgrade;
-
   bombs: boolean;
-  bombsCount: number;
   bombBag: AmmoUpgrade;
   bombchus: boolean;
-  bombchuCount: number;
-
   magicBeans: boolean;
-  magicBeansCount: number;
-
   fairySlingshot: boolean;
-  dekuSeeds: number;
   bulletBag: AmmoUpgrade;
   fairyBow: boolean;
   fireArrows: boolean;
   iceArrows: boolean;
   lightArrows: boolean;
-  arrows: number;
   quiver: AmmoUpgrade;
-
   dinsFire: boolean;
   faroresWind: boolean;
   nayrusLove: boolean;
-
   ocarina: Ocarina;
-
   hookshot: Hookshot;
   boomerang: boolean;
   lensOfTruth: boolean;
   megatonHammer: boolean;
+  childTradeItem: InventoryItem;
+  adultTradeItem: InventoryItem;
+  bottle_1: InventoryItem;
+  bottle_2: InventoryItem;
+  bottle_3: InventoryItem;
+  bottle_4: InventoryItem;
+}
 
+export interface IInventory extends IInventoryFields, IInventoryCounts {
   hasBottle(): boolean;
   getBottleCount(): number;
   getBottledItems(): InventoryItem[];
-
-  childTradeItem: InventoryItem;
   isChildTradeFinished(): boolean;
-  adultTradeItem: InventoryItem;
   isAdultTradeFinished(): boolean;
-
-  // We should probably have an Item ID enum
   getItemInSlot(slotId: number): InventoryItem;
   getSlotForItem(item: InventoryItem): number;
   getSlotsForItem(item: InventoryItem): number[];
@@ -367,11 +366,6 @@ export interface IInventory {
   giveItem(item: InventoryItem, desiredSlot: number): void;
   removeItem(item: InventoryItem): void;
   getEmptySlots(): number[];
-
-  bottle_1: InventoryItem;
-  bottle_2: InventoryItem;
-  bottle_3: InventoryItem;
-  bottle_4: InventoryItem;
 }
 
 export interface IQuestStatus {
