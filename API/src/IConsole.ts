@@ -24,6 +24,8 @@ interface IConsole {
 
   setFrameCallback(fn: Function): void;
 
+  hookFrameCallback(): void;
+
   pauseEmulator(): void;
 
   resumeEmulator(): void;

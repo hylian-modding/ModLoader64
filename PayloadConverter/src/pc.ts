@@ -1,6 +1,7 @@
 import program from 'commander';
 import path from 'path';
 import fs from 'fs';
+import zlib from 'zlib';
 
 program.option('-i, --input <file>', 'input file');
 program.option('-o, --output <file>', 'output file');
@@ -27,13 +28,15 @@ if (program.input !== undefined) {
 if (program.dir !== undefined) {
   fs.readdirSync(path.resolve(program.dir)).forEach((key: string) => {
     let parse = path.parse(key);
-    if (parse.ext !== '.payload') {
+    if (parse.ext !== '.payload' && parse.ext !== '.pak') {
       let input = path.resolve(path.join(program.dir, key));
       let output = path.resolve(
         path.join(program.dir, parse.name + '.payload')
       );
+      let output2 = path.resolve(path.join(program.dir, parse.name + '.pak'));
       let base = parseInt(parse.name);
       generatePayload(input, output, base);
+      generatePak(input, output2, base);
     }
   });
 }
@@ -68,4 +71,12 @@ function generatePayload(inputfile: string, outputfile: string, base: number) {
   }
   result = result.trim();
   fs.writeFileSync(outputfile, result);
+}
+
+function generatePak(inputfile: string, outputfile: string, base: number) {
+  let data: Buffer = fs.readFileSync(inputfile);
+  let pak: Buffer = Buffer.alloc(data.byteLength + 0x4);
+  pak.writeUInt32BE(base, 0x0);
+  data.copy(pak, 0x4, 0x0, data.byteLength);
+  fs.writeFileSync(outputfile, zlib.deflateSync(pak));
 }

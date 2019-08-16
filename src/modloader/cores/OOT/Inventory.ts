@@ -44,15 +44,7 @@ export class Inventory extends JSONTemplate implements IInventory {
   private instance: number = global.ModLoader.save_context;
   private inventory_addr: number = this.instance + 0x0074;
   private inventory_ammo_addr: number = this.instance + 0x008c;
-  private obtainedUpgrades: FlagManager;
-  wallet!: Wallet;
-  strength!: Strength;
-  swimming!: ZoraScale;
-  dekuSticksCapacity!: AmmoUpgrade;
-  dekuNutsCapacity!: AmmoUpgrade;
-  bombBag!: AmmoUpgrade;
-  bulletBag!: AmmoUpgrade;
-  quiver!: AmmoUpgrade;
+  private inventory_upgrades_addr: number = this.instance + 0x00a0;
   jsonFields: string[] = [
     'dekuSticks',
     'dekuNuts',
@@ -78,12 +70,411 @@ export class Inventory extends JSONTemplate implements IInventory {
     'bottle_4',
     'childTradeItem',
     'adultTradeItem',
+    'wallet',
+    'quiver',
+    'bulletBag',
+    'bombBag',
+    'dekuNutsCapacity',
+    'dekuSticksCapacity',
+    'swimming',
+    'strength',
   ];
+
   constructor(emu: IMemory) {
     super();
     this.emulator = emu;
-    this.obtainedUpgrades = new FlagManager(emu, this.instance + 0x00a0);
   }
+
+  set strength(bb: Strength) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
+    );
+    let slice = buf.slice(4, 7);
+    switch (bb) {
+      case Strength.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case Strength.GORON_BRACELET:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case Strength.SILVER_GAUNTLETS:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case Strength.GOLDEN_GAUNTLETS:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+  }
+
+  get strength(): Strength {
+    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
+      this.inventory_upgrades_addr + 0x2,
+      0x2
+    );
+    let str = buf.toString('hex');
+    str = str.substr(7 * 2, 3 * 2);
+    switch (str) {
+      case '000000':
+        return Strength.NONE;
+      case '000001':
+        return Strength.GORON_BRACELET;
+      case '000100':
+        return Strength.SILVER_GAUNTLETS;
+      case '000101':
+        return Strength.GOLDEN_GAUNTLETS;
+      case '010000':
+        return Strength.BLACK_GAUNTLETS;
+      case '010001':
+        return Strength.GREEN_GAUNTLETS;
+      case '010100':
+        return Strength.BLUE_GAUNTLETS;
+    }
+    return Strength.NONE;
+  }
+
+  set swimming(bb: ZoraScale) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
+    );
+    let slice = buf.slice(4, 7);
+    switch (bb) {
+      case ZoraScale.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case ZoraScale.SILVER:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case ZoraScale.GOLDEN:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case ZoraScale.GOLDEN:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+  }
+
+  get swimming(): ZoraScale {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
+    );
+    let str = buf.slice(4, 7).toString('hex');
+    switch (str) {
+      case '000000':
+        return ZoraScale.NONE;
+      case '000001':
+        return ZoraScale.SILVER;
+      case '000100':
+        return ZoraScale.GOLDEN;
+      case '000101':
+        return ZoraScale.GOLDEN;
+    }
+    return ZoraScale.NONE;
+  }
+
+  set dekuSticksCapacity(bb: AmmoUpgrade) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x1
+    );
+    let slice = buf.slice(4, 7);
+    switch (bb) {
+      case AmmoUpgrade.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.BASE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case AmmoUpgrade.UPGRADED:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.MAX:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+  }
+
+  get dekuSticksCapacity(): AmmoUpgrade {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x1
+    );
+    let str = buf.slice(4, 7).toString('hex');
+    switch (str) {
+      case '000000':
+        return AmmoUpgrade.NONE;
+      case '000001':
+        return AmmoUpgrade.BASE;
+      case '000100':
+        return AmmoUpgrade.UPGRADED;
+      case '000101':
+        return AmmoUpgrade.MAX;
+    }
+    return AmmoUpgrade.NONE;
+  }
+
+  set dekuNutsCapacity(bb: AmmoUpgrade) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x1
+    );
+    let slice = buf.slice(1, 4);
+    switch (bb) {
+      case AmmoUpgrade.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.BASE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case AmmoUpgrade.UPGRADED:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.MAX:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+  }
+
+  get dekuNutsCapacity(): AmmoUpgrade {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x1
+    );
+    let str = buf.slice(1, 4).toString('hex');
+    switch (str) {
+      case '000000':
+        return AmmoUpgrade.NONE;
+      case '000001':
+        return AmmoUpgrade.BASE;
+      case '000100':
+        return AmmoUpgrade.UPGRADED;
+      case '000101':
+        return AmmoUpgrade.MAX;
+    }
+    return AmmoUpgrade.NONE;
+  }
+
+  set bombBag(bb: AmmoUpgrade) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x3
+    );
+    let slice = buf.slice(2, 5);
+    switch (bb) {
+      case AmmoUpgrade.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.BASE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case AmmoUpgrade.UPGRADED:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.MAX:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x3, buf);
+  }
+
+  get bombBag(): AmmoUpgrade {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x3
+    );
+    let str = buf.slice(5, 8).toString('hex');
+    switch (str) {
+      case '000000':
+        return AmmoUpgrade.NONE;
+      case '000001':
+        return AmmoUpgrade.BASE;
+      case '000100':
+        return AmmoUpgrade.UPGRADED;
+      case '000101':
+        return AmmoUpgrade.MAX;
+    }
+    return AmmoUpgrade.NONE;
+  }
+
+  get bulletBag(): AmmoUpgrade {
+    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
+      this.inventory_upgrades_addr + 0x1,
+      0x2
+    );
+    let str = buf.toString('hex');
+    str = str.substr(7 * 2, 3 * 2);
+    switch (str) {
+      case '000000':
+        return AmmoUpgrade.NONE;
+      case '000001':
+        return AmmoUpgrade.BASE;
+      case '000100':
+        return AmmoUpgrade.UPGRADED;
+      case '000101':
+        return AmmoUpgrade.MAX;
+    }
+    return AmmoUpgrade.NONE;
+  }
+
+  set bulletBag(bb: AmmoUpgrade) {
+    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
+      this.inventory_upgrades_addr + 0x1,
+      0x2
+    );
+    let slice = buf.slice(7, 11);
+    switch (bb) {
+      case AmmoUpgrade.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.BASE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case AmmoUpgrade.UPGRADED:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.MAX:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+  }
+
+  get quiver(): AmmoUpgrade {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x3
+    );
+    let str = buf.slice(5, 8).toString('hex');
+    switch (str) {
+      case '000000':
+        return AmmoUpgrade.NONE;
+      case '000001':
+        return AmmoUpgrade.BASE;
+      case '000100':
+        return AmmoUpgrade.UPGRADED;
+      case '000101':
+        return AmmoUpgrade.MAX;
+    }
+    return AmmoUpgrade.NONE;
+  }
+
+  set quiver(q: AmmoUpgrade) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x3
+    );
+    let slice = buf.slice(5, 8);
+    switch (q) {
+      case AmmoUpgrade.NONE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.BASE:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        slice[0x2] = 0x01;
+        break;
+      case AmmoUpgrade.UPGRADED:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x00;
+        break;
+      case AmmoUpgrade.MAX:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        slice[0x2] = 0x01;
+        break;
+    }
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x3, buf);
+  }
+
+  get wallet(): Wallet {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
+    );
+    let str = buf.slice(2, 4).toString('hex');
+    switch (str) {
+      case '0000':
+        return Wallet.CHILD;
+      case '0001':
+        return Wallet.ADULT;
+      case '0100':
+        return Wallet.GIANT;
+      case '0101':
+        return Wallet.TYCOON;
+    }
+    return Wallet.CHILD;
+  }
+
+  set wallet(w: Wallet) {
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
+    );
+    let slice = buf.slice(2, 4);
+    switch (w) {
+      case Wallet.CHILD:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x00;
+        break;
+      case Wallet.ADULT:
+        slice[0x0] = 0x00;
+        slice[0x1] = 0x01;
+        break;
+      case Wallet.GIANT:
+        slice[0x0] = 0x10;
+        slice[0x1] = 0x00;
+        break;
+      case Wallet.TYCOON:
+        slice[0x0] = 0x01;
+        slice[0x1] = 0x01;
+    }
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x2, buf);
+  }
+
   get dekuSticks(): boolean {
     return this.hasItem(InventoryItem.DEKU_STICK);
   }

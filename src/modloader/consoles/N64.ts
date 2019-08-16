@@ -2,10 +2,10 @@ import IMupen from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
-import { MonkeyPatch_rdramWriteBit8 } from '../../monkeypatches/Mupen';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import { MonkeyPatch_rdramWriteBitsBuffer } from '../../monkeypatches/Mupen';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -26,16 +26,17 @@ class N64 implements IConsole {
       this.logger.error('MUPEN INITIALIZE RETURNED ' + code.toString() + '.');
     }
 
-    // This function seems broken right now. Monkey patch it for now.
-    let monkey = new MonkeyPatch_rdramWriteBit8(this.mupen);
-    monkey.patch();
-
     this.rom_size = this.mupen.loadRom(rom);
     if (this.rom_size < 0) {
       this.logger.error(
         'MUPEN LOADROM RETURNED ' + this.rom_size.toString() + '.'
       );
     }
+
+    let monkey: MonkeyPatch_rdramWriteBitsBuffer = new MonkeyPatch_rdramWriteBitsBuffer(
+      this.mupen
+    );
+    monkey.patch();
   }
 
   startEmulator(preStartCallback: Function): IMemory {
@@ -71,6 +72,9 @@ class N64 implements IConsole {
 
   setFrameCallback(fn: Function): void {
     this.mupen.setFrameCallback(fn);
+  }
+
+  hookFrameCallback(): void {
     this.mupen.hookFrameCallback();
   }
 

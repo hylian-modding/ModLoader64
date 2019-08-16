@@ -158,20 +158,29 @@ class pluginLoader {
     });
   }
 
-  loadPluginsInit(me: INetworkPlayer) {
+  loadPluginsInit(
+    me: INetworkPlayer,
+    iconsole: IConsole,
+    net: NetworkEngine.Client
+  ) {
     this.loaded_core.ModLoader.me = me;
     this.loaded_core.init();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.me = me;
       plugin.init();
     });
+    this.onTickHandle = (frame: number) => {
+      this.internalFrameCount = frame;
+      this.loaded_core.onTick();
+      this.plugins.forEach((plugin: IPlugin) => {
+        plugin.onTick();
+      });
+      net.onTick();
+    };
+    iconsole.setFrameCallback(this.onTickHandle);
   }
 
-  loadPluginsPostinit(
-    emulator: IMemory,
-    iconsole: IConsole,
-    net: NetworkEngine.Client
-  ) {
+  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole) {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
@@ -215,17 +224,7 @@ class pluginLoader {
         iconsole.resumeEmulator();
       }
     }, 50);
-    (function(inst) {
-      inst.onTickHandle = function(frame: number) {
-        inst.internalFrameCount = frame;
-        inst.loaded_core.onTick();
-        inst.plugins.forEach((plugin: IPlugin) => {
-          plugin.onTick();
-        });
-        net.onTick();
-      };
-      iconsole.setFrameCallback(inst.onTickHandle);
-    })(this);
+    iconsole.hookFrameCallback();
   }
 }
 

@@ -252,6 +252,9 @@ export const enum Strength {
   GORON_BRACELET,
   SILVER_GAUNTLETS,
   GOLDEN_GAUNTLETS,
+  BLACK_GAUNTLETS,
+  GREEN_GAUNTLETS,
+  BLUE_GAUNTLETS,
 }
 
 export const enum Wallet {
