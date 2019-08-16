@@ -3,6 +3,12 @@ import winston from 'winston';
 import program from 'commander';
 import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
+
+require('fs-lock')({
+  file_accessdir: [__dirname, process.cwd()],
+  open_basedir: [__dirname, process.cwd()],
+});
+
 require('source-map-support').install();
 
 const projectID = 'ModLoader64';
