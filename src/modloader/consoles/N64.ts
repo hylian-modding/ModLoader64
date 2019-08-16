@@ -5,7 +5,6 @@ import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
-import { MonkeyPatch_rdramWriteBitsBuffer } from '../../monkeypatches/Mupen';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -32,11 +31,6 @@ class N64 implements IConsole {
         'MUPEN LOADROM RETURNED ' + this.rom_size.toString() + '.'
       );
     }
-
-    let monkey: MonkeyPatch_rdramWriteBitsBuffer = new MonkeyPatch_rdramWriteBitsBuffer(
-      this.mupen
-    );
-    monkey.patch();
   }
 
   startEmulator(preStartCallback: Function): IMemory {
