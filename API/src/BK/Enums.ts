@@ -32,6 +32,7 @@ export const enum AddressType {
   RT_CUR_LEVEL_NOTES = 'BK:rt_current_level_notes',
   RT_CUR_PROFILE = 'BK:rt_current_profile',
   RT_CUR_SCENE = 'BK:rt_current_scene',
+  RT_IS_CUTSCENE = 'BK:rt_is_cutscene',
   RT_IS_LOADING = 'BK:rt_is_loading',
   RT_TRANSITION_STATE = 'BK:rt_transition_state',
 

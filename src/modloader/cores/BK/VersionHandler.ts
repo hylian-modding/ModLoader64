@@ -45,6 +45,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37e8f5;
+    global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
@@ -120,6 +121,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37daf5;
+    // global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
@@ -194,7 +196,7 @@ export namespace VersionHandler {
       inv_addr + 0x21 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
-    global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f2c5;
+    // global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f2c5;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
@@ -270,6 +272,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f405;
+    // global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
 
