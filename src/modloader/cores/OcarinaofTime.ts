@@ -1,23 +1,24 @@
-import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
+import { registerEndpoint } from 'modloader64_api/EndpointHandler';
+import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { GameShark } from 'modloader64_api/GameShark';
+import { ICore, IModLoaderAPI } from 'modloader64_api/IModLoaderAPI';
+import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
-  ISaveContext,
-  LinkState,
+  IGlobalContext,
   ILink,
   IOOTCore,
-  OotEvents,
   IOotHelper,
-  IGlobalContext,
+  ISaveContext,
+  OotEvents,
+  IKeyManager,
 } from 'modloader64_api/OOT/OOTAPI';
-import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import { registerEndpoint } from 'modloader64_api/EndpointHandler';
-import { OotHelper } from './OOT/OotHelper';
+import { ActorManager } from './OOT/ActorManager';
+import { CommandBuffer } from './OOT/CommandBuffer';
 import { GlobalContext } from './OOT/GlobalContext';
 import { Link } from './OOT/Link';
+import { OotHelper } from './OOT/OotHelper';
 import { SaveContext } from './OOT/SaveContext';
-import { CommandBuffer } from './OOT/CommandBuffer';
-import { ActorManager } from './OOT/ActorManager';
-import { IRomHeader } from 'modloader64_api/IRomHeader';
+import { KeyManager } from './OOT/KeyManager';
 
 enum ROM_VERSIONS {
   N0 = 0x00,
@@ -34,6 +35,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   helper!: IOotHelper;
   commandBuffer!: CommandBuffer;
   actorManager!: ActorManager;
+  keyManager!: IKeyManager;
   eventTicks: Map<string, Function> = new Map<string, Function>();
   // Client side variables
   isSaveLoaded = false;
@@ -104,6 +106,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.ModLoader.logger,
       this.helper
     );
+    this.keyManager = new KeyManager(this.ModLoader.emulator);
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();

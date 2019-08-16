@@ -3,7 +3,7 @@ import { ICommandBuffer } from './ICommandBuffer';
 import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';
 
-export declare const enum LinkState {
+export const enum LinkState {
   UNKNOWN,
   STANDING,
   SWIMMING,
@@ -27,7 +27,7 @@ export declare const enum LinkState {
   TALKING,
 }
 
-export declare const enum scene {
+export const enum Scene {
   INSIDE_THE_DEKU_TREE,
   DODONGOS_CAVERN,
   INSIDE_JABU_JABUS_BELLY,
@@ -476,6 +476,7 @@ export interface IOOTCore extends ICore {
   global: IGlobalContext;
   commandBuffer: ICommandBuffer;
   actorManager: IActorManager;
+  keyManager: IKeyManager;
 }
 
 // Note: ON_ACTOR_SPAWN/ON_ACTOR_DESPAWN won't detect anything created by ICommandBuffer. This is intentional behavior.
@@ -491,4 +492,25 @@ export enum OotEvents {
 export interface IActorManager {
   // Returns IActor if the actor exists or undefined if the pointer doesn't lead to an actor.
   createIActorFromPointer(pointer: number): IActor;
+}
+
+export const NO_KEYS = 0xff;
+
+export const enum VANILLA_KEY_INDEXES {
+  FOREST_TEMPLE = 3,
+  FIRE_TEMPLE = 4,
+  WATER_TEMPLE = 5,
+  SPIRIT_TEMPLE = 6,
+  SHADOW_TEMPLE = 7,
+  BOTTOM_OF_THE_WELL = 8,
+  GERUDO_TRAINING_GROUND = 11,
+  GERUDO_FORTRESS = 12,
+  GANONS_CASTLE = 13,
+  TREASURE_CHEST_SHOP = 16,
+}
+
+export interface IKeyManager {
+  getKeyCountForIndex(index: number): number;
+  setKeyCountByIndex(index: number, count: number): void;
+  getRawKeyBuffer(): Buffer;
 }
