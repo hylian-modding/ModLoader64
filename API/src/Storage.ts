@@ -1,30 +1,46 @@
 import path from 'path';
 import fs from 'fs';
-const BJSON = require('buffer-json');
-import uuid from 'uuid';
+import { IPak, Pak } from './PakFormat';
 
 export class StorageContainer {
-  private file: string;
+  private pak: IPak;
 
-  constructor(file: string) {
-    this.file = path.resolve(path.join(process.cwd(), 'Storage', file));
+  constructor(key: string) {
+    let file = path.resolve(path.join(process.cwd(), 'storage', key + '.pak'));
+    this.pak = new Pak(file);
   }
 
   storeObject(obj: any) {
-    if (!fs.existsSync(path.parse(this.file).dir)) {
-      fs.mkdirSync(path.parse(this.file).dir);
+    if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
+      fs.mkdirSync(path.parse(this.pak.fileName).dir);
     }
-    fs.writeFileSync(this.file, BJSON.stringify(obj, null, 2));
+    this.pak.save(obj, 0x8000);
   }
 
   loadObject(): any {
-    return BJSON.parse(fs.readFileSync(this.file));
+    return this.pak.load();
   }
 }
 
 class StorageKeyManager {
+  private readonly MAX: number = 0xffffffff;
+
   getStorageKey(): string {
-    return uuid.v4();
+    let b = true;
+    let v = '';
+    while (b) {
+      let possible = Math.floor(
+        Math.random() * (this.MAX - 0 + 1) + 0
+      ).toString(16);
+      let file = path.resolve(
+        path.join(process.cwd(), 'storage', possible + '.pak')
+      );
+      if (!fs.existsSync(file)) {
+        v = possible;
+        b = false;
+      }
+    }
+    return v;
   }
 }
 

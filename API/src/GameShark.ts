@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import IMemory from './IMemory';
-import zlib from 'zlib';
+import { Pak } from './PakFormat';
 
 export interface Code {
   type: string;
@@ -54,11 +54,12 @@ export class GameShark {
         break;
       }
       case '.pak': {
-        this.logger.info('Parsing pak ' + file.base + '.');
-        let pak = zlib.inflateSync(fs.readFileSync(data));
-        let base = pak.readUInt32BE(0x0);
-        let d = pak.slice(0x4);
-        this.emulator.rdramWriteBuffer(base, d);
+        this.logger.info('Loading pak ' + file.base + '.');
+        let pak = new Pak(data);
+        let buf: Buffer = pak.load();
+        let base: number = buf.readUInt32BE(0x0);
+        let payload: Buffer = buf.slice(0x4);
+        this.emulator.rdramWriteBuffer(base, payload);
       }
     }
   }

@@ -1,7 +1,7 @@
 import program from 'commander';
 import path from 'path';
 import fs from 'fs';
-import zlib from 'zlib';
+import { Pak } from './PakFormat';
 
 program.option('-i, --input <file>', 'input file');
 program.option('-o, --output <file>', 'output file');
@@ -75,8 +75,9 @@ function generatePayload(inputfile: string, outputfile: string, base: number) {
 
 function generatePak(inputfile: string, outputfile: string, base: number) {
   let data: Buffer = fs.readFileSync(inputfile);
-  let pak: Buffer = Buffer.alloc(data.byteLength + 0x4);
-  pak.writeUInt32BE(base, 0x0);
-  data.copy(pak, 0x4, 0x0, data.byteLength);
-  fs.writeFileSync(outputfile, zlib.deflateSync(pak));
+  let d: Buffer = Buffer.alloc(data.byteLength + 0x4);
+  d.writeUInt32BE(base, 0x0);
+  data.copy(d, 0x4);
+  let pak = new Pak(outputfile);
+  pak.save(d);
 }
