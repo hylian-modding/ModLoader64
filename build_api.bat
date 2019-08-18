@@ -1,4 +1,5 @@
 cd API
-call npm run build
+npm install
+npm run build
 cd ..
-call npm install --save ./API/build
+npm install --save ./API/build
