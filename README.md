@@ -13,7 +13,7 @@ You will need the following things installed and properly configured on your PAT
 
 (WINDOWS)
 * [Nodejs 10.X or 12.X (Requires 32-bit)](https://nodejs.org/en/)
-* [Python 2.X](https://www.python.org/downloads/release/python-278/)
+* [Python 2.X (Requires 32-bit)](https://www.python.org/downloads/release/python-278/)
 * [Visual Studio](https://visualstudio.microsoft.com/)
 * VS2017 Build Tools (install these in Visual Studio)
 
