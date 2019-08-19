@@ -28,6 +28,9 @@ export interface ICurrentLevel {
 }
 
 export interface IInventory {
+  eggs: number;
+  red_feathers: number;
+  gold_feathers: number;
   health_upgrades: number;
   honeycombs: number;
   jiggies: number;

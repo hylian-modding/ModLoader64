@@ -146,6 +146,9 @@ export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
 }
 
 export class Inventory extends API.BaseObj implements API.IInventory {
+  private eggs_addr = global.ModLoader[API.AddressType.INV_EGGS];
+  private feathers_red_addr = global.ModLoader[API.AddressType.INV_RED_FEATHERS];
+  private feathers_gold_addr = global.ModLoader[API.AddressType.INV_GOLD_FEATHERS];
   private health_upgrade_addr =
     global.ModLoader[API.AddressType.INV_HEALTH_UPGRADES];
   private honeycombs_addr = global.ModLoader[API.AddressType.INV_HONEYCOMBS];
@@ -157,6 +160,42 @@ export class Inventory extends API.BaseObj implements API.IInventory {
     global.ModLoader[API.AddressType.INV_TEXT_JIGGIES];
   private text_mumbo_tokens_addr =
     global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS];
+
+  get eggs(): number {
+    return this.emulator.rdramRead32(this.eggs_addr);
+  }
+  set eggs(val: number) {
+    if (val < 0) {
+      val = 0;
+    } else if (val > 200) {
+      val = 200;
+    }
+    this.emulator.rdramWrite32(this.eggs_addr, val);
+  }
+
+  get red_feathers(): number {
+    return this.emulator.rdramRead32(this.feathers_red_addr);
+  }
+  set red_feathers(val: number) {
+    if (val < 0) {
+      val = 0;
+    } else if (val > 100) {
+      val = 100;
+    }
+    this.emulator.rdramWrite32(this.feathers_red_addr, val);
+  }
+
+  get gold_feathers(): number {
+    return this.emulator.rdramRead32(this.feathers_gold_addr);
+  }
+  set gold_feathers(val: number) {
+    if (val < 0) {
+      val = 0;
+    } else if (val > 20) {
+      val = 20;
+    }
+    this.emulator.rdramWrite32(this.feathers_gold_addr, val);
+  }
 
   get health_upgrades(): number {
     return this.emulator.rdramRead32(this.health_upgrade_addr) - 5;

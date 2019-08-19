@@ -11,16 +11,22 @@ This project is in an alpha state. It is very bare bones at the moment. Please p
 
 You will need the following things installed and properly configured on your PATH:
 
-* [Nodejs 10.X](https://nodejs.org/en/)
+(WINDOWS)
+* [Nodejs 10.X or 12.X (Requires 32-bit)](https://nodejs.org/en/)
 * [Python 2.X](https://www.python.org/downloads/release/python-278/)
 * [Visual Studio](https://visualstudio.microsoft.com/)
 * VS2017 Build Tools (install these in Visual Studio)
 
+(LINUX - Install from Package Manager)
+* NodeJS
+* Python
+* [LibPNG12 (Deb Package)](https://github.com/hylian-modding/ModLoader64-M64P-Core/raw/master/debian%20dependancies/libpng12-0_1.2.50-2%2Bdeb8u3_amd64.deb)
+
 Run these commands to build:
-
-npm install
-
-npm run build
+Use the 'build_fresh_git.bat/sh' script
 
 ## Testing
 npm run start
+
+(Alternatively)
+Use the 'start.bat/sh' script

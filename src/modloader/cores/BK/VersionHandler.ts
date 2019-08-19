@@ -65,8 +65,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS] = 0x385fa3;
 
     global.ModLoader[API.AddressType.INV_EGGS] = inv_addr + 0x0d * 4;
-    global.ModLoader[API.AddressType.INV_RED_FEATHER] = inv_addr + 0x0f * 4;
-    global.ModLoader[API.AddressType.INV_GOLD_FEATHER] = inv_addr + 0x10 * 4;
+    global.ModLoader[API.AddressType.INV_RED_FEATHERS] = inv_addr + 0x0f * 4;
+    global.ModLoader[API.AddressType.INV_GOLD_FEATHERS] = inv_addr + 0x10 * 4;
 
     global.ModLoader[API.AddressType.INV_SCORE_TWINKLIE] = inv_addr + 0x19 * 4;
 
@@ -141,8 +141,8 @@ export namespace VersionHandler {
     //global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS] = 0x385FA3;
 
     global.ModLoader[API.AddressType.INV_EGGS] = inv_addr + 0x0d * 4;
-    global.ModLoader[API.AddressType.INV_RED_FEATHER] = inv_addr + 0x0f * 4;
-    global.ModLoader[API.AddressType.INV_GOLD_FEATHER] = inv_addr + 0x10 * 4;
+    global.ModLoader[API.AddressType.INV_RED_FEATHERS] = inv_addr + 0x0f * 4;
+    global.ModLoader[API.AddressType.INV_GOLD_FEATHERS] = inv_addr + 0x10 * 4;
 
     global.ModLoader[API.AddressType.INV_SCORE_TWINKLIE] = inv_addr + 0x19 * 4;
 
@@ -216,8 +216,8 @@ export namespace VersionHandler {
     //global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS] = 0x385FA3;
 
     global.ModLoader[API.AddressType.INV_EGGS] = inv_addr + 0x0d * 4;
-    global.ModLoader[API.AddressType.INV_RED_FEATHER] = inv_addr + 0x0f * 4;
-    global.ModLoader[API.AddressType.INV_GOLD_FEATHER] = inv_addr + 0x10 * 4;
+    global.ModLoader[API.AddressType.INV_RED_FEATHERS] = inv_addr + 0x0f * 4;
+    global.ModLoader[API.AddressType.INV_GOLD_FEATHERS] = inv_addr + 0x10 * 4;
 
     global.ModLoader[API.AddressType.INV_SCORE_TWINKLIE] = inv_addr + 0x19 * 4;
 
@@ -292,8 +292,8 @@ export namespace VersionHandler {
     //global.ModLoader[API.AddressType.INV_TEXT_MUMBO_TOKENS] = 0x385FA3;
 
     global.ModLoader[API.AddressType.INV_EGGS] = inv_addr + 0x0d * 4;
-    global.ModLoader[API.AddressType.INV_RED_FEATHER] = inv_addr + 0x0f * 4;
-    global.ModLoader[API.AddressType.INV_GOLD_FEATHER] = inv_addr + 0x10 * 4;
+    global.ModLoader[API.AddressType.INV_RED_FEATHERS] = inv_addr + 0x0f * 4;
+    global.ModLoader[API.AddressType.INV_GOLD_FEATHERS] = inv_addr + 0x10 * 4;
 
     global.ModLoader[API.AddressType.INV_SCORE_TWINKLIE] = inv_addr + 0x19 * 4;
 
