@@ -26,12 +26,15 @@ export namespace VersionHandler {
 
     // Runtime Data
     global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR] = 0x36e560;
+    global.ModLoader[API.AddressType.RT_COLLISION_PTR] = 0x3820b8;
     global.ModLoader[API.AddressType.RT_CUR_HEALTH] = 0x385f80;
     global.ModLoader[API.AddressType.RT_CUR_EXIT] = 0x37e8f6;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL] = 0x383301;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36B818;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN] = inv_addr + 0x23 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR] =
       inv_addr + 0x22 * 4;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS] = 0x383328;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION] =
       inv_addr + 0x18 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS] = inv_addr + 0x12 * 4;
@@ -45,9 +48,12 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37e8f5;
+    global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS] = 0x367000;
     global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
+    global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381FA0;
+    global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381FC8;
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x3831a8;
@@ -102,12 +108,15 @@ export namespace VersionHandler {
 
     // // Runtime Data
     global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR] = 0x36d760;
+    // global.ModLoader[API.AddressType.RT_COLLISION_PTR] = 0x3820B8;
     // global.ModLoader[API.AddressType.RT_CUR_HEALTH] = 0x385f80;
     global.ModLoader[API.AddressType.RT_CUR_EXIT] = 0x37daf6;
     // global.ModLoader[API.AddressType.RT_CUR_LEVEL] = 0x383300;
+    // global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36B818;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN] = inv_addr + 0x23 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR] =
       inv_addr + 0x22 * 4;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS] = 0x383301;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION] =
       inv_addr + 0x18 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS] = inv_addr + 0x12 * 4;
@@ -121,9 +130,12 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37daf5;
+    //global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS] = ;
     // global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
+    // global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381FA0;
+    // global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381FC8;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x3823f8;
@@ -178,12 +190,15 @@ export namespace VersionHandler {
 
     // // Runtime Data
     global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR] = 0x36eae0;
+    // global.ModLoader[API.AddressType.RT_COLLISION_PTR] = 0x3820B8;
     // global.ModLoader[API.AddressType.RT_CUR_HEALTH] = 0x385f80;
     global.ModLoader[API.AddressType.RT_CUR_EXIT] = 0x37f2c6;
     // global.ModLoader[API.AddressType.RT_CUR_LEVEL] = 0x383300;
+    // global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36B818;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN] = inv_addr + 0x23 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR] =
       inv_addr + 0x22 * 4;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS] = 0x383301;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION] =
       inv_addr + 0x18 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS] = inv_addr + 0x12 * 4;
@@ -197,8 +212,11 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     // global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f2c5;
+    //global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS] = ;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
+    // global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381FA0;
+    // global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381FC8;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x383b88;
@@ -253,12 +271,15 @@ export namespace VersionHandler {
 
     // // Runtime Data
     global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR] = 0x36f260;
+    // global.ModLoader[API.AddressType.RT_COLLISION_PTR] = 0x3820B8;
     // global.ModLoader[API.AddressType.RT_CUR_HEALTH] = 0x385f80;
     global.ModLoader[API.AddressType.RT_CUR_EXIT] = 0x37f406;
     // global.ModLoader[API.AddressType.RT_CUR_LEVEL] = 0x383300;
+    // global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36B818;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN] = inv_addr + 0x23 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR] =
       inv_addr + 0x22 * 4;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS] = 0x383301;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_GOLD_BULLION] =
       inv_addr + 0x18 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_JINJOS] = inv_addr + 0x12 * 4;
@@ -272,9 +293,12 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ORANGE] = inv_addr + 0x19 * 4;
     // global.ModLoader[API.AddressType.RT_CUR_PROFILE] = 0x365e00;
     global.ModLoader[API.AddressType.RT_CUR_SCENE] = 0x37f405;
+    //global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS] = ;
     // global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     // global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     // global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
+    // global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381FA0;
+    // global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381FC8;
 
     // // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x383d18;

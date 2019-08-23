@@ -31,12 +31,6 @@ export class JiggyFlags extends API.BufferObj implements API.IBuffered {
   }
 }
 
-export class MoveFlags extends API.BufferObj implements API.IBuffered {
-  constructor(emu: IMemory) {
-    super(emu, global.ModLoader[API.AddressType.SAVE_MOVE_FLAGS], 0x04);
-  }
-}
-
 export class MumboTokenFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader[API.AddressType.SAVE_MUMBO_TOKEN_FLAGS], 0x10);
@@ -147,8 +141,10 @@ export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
 
 export class Inventory extends API.BaseObj implements API.IInventory {
   private eggs_addr = global.ModLoader[API.AddressType.INV_EGGS];
-  private feathers_red_addr = global.ModLoader[API.AddressType.INV_RED_FEATHERS];
-  private feathers_gold_addr = global.ModLoader[API.AddressType.INV_GOLD_FEATHERS];
+  private feathers_red_addr =
+    global.ModLoader[API.AddressType.INV_RED_FEATHERS];
+  private feathers_gold_addr =
+    global.ModLoader[API.AddressType.INV_GOLD_FEATHERS];
   private health_upgrade_addr =
     global.ModLoader[API.AddressType.INV_HEALTH_UPGRADES];
   private honeycombs_addr = global.ModLoader[API.AddressType.INV_HONEYCOMBS];
@@ -427,8 +423,8 @@ export class Banjo extends API.BaseObj implements API.IBanjo {
 }
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private actor_arr_ptr_addr =
-    global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
+  private cur_events_level_addr =
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS];
   private cur_exit_addr = global.ModLoader[API.AddressType.RT_CUR_EXIT];
   private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];
   private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
@@ -470,6 +466,13 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     this.emulator.rdramWrite32(this.cur_health_addr, val);
   }
 
+  get current_level_events(): number {
+    return this.emulator.rdramRead32(this.cur_events_level_addr);
+  }
+  set current_level_events(val: number) {
+    this.emulator.rdramWrite32(this.cur_events_level_addr, val);
+  }
+
   get current_scene(): API.SceneType {
     let scene: number = this.emulator.rdramRead8(this.cur_scene_addr);
     if (
@@ -509,29 +512,33 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
 }
 
 export class SaveContext extends API.BaseObj implements API.ISaveContext {
+  private move_addr: number = global.ModLoader[API.AddressType.SAVE_MOVE_FLAGS];
+
   // Abstraction
   inventory: API.IInventory;
-
   game_flags: API.IBuffered;
   honeycomb_flags: API.IBuffered;
   jiggy_flags: API.IBuffered;
-  move_flags: API.IBuffered;
   mumbo_token_flags: API.IBuffered;
-
   note_totals: API.IBuffered;
 
   constructor(emu: IMemory) {
     super(emu);
 
     this.inventory = new Inventory(emu);
-
     this.game_flags = new GameFlags(emu);
     this.honeycomb_flags = new HoneyCombFlags(emu);
     this.jiggy_flags = new JiggyFlags(emu);
-    this.move_flags = new MoveFlags(emu);
     this.mumbo_token_flags = new MumboTokenFlags(emu);
-
     this.note_totals = new NoteTotalBuffer(emu);
+  }
+
+  get moves(): number {
+    return this.emulator.rdramRead32(this.move_addr);
+  }
+
+  set moves(val: number) {
+    this.emulator.rdramWrite32(this.move_addr, val);
   }
 }
 

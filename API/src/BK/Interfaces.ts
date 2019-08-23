@@ -67,6 +67,7 @@ export interface IRuntime {
   current_exit: number;
   current_health: number;
   current_level: ICurrentLevel;
+  current_level_events: number;
   current_scene: apiEnum.SceneType;
 
   get_current_profile(): apiEnum.ProfileType;
@@ -79,14 +80,13 @@ export interface IRuntime {
 
 export interface ISaveContext {
   inventory: IInventory;
-
   game_flags: IBuffered;
   honeycomb_flags: IBuffered;
   jiggy_flags: IBuffered;
-  move_flags: IBuffered;
   mumbo_token_flags: IBuffered;
-
   note_totals: IBuffered;
+
+  moves: number;
 }
 
 export interface IBKCore {
