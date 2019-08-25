@@ -36,9 +36,7 @@ class N64 implements IConsole {
   startEmulator(preStartCallback: Function): IMemory {
     let rom_r = this.mupen as IRomMemory;
     let buf: Buffer = preStartCallback();
-    if (buf.byteLength > 1) {
-      rom_r.romWriteBuffer(0x0, buf);
-    }
+    rom_r.romWriteBuffer(0x0, buf);
     let code = this.mupen.runEmulator(true);
     if (code > 0) {
       this.logger.error('MUPEN START RETURNED ' + code.toString() + '.');

@@ -14,11 +14,11 @@ export class StorageContainer {
     if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
       fs.mkdirSync(path.parse(this.pak.fileName).dir);
     }
-    this.pak.save(obj, 0x8000);
+    this.pak.save(obj);
   }
 
   loadObject(): any {
-    return this.pak.load();
+    return this.pak.load(0);
   }
 }
 

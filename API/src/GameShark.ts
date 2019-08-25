@@ -56,10 +56,12 @@ export class GameShark {
       case '.pak': {
         this.logger.info('Loading pak ' + file.base + '.');
         let pak = new Pak(data);
-        let buf: Buffer = pak.load();
-        let base: number = buf.readUInt32BE(0x0);
-        let payload: Buffer = buf.slice(0x4);
-        this.emulator.rdramWriteBuffer(base, payload);
+        for (let i = 0; i < pak.pak.header.files.length; i++) {
+          let buf = pak.load(i);
+          let base: number = buf.readUInt32BE(0x0);
+          let payload: Buffer = buf.slice(0x4);
+          this.emulator.rdramWriteBuffer(base, payload);
+        }
       }
     }
   }

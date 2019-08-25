@@ -192,16 +192,14 @@ class ModLoader64 {
       let load_mupen = new Promise(function(resolve, reject) {
         mupen = instance.emulator.startEmulator(() => {
           let p: Buffer = result[0].patch as Buffer;
+          let rom_data: Buffer = instance.emulator.getLoadedRom();
           if (p.byteLength > 1) {
-            let rom_data: Buffer = instance.emulator.getLoadedRom();
             let BPS = require('./BPS');
             let _BPS = new BPS();
             rom_data = _BPS.tryPatch(rom_data, p);
-            bus.emit(ModLoaderEvents.ON_ROM_PATCHED, { rom: rom_data });
-            return rom_data;
-          } else {
-            return p;
           }
+          bus.emit(ModLoaderEvents.ON_ROM_PATCHED, { rom: rom_data });
+          return rom_data;
         }) as IMemory;
         while (!instance.emulator.isEmulatorReady()) {}
         internal_event_bus.emit('emulator_started', {});

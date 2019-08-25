@@ -26,17 +26,17 @@ if (program.input !== undefined) {
 }
 
 if (program.dir !== undefined) {
+  let output = path.resolve(path.join(program.dir, 'output' + '.pak'));
+  let pak = new Pak(output);
   fs.readdirSync(path.resolve(program.dir)).forEach((key: string) => {
     let parse = path.parse(key);
     if (parse.ext !== '.payload' && parse.ext !== '.pak') {
       let input = path.resolve(path.join(program.dir, key));
-      let output = path.resolve(
-        path.join(program.dir, parse.name + '.payload')
-      );
-      let output2 = path.resolve(path.join(program.dir, parse.name + '.pak'));
-      let base = parseInt(parse.name);
-      generatePayload(input, output, base);
-      generatePak(input, output2, base);
+      let data: Buffer = fs.readFileSync(input);
+      let d: Buffer = Buffer.alloc(data.byteLength + 0x4);
+      d.writeUInt32BE(parseInt(parse.name), 0x0);
+      data.copy(d, 0x4);
+      pak.save(d);
     }
   });
 }
@@ -71,13 +71,4 @@ function generatePayload(inputfile: string, outputfile: string, base: number) {
   }
   result = result.trim();
   fs.writeFileSync(outputfile, result);
-}
-
-function generatePak(inputfile: string, outputfile: string, base: number) {
-  let data: Buffer = fs.readFileSync(inputfile);
-  let d: Buffer = Buffer.alloc(data.byteLength + 0x4);
-  d.writeUInt32BE(base, 0x0);
-  data.copy(d, 0x4);
-  let pak = new Pak(outputfile);
-  pak.save(d);
 }

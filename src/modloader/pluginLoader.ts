@@ -184,13 +184,14 @@ class pluginLoader {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
+    let utils: IUtils = (emulator as unknown) as IUtils;
     this.loaded_core.ModLoader.emulator = emulator;
-    this.loaded_core.ModLoader.utils = (emulator as unknown) as IUtils;
+    this.loaded_core.ModLoader.utils = utils;
     this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
-      plugin.ModLoader.utils = (emulator as unknown) as IUtils;
+      plugin.ModLoader.utils = utils;
       plugin.ModLoader.savestates = (emulator as unknown) as ISaveState;
       plugin.postinit();
       if (mainConfig.isClient) {
