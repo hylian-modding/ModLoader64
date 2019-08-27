@@ -425,6 +425,8 @@ export class Banjo extends API.BaseObj implements API.IBanjo {
 export class Runtime extends API.BaseObj implements API.IRuntime {
   private cur_events_level_addr =
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_EVENTS];
+  private cur_events_scene_addr =
+    global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS];
   private cur_exit_addr = global.ModLoader[API.AddressType.RT_CUR_EXIT];
   private cur_health_addr = global.ModLoader[API.AddressType.RT_CUR_HEALTH];
   private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
@@ -486,6 +488,13 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   }
   set current_scene(val: API.SceneType) {
     this.emulator.rdramWrite8(this.cur_scene_addr, val);
+  }
+
+  get current_scene_events(): number {
+    return this.emulator.rdramRead32(this.cur_events_scene_addr);
+  }
+  set current_scene_events(val: number) {
+    this.emulator.rdramWrite32(this.cur_events_scene_addr, val);
   }
 
   get_current_profile(): API.ProfileType {

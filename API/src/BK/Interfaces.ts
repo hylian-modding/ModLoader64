@@ -69,6 +69,7 @@ export interface IRuntime {
   current_level: ICurrentLevel;
   current_level_events: number;
   current_scene: apiEnum.SceneType;
+  current_scene_events: number;
 
   get_current_profile(): apiEnum.ProfileType;
   get_transition_state(): number;
