@@ -13,7 +13,7 @@ import * as API from 'modloader64_api/BT/Imports';
 // ##  Sub-Classes
 // ##################################################################
 
-export class GameFlags extends API.BufferObj implements API.IBuffered {
+export class GameFlags extends API.BufferPtrObj implements API.IBuffered {
   constructor(emu: IMemory) {
     super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0xAF);
   }
@@ -65,7 +65,7 @@ export class BanjoTooie implements ICore, API.IBTCore {
   version!: API.GameVersion;
 
   isPlaying(): boolean {
-    return !(
+    return (
       this.runtime.get_profile_hovering() === API.ProfileType.Title &&
       this.runtime.get_profile_selected() !== API.ProfileType.Title
     );

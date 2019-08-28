@@ -108,7 +108,7 @@ export enum GlobalBMP {}
 // {byte=0x0D, bit=3, name="Screen Scale", ignore=true},
 // -- 0x0D > 4 -- Unknown, set by going into HFP kickball area, also set by triggering Mingy Jongo fight, also set on boot with no eeprom
 
-export enum SaveBMP {}
+export enum GameBMP {}
 // -- 0x00 > 0
 // {byte=0x00, bit=1, name="First Time Note Collection", nomap=true, type="FTT"},
 // {byte=0x00, bit=2, name="First Time Glowbo Collection", nomap=true, type="FTT"},

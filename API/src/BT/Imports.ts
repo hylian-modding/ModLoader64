@@ -61,3 +61,48 @@ export class BufferObj extends BaseObj {
     this.emulator.rdramWrite8(this.instance + offset, value);
   }
 }
+
+export class BufferPtrObj extends BaseObj {
+  private instance: number;
+  private length: number;
+
+  constructor(emu: IMemory, instance: number, length: number) {
+    super(emu);
+    this.instance = instance;
+    this.length = length;
+  }
+
+  get_all(): Buffer {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    return this.emulator.rdramReadBuffer(ptr, this.length);
+  }
+  get_bit(flag: number): boolean {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    ptr = ptr + Math.floor(flag / 8);
+    let byte = this.emulator.rdramRead8(ptr);
+    let offset = flag % 8;
+    let isSet = (byte & (1 << offset)) !== 0;
+
+    return isSet;
+  }
+  set_bit(flag: number, value: boolean) {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    ptr = ptr + Math.floor(flag / 8);
+    let byte = this.emulator.rdramRead8(ptr);
+    let offset = flag % 8;
+    let isSet = (byte & (1 << offset)) !== 0;
+
+    if ((value && !isSet) || (!value && isSet)) {
+      byte ^= 1 << offset;
+      this.emulator.rdramWrite8(ptr, byte);
+    }
+  }
+  get(offset: number): number {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    return this.emulator.rdramRead8(ptr + offset);
+  }
+  set(offset: number, value: number) {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    this.emulator.rdramWrite8(ptr + offset, value);
+  }
+}
