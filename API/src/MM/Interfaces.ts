@@ -17,14 +17,14 @@ export interface IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface ILink {}
+export interface IPlayer {}
 
 export interface IRuntime {}
 
 export interface ISaveContext {}
 
 export interface IMMCore {
-  link: ILink;
+  link: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
 }

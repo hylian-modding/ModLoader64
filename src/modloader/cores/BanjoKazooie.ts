@@ -236,7 +236,7 @@ export class Inventory extends API.BaseObj implements API.IInventory {
 // ##  Primary-Classes
 // ##################################################################
 
-export class Banjo extends API.BaseObj implements API.IBanjo {
+export class Player extends API.BaseObj implements API.IPlayer {
   private animal_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMAL];
   private anim_addr: number = global.ModLoader[API.AddressType.PLYR_ANIMATION];
   private flip_facing_addr: number =
@@ -557,14 +557,14 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   eventTicks: Map<string, Function> = new Map<string, Function>();
   rom_header!: IRomHeader;
 
-  banjo!: API.IBanjo;
+  player!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
   version!: API.GameVersion;
 
   isPlaying(): boolean {
     return !(
-      this.banjo.movement_state === 0 ||
+      this.player.movement_state === 0 ||
       this.runtime.get_current_profile() === API.ProfileType.Title
     );
   }
@@ -594,7 +594,7 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   init(): void {}
 
   postinit(): void {
-    this.banjo = new Banjo(this.ModLoader.emulator);
+    this.player = new Player(this.ModLoader.emulator);
     this.runtime = new Runtime(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator);
   }

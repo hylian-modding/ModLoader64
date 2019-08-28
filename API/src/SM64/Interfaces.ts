@@ -17,7 +17,7 @@ export interface IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface IMario {
+export interface IPlayer {
   exists: boolean;
   animation: Buffer;
   anim_frame: number;
@@ -40,7 +40,7 @@ export interface IRuntime {
 }
 
 export interface ISM64Core {
-  mario: IMario;
+  mario: IPlayer;
   runtime: IRuntime;
   save: IBuffered[];
 }

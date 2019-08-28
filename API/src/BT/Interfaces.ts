@@ -1,13 +1,37 @@
 import * as apiEnum from './Enums';
 
-export interface IBanjo {}
+// ##################################################################
+// ##  Sub-Classes
+// ##################################################################
 
-export interface IRuntime {}
+export interface IBuffered {
+  get_all(): Buffer;
+  get_bit(flag: number): boolean;
+  set_bit(flag: number, value: boolean): void;
+  get(offset: number): number;
+  set(offset: number, value: number): void;
+}
 
-export interface ISaveContext {}
+// ##################################################################
+// ##  Primary-Classes
+// ##################################################################
+
+export interface IPlayer {}
+
+export interface IRuntime {
+  get_profile_hovering(): apiEnum.ProfileType;
+  get_profile_selected(): apiEnum.ProfileType;
+}
+
+export interface ISaveContext {
+  game_flags: IBuffered;
+}
 
 export interface IBTCore {
-  banjo: IBanjo;
+  player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
+  version: apiEnum.GameVersion;
+
+  isPlaying(): boolean;
 }

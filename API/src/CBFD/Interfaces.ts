@@ -17,14 +17,14 @@ export interface IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface IConker {}
+export interface IPlayer {}
 
 export interface IRuntime {}
 
 export interface ISaveContext {}
 
 export interface IDK64Core {
-  conker: IConker;
+  conker: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
 }

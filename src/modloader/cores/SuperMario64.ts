@@ -16,7 +16,7 @@ export class SaveFile extends API.BufferObj implements API.IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export class Mario extends API.BaseObj implements API.IMario {
+export class Mario extends API.BaseObj implements API.IPlayer {
   private instance: number = global.ModLoader['SM64:mario'];
   private pos_x_addr = 0x20;
   private pos_y_addr = 0x24;
@@ -145,7 +145,7 @@ export class SuperMario64 implements ICore, API.ISM64Core {
   ModLoader: IModLoaderAPI = {} as IModLoaderAPI;
   eventTicks: Map<string, Function> = new Map<string, Function>();
 
-  mario!: API.IMario;
+  mario!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.IBuffered[];
 

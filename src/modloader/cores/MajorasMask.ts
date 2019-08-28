@@ -11,7 +11,7 @@ import * as API from 'modloader64_api/MM/Imports';
 // ##  Primary-Classes
 // ##################################################################
 
-export class Link extends API.BaseObj implements API.ILink {}
+export class Link extends API.BaseObj implements API.IPlayer {}
 
 export class Runtime extends API.BaseObj implements API.IRuntime {}
 
@@ -22,7 +22,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   ModLoader: IModLoaderAPI = {} as IModLoaderAPI;
   eventTicks: Map<string, Function> = new Map<string, Function>();
 
-  link!: API.ILink;
+  link!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
 

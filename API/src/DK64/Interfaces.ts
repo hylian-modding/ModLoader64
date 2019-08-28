@@ -17,14 +17,14 @@ export interface IBuffered {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface IKong {}
+export interface IPlayer {}
 
 export interface IRuntime {}
 
 export interface ISaveContext {}
 
 export interface IDK64Core {
-  kong: IKong;
+  kong: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
 }

@@ -1,5 +1,3 @@
-import { IRomHeader } from '../IRomHeader';
-import * as apiBit from './Bitmaps';
 import * as apiEnum from './Enums';
 
 // ##################################################################
@@ -41,7 +39,7 @@ export interface IInventory {
 // ##  Primary-Classes
 // ##################################################################
 
-export interface IBanjo {
+export interface IPlayer {
   animal: apiEnum.AnimalType;
   animation: Buffer;
   anim_frame: number;
@@ -91,7 +89,7 @@ export interface ISaveContext {
 }
 
 export interface IBKCore {
-  banjo: IBanjo;
+  player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
   version: apiEnum.GameVersion;

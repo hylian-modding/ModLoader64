@@ -11,7 +11,7 @@ import * as API from 'modloader64_api/CBFD/Imports';
 // ##  Primary-Classes
 // ##################################################################
 
-export class Conker extends API.BaseObj implements API.IConker {}
+export class Conker extends API.BaseObj implements API.IPlayer {}
 
 export class Runtime extends API.BaseObj implements API.IRuntime {}
 
@@ -22,7 +22,7 @@ export class ConkersBadFurDay implements ICore, API.IDK64Core {
   ModLoader: IModLoaderAPI = {} as IModLoaderAPI;
   eventTicks: Map<string, Function> = new Map<string, Function>();
 
-  conker!: API.IConker;
+  conker!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
 

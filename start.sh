@@ -1,2 +1,3 @@
 npm run start
-read -p "Press enter to continue"
+echo "Press any key to continue"
+read 1
