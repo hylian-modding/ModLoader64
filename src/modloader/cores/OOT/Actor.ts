@@ -4,6 +4,8 @@ import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
 import { IRotation } from 'modloader64_api/OOT/IRotation';
 import { IPosition } from 'modloader64_api/OOT/IPosition';
 import { IActor } from 'modloader64_api/OOT/IActor';
+import fs from 'fs';
+import path from 'path';
 
 const ROTATION_OFFSET = 0xb4;
 const ROTATION_SIZE = 0x6;
@@ -90,14 +92,26 @@ export class ActorDeathBehavior {
   }
 }
 
+export interface IActorDeathFile {
+  id: number;
+  death: ActorDeathBehavior;
+}
+
 export const actorDeathBehaviorMap: Map<number, ActorDeathBehavior> = new Map<
   number,
   ActorDeathBehavior
 >();
 
-actorDeathBehaviorMap.set(0x14e, new ActorDeathBehavior(0x13c, 0x10ac));
-actorDeathBehaviorMap.set(0x55, new ActorDeathBehavior(0x1b0, 0x2750));
-actorDeathBehaviorMap.set(0x37, new ActorDeathBehavior(0x180, 0x1c8c));
+fs.readdirSync(path.join(__dirname, 'actorDeaths')).forEach((file: string) => {
+  let parse = path.parse(file);
+  if (parse.ext === '.js') {
+    let cls = require(path.resolve(path.join(__dirname, 'actorDeaths', file)))[
+      parse.name
+    ];
+    let instance: IActorDeathFile = new cls();
+    actorDeathBehaviorMap.set(instance.id, instance.death);
+  }
+});
 
 export function setActorBehavior(
   emulator: IMemory,

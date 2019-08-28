@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import {
   ILogger,
@@ -31,6 +31,8 @@ import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { GameShark } from 'modloader64_api/GameShark';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine from './NetworkEngine';
+import { Pak } from 'modloader64_api/PakFormat';
+import crypto from 'crypto';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -50,6 +52,36 @@ class pluginLoader {
     this.plugin_directories = dirs;
     this.config = config;
     this.logger = logger;
+    let cleanup: Function = function() {
+      fs.readdirSync(process.cwd()).forEach((file: string) => {
+        let parse = path.parse(file);
+        if (parse.name.indexOf('ModLoader64_temp_') > -1) {
+          fs.removeSync(file);
+        }
+      });
+    };
+    internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+      cleanup();
+    });
+    cleanup();
+  }
+
+  verifySignature(file: string, key: string, sig: string): boolean {
+    const hasher = crypto.createHash('sha256');
+    hasher.update(fs.readFileSync(file));
+    const digest = hasher.digest('hex');
+    const publicKey = fs.readFileSync(key);
+    const verifier = crypto.createVerify('RSA-SHA256');
+    verifier.update(digest);
+    if (!fs.existsSync(sig)) {
+      return false;
+    }
+    const testSignature = verifier.verify(
+      publicKey,
+      fs.readFileSync(sig).toString(),
+      'base64'
+    );
+    return testSignature;
   }
 
   registerCorePlugin(name: string, core: any) {
@@ -60,36 +92,80 @@ class pluginLoader {
     this.plugins.push(plugin);
   }
 
-  private processFile(file: string) {
-    if (!fs.lstatSync(file).isDirectory()) {
-      let parse = path.parse(file);
-      if (parse.ext.indexOf('js') > -1) {
-        let p = require(file);
-        let plugin: IPlugin = new p() as IPlugin;
-        plugin['ModLoader'] = {} as IModLoaderAPI;
-        plugin['ModLoader']['logger'] = this.logger.child({});
-        plugin['ModLoader']['config'] = this.config;
-        Object.defineProperty(plugin, 'pluginName', {
-          value: parse.name,
-          writable: false,
-        });
+  private processFolder(dir: string) {
+    let parse = path.parse(dir);
+    if (parse.ext === '.pak') {
+      // Unpak first.
+      let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
+      let pakFile: Pak = new Pak(path.resolve(dir));
+      pakFile.extractAll(ndir);
+      dir = path.join(ndir, parse.name);
+      let pub: string = path.join(dir, 'public_key.pem');
+      if (fs.existsSync(pub)) {
         if (
-          plugin.core_dependency === this.selected_core ||
-          plugin.core_dependency === '*'
+          !this.verifySignature(
+            pakFile.fileName,
+            path.resolve(pub),
+            path.resolve(path.join(parse.dir, parse.name + '.sig'))
+          )
         ) {
-          setupEventHandlers(plugin);
-          setupNetworkHandlers(plugin);
-          setupCoreInject(plugin, this.loaded_core);
-          setupLobbyVariable(plugin);
-          this.registerPlugin(plugin);
-          this.plugin_folders.push(parse.dir);
+          this.logger.error(
+            'Signature check failed for plugin ' + parse.name + '. Skipping.'
+          );
+          return;
         } else {
           this.logger.info(
-            'Plugin ' + parse.name + ' does not belong to this core. Skipping.'
+            'Signature check for plugin ' + parse.name + ' passed.'
           );
         }
-      } else if (parse.ext.indexOf('zip') > -1) {
       }
+    } else if (parse.ext === '.sig') {
+      return;
+    }
+    let pkg_file: string = path.resolve(path.join(dir, 'package.json'));
+    if (!fs.existsSync(pkg_file)) {
+      this.logger.error(
+        'Plugin ' + parse.name + ' is missing package.json. Skipping.'
+      );
+      return;
+    }
+    let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
+    if (pkg.core !== this.selected_core) {
+      this.logger.info(
+        'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
+      );
+      return;
+    }
+
+    this.logger.info('--------------------');
+    this.logger.info('plugin: ' + pkg.name);
+    this.logger.info('version: ' + pkg.version);
+    this.logger.info('author: ' + pkg.author);
+    this.logger.info('additional credits: ' + pkg.credits);
+
+    let file: string = path.resolve(path.join(dir, pkg.main));
+
+    parse = path.parse(file);
+    if (parse.ext.indexOf('js') > -1) {
+      let p = require(file);
+      let plugin: IPlugin = new p() as IPlugin;
+      plugin['ModLoader'] = {} as IModLoaderAPI;
+      plugin['ModLoader']['logger'] = this.logger.child({});
+      plugin['ModLoader']['config'] = this.config;
+      Object.defineProperty(plugin, 'pluginName', {
+        value: parse.name,
+        writable: false,
+      });
+      setupEventHandlers(plugin);
+      setupNetworkHandlers(plugin);
+      setupCoreInject(plugin, this.loaded_core);
+      setupLobbyVariable(plugin);
+      Object.defineProperty(plugin, 'metadata', {
+        value: pkg,
+        writable: false,
+      });
+      this.registerPlugin(plugin);
+      this.plugin_folders.push(parse.dir);
     }
   }
 
@@ -119,14 +195,7 @@ class pluginLoader {
         let temp1 = path.resolve(path.join(dir));
         fs.readdirSync(temp1).forEach((file: string) => {
           let temp2 = path.join(temp1, file);
-          if (fs.lstatSync(temp2).isDirectory) {
-            fs.readdirSync(temp2).forEach((file2: string) => {
-              let temp3 = path.join(temp2, file2);
-              this.processFile(temp3);
-            });
-          } else {
-            this.processFile(file);
-          }
+          this.processFolder(temp2);
         });
       }
     });

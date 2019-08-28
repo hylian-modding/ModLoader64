@@ -16,6 +16,8 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "commander": "^2.20.0"
+    "commander": "^2.20.0",
+    "mkdir-recursive": "^0.4.0",
+    "recursive-readdir": "^2.2.2"
   }
 }

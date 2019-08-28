@@ -30,13 +30,9 @@ if (program.dir !== undefined) {
   let pak = new Pak(output);
   fs.readdirSync(path.resolve(program.dir)).forEach((key: string) => {
     let parse = path.parse(key);
-    if (parse.ext !== '.payload' && parse.ext !== '.pak') {
-      let input = path.resolve(path.join(program.dir, key));
-      let data: Buffer = fs.readFileSync(input);
-      let d: Buffer = Buffer.alloc(data.byteLength + 0x4);
-      d.writeUInt32BE(parseInt(parse.name), 0x0);
-      data.copy(d, 0x4);
-      pak.save(d);
+    if (parse.ext !== '.pak') {
+      let input = path.join(program.dir, key);
+      pak.save_file(input);
     }
   });
 }

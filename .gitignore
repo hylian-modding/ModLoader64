@@ -10,3 +10,7 @@ Tool64_v1.11/
 build2/
 mods.zip
 PayloadConverter/test/
+PayloadConverter/private_key.pem
+PayloadConverter/public_key.pem
+PayloadConverter/ootcore/
+PayloadConverter/ooto/
