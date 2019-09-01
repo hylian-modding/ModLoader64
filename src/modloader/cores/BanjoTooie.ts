@@ -15,7 +15,7 @@ import * as API from 'modloader64_api/BT/Imports';
 
 export class GameFlags extends API.BufferPtrObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0xaf);
+    super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0xAF);
   }
 }
 
@@ -25,15 +25,13 @@ export class GameFlags extends API.BufferPtrObj implements API.IBuffered {
 
 export class Player extends API.BaseObj implements API.IPlayer {
   exists(): boolean {
-    return false; //!(this.emulator.rdramRead32(this.instance) === 0x0000);
+    return false;//!(this.emulator.rdramRead32(this.instance) === 0x0000);
   }
 }
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private prof_hover_addr: number =
-    global.ModLoader[API.AddressType.RT_PROF_HOVER];
-  private prof_select_addr: number =
-    global.ModLoader[API.AddressType.RT_PROF_SELECT];
+  private prof_hover_addr: number = global.ModLoader[API.AddressType.RT_PROF_HOVER];
+  private prof_select_addr: number = global.ModLoader[API.AddressType.RT_PROF_SELECT];
 
   get_profile_hovering(): API.ProfileType {
     return this.emulator.rdramReadS8(this.prof_hover_addr);

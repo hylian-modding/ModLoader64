@@ -1,4 +1,3 @@
-import * as apiBit from './Bitmaps';
 import * as apiEnum from './Enums';
 
 // ##################################################################
@@ -19,12 +18,20 @@ export interface IBuffered {
 
 export interface IPlayer {}
 
-export interface IRuntime {}
+export interface IRuntime {
+  get_current_profile(): apiEnum.ProfileType;
+  get_game_mode(): apiEnum.GameModeType;
+}
 
-export interface ISaveContext {}
+export interface ISaveContext {
+  game_flags: IBuffered;
+}
 
 export interface IDK64Core {
-  kong: IPlayer;
+  player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
+  version: apiEnum.GameVersion;
+
+  isPlaying(): boolean;
 }
