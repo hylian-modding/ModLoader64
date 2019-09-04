@@ -15,7 +15,7 @@ import * as API from 'modloader64_api/DK64/Imports';
 
 export class GameFlags extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0x013B);
+    super(emu, global.ModLoader[API.AddressType.SAVE_GAME_FLAGS], 0x013b);
   }
 }
 
@@ -26,8 +26,10 @@ export class GameFlags extends API.BufferObj implements API.IBuffered {
 export class Player extends API.BaseObj implements API.IPlayer {}
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private cur_profile_addr: number = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
-  private game_mode_addr: number = global.ModLoader[API.AddressType.RT_GAME_MODE];
+  private cur_profile_addr: number =
+    global.ModLoader[API.AddressType.RT_CUR_PROFILE];
+  private game_mode_addr: number =
+    global.ModLoader[API.AddressType.RT_GAME_MODE];
 
   get_current_profile(): API.ProfileType {
     return this.emulator.rdramRead8(this.cur_profile_addr) as API.ProfileType;
@@ -61,7 +63,7 @@ export class DonkeyKong64 implements ICore, API.IDK64Core {
   version!: API.GameVersion;
 
   isPlaying(): boolean {
-    return (this.runtime.get_game_mode() === API.GameModeType.ADVENTURE);
+    return this.runtime.get_game_mode() === API.GameModeType.ADVENTURE;
   }
 
   preinit(): void {

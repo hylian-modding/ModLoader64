@@ -163,7 +163,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.INV_TIMER_XMAS_TREE] = inv_addr + 0x05 * 4;
     global.ModLoader[API.AddressType.INV_TIMER_PROPELLOR] = inv_addr + 0x03 * 4;
   }
-  
+
   export function load_usa_1_0() {
     let inv_addr = 0x385f30;
 
@@ -193,7 +193,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_HEALTH] = 0x385f80;
     global.ModLoader[API.AddressType.RT_CUR_EXIT] = 0x37e8f6;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL] = 0x383301;
-    global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36B818;
+    global.ModLoader[API.AddressType.RT_CUR_LEVEL_LOOKUP] = 0x36b818;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_ACORN] = inv_addr + 0x23 * 4;
     global.ModLoader[API.AddressType.RT_CUR_LEVEL_CATERPILLAR] =
       inv_addr + 0x22 * 4;
@@ -215,8 +215,8 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_IS_CUTSCENE] = 0x367684;
     global.ModLoader[API.AddressType.RT_IS_LOADING] = 0x37e8f4;
     global.ModLoader[API.AddressType.RT_TRANSITION_STATE] = 0x382438;
-    global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381FA0;
-    global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381FC8;
+    global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR] = 0x381fa0;
+    global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR] = 0x381fc8;
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x3831a8;
