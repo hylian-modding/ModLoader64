@@ -96,9 +96,16 @@ const APITunnel: GUITunnel = new GUITunnel(process, 'modloader64_api', null);
 
 export interface IGUIAPI {
   openWindow(width: number, height: number, file: string): void;
+  tunnel: IGUITunnel;
 }
 
 export class GUIAPI implements IGUIAPI {
+  tunnel: IGUITunnel;
+
+  constructor(id: string, instance: any) {
+    this.tunnel = new GUITunnel(process, id, instance);
+  }
+
   openWindow(width: number, height: number, file: string): void {
     APITunnel.send('openWindow', { width, height, file });
   }

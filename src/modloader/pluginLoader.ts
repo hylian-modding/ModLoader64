@@ -33,6 +33,7 @@ import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine from './NetworkEngine';
 import { Pak } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
+import { GUIAPI } from 'modloader64_api/GUITunnel';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -257,10 +258,12 @@ class pluginLoader {
     this.loaded_core.ModLoader.emulator = emulator;
     this.loaded_core.ModLoader.utils = utils;
     this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;
+    this.loaded_core.ModLoader.gui = new GUIAPI('core', this.loaded_core);
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
       plugin.ModLoader.utils = utils;
+      plugin.ModLoader.gui = new GUIAPI(plugin.pluginName as string, plugin);
       plugin.ModLoader.savestates = (emulator as unknown) as ISaveState;
       plugin.postinit();
       if (mainConfig.isClient) {
