@@ -16,6 +16,7 @@ import IConsole from 'modloader64_api/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
+import { IGUITunnel, GUITunnel } from 'modloader64_api/GUITunnel';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -35,6 +36,7 @@ class ModLoader64 {
   Client: NetworkEngine.Client;
   rom_path!: string;
   emulator!: IConsole;
+  tunnel!: IGUITunnel;
   done = false;
 
   constructor(logger: any) {
@@ -67,16 +69,17 @@ class ModLoader64 {
   }
 
   start() {
+    this.tunnel = new GUITunnel(process, 'internal_event_bus', this);
     let ofn = internal_event_bus.emit.bind(internal_event_bus);
-    internal_event_bus.emit = function(
-      event: string | symbol,
-      ...args: any[]
-    ): boolean {
-      if (process.send) {
-        process.send(JSON.stringify({ id: event, data: args }));
-      }
-      return ofn(event, args);
-    };
+    ((inst: ModLoader64) => {
+      internal_event_bus.emit = function(
+        event: string | symbol,
+        ...args: any[]
+      ): boolean {
+        inst.tunnel.send(event as string, args);
+        return ofn(event, args);
+      };
+    })(this);
     internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
       this.emulator.stopEmulator();
     });

@@ -3,6 +3,7 @@ import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
 import IUtils from './IUtils';
 import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
+import { IGUIAPI } from './GUITunnel';
 
 export interface ILogger {
   info(msg: string): void;
@@ -29,6 +30,7 @@ export interface IModLoaderAPI {
   clientLobby: string;
   utils: IUtils;
   savestates: ISaveState;
+  gui: IGUIAPI;
 }
 
 export interface IPlugin {
