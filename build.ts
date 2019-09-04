@@ -61,7 +61,14 @@ function pushModules() {
             }
             console.log('done!');
         });
-        fork("./PayloadConverter/build/paker.js", ["--dir=./build", "--output=./build/ModLoader64.pak"]);
+        fs.mkdirSync("./ModLoader");
+        ncp("./build", "./ModLoader", function (err) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log('done!');
+            fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader", "--output=./build/ModLoader64.pak"]);
+        });
     });
 }
 
