@@ -150,7 +150,6 @@ export class PakFile implements IPakFile {
     );
     entry.data = data;
     this.header.files.push(entry);
-    this.update();
     return this.header.files.indexOf(entry);
   }
 
@@ -184,6 +183,7 @@ export interface IPak {
   save_file(file: string, compressed?: boolean): number;
   load(index: number): any;
   extractAll(target: string): void;
+  update(): void;
 }
 
 export class Pak implements IPak {
@@ -199,14 +199,17 @@ export class Pak implements IPak {
 
   save(obj: any, compressed = true): number {
     let index = this.pak.insert(obj, compressed);
-    fs.writeFileSync(this.fileName, this.pak.data);
     return index;
   }
 
   save_file(file: string, compressed = true) {
     let index = this.pak.insertFile(file, compressed);
-    fs.writeFileSync(this.fileName, this.pak.data);
     return index;
+  }
+
+  update() {
+    this.pak.update();
+    fs.writeFileSync(this.fileName, this.pak.data);
   }
 
   load(index = 0): any {

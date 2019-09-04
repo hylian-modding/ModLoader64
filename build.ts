@@ -1,6 +1,6 @@
 import { ncp } from 'ncp';
 import * as fs from 'fs';
-import { execSync } from 'child_process';
+import { execSync, fork } from 'child_process';
 import program from 'commander';
 import path from 'path';
 import findRemoveSync from 'find-remove';
@@ -61,6 +61,7 @@ function pushModules() {
             }
             console.log('done!');
         });
+        fork("./PayloadConverter/build/paker.js", ["--dir=./build", "--output=./build/ModLoader64.pak"]);
     });
 }
 

@@ -1,13 +1,7 @@
 import program from 'commander';
 import fs from 'fs';
 import { Pak } from './PakFormat';
-import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './JSON';
 import { generate } from './sign';
-
-let monkey1 = new MonkeyPatch_Stringify();
-monkey1.patch();
-let monkey2 = new MonkeyPatch_Parse();
-monkey2.patch();
 
 program.option('-d --dir <dir>', 'base directory');
 program.option('-o, --output <file>', 'output file');
@@ -23,6 +17,7 @@ if (program.dir !== undefined) {
     for (let i = 0; i < files.length; i++) {
       pak.save_file(files[i]);
     }
+    pak.update();
     if (fs.existsSync('./private_key.pem')) {
       fs.writeFileSync(program.dir + '.sig', generate(pak.fileName));
     }

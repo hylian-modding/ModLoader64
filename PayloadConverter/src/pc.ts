@@ -33,6 +33,7 @@ if (program.dir !== undefined) {
     if (parse.ext !== '.pak') {
       let input = path.join(program.dir, key);
       pak.save_file(input);
+      pak.update();
     }
   });
 }

@@ -15,6 +15,7 @@ export class StorageContainer {
       fs.mkdirSync(path.parse(this.pak.fileName).dir);
     }
     this.pak.save(obj);
+    this.pak.update();
   }
 
   loadObject(): any {

@@ -8,12 +8,13 @@
     "modules": "npm run build && node ./build.js --step=pushModules",
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
     "build_api": "tsc ./build.ts --esModuleInterop && node ./build.js --step=forceAPI",
-    "start": "npm run build && node ./build/src/index.js --mode=cli --dir=build",
-    "start_2": "node ./build2/src/index.js --mode=cli --dir=build2",
-    "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --mode=cli --dir=build",
+    "start": "npm run build && node ./build/src/index.js --dir=build",
+    "start_2": "node ./build2/src/index.js --dir=build2",
+    "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --dir=build",
     "start_debug": "node ./build/src/index.js --mode=cli --dir=build",
     "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
-    "fix": "gts fix"
+    "fix": "gts fix",
+    "dist": "npm run fix && npm run modules"
   },
   "pre-commit": [
     "build_api",

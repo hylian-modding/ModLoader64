@@ -45,7 +45,6 @@ if (testers.length > 0) {
 }
 logger.info('Version: %s', version);
 
-program.option('-m, --mode <type>', 'launch mode');
 program.option('-d, --dir <dir>', 'set directory');
 program.option('-dd, --dirforce <dir>', 'set directory');
 program.parse(process.argv);
@@ -66,10 +65,6 @@ stringify.patch();
 let parse = new MonkeyPatch_Parse();
 parse.patch();
 
-if (program.mode === 'cli') {
-  logger.info('Starting in CLI Mode...');
-  const instance = new modloader64(logger.child({}));
-  instance.start();
-} else if (program.mode === 'gui') {
-  logger.info('Starting in GUI mode...');
-}
+logger.info('Starting in CLI Mode...');
+const instance = new modloader64(logger.child({}));
+instance.start();
