@@ -16,11 +16,6 @@
     "fix": "gts fix",
     "dist": "npm run fix && npm run modules"
   },
-  "pre-commit": [
-    "build_api",
-    "fix",
-    "build"
-  ],
   "author": "Team-Ooto",
   "dependencies": {
     "@types/deep-equal": "^1.0.1",
