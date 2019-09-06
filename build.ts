@@ -1,5 +1,5 @@
 import { ncp } from 'ncp';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import { execSync, fork } from 'child_process';
 import program from 'commander';
 import path from 'path';
@@ -67,7 +67,9 @@ function pushModules() {
                 return console.error(err);
             }
             console.log('done!');
-            fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader", "--output=./build/ModLoader64.pak"]);
+            fs.removeSync("./ModLoader/roms");
+            fs.removeSync("./ModLoader/mods");
+            fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader"]);
         });
     });
 }

@@ -31,7 +31,8 @@ class ModLoader64 {
   ) as IModLoaderConfig;
   plugins: pluginLoader;
   rom_folder = './roms';
-  roms: string[] = fs.readdirSync(this.rom_folder);
+  mods_folder = './mods';
+  roms: string[];
   Server: NetworkEngine.Server;
   Client: NetworkEngine.Client;
   rom_path!: string;
@@ -40,6 +41,13 @@ class ModLoader64 {
   done = false;
 
   constructor(logger: any) {
+    if (!fs.existsSync(this.rom_folder)) {
+      fs.mkdirSync(this.rom_folder);
+    }
+    if (!fs.existsSync(this.mods_folder)) {
+      fs.mkdirSync(this.mods_folder);
+    }
+    this.roms = fs.readdirSync(this.rom_folder);
     this.logger = logger as ILogger;
     this.plugins = new pluginLoader(
       [path.resolve(path.join(process.cwd(), 'mods'))],

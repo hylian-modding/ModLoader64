@@ -1,4 +1,4 @@
 cd ./API
-npm run build
+dry run build
 cd ../
-npm install --save ./API/build
+dry install --save ./API/build

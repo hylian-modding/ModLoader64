@@ -1,2 +1,2 @@
-call npm run start
+call dry run start
 pause

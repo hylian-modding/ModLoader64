@@ -1,4 +1,4 @@
 cd API
-call npm run build
+call dry run build
 cd ..
-call npm install --save ./API/build
+call dry install --save ./API/build

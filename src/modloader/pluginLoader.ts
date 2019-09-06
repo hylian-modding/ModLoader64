@@ -131,7 +131,7 @@ class pluginLoader {
       return;
     }
     let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
-    if (pkg.core !== this.selected_core) {
+    if (pkg.core !== this.selected_core && pkg.core !== "*") {
       this.logger.info(
         'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
       );
