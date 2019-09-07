@@ -1,4 +1,4 @@
-npm install -g dry-dry
+sudo npm install -g dry-dry
 dry install
 sh build_mupen_lin64.sh
 sh build_api.sh
