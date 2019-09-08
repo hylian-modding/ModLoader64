@@ -40,6 +40,7 @@ import {
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
+import path from 'path';
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
 let portfinder = require('portfinder');
@@ -536,7 +537,9 @@ namespace NetworkEngine {
           bus.emit(EventsClient.CONFIGURE_LOBBY, ld);
           if (inst.modLoaderconfig.patch !== '') {
             ld.data['patch'] = zlib.gzipSync(
-              fs.readFileSync(inst.modLoaderconfig.patch)
+              fs.readFileSync(
+                path.resolve(path.join('./mods', inst.modLoaderconfig.patch))
+              )
             );
           }
           inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
