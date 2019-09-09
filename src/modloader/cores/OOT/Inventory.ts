@@ -936,7 +936,7 @@ export class Inventory extends JSONTemplate implements IInventory {
     if (slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM) {
       return;
     }
-    this.emulator.rdramWrite8(this.inventory_addr, item.valueOf());
+    this.emulator.rdramWrite8(this.inventory_addr + slot, item.valueOf());
   }
   giveItem(item: InventoryItem, desiredSlot: InventorySlots) {
     if (
