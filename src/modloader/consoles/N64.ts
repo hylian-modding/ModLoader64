@@ -18,7 +18,7 @@ class N64 implements IConsole {
       '/emulator/mupen64plus.node') as IMupen;
 
     let patch: MonkeyPatch_rdramWriteBit8 = new MonkeyPatch_rdramWriteBit8(this.mupen);
-    patch.patch();
+    //patch.patch();
 
     this.mupen.setConfigDir(process.cwd() + '/emulator/');
     this.mupen.setDataDir(process.cwd() + '/emulator/');
