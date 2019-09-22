@@ -12,8 +12,8 @@ call dry run dist --dry-keep-package-json
 
 :: Build PayloadConverter
 cd .\PayloadConverter
-npm install
-npm run build
+call npm install
+call npm run build
 
 :: Enter packages directory
 cd ..\dist\
@@ -29,9 +29,9 @@ rmdir /s /q .\roms
 mkdir .\roms
 cd ..\
 
-rename .\windows .\ModLoader
+rename windows ModLoader
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
-rename .\ModLoader.pak .\Windows.pak
+rename ModLoader.pak Windows.pak
 rmdir /s /q .\ModLoader
 
 :: Pull linux package and clean
@@ -46,9 +46,9 @@ rmdir /s /q .\roms
 mkdir .\roms
 cd ..\
 
-rename .\linux .\ModLoader
+rename linux ModLoader
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
-rename .\ModLoader.pak .\Linux.pak
+rename ModLoader.pak Linux.pak
 rmdir /s /q .\ModLoader
 
 :: Keep console open when script finishes
