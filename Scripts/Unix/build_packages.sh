@@ -32,7 +32,7 @@ cd ../
 mv ./windows ./ModLoader
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Windows.pak
-rm -r ./ModLoader
+mv ./ModLoader ./windows
 
 # Pull linux package and clean
 cd ./linux/
@@ -48,7 +48,7 @@ cd ../
 mv ./linux ./ModLoader
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Linux.pak
-rm -r ./ModLoader
+mv ./ModLoader ./linux
 
 # Keep console open when script finishes
 echo "Press any key to continue"

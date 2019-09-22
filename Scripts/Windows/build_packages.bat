@@ -32,7 +32,7 @@ cd ..\
 rename windows ModLoader
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Windows.pak
-rmdir /s /q .\ModLoader
+rename ModLoader windows
 
 :: Pull linux package and clean
 cd .\linux\
@@ -49,7 +49,7 @@ cd ..\
 rename linux ModLoader
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Linux.pak
-rmdir /s /q .\ModLoader
+rename ModLoader linux
 
 :: Keep console open when script finishes
 pause
