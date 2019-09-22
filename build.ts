@@ -37,9 +37,9 @@ switch (program.step) {
 
 function forceAPI() {
     if (isWin) {
-        execSync("build_api.bat", { stdio: "inherit" })
+        execSync("cd ./Scripts/Windows/ \ncall build_api.bat", { stdio: "inherit" })
     } else {
-        execSync("build_api.sh", { stdio: "inherit" })
+        execSync("cd ./Scripts/Unix/ \nsh build_api.sh", { stdio: "inherit" })
     }
 }
 
@@ -61,16 +61,27 @@ function pushModules() {
             }
             console.log('done!');
         });
-        fs.mkdirSync("./ModLoader");
-        ncp("./build", "./ModLoader", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            console.log('done!');
-            fs.removeSync("./ModLoader/roms");
-            fs.removeSync("./ModLoader/mods");
-            fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader"]);
+
+        fs.mkdirSync("./dist");
+
+        ncp("./build", "./dist/windows", function (err) {
+            if (err) return console.error(err);
         });
+        
+        ncp("./build", "./dist/linux", function (err) {
+            if (err) return console.error(err);
+        });
+        
+        ncp("./build", "./dist/mac", function (err) {
+            if (err) return console.error(err);
+        });
+        
+        ncp("./build", "./dist/switch", function (err) {
+            if (err) return console.error(err);
+        });
+
+        console.log('done!');
+        fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader"]);
     });
 }
 
@@ -99,21 +110,13 @@ function prebuild() {
         fs.mkdirSync("./build/roms")
     }
 
-    if (!fs.existsSync("./build/emulator/mupen64plus.dll")) {
-        console.log("Building Mupen...")
-
-        ncp("./ModLoader64-M64P-Bundle", "./build", function (err) {
+    if (!fs.existsSync("./build/emulator")) {
+        ncp("./Mupen64Plus", "./build", function (err) {
             if (err) {
                 return console.error(err);
             }
             console.log('done!');
         });
-
-        if (isWin) {
-            execSync("build_mupen_win32.bat", { stdio: "inherit" })
-        } else {
-            execSync("./build_mupen_lin64.sh", { stdio: "inherit" })
-        }
     }
 }
 

@@ -1,1 +1,0 @@
-call dry run dist --dry-keep-package-json

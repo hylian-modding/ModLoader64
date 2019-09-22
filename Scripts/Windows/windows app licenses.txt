@@ -1,0 +1,5 @@
+unzip.exe:
+http://infozip.sourceforge.net/license.html
+
+gzip.exe, tar.exe, wget.exe:
+https://www.gnu.org/licenses/gpl-3.0.html
