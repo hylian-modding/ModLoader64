@@ -10,8 +10,13 @@ rm -r ./Mupen64Plus
 # Create platform packages
 dry run dist --dry-keep-package-json
 
+# Build PayloadConverter
+cd ./PayloadConverter
+npm install
+npm run build
+
 # Enter packages directory
-cd ./dist/
+cd ../dist/
 
 # Pull windows package and clean
 cd ./windows/
@@ -24,6 +29,11 @@ rm -r ./roms
 mkdir ./roms
 cd ../
 
+mv ./windows ./ModLoader
+node ../PayloadConverter/build/paker.js --dir=./ModLoader
+mv ./ModLoader.pak ./Windows.pak
+rm -r ./ModLoader
+
 # Pull linux package and clean
 cd ./linux/
 wget https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Linux/emulator.tar.gz
@@ -34,6 +44,11 @@ mkdir ./mods
 rm -r ./roms
 mkdir ./roms
 cd ../
+
+mv ./linux ./ModLoader
+node ../PayloadConverter/build/paker.js --dir=./ModLoader
+mv ./ModLoader.pak ./Linux.pak
+rm -r ./ModLoader
 
 # Keep console open when script finishes
 echo "Press any key to continue"

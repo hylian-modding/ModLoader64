@@ -81,7 +81,6 @@ function pushModules() {
         });
 
         console.log('done!');
-        fork("./PayloadConverter/build/paker.js", ["--dir=./ModLoader"]);
     });
 }
 
