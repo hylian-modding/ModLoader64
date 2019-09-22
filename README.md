@@ -9,24 +9,12 @@ This project is in an alpha state. It is very bare bones at the moment. Please p
 
 ## Building
 
-You will need the following things installed and properly configured on your PATH:
+Requirement - NodeJS:
 
-(WINDOWS)
-* [Nodejs 10.X or 12.X (Requires 32-bit)](https://nodejs.org/en/)
-* [Python 2.X (Requires 32-bit)](https://www.python.org/downloads/release/python-278/)
-* [Visual Studio](https://visualstudio.microsoft.com/)
-* VS2017 Build Tools (install these in Visual Studio)
+* (WINDOWS) [Nodejs 10.X or 12.X (Requires 32-bit)](https://nodejs.org/en/)
+* (LINUX) Install latest from Package Manager
 
-(LINUX - Install from Package Manager)
-* NodeJS
-* Python
-* [LibPNG12 (Deb Package)](https://github.com/hylian-modding/ModLoader64-M64P-Core/raw/master/debian%20dependancies/libpng12-0_1.2.50-2%2Bdeb8u3_amd64.deb)
-
-Run these commands to build:
-Use the 'build_fresh_git.bat/sh' script
+For first time setup (or to pull node package or our mupen emulator updates) use the setup script located in the Scripts/(Your_Os_Here) directory. Afterward and during normal development you'll want to run the build_with/without_run script to compiled the project into a build and build2 folders.
 
 ## Testing
-npm run start
-
-(Alternatively)
-Use the 'start.bat/sh' script
+If wishing to run without a recompile use the start_1/2 scripts.
