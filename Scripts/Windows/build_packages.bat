@@ -30,6 +30,7 @@ mkdir .\roms
 cd ..\
 
 rename windows ModLoader
+xcopy ..\PayloadConverter\build .\ModLoader\PayloadConverter /s /e /y /i /h
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Windows.pak
 rename ModLoader windows
@@ -47,6 +48,7 @@ mkdir .\roms
 cd ..\
 
 rename linux ModLoader
+xcopy ..\PayloadConverter\build .\ModLoader\PayloadConverter /s /e /y /i /h
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Linux.pak
 rename ModLoader linux

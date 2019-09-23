@@ -30,6 +30,7 @@ mkdir ./roms
 cd ../
 
 mv ./windows ./ModLoader
+cp -r ../PayloadConverter/build ./ModLoader/PayloadConverter
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Windows.pak
 mv ./ModLoader ./windows
@@ -46,6 +47,7 @@ mkdir ./roms
 cd ../
 
 mv ./linux ./ModLoader
+cp -r ../PayloadConverter/build ./ModLoader/PayloadConverter
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Linux.pak
 mv ./ModLoader ./linux
