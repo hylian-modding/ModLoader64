@@ -18,6 +18,7 @@
   "dependencies": {
     "commander": "^2.20.0",
     "mkdir-recursive": "^0.4.0",
-    "recursive-readdir": "^2.2.2"
+    "recursive-readdir": "^2.2.2",
+    "slash": "^3.0.0"
   }
 }

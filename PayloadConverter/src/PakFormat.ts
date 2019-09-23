@@ -1,6 +1,7 @@
 import fs from 'fs';
 import zlib from 'zlib';
 import path from 'path';
+import slash from 'slash';
 let fx = require('mkdir-recursive');
 
 export interface IPakFileEntry {
@@ -142,7 +143,7 @@ export class PakFile implements IPakFile {
       type = 'DEFL';
     }
     let entry = new PakFileEntry(
-      filename,
+      slash(filename),
       type,
       data.byteLength,
       0xffffffff,

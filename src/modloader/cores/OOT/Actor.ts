@@ -149,7 +149,13 @@ export class ActorBase extends JSONTemplate implements IActor {
   exists = true;
   rotation: IRotation;
   position: IPosition;
-  jsonFields: string[] = ['actorID', 'actorUUID', 'health', 'rotation', 'position'];
+  jsonFields: string[] = [
+    'actorID',
+    'actorUUID',
+    'health',
+    'rotation',
+    'position',
+  ];
 
   constructor(emulator: IMemory, pointer: number) {
     super();
