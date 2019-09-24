@@ -10,13 +10,8 @@ rm -r ./Mupen64Plus
 # Create platform packages
 dry run dist --dry-keep-package-json
 
-# Build PayloadConverter
-cd ./PayloadConverter
-npm install
-npm run build
-
 # Enter packages directory
-cd ../dist/
+cd ./dist/
 
 # Pull windows package and clean
 cd ./windows/

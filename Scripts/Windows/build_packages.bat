@@ -10,13 +10,8 @@ rmdir /s /q .\Mupen64Plus
 :: Create platform packages
 call dry run dist --dry-keep-package-json
 
-:: Build PayloadConverter
-cd .\PayloadConverter
-call npm install
-call npm run build
-
 :: Enter packages directory
-cd ..\dist\
+cd .\dist\
 
 :: Pull windows package and clean
 cd .\windows\
