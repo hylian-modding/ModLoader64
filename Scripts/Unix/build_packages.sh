@@ -10,13 +10,8 @@ rm -r ./Mupen64Plus
 # Create platform packages
 dry run dist --dry-keep-package-json
 
-# Build PayloadConverter
-cd ./PayloadConverter
-npm install
-npm run build
-
 # Enter packages directory
-cd ../dist/
+cd ./dist/
 
 # Pull windows package and clean
 cd ./windows/
@@ -30,6 +25,7 @@ mkdir ./roms
 cd ../
 
 mv ./windows ./ModLoader
+cp -r ../PayloadConverter/build ./ModLoader/PayloadConverter
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Windows.pak
 mv ./ModLoader ./windows
@@ -46,6 +42,7 @@ mkdir ./roms
 cd ../
 
 mv ./linux ./ModLoader
+cp -r ../PayloadConverter/build ./ModLoader/PayloadConverter
 node ../PayloadConverter/build/paker.js --dir=./ModLoader
 mv ./ModLoader.pak ./Linux.pak
 mv ./ModLoader ./linux

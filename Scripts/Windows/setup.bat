@@ -24,5 +24,10 @@ call build_api.bat
 :: Dry Command
 call dry run build --dry-keep-package-json
 
+:: Build PayloadConverter
+cd .\PayloadConverter
+call npm install
+call npm run build
+
 :: Keep console open when script finishes
 pause

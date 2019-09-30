@@ -10,13 +10,8 @@ rmdir /s /q .\Mupen64Plus
 :: Create platform packages
 call dry run dist --dry-keep-package-json
 
-:: Build PayloadConverter
-cd .\PayloadConverter
-call npm install
-call npm run build
-
 :: Enter packages directory
-cd ..\dist\
+cd .\dist\
 
 :: Pull windows package and clean
 cd .\windows\
@@ -30,6 +25,7 @@ mkdir .\roms
 cd ..\
 
 rename windows ModLoader
+xcopy ..\PayloadConverter\build .\ModLoader\PayloadConverter /s /e /y /i /h
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Windows.pak
 rename ModLoader windows
@@ -47,6 +43,7 @@ mkdir .\roms
 cd ..\
 
 rename linux ModLoader
+xcopy ..\PayloadConverter\build .\ModLoader\PayloadConverter /s /e /y /i /h
 node ..\PayloadConverter\build\paker.js --dir=./ModLoader
 rename ModLoader.pak Linux.pak
 rename ModLoader linux
