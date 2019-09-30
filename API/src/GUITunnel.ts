@@ -57,7 +57,7 @@ export class GUITunnel implements IGUITunnel {
           p.ModLoader.TunnelMessageHandler.hasOwnProperty('MessageHandlers') !==
           null
         ) {
-          p.ModLoader.MessageProcessor.MessageHandlers.forEach(function(
+          p.ModLoader.TunnelMessageHandler.MessageHandlers.forEach(function(
             value: string,
             key: string
           ) {
