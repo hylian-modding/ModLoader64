@@ -8,36 +8,10 @@ import {
   Wallet,
   Strength,
   ZoraScale,
+  InventorySlots,
 } from 'modloader64_api/OOT/OOTAPI';
 import { FlagManager } from 'modloader64_api/FlagManager';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
-
-export const enum InventorySlots {
-  DEKU_STICKS,
-  DEKU_NUTS,
-  BOMBS,
-  FAIRY_BOW,
-  FIRE_ARROWS,
-  DINS_FIRE,
-  FAIRY_SLINGSHOT,
-  OCARINA,
-  BOMBCHUS,
-  HOOKSHOT,
-  ICE_ARROWS,
-  FARORES_WIND,
-  BOOMERANG,
-  LENS_OF_TRUTH,
-  MAGIC_BEANS,
-  MEGATON_HAMMER,
-  LIGHT_ARROWS,
-  NAYRUS_LOVE,
-  BOTTLE1,
-  BOTTLE2,
-  BOTTLE3,
-  BOTTLE4,
-  ADULT_TRADE_ITEM,
-  CHILD_TRADE_ITEM,
-}
 
 export class Inventory extends JSONTemplate implements IInventory {
   private emulator: IMemory;
