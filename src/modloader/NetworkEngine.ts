@@ -30,13 +30,7 @@ import fs from 'fs';
 import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
 import { PluginMeta } from 'modloader64_api/LobbyVariable';
-import express from 'express';
 import http from 'http';
-import {
-  EndpointBus,
-  EndPointEvents,
-  Endpoint,
-} from 'modloader64_api/EndpointHandler';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
@@ -111,10 +105,7 @@ class FakeNetworkPlayer implements INetworkPlayer {
 
 namespace NetworkEngine {
   export class Server implements ILobbyManager {
-    private app: any = express();
-    private http: any;
     io: any;
-    wireUpServer = require('socket.io-fix-close');
     encrypt = require('socket.io-encrypt');
     logger: ILogger;
     masterConfig: IConfig;
@@ -170,135 +161,102 @@ namespace NetworkEngine {
     }
 
     setup() {
-      this.http = this.app.listen(this.config.port, () => {
-        this.io = require('socket.io')(this.http);
-        this.io.use(this.encrypt(global.ModLoader.version));
-        this.wireUpServer(this.http, this.io);
-        internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
-          this.logger.info('SHUTDOWN DETECTED.');
-          this.http.close();
+      const server = require('http').createServer();
+
+      this.io = require('socket.io')(server);
+
+      server.listen(this.config.port);
+      this.io.use(this.encrypt(global.ModLoader.version));
+
+      internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+        this.logger.info('SHUTDOWN DETECTED.');
+      });
+
+      this.logger.info(
+        'NetworkEngine.Server set up on port ' + this.config.port + '.'
+      );
+
+      if (!this.modLoaderconfig.isClient) {
+        internal_event_bus.emit('onNetworkConnect', {
+          me: this.fakePlayer,
+          patch: Buffer.alloc(1),
         });
-        this.logger.info(
-          'NetworkEngine.Server set up on port ' + this.config.port + '.'
+      }
+
+      (function(inst) {
+        natUpnp_client.portMapping(
+          {
+            public: inst.config.port,
+            private: inst.config.port,
+            ttl: 10,
+          },
+          function(err: any) {
+            if (err) {
+              inst.logger.error("Didn't open port for TCP server.");
+            } else {
+              inst.logger.info('Opened port for TCP server.');
+            }
+          }
         );
-        if (!this.modLoaderconfig.isClient) {
-          internal_event_bus.emit('onNetworkConnect', {
-            me: this.fakePlayer,
-            patch: Buffer.alloc(1),
-          });
-        }
-        (function(inst) {
+        portfinder.getPort((err: any, port: number) => {
           natUpnp_client.portMapping(
             {
-              public: inst.config.port,
-              private: inst.config.port,
+              public: port,
+              private: port,
               ttl: 10,
             },
             function(err: any) {
               if (err) {
-                inst.logger.error("Didn't open port for TCP server.");
+                inst.logger.error("Didn't open port for UDP server.");
               } else {
-                inst.logger.info('Opened port for TCP server.');
+                inst.logger.info('Opened port for UDP server.');
               }
             }
           );
-          portfinder.getPort((err: any, port: number) => {
-            natUpnp_client.portMapping(
-              {
-                public: port,
-                private: port,
-                ttl: 10,
-              },
-              function(err: any) {
-                if (err) {
-                  inst.logger.error("Didn't open port for UDP server.");
-                } else {
-                  inst.logger.info('Opened port for UDP server.');
-                }
+          inst.udpPort = port;
+          inst.udpServer.bind(port);
+          NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
+            if (data.lobby === undefined) {
+              data.lobby = inst.currently_processing_lobby;
+            }
+            if (data.player === undefined) {
+              data.player = inst.fakePlayer;
+            }
+            inst.sendToTarget(data.lobby, 'msg', data);
+          });
+          NetworkSendBusServer.addListener('toPlayer', (data: any) => {
+            inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+          });
+          inst.io.on('connection', function(socket: SocketIO.Socket) {
+            inst.logger.info('Client ' + socket.id + ' connected.');
+            inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
+            socket.on('version', function(data: string) {
+              let parse = data.split('.');
+              let v = new Version(parse[0], parse[1], parse[2]);
+              if (inst.version.match(v)) {
+                inst.sendToTarget(socket.id, 'versionGood', {
+                  client: v,
+                  server: inst.version,
+                  uuid: socket.id,
+                });
+              } else {
+                inst.sendToTarget(socket.id, 'versionBad', {
+                  client: v,
+                  server: inst.version,
+                });
+                setTimeout(function() {
+                  socket.disconnect();
+                }, 1000);
               }
-            );
-            inst.udpPort = port;
-            inst.udpServer.bind(port);
-            NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
-              if (data.lobby === undefined) {
-                data.lobby = inst.currently_processing_lobby;
-              }
-              if (data.player === undefined) {
-                data.player = inst.fakePlayer;
-              }
-              inst.sendToTarget(data.lobby, 'msg', data);
             });
-            NetworkSendBusServer.addListener('toPlayer', (data: any) => {
-              inst.sendToTarget(data.player.uuid, 'msg', data.packet);
-            });
-            inst.io.on('connection', function(socket: SocketIO.Socket) {
-              inst.logger.info('Client ' + socket.id + ' connected.');
-              inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
-              socket.on('version', function(data: string) {
-                let parse = data.split('.');
-                let v = new Version(parse[0], parse[1], parse[2]);
-                if (inst.version.match(v)) {
-                  inst.sendToTarget(socket.id, 'versionGood', {
-                    client: v,
-                    server: inst.version,
-                    uuid: socket.id,
-                  });
-                } else {
-                  inst.sendToTarget(socket.id, 'versionBad', {
-                    client: v,
-                    server: inst.version,
-                  });
-                  setTimeout(function() {
-                    socket.disconnect();
-                  }, 1000);
-                }
-              });
-              socket.on('LobbyRequest', function(lj: LobbyJoin) {
-                if (inst.doesLobbyExist(lj.lobbyData.name)) {
-                  // Lobby already exists.
-                  let storage: ILobbyStorage = inst.getLobbyStorage(
-                    lj.lobbyData.name
-                  );
-                  if (storage.config.key === lj.lobbyData.key) {
-                    socket.join(storage.config.name);
-                    bus.emit(
-                      EventsServer.ON_LOBBY_JOIN,
-                      new EventServerJoined(lj.player, lj.lobbyData.name)
-                    );
-                    //@ts-ignore
-                    socket['ModLoader64'] = {
-                      lobby: storage.config.name,
-                      player: lj.player,
-                    };
-                    inst.sendToTarget(socket.id, 'LobbyReady', {
-                      storage: storage.config,
-                      udp: inst.udpPort,
-                    });
-                    inst.sendToTarget(
-                      lj.lobbyData.name,
-                      'playerJoined',
-                      lj.player
-                    );
-                  } else {
-                    inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
-                  }
-                } else {
-                  // Lobby does not exist.
-                  inst.logger.info('Creating lobby ' + lj.lobbyData.name + '.');
-                  socket.join(lj.lobbyData.name);
-                  let storage: ILobbyStorage = inst.createLobbyStorage(
-                    lj.lobbyData,
-                    socket.id
-                  );
-                  inst.lobbyVariables.forEach(
-                    (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                      storage.data[value.objectKey] = {};
-                      storage.data[value.objectKey][
-                        value.fieldName
-                      ] = value.cloneTemplate();
-                    }
-                  );
-                  bus.emit(EventsServer.ON_LOBBY_CREATE, storage);
+            socket.on('LobbyRequest', function(lj: LobbyJoin) {
+              if (inst.doesLobbyExist(lj.lobbyData.name)) {
+                // Lobby already exists.
+                let storage: ILobbyStorage = inst.getLobbyStorage(
+                  lj.lobbyData.name
+                );
+                if (storage.config.key === lj.lobbyData.key) {
+                  socket.join(storage.config.name);
                   bus.emit(
                     EventsServer.ON_LOBBY_JOIN,
                     new EventServerJoined(lj.player, lj.lobbyData.name)
@@ -317,69 +275,53 @@ namespace NetworkEngine {
                     'playerJoined',
                     lj.player
                   );
+                } else {
+                  inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
                 }
-              });
-              socket.on('playerJoined_reply', function(data: any) {
-                inst.sendToTarget(
-                  data.dest.uuid,
-                  'playerJoined_bounce',
-                  data.player
+              } else {
+                // Lobby does not exist.
+                inst.logger.info('Creating lobby ' + lj.lobbyData.name + '.');
+                socket.join(lj.lobbyData.name);
+                let storage: ILobbyStorage = inst.createLobbyStorage(
+                  lj.lobbyData,
+                  socket.id
                 );
-              });
-              socket.on('msg', function(data: IPacketHeader) {
-                inst.currently_processing_lobby = data.lobby;
                 inst.lobbyVariables.forEach(
                   (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                    value.setField(
-                      inst.getLobbyStorage(data.lobby).data[value.objectKey][
-                        value.fieldName
-                      ]
-                    );
+                    storage.data[value.objectKey] = {};
+                    storage.data[value.objectKey][
+                      value.fieldName
+                    ] = value.cloneTemplate();
                   }
                 );
-                NetworkBusServer.emit(data.packet_id, data);
-                NetworkChannelBusServer.emit(data.channel, data);
-                if (data.forward) {
-                  socket.to(data.lobby).emit('msg', data);
-                }
-                inst.currently_processing_lobby = '';
-              });
-              socket.on('toSpecificPlayer', function(data: any) {
-                inst.sendToTarget(data.player.uuid, 'msg', data.packet);
-              });
-              socket.on('disconnect', () => {
-                //@ts-ignore
-                let ML = socket.ModLoader64;
-                if (ML === undefined) return;
+                bus.emit(EventsServer.ON_LOBBY_CREATE, storage);
                 bus.emit(
-                  EventsServer.ON_LOBBY_LEAVE,
-                  new EventServerLeft(ML.player, ML.lobby)
+                  EventsServer.ON_LOBBY_JOIN,
+                  new EventServerJoined(lj.player, lj.lobbyData.name)
                 );
-                inst.sendToTarget(
-                  ML.lobby,
-                  'left',
-                  ML.player as INetworkPlayer
-                );
-              });
-            });
-            inst.udpServer.on('error', (err: any) => {
-              inst.logger.error(`server error:\n${err.stack}`);
-              inst.udpServer.close();
-            });
-            inst.udpServer.on('message', (msg: string, rinfo: RemoteInfo) => {
-              let data: IPacketHeader = JSON.parse(msg);
-              if (data.packet_id === 'UDPTestPacket') {
-                let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
-                reply.player = inst.fakePlayer;
-                inst.sendToTarget(data.player.uuid, 'udpTest', reply);
-                return;
+                //@ts-ignore
+                socket['ModLoader64'] = {
+                  lobby: storage.config.name,
+                  player: lj.player,
+                };
+                inst.sendToTarget(socket.id, 'LobbyReady', {
+                  storage: storage.config,
+                  udp: inst.udpPort,
+                });
+                inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
               }
+            });
+            socket.on('playerJoined_reply', function(data: any) {
+              inst.sendToTarget(
+                data.dest.uuid,
+                'playerJoined_bounce',
+                data.player
+              );
+            });
+            socket.on('msg', function(data: IPacketHeader) {
               inst.currently_processing_lobby = data.lobby;
               inst.lobbyVariables.forEach(
                 (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                  if (inst.getLobbyStorage(data.lobby) === null) {
-                    return;
-                  }
                   value.setField(
                     inst.getLobbyStorage(data.lobby).data[value.objectKey][
                       value.fieldName
@@ -390,46 +332,70 @@ namespace NetworkEngine {
               NetworkBusServer.emit(data.packet_id, data);
               NetworkChannelBusServer.emit(data.channel, data);
               if (data.forward) {
-                Object.keys(
-                  inst.io.sockets.adapter.rooms[data.lobby].sockets
-                ).forEach((key: string) => {
-                  if (key !== data.player.uuid) {
-                    inst.sendToTarget(key, 'msg', data);
-                  }
-                });
+                socket.to(data.lobby).emit('msg', data);
               }
               inst.currently_processing_lobby = '';
             });
-            inst.udpServer.on('listening', () => {
-              const address = inst.udpServer.address() as AddressInfo;
-              inst.logger.info(
-                `UDP socket listening ${address.address}:${address.port}`
+            socket.on('toSpecificPlayer', function(data: any) {
+              inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+            });
+            socket.on('disconnect', () => {
+              //@ts-ignore
+              let ML = socket.ModLoader64;
+              if (ML === undefined) return;
+              bus.emit(
+                EventsServer.ON_LOBBY_LEAVE,
+                new EventServerLeft(ML.player, ML.lobby)
               );
+              inst.sendToTarget(ML.lobby, 'left', ML.player as INetworkPlayer);
             });
           });
-        })(this);
-      });
-    }
-  }
-
-  export class EndpointServer {
-    EndPointApp = express();
-    EndPointServer = http.createServer(this.EndPointApp);
-    logger: ILogger;
-
-    constructor(logger: ILogger) {
-      this.logger = logger;
-      this.EndPointApp.get('/', function(req, res) {
-        res.send('hello world');
-      });
-      portfinder.getPort((err: any, port: number) => {
-        this.EndPointServer.listen(port, () => {
-          this.logger.info('Local JSON endpoint hosted on port ' + port + '.');
+          inst.udpServer.on('error', (err: any) => {
+            inst.logger.error(`server error:\n${err.stack}`);
+            inst.udpServer.close();
+          });
+          inst.udpServer.on('message', (msg: string, rinfo: RemoteInfo) => {
+            let data: IPacketHeader = JSON.parse(msg);
+            if (data.packet_id === 'UDPTestPacket') {
+              let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
+              reply.player = inst.fakePlayer;
+              inst.sendToTarget(data.player.uuid, 'udpTest', reply);
+              return;
+            }
+            inst.currently_processing_lobby = data.lobby;
+            inst.lobbyVariables.forEach(
+              (value: PluginMeta, index: number, array: PluginMeta[]) => {
+                if (inst.getLobbyStorage(data.lobby) === null) {
+                  return;
+                }
+                value.setField(
+                  inst.getLobbyStorage(data.lobby).data[value.objectKey][
+                    value.fieldName
+                  ]
+                );
+              }
+            );
+            NetworkBusServer.emit(data.packet_id, data);
+            NetworkChannelBusServer.emit(data.channel, data);
+            if (data.forward) {
+              Object.keys(
+                inst.io.sockets.adapter.rooms[data.lobby].sockets
+              ).forEach((key: string) => {
+                if (key !== data.player.uuid) {
+                  inst.sendToTarget(key, 'msg', data);
+                }
+              });
+            }
+            inst.currently_processing_lobby = '';
+          });
+          inst.udpServer.on('listening', () => {
+            const address = inst.udpServer.address() as AddressInfo;
+            inst.logger.info(
+              `UDP socket listening ${address.address}:${address.port}`
+            );
+          });
         });
-      });
-      internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
-        this.EndPointServer.close(() => {});
-      });
+      })(this);
     }
   }
 
@@ -447,7 +413,6 @@ namespace NetworkEngine {
     modLoaderconfig: IModLoaderConfig;
     masterConfig: IConfig;
     me!: INetworkPlayer;
-    endpoint: EndpointServer;
     encrypt = require('socket.io-encrypt');
     udpClient = dgram.createSocket('udp4');
     serverUDPPort = -1;
@@ -473,12 +438,6 @@ namespace NetworkEngine {
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
-      this.endpoint = new EndpointServer(this.logger);
-      EndpointBus.on(EndPointEvents.CREATE_ENDPOINT, (endpoint: Endpoint) => {
-        this.endpoint.EndPointApp.get(endpoint.path, function(res, req) {
-          endpoint.callback(res, req);
-        });
-      });
       internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
         this.socket.removeAllListeners();
         this.socket.disconnect();

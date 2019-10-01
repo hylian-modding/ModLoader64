@@ -1,4 +1,3 @@
-import { registerEndpoint } from 'modloader64_api/EndpointHandler';
 import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { GameShark } from 'modloader64_api/GameShark';
 import { ICore, IModLoaderAPI } from 'modloader64_api/IModLoaderAPI';
@@ -110,18 +109,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();
-    });
-    registerEndpoint('/Oot_SaveContext', (req: any, res: any) => {
-      res.send(this.save);
-    });
-    registerEndpoint('/Oot_Link', (req: any, res: any) => {
-      res.send(this.link);
-    });
-    registerEndpoint('/Oot_GlobalContext', (req: any, res: any) => {
-      res.send(this.global);
-    });
-    registerEndpoint('/Oot_Helper', (req: any, res: any) => {
-      res.send(this.helper);
     });
   }
 
