@@ -64,56 +64,43 @@ export class Inventory extends JSONTemplate implements IInventory {
 
   set strength(bb: Strength) {
     let buf: Buffer = this.emulator.rdramReadBits8(
-      this.inventory_upgrades_addr + 0x2
+      this.inventory_upgrades_addr + 0x3
     );
-    let slice = buf.slice(4, 7);
     switch (bb) {
       case Strength.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x00;
         break;
       case Strength.GORON_BRACELET:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x00;
         break;
       case Strength.SILVER_GAUNTLETS:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x01;
         break;
       case Strength.GOLDEN_GAUNTLETS:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x3, buf);
   }
 
   get strength(): Strength {
-    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
-      this.inventory_upgrades_addr + 0x2,
-      0x2
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x3
     );
-    let str = buf.toString('hex');
-    str = str.substr(7 * 2, 3 * 2);
+    let str = buf.slice(0, 2).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return Strength.NONE;
-      case '000001':
+      case '0001':
         return Strength.GORON_BRACELET;
-      case '000100':
+      case '0100':
         return Strength.SILVER_GAUNTLETS;
-      case '000101':
+      case '0101':
         return Strength.GOLDEN_GAUNTLETS;
-      case '010000':
-        return Strength.BLACK_GAUNTLETS;
-      case '010001':
-        return Strength.GREEN_GAUNTLETS;
-      case '010100':
-        return Strength.BLUE_GAUNTLETS;
     }
     return Strength.NONE;
   }
@@ -122,27 +109,18 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x2
     );
-    let slice = buf.slice(4, 7);
     switch (bb) {
       case ZoraScale.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x5] = 0x00;
+        buf[0x6] = 0x00;
         break;
       case ZoraScale.SILVER:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x5] = 0x00;
+        buf[0x6] = 0x01;
         break;
       case ZoraScale.GOLDEN:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
-        break;
-      case ZoraScale.GOLDEN:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x5] = 0x01;
+        buf[0x6] = 0x00;
         break;
     }
     this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x2, buf);
@@ -152,15 +130,13 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x2
     );
-    let str = buf.slice(4, 7).toString('hex');
+    let str = buf.slice(5, 7).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return ZoraScale.NONE;
-      case '000001':
+      case '0001':
         return ZoraScale.SILVER;
-      case '000100':
-        return ZoraScale.GOLDEN;
-      case '000101':
+      case '0100':
         return ZoraScale.GOLDEN;
     }
     return ZoraScale.NONE;
@@ -170,27 +146,22 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x1
     );
-    let slice = buf.slice(4, 7);
     switch (bb) {
       case AmmoUpgrade.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x5] = 0x00;
+        buf[0x6] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x5] = 0x00;
+        buf[0x6] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x5] = 0x01;
+        buf[0x6] = 0x00;
         break;
       case AmmoUpgrade.MAX:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x5] = 0x01;
+        buf[0x6] = 0x01;
         break;
     }
     this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
@@ -200,15 +171,15 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x1
     );
-    let str = buf.slice(4, 7).toString('hex');
+    let str = buf.slice(5, 7).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return AmmoUpgrade.NONE;
-      case '000001':
+      case '0001':
         return AmmoUpgrade.BASE;
-      case '000100':
+      case '0100':
         return AmmoUpgrade.UPGRADED;
-      case '000101':
+      case '0101':
         return AmmoUpgrade.MAX;
     }
     return AmmoUpgrade.NONE;
@@ -218,27 +189,22 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x1
     );
-    let slice = buf.slice(1, 4);
     switch (bb) {
       case AmmoUpgrade.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x2] = 0x00;
+        buf[0x3] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x2] = 0x00;
+        buf[0x3] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x2] = 0x01;
+        buf[0x3] = 0x00;
         break;
       case AmmoUpgrade.MAX:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x2] = 0x01;
+        buf[0x3] = 0x01;
         break;
     }
     this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
@@ -248,15 +214,15 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x1
     );
-    let str = buf.slice(1, 4).toString('hex');
+    let str = buf.slice(2, 4).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return AmmoUpgrade.NONE;
-      case '000001':
+      case '0001':
         return AmmoUpgrade.BASE;
-      case '000100':
+      case '0100':
         return AmmoUpgrade.UPGRADED;
-      case '000101':
+      case '0101':
         return AmmoUpgrade.MAX;
     }
     return AmmoUpgrade.NONE;
@@ -266,27 +232,22 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x3
     );
-    let slice = buf.slice(2, 5);
     switch (bb) {
       case AmmoUpgrade.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x3] = 0x00;
+        buf[0x4] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x3] = 0x00;
+        buf[0x4] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x3] = 0x01;
+        buf[0x4] = 0x00;
         break;
       case AmmoUpgrade.MAX:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x3] = 0x01;
+        buf[0x4] = 0x01;
         break;
     }
     this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x3, buf);
@@ -296,84 +257,76 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x3
     );
-    let str = buf.slice(2, 5).toString('hex');
+    let str = buf.slice(3, 5).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return AmmoUpgrade.NONE;
-      case '000001':
+      case '0001':
         return AmmoUpgrade.BASE;
-      case '000100':
+      case '0100':
         return AmmoUpgrade.UPGRADED;
-      case '000101':
+      case '0101':
         return AmmoUpgrade.MAX;
     }
     return AmmoUpgrade.NONE;
   }
 
   get bulletBag(): AmmoUpgrade {
-    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
-      this.inventory_upgrades_addr + 0x1,
-      0x2
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
     );
     let str = buf.toString('hex');
-    str = str.substr(7 * 2, 3 * 2);
     switch (str) {
-      case '000000':
+      case '0000':
         return AmmoUpgrade.NONE;
-      case '000001':
+      case '0001':
         return AmmoUpgrade.BASE;
-      case '000100':
+      case '0100':
         return AmmoUpgrade.UPGRADED;
-      case '000101':
+      case '0101':
         return AmmoUpgrade.MAX;
     }
     return AmmoUpgrade.NONE;
   }
 
   set bulletBag(bb: AmmoUpgrade) {
-    let buf: Buffer = this.emulator.rdramReadBitsBuffer(
-      this.inventory_upgrades_addr + 0x1,
-      0x2
+    let buf: Buffer = this.emulator.rdramReadBits8(
+      this.inventory_upgrades_addr + 0x2
     );
-    let slice = buf.slice(7, 11);
     switch (bb) {
       case AmmoUpgrade.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x00;
         break;
       case AmmoUpgrade.MAX:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x2, buf);
   }
 
   get quiver(): AmmoUpgrade {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x3
     );
-    let str = buf.slice(5, 8).toString('hex');
+    let str = buf.slice(6, 8).toString('hex');
     switch (str) {
-      case '000000':
+      case '0000':
         return AmmoUpgrade.NONE;
-      case '000001':
+      case '0001':
         return AmmoUpgrade.BASE;
-      case '000100':
+      case '0100':
         return AmmoUpgrade.UPGRADED;
-      case '000101':
+      case '0101':
         return AmmoUpgrade.MAX;
     }
     return AmmoUpgrade.NONE;
@@ -383,27 +336,22 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x3
     );
-    let slice = buf.slice(5, 8);
     switch (q) {
       case AmmoUpgrade.NONE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x00;
+        buf[0x1] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x00;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x01;
         break;
       case AmmoUpgrade.MAX:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
-        slice[0x2] = 0x01;
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x01;
         break;
     }
     this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x3, buf);
@@ -431,23 +379,22 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x2
     );
-    let slice = buf.slice(2, 4);
     switch (w) {
       case Wallet.CHILD:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x00;
+        buf[0x2] = 0x00;
+        buf[0x3] = 0x00;
         break;
       case Wallet.ADULT:
-        slice[0x0] = 0x00;
-        slice[0x1] = 0x01;
+        buf[0x2] = 0x00;
+        buf[0x3] = 0x01;
         break;
       case Wallet.GIANT:
-        slice[0x0] = 0x10;
-        slice[0x1] = 0x00;
+        buf[0x2] = 0x10;
+        buf[0x3] = 0x00;
         break;
       case Wallet.TYCOON:
-        slice[0x0] = 0x01;
-        slice[0x1] = 0x01;
+        buf[0x2] = 0x01;
+        buf[0x3] = 0x01;
     }
     this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x2, buf);
   }
@@ -460,7 +407,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_STICKS);
     } else {
       this.removeItem(InventoryItem.DEKU_STICK);
-      this.dekuSticksCapacity = AmmoUpgrade.NONE;
     }
   }
   get dekuSticksCount(): number {
@@ -475,10 +421,9 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
   set dekuNuts(bool: boolean) {
     if (bool) {
-      this.giveItem(InventoryItem.DEKU_STICK, InventorySlots.DEKU_NUTS);
+      this.giveItem(InventoryItem.DEKU_NUT, InventorySlots.DEKU_NUTS);
     } else {
       this.removeItem(InventoryItem.DEKU_NUT);
-      this.dekuSticksCapacity = AmmoUpgrade.NONE;
     }
   }
   get dekuNutsCount(): number {
@@ -496,7 +441,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       this.giveItem(InventoryItem.BOMB, InventorySlots.BOMBS);
     } else {
       this.removeItem(InventoryItem.BOMB);
-      this.bombBag = AmmoUpgrade.NONE;
     }
   }
   get bombsCount(): number {
@@ -551,7 +495,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       );
     } else {
       this.removeItem(InventoryItem.FAIRY_SLINGSHOT);
-      this.bulletBag = AmmoUpgrade.NONE;
     }
   }
   get dekuSeeds(): number {
@@ -569,7 +512,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       this.giveItem(InventoryItem.FAIRY_BOW, InventorySlots.FAIRY_BOW);
     } else {
       this.removeItem(InventoryItem.FAIRY_BOW);
-      this.quiver = AmmoUpgrade.NONE;
     }
   }
   get arrows(): number {
@@ -921,8 +863,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       this.getItemInSlot(desiredSlot) == item
     ) {
       this.setItemInSlot(item, desiredSlot);
-    } else {
-      this.setItemInSlot(item, this.getEmptySlots()[0]);
     }
   }
   removeItem(item: InventoryItem): void {

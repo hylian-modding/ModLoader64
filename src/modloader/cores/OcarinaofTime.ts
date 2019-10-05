@@ -98,7 +98,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.global = new GlobalContext(this.ModLoader.emulator);
     this.link = new Link(this.ModLoader.emulator);
     this.save = new SaveContext(this.ModLoader.emulator, this.ModLoader.logger);
-    this.helper = new OotHelper(this.save, this.global, this.link, this.ModLoader.emulator);
+    this.helper = new OotHelper(
+      this.save,
+      this.global,
+      this.link,
+      this.ModLoader.emulator
+    );
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
     this.actorManager = new ActorManager(
       this.ModLoader.emulator,

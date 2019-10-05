@@ -12,7 +12,12 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
   private global: IGlobalContext;
   private link: ILink;
   private emu: IMemory;
-  constructor(save: ISaveContext, global: IGlobalContext, link: ILink, memory: IMemory) {
+  constructor(
+    save: ISaveContext,
+    global: IGlobalContext,
+    link: ILink,
+    memory: IMemory
+  ) {
     super();
     this.save = save;
     this.global = global;
@@ -29,8 +34,8 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
     let r = this.link.rawStateValue;
     return (r & 0x000000ff) === 1;
   }
-  isPaused(): boolean{
-    return this.emu.rdramRead16(0x1C6FA0) === 0x3;
+  isPaused(): boolean {
+    return this.emu.rdramRead16(0x1c6fa0) !== 0x3;
   }
 
   toJSON() {
