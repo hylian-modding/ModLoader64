@@ -338,20 +338,20 @@ export class Inventory extends JSONTemplate implements IInventory {
     );
     switch (q) {
       case AmmoUpgrade.NONE:
-        buf[0x0] = 0x00;
-        buf[0x1] = 0x00;
+        buf[0x6] = 0x00;
+        buf[0x7] = 0x00;
         break;
       case AmmoUpgrade.BASE:
-        buf[0x0] = 0x00;
-        buf[0x1] = 0x01;
+        buf[0x6] = 0x00;
+        buf[0x7] = 0x01;
         break;
       case AmmoUpgrade.UPGRADED:
-        buf[0x0] = 0x01;
-        buf[0x1] = 0x01;
+        buf[0x6] = 0x01;
+        buf[0x7] = 0x01;
         break;
       case AmmoUpgrade.MAX:
-        buf[0x0] = 0x01;
-        buf[0x1] = 0x01;
+        buf[0x6] = 0x01;
+        buf[0x7] = 0x01;
         break;
     }
     this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x3, buf);
