@@ -14,6 +14,7 @@ import { SwordsEquipment } from './SwordsEquipment';
 import { Inventory } from './Inventory';
 import { QuestStatus } from './QuestStatus';
 import { zeldaString } from 'modloader64_api/OOT/ZeldaString';
+import { ILogger } from 'modloader64_api/IModLoaderAPI';
 
 export class SaveContext extends JSONTemplate implements ISaveContext {
   private emulator: IMemory;
@@ -74,14 +75,14 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     'questStatus',
     'magic_beans_purchased',
   ];
-  constructor(emu: IMemory) {
+  constructor(emu: IMemory, log: ILogger) {
     super();
     this.emulator = emu;
     this.swords = new SwordsEquipment(emu);
     this.shields = new ShieldsEquipment(emu);
     this.tunics = new TunicsEquipment(emu);
     this.boots = new BootsEquipment(emu);
-    this.inventory = new Inventory(emu);
+    this.inventory = new Inventory(emu, log);
     this.questStatus = new QuestStatus(emu);
   }
   // https://wiki.cloudmodding.com/oot/Entrance_Table

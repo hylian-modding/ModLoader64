@@ -131,7 +131,7 @@ export const enum Scene {
   GANONS_CASTLE_EXTERIOR,
 }
 
-export interface ISceneInfo {}
+export interface ISceneInfo { }
 
 export const enum Tunic {
   KOKIRI,
@@ -542,4 +542,37 @@ export const enum InventorySlots {
   BOTTLE4,
   ADULT_TRADE_ITEM,
   CHILD_TRADE_ITEM,
+}
+
+class UpgradeCount {
+  item: InventoryItem
+  level: AmmoUpgrade
+  count: number
+
+  constructor(item: InventoryItem, level: AmmoUpgrade, count: number) {
+    this.item = item;
+    this.level = level;
+    this.count = count;
+  }
+
+  isMatch(inst: UpgradeCount) {
+    return inst.item === this.item && inst.level === this.level;
+  }
+}
+
+const UpgradeCountLookupTable: Array<UpgradeCount> = [
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40)
+];
+
+export function UpgradeCountLookup(item: InventoryItem, level: AmmoUpgrade): number {
+  let inst: UpgradeCount = new UpgradeCount(item, level, -1);
+  for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
+    if (inst.isMatch(UpgradeCountLookupTable[i])) {
+      return UpgradeCountLookupTable[i].count;
+    }
+  }
+  return 0;
 }

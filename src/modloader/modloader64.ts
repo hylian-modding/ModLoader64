@@ -16,7 +16,11 @@ import IConsole from 'modloader64_api/IConsole';
 import { FakeMupen } from './consoles/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
-import { IGUITunnel, GUITunnel } from 'modloader64_api/GUITunnel';
+import {
+  IGUITunnel,
+  GUITunnel,
+  GUITunnelPacket,
+} from 'modloader64_api/GUITunnel';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -73,6 +77,11 @@ class ModLoader64 {
       //graceful shutdown
       internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
       process.exit(0);
+    });
+
+    process.on('message', (msg: string) => {
+      let packet: GUITunnelPacket = JSON.parse(msg) as GUITunnelPacket;
+      bus.emit(packet.id, packet);
     });
   }
 

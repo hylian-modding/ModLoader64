@@ -5,7 +5,6 @@ import {
   ILink,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
-import { LinkStateRawValues } from './LinkStateRawValues';
 
 export class OotHelper extends JSONTemplate implements IOotHelper {
   private save: ISaveContext;

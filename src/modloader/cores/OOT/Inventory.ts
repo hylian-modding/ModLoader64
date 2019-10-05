@@ -12,6 +12,7 @@ import {
 } from 'modloader64_api/OOT/OOTAPI';
 import { FlagManager } from 'modloader64_api/FlagManager';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
+import { ILogger } from 'modloader64_api/IModLoaderAPI';
 
 export class Inventory extends JSONTemplate implements IInventory {
   private emulator: IMemory;
@@ -19,6 +20,7 @@ export class Inventory extends JSONTemplate implements IInventory {
   private inventory_addr: number = this.instance + 0x0074;
   private inventory_ammo_addr: number = this.instance + 0x008c;
   private inventory_upgrades_addr: number = this.instance + 0x00a0;
+  private log: ILogger;
   jsonFields: string[] = [
     'dekuSticks',
     'dekuNuts',
@@ -54,9 +56,10 @@ export class Inventory extends JSONTemplate implements IInventory {
     'strength',
   ];
 
-  constructor(emu: IMemory) {
+  constructor(emu: IMemory, log: ILogger) {
     super();
     this.emulator = emu;
+    this.log = log;
   }
 
   set strength(bb: Strength) {
@@ -142,7 +145,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         slice[0x2] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x2, buf);
   }
 
   get swimming(): ZoraScale {
