@@ -148,6 +148,8 @@ function build() {
 function postbuild() {
     findRemoveSync('./src', { extensions: ['.js'] })
     findRemoveSync('./test', { extensions: ['.js'] })
+    //findRemoveSync('./build', { extensions: ['.ts'] })
+    //findRemoveSync('./build', { extensions: ['.map'] })
     if (!fs.existsSync("./build2")) {
         fs.mkdirSync("./build2");
     }

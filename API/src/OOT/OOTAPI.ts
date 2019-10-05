@@ -131,7 +131,7 @@ export const enum Scene {
   GANONS_CASTLE_EXTERIOR,
 }
 
-export interface ISceneInfo { }
+export interface ISceneInfo {}
 
 export const enum Tunic {
   KOKIRI,
@@ -469,6 +469,7 @@ export interface IOotHelper {
   isTitleScreen(): boolean;
   isSceneNumberValid(): boolean;
   isLinkEnteringLoadingZone(): boolean;
+  isPaused(): boolean;
 }
 
 export interface IOOTCore extends ICore {
@@ -545,9 +546,9 @@ export const enum InventorySlots {
 }
 
 class UpgradeCount {
-  item: InventoryItem
-  level: AmmoUpgrade
-  count: number
+  item: InventoryItem;
+  level: AmmoUpgrade;
+  count: number;
 
   constructor(item: InventoryItem, level: AmmoUpgrade, count: number) {
     this.item = item;
@@ -560,14 +561,17 @@ class UpgradeCount {
   }
 }
 
-const UpgradeCountLookupTable: Array<UpgradeCount> = [
+const UpgradeCountLookupTable: UpgradeCount[] = [
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
-  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40)
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
 ];
 
-export function UpgradeCountLookup(item: InventoryItem, level: AmmoUpgrade): number {
+export function UpgradeCountLookup(
+  item: InventoryItem,
+  level: AmmoUpgrade
+): number {
   let inst: UpgradeCount = new UpgradeCount(item, level, -1);
   for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
     if (inst.isMatch(UpgradeCountLookupTable[i])) {

@@ -438,10 +438,6 @@ namespace NetworkEngine {
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
-      internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
-        this.socket.removeAllListeners();
-        this.socket.disconnect();
-      });
     }
 
     onTick() {
