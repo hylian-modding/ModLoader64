@@ -434,6 +434,7 @@ export interface ISaveContext {
   eventFlags: Buffer;
   itemFlags: Buffer;
   infTable: Buffer;
+  skulltulaFlags: Buffer;
 }
 
 export interface ILink extends IMemory {
@@ -588,7 +589,7 @@ const UpgradeCountLookupTable: UpgradeCount[] = [
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 40),
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 50),
   // Bombchu
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 20)
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 20),
 ];
 
 export function UpgradeCountLookup(

@@ -43,6 +43,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private event_data_addr: number = this.instance + 0x0ed4;
   private item_flag_addr: number = this.instance + 0x0ef0;
   private inf_table_addr: number = this.instance + 0x0ef8;
+  private skulltula_table_addr: number = this.instance + 0x0E9C;
+
   // Further abstractions
   swords: SwordsEquipment;
   shields: ShieldsEquipment;
@@ -249,5 +251,11 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   }
   set infTable(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.inf_table_addr, buf);
+  }
+  get skulltulaFlags(): Buffer{
+    return this.emulator.rdramReadBuffer(this.skulltula_table_addr, 0x18);
+  }
+  set skulltulaFlags(buf: Buffer){
+    this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
   }
 }
