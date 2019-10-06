@@ -571,23 +571,23 @@ const UpgradeCountLookupTable: UpgradeCount[] = [
   // Sticks
   new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
   new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 20),
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 30),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.UPGRADED, 20),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.MAX, 30),
   // Nuts
   new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 20),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 30),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 40),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.BASE, 20),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.UPGRADED, 30),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.MAX, 40),
   // Seeds
   new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 30),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 40),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 50),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.BASE, 30),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.UPGRADED, 40),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.MAX, 50),
   // Arrows
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 40),
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 50),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
   // Bombchu
   new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 20),
 ];
