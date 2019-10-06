@@ -123,32 +123,28 @@ class BPS {
   }
 
   handleBps(rom: any, patch: any) {
+    let ret;
     try {
-      let ret;
-      try {
+      ret = this.applyBps(
+        new Uint8Array(rom.bytes),
+        new Uint8Array(patch.bytes)
+      );
+    } catch (e) {
+      if (e === 'wrong input file') {
+        // maybe a headered rom? skip first 512 bytes for patching
         ret = this.applyBps(
-          new Uint8Array(rom.bytes),
+          new Uint8Array(rom.bytes, 512),
           new Uint8Array(patch.bytes)
         );
-      } catch (e) {
-        if (e === 'wrong input file') {
-          // maybe a headered rom? skip first 512 bytes for patching
-          ret = this.applyBps(
-            new Uint8Array(rom.bytes, 512),
-            new Uint8Array(patch.bytes)
-          );
-          // if we reached here, there were no errors, so the assumption about a headered rom was correct.
-          // now re-add the 512 bytes from the original ROM to the patched one
-          let tmpbuf = new Uint8Array(ret.length + 512); // create buffer large enough for rom and header
-          tmpbuf.set(new Uint8Array(rom.bytes, 512)); // copy header
-          tmpbuf.set(ret, 512); // copy rom data
-          ret = tmpbuf;
-        } else throw e;
-      }
-      return Buffer.from(ret);
-    } catch (e) {
-      throw e;
+        // if we reached here, there were no errors, so the assumption about a headered rom was correct.
+        // now re-add the 512 bytes from the original ROM to the patched one
+        let tmpbuf = new Uint8Array(ret.length + 512); // create buffer large enough for rom and header
+        tmpbuf.set(new Uint8Array(rom.bytes, 512)); // copy header
+        tmpbuf.set(ret, 512); // copy rom data
+        ret = tmpbuf;
+      } else throw e;
     }
+    return Buffer.from(ret);
   }
 
   tryPatch(rom: Buffer, bps: Buffer) {
