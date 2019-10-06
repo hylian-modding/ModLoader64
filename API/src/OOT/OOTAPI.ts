@@ -562,10 +562,33 @@ class UpgradeCount {
 }
 
 const UpgradeCountLookupTable: UpgradeCount[] = [
+  // Bombs
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
   new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
+  // Sticks
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 20),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 30),
+  // Nuts
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 20),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 30),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 40),
+  // Seeds
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 30),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 40),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 50),
+  // Arrows
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 40),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 50),
+  // Bombchu
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 20)
 ];
 
 export function UpgradeCountLookup(
