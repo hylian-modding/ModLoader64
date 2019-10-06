@@ -56,7 +56,7 @@ export class QuestStatus extends JSONTemplate implements IQuestStatus {
   set stoneOfAgony(bool: boolean) {
     this.questFlags.setFlag(this.stoneOfAgonyFlag, bool);
   }
-  private displayGoldSkulltulasFlag = new Flag(1, 7);
+  private displayGoldSkulltulasFlag = new Flag(1, 0);
   get displayGoldSkulltulas(): boolean {
     return this.questFlags.isFlagSet(this.displayGoldSkulltulasFlag);
   }
@@ -70,11 +70,11 @@ export class QuestStatus extends JSONTemplate implements IQuestStatus {
     this.emulator.rdramWrite16(this.skulltulaAddr, count);
   }
   get heartPieces(): number {
-    return this.emulator.rdramRead8(this.questFlagsAddr + 3);
+    return this.emulator.rdramRead8(this.questFlagsAddr) / 10;
   }
   set heartPieces(count: number) {
-    let pieces: number = count % 4;
-    this.emulator.rdramWrite8(this.questFlagsAddr + 3, pieces);
+    let pieces: number = count * 10;
+    this.emulator.rdramWrite8(this.questFlagsAddr, pieces);
   }
   private zeldaasLullabyFlag = new Flag(2, 3);
   get zeldasLullaby(): boolean {
