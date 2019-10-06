@@ -529,6 +529,7 @@ namespace NetworkEngine {
         });
         inst.socket.on('LobbyDenied_BadPassword', (ld: LobbyData) => {
           inst.logger.error('Failed to join lobby. :(');
+          process.exit(1);
         });
         inst.socket.on('left', (player: INetworkPlayer) => {
           bus.emit(EventsClient.ON_PLAYER_LEAVE, player);
