@@ -275,7 +275,7 @@ export class Inventory extends JSONTemplate implements IInventory {
     let buf: Buffer = this.emulator.rdramReadBits8(
       this.inventory_upgrades_addr + 0x2
     );
-    let str = buf.toString('hex');
+    let str = buf.slice(0, 2).toString('hex');
     switch (str) {
       case '0000':
         return AmmoUpgrade.NONE;

@@ -4,6 +4,7 @@ import { Pak } from './PakFormat';
 import { generate } from './sign';
 
 program.option('-d --dir <dir>', 'base directory');
+program.option('-i --input <pak>', 'pak to unpak');
 program.option('-o, --output <file>', 'output file');
 
 program.parse(process.argv);
@@ -22,4 +23,9 @@ if (program.dir !== undefined) {
       fs.writeFileSync(program.dir + '.sig', generate(pak.fileName));
     }
   });
+}
+
+if (program.input !== undefined) {
+  let pak: Pak = new Pak(program.input);
+  pak.extractAll(program.output);
 }

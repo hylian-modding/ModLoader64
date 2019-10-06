@@ -1,12 +1,9 @@
 import program from 'commander';
 import path from 'path';
 import fs from 'fs';
-import { Pak } from './PakFormat';
 
 program.option('-i, --input <file>', 'input file');
 program.option('-o, --output <file>', 'output file');
-program.option('-b, --base <addr>', 'base address');
-program.option('-d --dir <dir>', 'base directory');
 
 program.parse(process.argv);
 
@@ -21,21 +18,8 @@ function hexPadding2(i: number): string {
 if (program.input !== undefined) {
   let input = path.resolve(program.input);
   let output = path.resolve(program.output);
-  let base = parseInt(program.base);
+  let base = parseInt(path.parse(input).name);
   generatePayload(input, output, base);
-}
-
-if (program.dir !== undefined) {
-  let output = path.resolve(path.join(program.dir, 'output' + '.pak'));
-  let pak = new Pak(output);
-  fs.readdirSync(path.resolve(program.dir)).forEach((key: string) => {
-    let parse = path.parse(key);
-    if (parse.ext !== '.pak') {
-      let input = path.join(program.dir, key);
-      pak.save_file(input);
-      pak.update();
-    }
-  });
 }
 
 function generatePayload(inputfile: string, outputfile: string, base: number) {

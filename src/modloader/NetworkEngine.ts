@@ -322,11 +322,12 @@ namespace NetworkEngine {
               inst.currently_processing_lobby = data.lobby;
               inst.lobbyVariables.forEach(
                 (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                  value.setField(
-                    inst.getLobbyStorage(data.lobby).data[value.objectKey][
-                      value.fieldName
-                    ]
-                  );
+                  let d = inst.getLobbyStorage(data.lobby);
+                  if (d !== null) {
+                    value.setField(d.data[value.objectKey][value.fieldName]);
+                  } else {
+                    return;
+                  }
                 }
               );
               NetworkBusServer.emit(data.packet_id, data);

@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import IMemory from './IMemory';
-import { Pak } from './PakFormat';
 
 export interface Code {
   type: string;
@@ -56,21 +55,6 @@ export class GameShark {
         let original = fs.readFileSync(data, 'utf8');
         this.read_gs(original);
         break;
-      }
-      case '.pak': {
-        this.logger.info('Loading pak ' + file.base + '.');
-        let pak = new Pak(data);
-        for (let i = 0; i < pak.pak.header.files.length; i++) {
-          let buf: Buffer = pak.load(i);
-          let filename: string = pak.pak.header.files[i].filename;
-          let parse = path.parse(filename);
-          this.logger.info('- parsing pak data: ' + parse.base + '.');
-          if (parse.ext === '.payload') {
-            this.read_gs(buf.toString('ascii'));
-          } else if (parse.ext === '.bin') {
-            this.emulator.rdramWriteBuffer(parseInt(parse.base), buf);
-          }
-        }
       }
     }
   }
