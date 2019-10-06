@@ -108,6 +108,10 @@ class N64 implements IConsole {
   loadState(file: string): void {
     this.mupen.loadState(file);
   }
+
+  setSaveDir(path: string): void {
+    this.mupen.setSaveDir(path);
+  }
 }
 
 export default N64;

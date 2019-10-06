@@ -31,6 +31,8 @@ interface IConsole {
   resumeEmulator(): void;
 
   getMemoryAccess(): IMemory;
+
+  setSaveDir(path: string): void;
 }
 
 export default IConsole;

@@ -67,13 +67,13 @@ class ModLoader64 {
         output: process.stdout,
       });
 
-      rl.on('SIGINT', function () {
+      rl.on('SIGINT', function() {
         // @ts-ignore
         process.emit('SIGINT');
       });
     }
 
-    process.on('SIGINT', function () {
+    process.on('SIGINT', function() {
       //graceful shutdown
       internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
       process.exit(0);
@@ -89,7 +89,7 @@ class ModLoader64 {
     this.tunnel = new GUITunnel(process, 'internal_event_bus', this);
     let ofn = internal_event_bus.emit.bind(internal_event_bus);
     ((inst: ModLoader64) => {
-      internal_event_bus.emit = function (
+      internal_event_bus.emit = function(
         event: string | symbol,
         ...args: any[]
       ): boolean {
@@ -209,7 +209,18 @@ class ModLoader64 {
       this.logger.info('Setting up Mupen...');
       let instance = this;
       let mupen: IMemory;
-      let load_mupen = new Promise(function (resolve, reject) {
+      let load_mupen = new Promise(function(resolve, reject) {
+        if (!fs.existsSync('./saves')) {
+          fs.mkdirSync('./saves');
+        }
+        if (
+          !fs.existsSync(path.join('./saves', instance.Client.config.lobby))
+        ) {
+          fs.mkdirSync(path.join('./saves', instance.Client.config.lobby));
+        }
+        instance.emulator.setSaveDir(
+          path.resolve(path.join('./saves', instance.Client.config.lobby)) + '/'
+        );
         mupen = instance.emulator.startEmulator(() => {
           let p: Buffer = result[0].patch as Buffer;
           let rom_data: Buffer = instance.emulator.getLoadedRom();
@@ -227,11 +238,11 @@ class ModLoader64 {
           bus.emit(ModLoaderEvents.ON_ROM_PATCHED, { rom: rom_data });
           return rom_data;
         }) as IMemory;
-        while (!instance.emulator.isEmulatorReady()) { }
+        while (!instance.emulator.isEmulatorReady()) {}
         internal_event_bus.emit('emulator_started', {});
         resolve();
       });
-      load_mupen.then(function () {
+      load_mupen.then(function() {
         instance.logger.info('Finishing plugin init...');
         instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
         internal_event_bus.emit('onPostInitDone', {});

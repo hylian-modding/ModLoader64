@@ -84,7 +84,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x1] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x3, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x3, buf);
   }
 
   get strength(): Strength {
@@ -123,7 +123,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x6] = 0x00;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x2, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x2, buf);
   }
 
   get swimming(): ZoraScale {
@@ -164,7 +164,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x6] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x1, buf);
   }
 
   get dekuSticksCapacity(): AmmoUpgrade {
@@ -207,7 +207,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x3] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x1, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x1, buf);
   }
 
   get dekuNutsCapacity(): AmmoUpgrade {
@@ -250,7 +250,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x4] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x3, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x3, buf);
   }
 
   get bombBag(): AmmoUpgrade {
@@ -311,7 +311,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x1] = 0x01;
         break;
     }
-    this.emulator.rdramWriteBitsBuffer(this.inventory_upgrades_addr + 0x2, buf);
+    this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x2, buf);
   }
 
   get quiver(): AmmoUpgrade {

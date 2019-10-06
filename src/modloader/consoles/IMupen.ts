@@ -33,6 +33,8 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
   softReset(): void;
 
   hardReset(): void;
+
+  setSaveDir(path: string): void;
 }
 
 export default IMupen;

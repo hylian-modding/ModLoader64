@@ -59,4 +59,6 @@ export class FakeMupen implements IConsole {
   saveState(file: string): void {}
 
   loadState(file: string): void {}
+
+  setSaveDir(path: string): void {}
 }
