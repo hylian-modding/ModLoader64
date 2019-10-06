@@ -72,12 +72,12 @@ export class Inventory extends JSONTemplate implements IInventory {
         buf[0x1] = 0x00;
         break;
       case Strength.GORON_BRACELET:
-        buf[0x0] = 0x01;
-        buf[0x1] = 0x00;
-        break;
-      case Strength.SILVER_GAUNTLETS:
         buf[0x0] = 0x00;
         buf[0x1] = 0x01;
+        break;
+      case Strength.SILVER_GAUNTLETS:
+        buf[0x0] = 0x01;
+        buf[0x1] = 0x00;
         break;
       case Strength.GOLDEN_GAUNTLETS:
         buf[0x0] = 0x01;

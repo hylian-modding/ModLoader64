@@ -30,7 +30,6 @@ import fs from 'fs';
 import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
 import { PluginMeta } from 'modloader64_api/LobbyVariable';
-import http from 'http';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
@@ -117,6 +116,7 @@ namespace NetworkEngine {
     fakePlayer: FakeNetworkPlayer = new FakeNetworkPlayer();
     udpServer: Socket = dgram.createSocket('udp4');
     udpPort = -1;
+    plugins: any = {};
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -132,6 +132,10 @@ namespace NetworkEngine {
       ) as IModLoaderConfig;
       bus.on('setupLobbyVariable', evt => {
         this.lobbyVariables.push(evt);
+      });
+      internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
+        let p: any = args[0];
+        this.plugins[p.name] = p.version;
       });
     }
 
@@ -230,10 +234,23 @@ namespace NetworkEngine {
           inst.io.on('connection', function(socket: SocketIO.Socket) {
             inst.logger.info('Client ' + socket.id + ' connected.');
             inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
-            socket.on('version', function(data: string) {
+            socket.on('version', function(packet: VersionPacket) {
+              let data = packet.ml;
               let parse = data.split('.');
               let v = new Version(parse[0], parse[1], parse[2]);
-              if (inst.version.match(v)) {
+              let mismatch = false;
+              Object.keys(inst.plugins).forEach((name: string) => {
+                if (packet.plugins.hasOwnProperty(name)) {
+                  if (inst.plugins[name] !== packet.plugins[name]) {
+                    mismatch = true;
+                  } else {
+                    inst.logger.info(
+                      'Plugin ' + name + ' version check passed.'
+                    );
+                  }
+                }
+              });
+              if (inst.version.match(v) && mismatch === false) {
                 inst.sendToTarget(socket.id, 'versionGood', {
                   client: v,
                   server: inst.version,
@@ -406,6 +423,16 @@ namespace NetworkEngine {
     }
   }
 
+  class VersionPacket {
+    ml: string;
+    plugins: any;
+
+    constructor(ml: string, plugins: any) {
+      this.ml = ml;
+      this.plugins = plugins;
+    }
+  }
+
   export class Client {
     private io: any = require('socket.io-client');
     socket: SocketIO.Socket = {} as SocketIO.Socket;
@@ -420,6 +447,7 @@ namespace NetworkEngine {
     isUDPEnabled = false;
     udpTestHandle!: any;
     packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
+    plugins: any = {};
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -439,6 +467,10 @@ namespace NetworkEngine {
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
+      internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
+        let p: any = args[0];
+        this.plugins[p.name] = p.version;
+      });
     }
 
     onTick() {
@@ -479,7 +511,10 @@ namespace NetworkEngine {
         });
         inst.socket.on('uuid', (data: any) => {
           inst.me = new NetworkPlayer(inst.config.nickname, data.uuid);
-          inst.socket.emit('version', global.ModLoader.version);
+          inst.socket.emit(
+            'version',
+            new VersionPacket(global.ModLoader.version, inst.plugins)
+          );
         });
         inst.socket.on('versionGood', (data: any) => {
           inst.logger.info('Version good! ' + JSON.stringify(data.server));

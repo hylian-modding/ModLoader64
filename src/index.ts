@@ -9,7 +9,7 @@ import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
 const testers: string[] = [];
-const version = '1.0.0';
+const version = require('./version');
 
 global.ModLoader = {};
 global.ModLoader['version'] = version;

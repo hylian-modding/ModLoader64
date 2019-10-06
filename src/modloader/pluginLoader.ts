@@ -171,6 +171,7 @@ class pluginLoader {
       this.registerPlugin(plugin);
       this.plugin_folders.push(parse.dir);
     }
+    internal_event_bus.emit('PLUGIN_LOADED', pkg);
   }
 
   loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
