@@ -21,6 +21,7 @@ import {
   GUITunnel,
   GUITunnelPacket,
 } from 'modloader64_api/GUITunnel';
+import crypto from 'crypto';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -228,7 +229,18 @@ class ModLoader64 {
             let BPS = require('./BPS');
             let _BPS = new BPS();
             try {
+              let hash = crypto
+                .createHash('md5')
+                .update(rom_data)
+                .digest('hex');
+              instance.logger.info('Patching rom...');
               rom_data = _BPS.tryPatch(rom_data, p);
+              let newHash = crypto
+                .createHash('md5')
+                .update(rom_data)
+                .digest('hex');
+              instance.logger.info(hash);
+              instance.logger.info(newHash);
             } catch (err) {
               if (err) {
                 process.exit(1);

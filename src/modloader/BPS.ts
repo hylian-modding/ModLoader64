@@ -142,7 +142,9 @@ class BPS {
         tmpbuf.set(new Uint8Array(rom.bytes, 512)); // copy header
         tmpbuf.set(ret, 512); // copy rom data
         ret = tmpbuf;
-      } else throw e;
+      } else {
+        throw e;
+      }
     }
     return Buffer.from(ret);
   }

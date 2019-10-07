@@ -464,6 +464,8 @@ export interface IGlobalContext {
   liveSceneData_switch: Buffer;
   liveSceneData_temp: Buffer;
   liveSceneData_collectable: Buffer;
+  getSaveDataForCurrentScene(): Buffer;
+  writeSaveDataForCurrentScene(buf: Buffer): void;
 }
 
 export interface IOotHelper {
