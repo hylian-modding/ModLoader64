@@ -58,7 +58,11 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
     );
   }
   get liveSceneData_clear(): Buffer {
-    return this.emulator.rdramReadBuffer(this.room_clear_flags_addr, 0x4);
+    return this.emulator.rdramReadPtrBuffer(
+      global.ModLoader.global_context_pointer,
+      this.room_clear_flags_addr,
+      0x4
+    );
   }
   set liveSceneData_clear(buf: Buffer) {
     this.emulator.rdramWritePtrBuffer(
@@ -118,11 +122,17 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
     );
   }
   getSaveDataForCurrentScene(): Buffer {
-    return this.emulator.rdramReadBuffer(global.ModLoader.save_context + 0x00D4 + (this.scene * 0x1c), 0x1C)
+    return this.emulator.rdramReadBuffer(
+      global.ModLoader.save_context + 0x00d4 + this.scene * 0x1c,
+      0x1c
+    );
   }
   writeSaveDataForCurrentScene(buf: Buffer): void {
     if (buf.byteLength === 0x1c) {
-      this.emulator.rdramWriteBuffer(global.ModLoader.save_context + 0x00D4 + (this.scene * 0x1c), buf);
+      this.emulator.rdramWriteBuffer(
+        global.ModLoader.save_context + 0x00d4 + this.scene * 0x1c,
+        buf
+      );
     }
   }
 }
