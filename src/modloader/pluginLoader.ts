@@ -259,6 +259,12 @@ class pluginLoader {
       'ModLoader64'
     ) as IModLoaderConfig;
     let utils: IUtils = (emulator as unknown) as IUtils;
+    utils.hashBuffer = (buf: Buffer) => {
+      return crypto
+        .createHash('md5')
+        .update(buf)
+        .digest('hex');
+    };
     this.loaded_core.ModLoader.emulator = emulator;
     this.loaded_core.ModLoader.utils = utils;
     this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;

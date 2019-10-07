@@ -8,6 +8,8 @@ interface IUtils {
   utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
 
   memoryCacheRefresh(): void;
+
+  hashBuffer(buf: Buffer): string;
 }
 
 export default IUtils;
