@@ -39,6 +39,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
   // Client side variables
   isSaveLoaded = false;
   last_known_scene = -1;
+  last_known_room = -1;
+  doorcheck = false;
   touching_loading_zone = false;
   frame_count_reset_scene = -1;
   rom_header!: IRomHeader;
@@ -90,6 +92,22 @@ export class OcarinaofTime implements ICore, IOOTCore {
         this.last_known_scene = cur;
         bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
         this.touching_loading_zone = false;
+      }
+    });
+    this.eventTicks.set('waitingForRoomChange', () => {
+      let cur = this.global.room;
+      if (this.last_known_room !== cur) {
+        this.last_known_room = cur;
+        bus.emit(OotEvents.ON_ROOM_CHANGE, this.last_known_room);
+        this.doorcheck = false;
+      }
+      let doorState = this.ModLoader.emulator.rdramReadPtr8(
+        global.ModLoader.global_context_pointer,
+        0x11ced
+      );
+      if (doorState === 1 && !this.doorcheck) {
+        bus.emit(OotEvents.ON_ROOM_CHANGE_PRE, doorState);
+        this.doorcheck = true;
       }
     });
   }

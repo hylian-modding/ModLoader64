@@ -493,6 +493,8 @@ export enum OotEvents {
   ON_LOADING_ZONE = 'onLoadingZone',
   ON_ACTOR_SPAWN = 'onActorSpawn',
   ON_ACTOR_DESPAWN = 'onActorDespawn',
+  ON_ROOM_CHANGE = 'onRoomChange',
+  ON_ROOM_CHANGE_PRE = 'onPreRoomChange',
 }
 
 export interface IActorManager {
