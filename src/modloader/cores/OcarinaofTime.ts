@@ -44,6 +44,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   touching_loading_zone = false;
   frame_count_reset_scene = -1;
   rom_header!: IRomHeader;
+  inventory_cache: Buffer = Buffer.alloc(0x24, 0xff);
 
   preinit(): void {
     this.ModLoader.logger.info(
@@ -92,6 +93,20 @@ export class OcarinaofTime implements ICore, IOOTCore {
         this.last_known_scene = cur;
         bus.emit(OotEvents.ON_SCENE_CHANGE, this.last_known_scene);
         this.touching_loading_zone = false;
+        let inventory: Buffer = this.ModLoader.emulator.rdramReadBuffer(
+          global.ModLoader.save_context + 0x0074,
+          0x24
+        );
+        for (let i = 0; i < inventory.byteLength; i++) {
+          if (inventory[i] === 0x004d) {
+            inventory[i] = this.inventory_cache[i];
+          }
+        }
+        inventory.copy(this.inventory_cache);
+        this.ModLoader.emulator.rdramWriteBuffer(
+          global.ModLoader.save_context + 0x0074,
+          inventory
+        );
       }
     });
     this.eventTicks.set('waitingForRoomChange', () => {

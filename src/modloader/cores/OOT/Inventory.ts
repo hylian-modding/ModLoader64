@@ -745,40 +745,16 @@ export class Inventory extends JSONTemplate implements IInventory {
     return bottles;
   }
   get childTradeItem(): InventoryItem {
-    for (
-      let i = InventoryItem.MASK_OF_TRUTH;
-      i >= InventoryItem.ZELDAS_LETTER;
-      i--
-    ) {
-      if (this.hasItem(i)) {
-        return i;
-      }
-    }
-    if (this.hasItem(InventoryItem.SOLD_OUT)) {
-      // More complex logic is required here to grab the last mask the child had
-    }
-    return InventoryItem.NONE;
+    return this.getItemInSlot(InventorySlots.CHILD_TRADE_ITEM);
   }
   set childTradeItem(item: InventoryItem) {
-    // More complex logic is required here because of flags
+    this.setItemInSlot(item, InventorySlots.CHILD_TRADE_ITEM);
   }
   get adultTradeItem(): InventoryItem {
-    for (
-      let i = InventoryItem.CLAIM_CHECK;
-      i >= InventoryItem.POCKET_EGG;
-      i--
-    ) {
-      if (i == InventoryItem.SOLD_OUT) {
-        continue;
-      }
-      if (this.hasItem(i)) {
-        return i;
-      }
-    }
-    return InventoryItem.NONE;
+    return this.getItemInSlot(InventorySlots.ADULT_TRADE_ITEM);
   }
   set adultTradeItem(item: InventoryItem) {
-    // More complex logic is required here because of flags
+    this.setItemInSlot(item, InventorySlots.ADULT_TRADE_ITEM);
   }
   isChildTradeFinished(): boolean {
     // This is going to require more complex flag checks
