@@ -50,13 +50,10 @@
     "@types/uuid": "^3.4.5",
     "copy-node-modules": "^1.1.1",
     "find-remove": "^1.2.2",
-    "gc-profiler": "^1.4.1",
     "gts": "^1.0.0",
     "mocha": "^6.2.0",
     "pre-commit": "^1.2.2",
     "recursive-readdir": "^2.2.2",
-    "thread-sleep": "^2.2.0",
-    "typescript": "^3.5.2",
-    "v8-profiler-next": "^1.1.1"
+    "typescript": "^3.5.2"
   }
 }
