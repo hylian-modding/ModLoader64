@@ -170,7 +170,7 @@ namespace NetworkEngine {
       this.io = require('socket.io')(server);
 
       server.listen(this.config.port);
-      this.io.use(this.encrypt(global.ModLoader.version));
+      this.io.use(this.encrypt('MELONSUCKS'));
 
       internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
         this.logger.info('SHUTDOWN DETECTED.');
@@ -487,7 +487,7 @@ namespace NetworkEngine {
         inst.socket = inst.io.connect(
           'http://' + inst.config.ip + ':' + inst.config.port
         );
-        inst.encrypt(global.ModLoader.version)(inst.socket);
+        inst.encrypt('MELONSUCKS')(inst.socket);
         NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
           data.player = inst.me;
           data.lobby = inst.config.lobby;
