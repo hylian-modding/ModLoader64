@@ -57,24 +57,8 @@ export const enum AddressType {
   SAVE_MUMBO_TOKEN_FLAGS = 'BK:save_mumbo_token_flags',
   SAVE_NOTE_TOTALS = 'BK:save_note_totals',
 
-  INV_HEALTH_UPGRADES = 'BK:inv_health_upgrades',
-  INV_HONEYCOMBS = 'BK:inv_honeycombs',
-  INV_JIGGIES = 'BK:inv_jiggies',
-  INV_MUMBO_TOKENS = 'BK:inv_mumbo_tokens',
-  INV_TEXT_JIGGIES = 'BK:inv_text_jiggies',
-  INV_TEXT_MUMBO_TOKENS = 'BK:inv_text_mumbo_tokens',
-
-  INV_EGGS = 'BK:inv_eggs',
-  INV_RED_FEATHERS = 'BK:inv_red_feather',
-  INV_GOLD_FEATHERS = 'BK:inv_gold_feather',
-
-  INV_SCORE_TWINKLIE = 'BK:inv_score_twinklie',
-
-  INV_HOURGLASS_2 = 'BK:inv_hourglass_2',
-  INV_HOURGLASS_SKULL = 'BK:inv_hourglass_skull',
-  INV_HOURGLASS_TIMER = 'BK:inv_hourglass_timer',
-  INV_TIMER_XMAS_TREE = 'BK:inv_timer_xmas_tree',
-  INV_TIMER_PROPELLOR = 'BK:inv_timer_propellor',
+  INVENTORY = 'BK:inventory',
+  TEXT_MUMBO_TOKENS = 'BK:txt_tokens',
 }
 
 export enum AnimationType {
@@ -1438,6 +1422,43 @@ export enum ExitType {
 
   SM_MAIN_BANJOS_HOUSE = 0x12,
   SM_MAIN_GRUNTILDAS_LAIR = 0x13,
+}
+
+export enum InventoryType {
+  TIMER_HOURGLASS1 = 0x00 * 4,
+  TIMER_SKULL = 0x01 * 4,
+  TIMER_PROPELLOR = 0x03 * 4,
+  TIMER_XMAS_TREE = 0x05 * 4,
+  TIMER_HOURGLASS2 = 0x06 * 4,
+  CUR_LVL_NOTES = 0x0c * 4,
+  EGGS = 0x0d * 4,
+  CUR_LVL_JIGGIES = 0x0e * 4,
+  FEATHERS_RED = 0x0f * 4,
+  FEATHERS_GOLD = 0x10 * 4,
+  CUR_LVL_JINJOS = 0x12 * 4,
+  HONEYCOMBS_EMPTY = 0x13 * 4,
+  HEALTH = 0x14 * 4,
+  HEALTH_CONTAINERS = 0x15 * 4,
+  LIVES = 0x16 * 4,
+  AIR = 0x17 * 4,
+  CUR_LVL_GOLD_BULLION = 0x18 * 4,
+  CUR_LVL_ORANGE = 0x19 * 4,
+  VILE_SCORE_PLYR = 0x1a * 4,
+  VILE_SCORE_VILE = 0x1b * 4,
+  MUMBO_TOKENS_HELD = 0x1c * 4,
+  GRUMBLIES = 0x1d * 4,
+  YUMBLIES = 0x1e * 4,
+  CUR_LVL_PRESENT_GREEN = 0x1f * 4,
+  CUR_LVL_PRESENT_BLUE = 0x20 * 4,
+  CUR_LVL_PRESENT_RED = 0x21 * 4,
+  CUR_LVL_CATERPILLARS = 0x22 * 4,
+  CUR_LVL_ACORNS = 0x23 * 4,
+  TWINKLIES = 0x24 * 4,
+  MUMBO_TOKENS = 0x25 * 4,
+  JIGGIES = 0x26 * 4,
+  JOKER_CARD = 0x27 * 4,
+  TEXT_JIGGIES = 0x2b * 4,
+  NOTE_TOTALS = 0x30 * 4,
 }
 
 export enum LevelType {
