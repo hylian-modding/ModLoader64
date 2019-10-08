@@ -91,6 +91,14 @@ interface IMemory {
     bitoffset: number,
     bit: boolean
   ): void;
+
+  //--------------------
+  // Float functions
+  //--------------------
+
+  rdramReadF32(addr: number): number;
+
+  rdramReadPtrF32(addr: number, offset: number): number;
 }
 
 export default IMemory;

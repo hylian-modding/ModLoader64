@@ -265,4 +265,10 @@ export class Link extends JSONTemplate implements ILink {
     let pointer = this.dereferencePointer(addr);
     this.emulator.rdramWriteBit8(pointer + offset, bitoffset, bit);
   }
+  rdramReadF32(addr: number): number {
+    return this.emulator.rdramReadF32(addr);
+  }
+  rdramReadPtrF32(addr: number, offset: number): number {
+    return this.emulator.rdramReadPtrF32(addr, offset);
+  }
 }

@@ -215,4 +215,12 @@ export class FakeN64Memory implements IMemory {
   rdramReadS32(addr: number): number {
     return this.buf.readUInt32BE(addr);
   }
+
+  rdramReadF32(addr: number): number {
+    return this.buf.readInt32BE(addr);
+  }
+
+  rdramReadPtrF32(addr: number, offset: number): number {
+    return this.buf.readInt32BE(addr + offset);
+  }
 }
