@@ -4,6 +4,8 @@ import { execSync, fork } from 'child_process';
 import program from 'commander';
 import path from 'path';
 import findRemoveSync from 'find-remove';
+var recursive = require("recursive-readdir");
+import crypto from 'crypto';
 
 var isWin = process.platform === "win32";
 
@@ -67,15 +69,15 @@ function pushModules() {
         ncp("./build", "./dist/windows", function (err) {
             if (err) return console.error(err);
         });
-        
+
         ncp("./build", "./dist/linux", function (err) {
             if (err) return console.error(err);
         });
-        
+
         ncp("./build", "./dist/mac", function (err) {
             if (err) return console.error(err);
         });
-        
+
         ncp("./build", "./dist/switch", function (err) {
             if (err) return console.error(err);
         });
@@ -153,6 +155,16 @@ function postbuild() {
     if (!fs.existsSync("./build2")) {
         fs.mkdirSync("./build2");
     }
+    let hashes = [];
+    recursive("./build", function (err, files) {
+        for (let i = 0; i < files.length; i++){
+            let _path = path.resolve(files[i]);
+            let _parse = path.parse(files[i]);
+            let hash = crypto.createHash('md5').update(fs.readFileSync(_path)).digest('hex');
+            hashes.push({file: _parse.base, hash: hash});
+        }
+        fs.writeFileSync("./build/hashes.json", JSON.stringify(hashes, null, 2));
+    });
     ncp("./build", "./build2", function (err) {
         if (err) {
             return console.error(err);
@@ -165,4 +177,5 @@ function postbuild() {
         }
         console.log('done!');
     });
+
 }

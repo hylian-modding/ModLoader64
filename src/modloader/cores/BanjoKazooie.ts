@@ -39,26 +39,44 @@ export class MumboTokenFlags extends API.BufferObj implements API.IBuffered {
 
 export class NoteTotalBuffer extends API.BufferObj implements API.IBuffered {
   constructor(emu: IMemory) {
-    super(emu, global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.NOTE_TOTALS, 0x0f);
+    super(
+      emu,
+      global.ModLoader[API.AddressType.INVENTORY] +
+        API.InventoryType.NOTE_TOTALS,
+      0x0f
+    );
   }
 }
 
 export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
   private id_addr = global.ModLoader[API.AddressType.RT_CUR_LEVEL];
-  private acorn_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_ACORNS;
+  private acorn_addr =
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_ACORNS;
   private caterpillar_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_CATERPILLARS;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_CATERPILLARS;
   private gold_bullions_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_GOLD_BULLION;
-  private jinjos_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_JINJOS;
-  private notes_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_NOTES;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_GOLD_BULLION;
+  private jinjos_addr =
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_JINJOS;
+  private notes_addr =
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_NOTES;
   private present_green_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_PRESENT_GREEN;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_PRESENT_GREEN;
   private present_blue_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_PRESENT_BLUE;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_PRESENT_BLUE;
   private present_red_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_PRESENT_RED;
-  private orange_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.CUR_LVL_ORANGE;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_PRESENT_RED;
+  private orange_addr =
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.CUR_LVL_ORANGE;
 
   get id(): API.LevelType {
     let level: number = this.emulator.rdramRead8(this.id_addr);
@@ -140,20 +158,29 @@ export class CurrentLevel extends API.BaseObj implements API.ICurrentLevel {
 }
 
 export class Inventory extends API.BaseObj implements API.IInventory {
-  private eggs_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.EGGS;
+  private eggs_addr =
+    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.EGGS;
   private feathers_red_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.FEATHERS_RED;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.FEATHERS_RED;
   private feathers_gold_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.FEATHERS_GOLD;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.FEATHERS_GOLD;
   private health_upgrade_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.HEALTH_CONTAINERS;
-  private honeycombs_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.HONEYCOMBS_EMPTY;
-  private jiggies_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.JIGGIES;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.HEALTH_CONTAINERS;
+  private honeycombs_addr =
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.HONEYCOMBS_EMPTY;
+  private jiggies_addr =
+    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.JIGGIES;
   private mumbo_tokens_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.MUMBO_TOKENS_HELD;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.MUMBO_TOKENS_HELD;
 
   private text_jiggies_addr =
-    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.TEXT_JIGGIES;
+    global.ModLoader[API.AddressType.INVENTORY] +
+    API.InventoryType.TEXT_JIGGIES;
   private text_mumbo_tokens_addr =
     global.ModLoader[API.AddressType.TEXT_MUMBO_TOKENS];
 
@@ -428,7 +455,8 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   private cur_events_scene_addr =
     global.ModLoader[API.AddressType.RT_CUR_SCENE_EVENTS];
   private cur_exit_addr = global.ModLoader[API.AddressType.RT_CUR_EXIT];
-  private cur_health_addr = global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.HEALTH;
+  private cur_health_addr =
+    global.ModLoader[API.AddressType.INVENTORY] + API.InventoryType.HEALTH;
   private cur_profile_addr = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
   private cur_scene_addr = global.ModLoader[API.AddressType.RT_CUR_SCENE];
   private is_cutscene_addr = global.ModLoader[API.AddressType.RT_IS_CUTSCENE];

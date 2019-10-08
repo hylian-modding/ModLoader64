@@ -67,7 +67,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.PLYR_POS_Y] = 0x37d0a4;
     global.ModLoader[API.AddressType.PLYR_POS_Z] = 0x37d0a8;
     global.ModLoader[API.AddressType.PLYR_ROT_X] = 0x37d040;
-    global.ModLoader[API.AddressType.PLYR_ROT_Y] = 0x37D190;
+    global.ModLoader[API.AddressType.PLYR_ROT_Y] = 0x37d190;
     global.ModLoader[API.AddressType.PLYR_ROT_Z] = 0x37d180;
     // global.ModLoader[API.AddressType.PLYR_SCALE] = 0x37c0ec;
     // global.ModLoader[API.AddressType.PLYR_VISIBLE] = 0x37c0e8;
@@ -194,7 +194,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.SAVE_JIGGY_FLAGS] = 0x3824e0;
     global.ModLoader[API.AddressType.SAVE_MOVE_FLAGS] = 0x37b5a0;
     global.ModLoader[API.AddressType.SAVE_MUMBO_TOKEN_FLAGS] = 0x382510;
-    
+
     // Inventory Data
     global.ModLoader[API.AddressType.INVENTORY] = 0x385150;
 
