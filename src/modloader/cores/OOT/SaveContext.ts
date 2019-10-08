@@ -151,10 +151,10 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     this.emulator.rdramWrite16(this.heart_container_addr, num * 0x10);
   }
   get health(): number {
-    return this.emulator.rdramRead16(this.health_addr) / 0x10;
+    return this.emulator.rdramRead16(this.health_addr);
   }
   set health(hearts: number) {
-    this.emulator.rdramWrite16(this.health_addr, hearts * 0x10);
+    this.emulator.rdramWrite16(this.health_addr, hearts);
   }
   get magic_meter_size(): Magic {
     return this.emulator.rdramRead8(this.magic_meter_size_addr);
