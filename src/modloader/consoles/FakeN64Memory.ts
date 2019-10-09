@@ -223,4 +223,13 @@ export class FakeN64Memory implements IMemory {
   rdramReadPtrF32(addr: number, offset: number): number {
     return this.buf.readInt32BE(addr + offset);
   }
+
+  rdramWriteF32(addr: number, value: number): void {
+    this.buf.writeInt32BE(value, addr);
+  }
+
+  rdramWritePtrF32(addr: number, offset: number, value: number): void {
+    let pointer: number = this.dereferencePointer(addr);
+    this.buf.writeInt32BE(value, pointer + offset);
+  }
 }

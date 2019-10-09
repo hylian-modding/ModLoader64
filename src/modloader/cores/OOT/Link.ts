@@ -193,68 +193,60 @@ export class Link extends JSONTemplate implements ILink {
     this.emulator.rdramWriteBit8(this.instance + addr, bitoffset, bit);
   }
   rdramReadPtr8(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramRead8(pointer + offset);
+    return this.emulator.rdramReadPtr8(this.instance + addr, offset);
   }
   rdramWritePtr8(addr: number, offset: number, value: number): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWrite8(pointer + offset, value);
+    this.emulator.rdramWritePtr8(this.instance + addr, offset, value);
   }
   rdramReadPtr16(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramRead16(pointer + offset);
+    return this.emulator.rdramReadPtr16(this.instance + addr, offset);
   }
   rdramWritePtr16(addr: number, offset: number, value: number): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWrite16(pointer + offset, value);
+    this.emulator.rdramWritePtr16(this.instance + addr, offset, value);
   }
   rdramWritePtr32(addr: number, offset: number, value: number): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWrite32(pointer + offset, value);
+    this.emulator.rdramWritePtr32(this.instance + addr, offset, value);
   }
   rdramReadPtr32(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramRead32(pointer + offset);
+    return this.emulator.rdramReadPtr32(this.instance + addr, offset);
   }
   rdramReadPtrBuffer(addr: number, offset: number, size: number): Buffer {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadBuffer(pointer + offset, size);
+    return this.emulator.rdramReadPtrBuffer(this.instance + addr, offset, size);
   }
   rdramWritePtrBuffer(addr: number, offset: number, buf: Buffer): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWriteBuffer(pointer + offset, buf);
+    this.emulator.rdramWritePtrBuffer(this.instance + addr, offset, buf);
   }
   rdramReadPtrS8(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadS8(pointer + offset);
+    return this.emulator.rdramReadPtrS8(this.instance + addr, offset);
   }
   rdramReadPtrS16(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadS16(pointer + offset);
+    return this.emulator.rdramReadPtrS16(this.instance + addr, offset);
   }
   rdramReadPtrS32(addr: number, offset: number): number {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadS32(pointer + offset);
+    return this.emulator.rdramReadPtrS32(this.instance + addr, offset);
   }
   rdramReadPtrBitsBuffer(addr: number, offset: number, bytes: number): Buffer {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadBitsBuffer(pointer + offset, bytes);
+    return this.emulator.rdramReadPtrBitsBuffer(
+      this.instance + addr,
+      offset,
+      bytes
+    );
   }
   rdramReadPtrBits8(addr: number, offset: number): Buffer {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadBits8(pointer + offset);
+    return this.emulator.rdramReadPtrBits8(this.instance + addr, offset);
   }
   rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean {
-    let pointer = this.dereferencePointer(addr);
-    return this.emulator.rdramReadBit8(pointer + offset, bitoffset);
+    return this.emulator.rdramReadPtrBit8(
+      this.instance + addr,
+      offset,
+      bitoffset
+    );
   }
   rdramWritePtrBitsBuffer(addr: number, offset: number, buf: Buffer): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWriteBitsBuffer(pointer + offset, buf);
+    this.emulator.rdramWritePtrBitsBuffer(this.instance + addr, offset, buf);
   }
   rdramWritePtrBits8(addr: number, offset: number, buf: Buffer): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWriteBits8(pointer + offset, buf);
+    this.emulator.rdramWritePtrBits8(this.instance + addr, offset, buf);
   }
   rdramWritePtrBit8(
     addr: number,
@@ -262,13 +254,23 @@ export class Link extends JSONTemplate implements ILink {
     bitoffset: number,
     bit: boolean
   ): void {
-    let pointer = this.dereferencePointer(addr);
-    this.emulator.rdramWriteBit8(pointer + offset, bitoffset, bit);
+    this.emulator.rdramWritePtrBit8(
+      this.instance + addr,
+      offset,
+      bitoffset,
+      bit
+    );
   }
   rdramReadF32(addr: number): number {
-    return this.emulator.rdramReadF32(this.instance + addr);
+    return this.emulator.rdramReadF32(addr);
   }
   rdramReadPtrF32(addr: number, offset: number): number {
-    return this.emulator.rdramReadPtrF32(this.instance + addr, offset);
+    return this.emulator.rdramReadPtrF32(addr, offset);
+  }
+  rdramWriteF32(addr: number, value: number): void {
+    this.emulator.rdramWriteF32(this.instance + addr, value);
+  }
+  rdramWritePtrF32(addr: number, offset: number, value: number): void {
+    this.emulator.rdramWritePtrF32(this.instance + addr, offset, value);
   }
 }
