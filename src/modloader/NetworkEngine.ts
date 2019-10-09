@@ -1,4 +1,4 @@
-import { ILogger, IConfig } from 'modloader64_api/IModLoaderAPI';
+import { ILogger, IConfig, IPlugin } from 'modloader64_api/IModLoaderAPI';
 import {
   bus,
   EventsServer,
@@ -29,7 +29,6 @@ import IModLoaderConfig from './IModLoaderConfig';
 import fs from 'fs';
 import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
-import { PluginMeta } from 'modloader64_api/LobbyVariable';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
@@ -111,8 +110,6 @@ namespace NetworkEngine {
     config: IServerConfig;
     version!: Version;
     modLoaderconfig: IModLoaderConfig;
-    lobbyVariables: PluginMeta[] = new Array<PluginMeta>();
-    currently_processing_lobby = '';
     fakePlayer: FakeNetworkPlayer = new FakeNetworkPlayer();
     udpServer: Socket = dgram.createSocket('udp4');
     udpPort = -1;
@@ -130,9 +127,6 @@ namespace NetworkEngine {
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
-      bus.on('setupLobbyVariable', evt => {
-        this.lobbyVariables.push(evt);
-      });
       internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
         let p: any = args[0];
         this.plugins[p.name] = p.version;
@@ -147,14 +141,31 @@ namespace NetworkEngine {
       return this.getLobbies().hasOwnProperty(Lobby);
     }
 
-    createLobbyStorage(ld: LobbyData, owner: string): ILobbyStorage {
+    createLobbyStorage_internal(ld: LobbyData, owner: string): ILobbyStorage {
       this.getLobbies()[ld.name]['ModLoader64'] = new LobbyStorage(ld, owner);
       return this.getLobbies()[ld.name]['ModLoader64'];
     }
 
-    getLobbyStorage(name: string): ILobbyStorage {
+    getLobbyStorage_internal(lobbyName: string) {
       try {
-        return this.getLobbies()[name].ModLoader64;
+        return this.getLobbies()[lobbyName].ModLoader64;
+      } catch (err) {}
+      //@ts-ignore
+      return null;
+    }
+
+    createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
+      let mainStore: LobbyStorage = this.getLobbies()[lobbyName]['ModLoader64'];
+      mainStore.data[plugin.pluginName as string] = JSON.parse(
+        JSON.stringify(obj)
+      );
+    }
+
+    getLobbyStorage(lobbyName: string, plugin: IPlugin): any {
+      try {
+        return this.getLobbies()[lobbyName].ModLoader64.data[
+          plugin.pluginName as string
+        ];
       } catch (err) {}
       //@ts-ignore
       return null;
@@ -220,9 +231,6 @@ namespace NetworkEngine {
           inst.udpPort = port;
           inst.udpServer.bind(port);
           NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
-            if (data.lobby === undefined) {
-              data.lobby = inst.currently_processing_lobby;
-            }
             if (data.player === undefined) {
               data.player = inst.fakePlayer;
             }
@@ -269,7 +277,7 @@ namespace NetworkEngine {
             socket.on('LobbyRequest', function(lj: LobbyJoin) {
               if (inst.doesLobbyExist(lj.lobbyData.name)) {
                 // Lobby already exists.
-                let storage: ILobbyStorage = inst.getLobbyStorage(
+                let storage: ILobbyStorage = inst.getLobbyStorage_internal(
                   lj.lobbyData.name
                 );
                 if (storage.config.key === lj.lobbyData.key) {
@@ -299,17 +307,9 @@ namespace NetworkEngine {
                 // Lobby does not exist.
                 inst.logger.info('Creating lobby ' + lj.lobbyData.name + '.');
                 socket.join(lj.lobbyData.name);
-                let storage: ILobbyStorage = inst.createLobbyStorage(
+                let storage: ILobbyStorage = inst.createLobbyStorage_internal(
                   lj.lobbyData,
                   socket.id
-                );
-                inst.lobbyVariables.forEach(
-                  (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                    storage.data[value.objectKey] = {};
-                    storage.data[value.objectKey][
-                      value.fieldName
-                    ] = value.cloneTemplate();
-                  }
                 );
                 bus.emit(EventsServer.ON_LOBBY_CREATE, storage);
                 bus.emit(
@@ -336,23 +336,11 @@ namespace NetworkEngine {
               );
             });
             socket.on('msg', function(data: IPacketHeader) {
-              inst.currently_processing_lobby = data.lobby;
-              inst.lobbyVariables.forEach(
-                (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                  let d = inst.getLobbyStorage(data.lobby);
-                  if (d !== null) {
-                    value.setField(d.data[value.objectKey][value.fieldName]);
-                  } else {
-                    return;
-                  }
-                }
-              );
               NetworkBusServer.emit(data.packet_id, data);
               NetworkChannelBusServer.emit(data.channel, data);
               if (data.forward) {
                 socket.to(data.lobby).emit('msg', data);
               }
-              inst.currently_processing_lobby = '';
             });
             socket.on('toSpecificPlayer', function(data: any) {
               inst.sendToTarget(data.player.uuid, 'msg', data.packet);
@@ -361,6 +349,7 @@ namespace NetworkEngine {
               //@ts-ignore
               let ML = socket.ModLoader64;
               if (ML === undefined) return;
+              if (inst.getLobbyStorage_internal(ML.lobby) === null) return;
               bus.emit(
                 EventsServer.ON_LOBBY_LEAVE,
                 new EventServerLeft(ML.player, ML.lobby)
@@ -380,19 +369,6 @@ namespace NetworkEngine {
               inst.sendToTarget(data.player.uuid, 'udpTest', reply);
               return;
             }
-            inst.currently_processing_lobby = data.lobby;
-            inst.lobbyVariables.forEach(
-              (value: PluginMeta, index: number, array: PluginMeta[]) => {
-                if (inst.getLobbyStorage(data.lobby) === null) {
-                  return;
-                }
-                value.setField(
-                  inst.getLobbyStorage(data.lobby).data[value.objectKey][
-                    value.fieldName
-                  ]
-                );
-              }
-            );
             NetworkBusServer.emit(data.packet_id, data);
             NetworkChannelBusServer.emit(data.channel, data);
             if (data.forward) {
@@ -404,7 +380,6 @@ namespace NetworkEngine {
                 }
               });
             }
-            inst.currently_processing_lobby = '';
           });
           inst.udpServer.on('listening', () => {
             const address = inst.udpServer.address() as AddressInfo;

@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { IPlugin } from './IModLoaderAPI';
 
 export class NetworkEventBus extends EventEmitter {}
 
@@ -166,7 +167,8 @@ export interface ILobbyStorage {
 }
 
 export interface ILobbyManager {
-  getLobbyStorage(lobbyName: string): ILobbyStorage;
+  getLobbyStorage(lobbyName: string, plugin: IPlugin): any;
+  createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void;
 }
 
 export function setupNetworkHandlers(instance: any) {
