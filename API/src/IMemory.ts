@@ -99,6 +99,11 @@ interface IMemory {
   rdramReadF32(addr: number): number;
 
   rdramReadPtrF32(addr: number, offset: number): number;
+
+  rdramWriteF32(addr: number, value: number): void;
+
+  rdramWritePtrF32(addr: number, offset: number, value: number): void;
+
 }
 
 export default IMemory;
