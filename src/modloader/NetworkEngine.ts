@@ -156,6 +156,7 @@ namespace NetworkEngine {
 
     createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
       let mainStore: LobbyStorage = this.getLobbies()[lobbyName]['ModLoader64'];
+      mainStore['data'] = {};
       mainStore.data[plugin.pluginName as string] = JSON.parse(
         JSON.stringify(obj)
       );

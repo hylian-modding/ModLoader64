@@ -16,23 +16,24 @@ export class NetworkPlayer implements INetworkPlayer {
 
 export class Packet implements IPacketHeader {
   packet_id: string;
-  lobby!: string;
+  lobby: string;
   channel: string;
   player!: INetworkPlayer;
   forward: boolean;
   socketType: SocketType;
 
-  constructor(packet_id: string, channel: string, forward = true) {
+  constructor(packet_id: string, channel: string, lobby: string, forward = true) {
     this.packet_id = packet_id;
     this.channel = channel;
     this.forward = forward;
     this.socketType = SocketType.TCP;
+    this.lobby = lobby;
   }
 }
 
 export class UDPPacket extends Packet {
-  constructor(packet_id: string, channel: string, forward = true) {
-    super(packet_id, channel, forward);
+  constructor(packet_id: string, channel: string, lobby: string, forward = true) {
+    super(packet_id, channel, lobby, forward);
     this.socketType = SocketType.UDP;
   }
 }
