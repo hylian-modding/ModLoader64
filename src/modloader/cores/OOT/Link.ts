@@ -262,10 +262,10 @@ export class Link extends JSONTemplate implements ILink {
     );
   }
   rdramReadF32(addr: number): number {
-    return this.emulator.rdramReadF32(addr);
+    return this.emulator.rdramReadF32(this.instance + addr);
   }
   rdramReadPtrF32(addr: number, offset: number): number {
-    return this.emulator.rdramReadPtrF32(addr, offset);
+    return this.emulator.rdramReadPtrF32(this.instance + addr, offset);
   }
   rdramWriteF32(addr: number, value: number): void {
     this.emulator.rdramWriteF32(this.instance + addr, value);
