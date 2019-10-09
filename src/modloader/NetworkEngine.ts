@@ -395,7 +395,7 @@ namespace NetworkEngine {
 
   class UDPTestPacket extends UDPPacket {
     constructor() {
-      super('UDPTestPacket', 'ModLoader64', false);
+      super('UDPTestPacket', 'ModLoader64', 'TEST_LOBBY_PLEASE_IGNORE', false);
     }
   }
 

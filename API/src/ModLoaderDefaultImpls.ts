@@ -22,7 +22,12 @@ export class Packet implements IPacketHeader {
   forward: boolean;
   socketType: SocketType;
 
-  constructor(packet_id: string, channel: string, lobby: string, forward = true) {
+  constructor(
+    packet_id: string,
+    channel: string,
+    lobby: string,
+    forward = true
+  ) {
     this.packet_id = packet_id;
     this.channel = channel;
     this.forward = forward;
@@ -32,7 +37,12 @@ export class Packet implements IPacketHeader {
 }
 
 export class UDPPacket extends Packet {
-  constructor(packet_id: string, channel: string, lobby: string, forward = true) {
+  constructor(
+    packet_id: string,
+    channel: string,
+    lobby: string,
+    forward = true
+  ) {
     super(packet_id, channel, lobby, forward);
     this.socketType = SocketType.UDP;
   }
