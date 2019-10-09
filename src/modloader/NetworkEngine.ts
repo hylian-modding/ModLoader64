@@ -311,7 +311,7 @@ namespace NetworkEngine {
                   lj.lobbyData,
                   socket.id
                 );
-                bus.emit(EventsServer.ON_LOBBY_CREATE, storage);
+                bus.emit(EventsServer.ON_LOBBY_CREATE, lj.lobbyData.name);
                 bus.emit(
                   EventsServer.ON_LOBBY_JOIN,
                   new EventServerJoined(lj.player, lj.lobbyData.name)
