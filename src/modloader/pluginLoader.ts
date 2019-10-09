@@ -23,7 +23,6 @@ import {
 } from 'modloader64_api/NetworkHandler';
 import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
-import { setupLobbyVariable } from 'modloader64_api/LobbyVariable';
 import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
@@ -163,7 +162,6 @@ class pluginLoader {
       setupEventHandlers(plugin);
       setupNetworkHandlers(plugin);
       setupCoreInject(plugin, this.loaded_core);
-      setupLobbyVariable(plugin);
       Object.defineProperty(plugin, 'metadata', {
         value: pkg,
         writable: false,
