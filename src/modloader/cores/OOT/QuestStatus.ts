@@ -70,10 +70,10 @@ export class QuestStatus extends JSONTemplate implements IQuestStatus {
     this.emulator.rdramWrite16(this.skulltulaAddr, count);
   }
   get heartPieces(): number {
-    return this.emulator.rdramRead8(this.questFlagsAddr) / 10;
+    return this.emulator.rdramRead8(this.questFlagsAddr) / 0x10;
   }
   set heartPieces(count: number) {
-    let pieces: number = count * 10;
+    let pieces: number = count * 0x10;
     this.emulator.rdramWrite8(this.questFlagsAddr, pieces);
   }
   private zeldaasLullabyFlag = new Flag(2, 3);
