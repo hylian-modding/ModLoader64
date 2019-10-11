@@ -29,7 +29,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   ModLoader!: IModLoaderAPI;
   payloads: string[] = new Array<string>();
   link!: ILink;
-  save!: ISaveContext;
+  save!: SaveContext;
   global!: IGlobalContext;
   helper!: IOotHelper;
   commandBuffer!: CommandBuffer;
@@ -147,6 +147,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();
+      this.save.onTick();
     });
   }
 

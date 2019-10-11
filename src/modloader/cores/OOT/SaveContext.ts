@@ -44,6 +44,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private item_flag_addr: number = this.instance + 0x0ef0;
   private inf_table_addr: number = this.instance + 0x0ef8;
   private skulltula_table_addr: number = this.instance + 0x0e9c;
+  //
+  private magic_goal = 0;
 
   // Further abstractions
   swords: SwordsEquipment;
@@ -164,30 +166,28 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     this.emulator.rdramWrite8(this.magic_meter_size_addr, size);
     switch (size) {
       case Magic.NONE: {
-        this.emulator.rdramWrite8(this.magic_limit_addr, MagicQuantities.NONE);
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
+        this.emulator.rdramWrite8(this.magic_limit_addr, MagicQuantities.NONE);
         this.magic_current = MagicQuantities.NONE;
         break;
       }
       case Magic.NORMAL: {
+        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
+        this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
         this.emulator.rdramWrite8(
           this.magic_limit_addr,
           MagicQuantities.NORMAL
         );
-        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
-        this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.magic_current = MagicQuantities.NORMAL;
         break;
       }
       case Magic.EXTENDED: {
+        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
+        this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
         this.emulator.rdramWrite8(
           this.magic_limit_addr,
           MagicQuantities.EXTENDED
         );
-        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
-        this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-        this.magic_current = MagicQuantities.EXTENDED;
         break;
       }
     }
@@ -195,14 +195,9 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   get magic_current(): number {
     return this.emulator.rdramRead8(this.magic_current_addr);
   }
-  // Failsafe to keep people from setting the magic amount over the cap.
+
   set magic_current(amount: number) {
-    this.emulator.rdramWrite8(
-      this.magic_current,
-      (function(amt: number) {
-        return amt > MagicQuantities.EXTENDED ? MagicQuantities.EXTENDED : amt;
-      })(amount)
-    );
+    this.magic_goal = amount;
   }
   get rupee_count(): number {
     return this.emulator.rdramRead16(this.rupees_address);
@@ -257,5 +252,18 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   }
   set skulltulaFlags(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
+  }
+
+  onTick() {
+    if (this.magic_goal > 0) {
+      if (this.magic_current < this.magic_goal) {
+        this.emulator.rdramWrite8(
+          this.magic_current_addr,
+          this.magic_current + 1
+        );
+      } else {
+        this.magic_goal = 0;
+      }
+    }
   }
 }
