@@ -46,6 +46,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private skulltula_table_addr: number = this.instance + 0x0e9c;
   //
   private magic_goal = 0;
+  private magic_limit_goal = 0;
 
   // Further abstractions
   swords: SwordsEquipment;
@@ -168,26 +169,20 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       case Magic.NONE: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite8(this.magic_limit_addr, MagicQuantities.NONE);
+        this.magic_limit_goal = MagicQuantities.NONE;
         this.magic_current = MagicQuantities.NONE;
         break;
       }
       case Magic.NORMAL: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite8(
-          this.magic_limit_addr,
-          MagicQuantities.NORMAL
-        );
+        this.magic_limit_goal = MagicQuantities.NORMAL;
         break;
       }
       case Magic.EXTENDED: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-        this.emulator.rdramWrite8(
-          this.magic_limit_addr,
-          MagicQuantities.EXTENDED
-        );
+        this.magic_limit_goal = MagicQuantities.EXTENDED;
         break;
       }
     }
@@ -255,7 +250,17 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   }
 
   onTick() {
-    if (this.magic_goal > 0) {
+    if (this.magic_limit_goal > 0) {
+      if (this.magic_meter_size < this.magic_limit_goal) {
+        this.emulator.rdramWrite8(
+          this.magic_limit_addr,
+          this.magic_meter_size + 1
+        );
+      } else {
+        this.magic_limit_goal = 0;
+      }
+    }
+    if (this.magic_goal > 0 && this.magic_limit_goal === 0) {
       if (this.magic_current < this.magic_goal) {
         this.emulator.rdramWrite8(
           this.magic_current_addr,
