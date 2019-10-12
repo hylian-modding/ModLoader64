@@ -257,7 +257,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       ) {
         this.emulator.rdramWrite8(
           this.magic_limit_addr,
-          this.magic_meter_size + 1
+          this.emulator.rdramRead8(this.magic_limit_addr) + 1
         );
       } else {
         this.magic_limit_goal = 0;
