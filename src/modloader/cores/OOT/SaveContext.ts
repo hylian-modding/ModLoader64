@@ -187,6 +187,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       }
     }
   }
+
   get magic_current(): number {
     return this.emulator.rdramRead8(this.magic_current_addr);
   }
@@ -251,7 +252,9 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
 
   onTick() {
     if (this.magic_limit_goal > 0) {
-      if (this.magic_meter_size < this.magic_limit_goal) {
+      if (
+        this.emulator.rdramRead8(this.magic_limit_addr) < this.magic_limit_goal
+      ) {
         this.emulator.rdramWrite8(
           this.magic_limit_addr,
           this.magic_meter_size + 1
