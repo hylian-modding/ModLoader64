@@ -25,7 +25,6 @@
     "deep-equal": "^1.0.1",
     "eventemitter2": "^5.0.1",
     "fs-extra": "^8.1.0",
-    "fs-lock": "^1.2.0",
     "human-readable-ids": "^1.0.4",
     "mkdir-recursive": "^0.4.0",
     "modloader64_api": "file:API/build",
@@ -37,13 +36,10 @@
     "socket.io-encrypt": "^0.1.0",
     "source-map-support": "^0.5.13",
     "uuid": "^3.3.2",
-    "winston": "^3.2.1",
-    "slash": "^3.0.0"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.0",
     "@types/fs-extra": "^8.0.0",
-    "@types/mocha": "^5.2.7",
     "@types/ncp": "^2.0.1",
     "@types/node": "^12.0.10",
     "@types/socket.io": "^2.1.2",
@@ -51,8 +47,6 @@
     "copy-node-modules": "^1.1.1",
     "find-remove": "^1.2.2",
     "gts": "^1.0.0",
-    "mocha": "^6.2.0",
-    "pre-commit": "^1.2.2",
     "recursive-readdir": "^2.2.2",
     "typescript": "^3.5.2"
   }
