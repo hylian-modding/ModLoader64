@@ -370,6 +370,9 @@ namespace NetworkEngine {
               inst.sendToTarget(data.player.uuid, 'udpTest', reply);
               return;
             }
+            if (inst.getLobbyStorage_internal(data.packet_id) === null) {
+              return;
+            }
             NetworkBusServer.emit(data.packet_id, data);
             NetworkChannelBusServer.emit(data.channel, data);
             if (data.forward) {
@@ -424,6 +427,7 @@ namespace NetworkEngine {
     udpTestHandle!: any;
     packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
     plugins: any = {};
+    isConnectionReady = false;
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -467,7 +471,11 @@ namespace NetworkEngine {
         NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
           data.player = inst.me;
           data.lobby = inst.config.lobby;
-          if (data.socketType === SocketType.UDP && inst.isUDPEnabled) {
+          if (
+            data.socketType === SocketType.UDP &&
+            inst.isUDPEnabled &&
+            inst.isConnectionReady
+          ) {
             inst.udpClient.send(
               JSON.stringify(data),
               inst.serverUDPPort,
@@ -537,6 +545,10 @@ namespace NetworkEngine {
             patch: p,
           });
           bus.emit(EventsClient.ON_LOBBY_JOIN, ld);
+          inst.isConnectionReady = true;
+        });
+        inst.socket.on('disconnect', () => {
+          inst.isConnectionReady = false;
         });
         inst.socket.on('LobbyDenied_BadPassword', (ld: LobbyData) => {
           inst.logger.error('Failed to join lobby. :(');
