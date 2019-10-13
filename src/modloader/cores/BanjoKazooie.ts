@@ -364,9 +364,9 @@ export class Player extends API.BaseObj implements API.IPlayer {
 
   get position(): Buffer {
     let buf: Buffer = Buffer.alloc(12);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_x_addr), 0);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_y_addr), 4);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.pos_z_addr), 8);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.pos_x_addr), 0);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.pos_y_addr), 4);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.pos_z_addr), 8);
     return buf;
   }
   set position(val: Buffer) {
@@ -376,31 +376,31 @@ export class Player extends API.BaseObj implements API.IPlayer {
   }
 
   get pos_x(): number {
-    return this.emulator.rdramRead32(this.pos_x_addr);
+    return this.emulator.rdramReadF32(this.pos_x_addr);
   }
   set pos_x(val: number) {
-    this.emulator.rdramWrite32(this.pos_x_addr, val);
+    this.emulator.rdramWriteF32(this.pos_x_addr, val);
   }
 
   get pos_y(): number {
-    return this.emulator.rdramRead32(this.pos_y_addr);
+    return this.emulator.rdramReadF32(this.pos_y_addr);
   }
   set pos_y(val: number) {
-    this.emulator.rdramWrite32(this.pos_y_addr, val);
+    this.emulator.rdramWriteF32(this.pos_y_addr, val);
   }
 
   get pos_z(): number {
-    return this.emulator.rdramRead32(this.pos_z_addr);
+    return this.emulator.rdramReadF32(this.pos_z_addr);
   }
   set pos_z(val: number) {
-    this.emulator.rdramWrite32(this.pos_z_addr, val);
+    this.emulator.rdramWriteF32(this.pos_z_addr, val);
   }
 
   get rotation(): Buffer {
     let buf: Buffer = Buffer.alloc(12);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_x_addr), 0);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_y_addr), 4);
-    buf.writeUInt32BE(this.emulator.rdramRead32(this.rot_z_addr), 8);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.rot_x_addr), 0);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.rot_y_addr), 4);
+    buf.writeFloatBE(this.emulator.rdramReadF32(this.rot_z_addr), 8);
     return buf;
   }
   set rotation(val: Buffer) {
@@ -410,24 +410,24 @@ export class Player extends API.BaseObj implements API.IPlayer {
   }
 
   get rot_x(): number {
-    return this.emulator.rdramRead32(this.rot_x_addr);
+    return this.emulator.rdramReadF32(this.rot_x_addr);
   }
   set rot_x(val: number) {
-    this.emulator.rdramWrite32(this.rot_x_addr, val);
+    this.emulator.rdramWriteF32(this.rot_x_addr, val);
   }
 
   get rot_y(): number {
-    return this.emulator.rdramRead32(this.rot_y_addr);
+    return this.emulator.rdramReadF32(this.rot_y_addr);
   }
   set rot_y(val: number) {
-    this.emulator.rdramWrite32(this.rot_y_addr, val);
+    this.emulator.rdramWriteF32(this.rot_y_addr, val);
   }
 
   get rot_z(): number {
-    return this.emulator.rdramRead32(this.rot_z_addr);
+    return this.emulator.rdramReadF32(this.rot_z_addr);
   }
   set rot_z(val: number) {
-    this.emulator.rdramWrite32(this.rot_z_addr, val);
+    this.emulator.rdramWriteF32(this.rot_z_addr, val);
   }
 
   get scale(): number {
