@@ -166,14 +166,14 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       case Magic.NONE: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite8(this.magic_limit_addr, MagicQuantities.NONE);
+        this.emulator.rdramWrite16(this.magic_limit_addr, MagicQuantities.NONE);
         this.magic_current = MagicQuantities.NONE;
         break;
       }
       case Magic.NORMAL: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite8(
+        this.emulator.rdramWrite16(
           this.magic_limit_addr,
           MagicQuantities.NORMAL
         );
@@ -182,7 +182,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       case Magic.EXTENDED: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-        this.emulator.rdramWrite8(
+        this.emulator.rdramWrite16(
           this.magic_limit_addr,
           MagicQuantities.EXTENDED
         );
