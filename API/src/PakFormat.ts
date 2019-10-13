@@ -128,6 +128,31 @@ export class PakFile implements IPakFile {
     }
   }
 
+  overwrite(index: number, obj: any, compressed = true, filename = "obj.json"): number{
+    let type = 'UNCO';
+    let data: Buffer;
+    if (Buffer.isBuffer(obj)) {
+      data = obj;
+    } else {
+      let json = JSON.stringify(obj);
+      data = Buffer.from(json);
+    }
+    if (compressed) {
+      data = zlib.deflateSync(data);
+      type = 'DEFL';
+    }
+    let entry = new PakFileEntry(
+      filename,
+      type,
+      data.byteLength,
+      0xffffffff,
+      0xffffffff
+    );
+    entry.data = data;
+    this.header.files[index] = entry;
+    return this.header.files.indexOf(entry);
+  }
+
   insert(obj: any, compressed = true, filename = 'obj.json'): number {
     let type = 'UNCO';
     let data: Buffer;
@@ -184,6 +209,7 @@ export interface IPak {
   load(index: number): any;
   extractAll(target: string): void;
   update(): void;
+  overwriteFileAtIndex(index: number, obj: any, compressed?: boolean): number;
 }
 
 export class Pak implements IPak {
@@ -195,6 +221,11 @@ export class Pak implements IPak {
     if (fs.existsSync(this.fileName)) {
       this.pak.load(this.fileName);
     }
+  }
+
+  overwriteFileAtIndex(index: number, obj: any, compressed = true): number{
+    let i = this.pak.overwrite(index, obj, compressed);
+    return i;
   }
 
   save(obj: any, compressed = true): number {

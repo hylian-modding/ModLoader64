@@ -10,11 +10,11 @@ export class StorageContainer {
     this.pak = new Pak(file);
   }
 
-  storeObject(obj: any) {
+  storeObject(obj: any, compressed = true) {
     if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
       fs.mkdirSync(path.parse(this.pak.fileName).dir);
     }
-    this.pak.save(obj);
+    this.pak.overwriteFileAtIndex(0, obj, compressed);
     this.pak.update();
   }
 
