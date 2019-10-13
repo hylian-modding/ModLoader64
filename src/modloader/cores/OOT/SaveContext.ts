@@ -44,9 +44,6 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private item_flag_addr: number = this.instance + 0x0ef0;
   private inf_table_addr: number = this.instance + 0x0ef8;
   private skulltula_table_addr: number = this.instance + 0x0e9c;
-  //
-  private magic_goal = 0;
-  private magic_limit_goal = 0;
 
   // Further abstractions
   swords: SwordsEquipment;
@@ -169,20 +166,26 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       case Magic.NONE: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.magic_limit_goal = MagicQuantities.NONE;
+        this.emulator.rdramWrite8(this.magic_limit_addr, MagicQuantities.NONE);
         this.magic_current = MagicQuantities.NONE;
         break;
       }
       case Magic.NORMAL: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.magic_limit_goal = MagicQuantities.NORMAL;
+        this.emulator.rdramWrite8(
+          this.magic_limit_addr,
+          MagicQuantities.NORMAL
+        );
         break;
       }
       case Magic.EXTENDED: {
         this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
         this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-        this.magic_limit_goal = MagicQuantities.EXTENDED;
+        this.emulator.rdramWrite8(
+          this.magic_limit_addr,
+          MagicQuantities.EXTENDED
+        );
         break;
       }
     }
@@ -193,7 +196,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   }
 
   set magic_current(amount: number) {
-    this.magic_goal = amount;
+    this.emulator.rdramWrite8(this.magic_current_addr, amount);
   }
   get rupee_count(): number {
     return this.emulator.rdramRead16(this.rupees_address);
@@ -248,30 +251,5 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   }
   set skulltulaFlags(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
-  }
-
-  onTick() {
-    if (this.magic_limit_goal > 0) {
-      if (
-        this.emulator.rdramRead8(this.magic_limit_addr) < this.magic_limit_goal
-      ) {
-        this.emulator.rdramWrite8(
-          this.magic_limit_addr,
-          this.emulator.rdramRead8(this.magic_limit_addr) + 1
-        );
-      } else {
-        this.magic_limit_goal = 0;
-      }
-    }
-    if (this.magic_goal > 0 && this.magic_limit_goal === 0) {
-      if (this.magic_current < this.magic_goal) {
-        this.emulator.rdramWrite8(
-          this.magic_current_addr,
-          this.magic_current + 1
-        );
-      } else {
-        this.magic_goal = 0;
-      }
-    }
   }
 }
