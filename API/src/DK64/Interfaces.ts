@@ -23,13 +23,18 @@ export interface IRuntime {
   get_game_mode(): apiEnum.GameModeType;
 }
 
-export interface ISaveContext {
-  game_flags: IBuffered;
+export interface IEeprom {
+  get_slot_address(profile: number): number;
+  get_slot(addr: number): Buffer;
+  set_slot(addr: number, value: number): void;
 }
+
+export interface ISaveContext {}
 
 export interface IDK64Core {
   player: IPlayer;
   runtime: IRuntime;
+  eeprom: IEeprom;
   save: ISaveContext;
   version: apiEnum.GameVersion;
 

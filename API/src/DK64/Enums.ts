@@ -5,10 +5,16 @@ export const enum GameVersion {
 }
 
 export const enum AddressType {
+  SHARED_COLLECTABLES = 'DK64:shared_collectables',
+  MENU_FLAGS = 'DK64:menu_flags',
+
+  ER_COPY_BASE = 'DK64:er_copy_base',
+  ER_FILE_MAP = 'DK64:er_file_map',
+
   RT_CUR_PROFILE = 'DK64:rt_current_profile',
   RT_GAME_MODE = 'DK64:rt_game_mode',
 
-  SAVE_GAME_FLAGS = 'DK64:save_game_flags',
+  //SAVE_GAME_FLAGS = 'DK64:save_game_flags',
 }
 
 export enum GameModeType {
@@ -33,4 +39,9 @@ export enum ProfileType {
   A = 0,
   B = 1,
   C = 2,
+}
+
+export enum InventoryType {
+  STANDARD_AMMO = 0x00,
+  HOMING_AMMO = 0x02,
 }
