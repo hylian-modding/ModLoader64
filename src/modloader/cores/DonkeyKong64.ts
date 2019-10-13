@@ -30,7 +30,7 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     global.ModLoader[API.AddressType.RT_CUR_PROFILE];
   private game_mode_addr: number =
     global.ModLoader[API.AddressType.RT_GAME_MODE];
-  
+
   get_current_profile(): API.ProfileType {
     return this.emulator.rdramRead8(this.cur_profile_addr) as API.ProfileType;
   }
@@ -40,22 +40,20 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   }
 }
 
-export class Eeprom extends API.BaseObj implements API.IEeprom {  
-  private copy_addr: number =
-    global.ModLoader[API.AddressType.ER_COPY_BASE];
-  private file_map_addr: number =
-    global.ModLoader[API.AddressType.ER_FILE_MAP];
+export class Eeprom extends API.BaseObj implements API.IEeprom {
+  private copy_addr: number = global.ModLoader[API.AddressType.ER_COPY_BASE];
+  private file_map_addr: number = global.ModLoader[API.AddressType.ER_FILE_MAP];
 
   get_slot_address(profile: number): number {
     let map = this.emulator.rdramReadBuffer(this.file_map_addr, 4);
     let offset = 0;
     let i: number;
-  
+
     for (i = 0; i < 4; i++) {
       if (map[i] === profile) offset = i;
     }
 
-    return this.copy_addr + (offset * 0x1ac);
+    return this.copy_addr + offset * 0x1ac;
   }
 
   get_slot(addr: number): Buffer {

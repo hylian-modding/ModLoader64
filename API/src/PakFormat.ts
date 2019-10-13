@@ -128,7 +128,12 @@ export class PakFile implements IPakFile {
     }
   }
 
-  overwrite(index: number, obj: any, compressed = true, filename = "obj.json"): number{
+  overwrite(
+    index: number,
+    obj: any,
+    compressed = true,
+    filename = 'obj.json'
+  ): number {
     let type = 'UNCO';
     let data: Buffer;
     if (Buffer.isBuffer(obj)) {
@@ -223,7 +228,7 @@ export class Pak implements IPak {
     }
   }
 
-  overwriteFileAtIndex(index: number, obj: any, compressed = true): number{
+  overwriteFileAtIndex(index: number, obj: any, compressed = true): number {
     let i = this.pak.overwrite(index, obj, compressed);
     return i;
   }
