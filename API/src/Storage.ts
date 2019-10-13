@@ -19,7 +19,7 @@ export class StorageContainer {
   }
 
   loadObject(): any {
-    return this.pak.load(0);
+    return JSON.parse(this.pak.load(0));
   }
 }
 

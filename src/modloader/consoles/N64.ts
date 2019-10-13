@@ -5,7 +5,10 @@ import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
-import { MonkeyPatch_rdramReadBits8, MonkeyPatch_rdramWriteBits8 } from '../../monkeypatches/Mupen';
+import {
+  MonkeyPatch_rdramReadBits8,
+  MonkeyPatch_rdramWriteBits8,
+} from '../../monkeypatches/Mupen';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -17,9 +20,13 @@ class N64 implements IConsole {
     this.mupen = require(process.cwd() +
       '/emulator/mupen64plus.node') as IMupen;
 
-    let mp1: MonkeyPatch_rdramReadBits8 = new MonkeyPatch_rdramReadBits8(this.mupen);
-    let mp2: MonkeyPatch_rdramWriteBits8 = new MonkeyPatch_rdramWriteBits8(this.mupen);
-    
+    let mp1: MonkeyPatch_rdramReadBits8 = new MonkeyPatch_rdramReadBits8(
+      this.mupen
+    );
+    let mp2: MonkeyPatch_rdramWriteBits8 = new MonkeyPatch_rdramWriteBits8(
+      this.mupen
+    );
+
     mp1.patch();
     mp2.patch();
 
