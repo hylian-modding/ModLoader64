@@ -372,7 +372,7 @@ namespace NetworkEngine {
               inst.sendToTarget(data.player.uuid, 'udpTest', reply);
               return;
             }
-            if (inst.getLobbyStorage_internal(data.packet_id) === null) {
+            if (inst.getLobbyStorage_internal(data.lobby) === null) {
               return;
             }
             NetworkBusServer.emit(data.packet_id, data);
