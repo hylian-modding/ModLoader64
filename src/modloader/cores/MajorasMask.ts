@@ -1,7 +1,7 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
-import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/MM/Imports';
+import * as CORE from './MM/Imports';
 
 // ##################################################################
 // ##  Sub-Classes
@@ -11,18 +11,12 @@ import * as API from 'modloader64_api/MM/Imports';
 // ##  Primary-Classes
 // ##################################################################
 
-export class Link extends API.BaseObj implements API.IPlayer {}
-
-export class Runtime extends API.BaseObj implements API.IRuntime {}
-
-export class SaveContext extends API.BaseObj implements API.ISaveContext {}
-
 export class MajorasMask implements ICore, API.IMMCore {
   header = "ZELDA MAJORA'S MASK";
   ModLoader: IModLoaderAPI = {} as IModLoaderAPI;
   eventTicks: Map<string, Function> = new Map<string, Function>();
 
-  link!: API.IPlayer;
+  player!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
 
@@ -31,9 +25,9 @@ export class MajorasMask implements ICore, API.IMMCore {
   init(): void {}
 
   postinit(): void {
-    this.link = new Link(this.ModLoader.emulator);
-    this.runtime = new Runtime(this.ModLoader.emulator);
-    this.save = new SaveContext(this.ModLoader.emulator);
+    this.player = new CORE.Player(this.ModLoader.emulator);
+    this.runtime = new CORE.Runtime(this.ModLoader.emulator);
+    this.save = new CORE.SaveContext(this.ModLoader.emulator);
   }
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)

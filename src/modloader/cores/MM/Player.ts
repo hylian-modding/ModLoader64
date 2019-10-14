@@ -1,13 +1,9 @@
-import IMemory from 'modloader64_api/IMemory';
-import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import * as API from 'modloader64_api/MM/Imports'
 
-export class Link
-{
+export class Player extends API.BaseObj implements API.IPlayer {
     //subtract this.instance.Link from these values
     //0x3FFDB0 = Link's Actor
-    
-    private emulator: IMemory;
-    private instance: number = global.ModLoader.link;
+    private instance: number = global.ModLoader.player;
 
     private current_form = 0x3FFEFB; 
     private link_actor = 0x3FFDB0;
@@ -21,11 +17,4 @@ export class Link
     private last_coord_ground = 0x400170;
     private give_magic_bar = 0x3830DC;
     private link_rotation = 0x3FFE6C;
-
-    constructor(emu: IMemory, log: ILogger) 
-    {
-        this.emulator = emu;
-    }
-
 }
-

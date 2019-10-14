@@ -1,15 +1,12 @@
-import IMemory from 'modloader64_api/IMemory';
-import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import * as API from 'modloader64_api/MM/Imports'
 
-export class SaveContext
-{
+export class SaveContext extends API.BaseObj implements API.ISaveContext {
     //https://docs.google.com/spreadsheets/d/1J-4OwmZzOKEv2hZ7wrygOpMm0YcRnephEo3Q2FooF6E/edit#gid=993685765
     //NOTE: SAVE CONTEXT IS LISTED AS 0x1EF670 ON THIS SITE WHICH IS FALSE.
     //TRUE SAVE CONTEXT START IS 0x1EF672 (CloudModding MM Wiki)
     //ALL OFFSETS ON THIS SITE NEED TO BE SHIFTED BY 0x2
     //I HAVE FIXED THE OFFSETS ALREADY
 
-    private emulator: IMemory;
     private instance: number = global.ModLoader.save_context;
     private entrance_index_addr: number = this.instance + 0x0000; //Stores the Mask ID Link is wearing (int16)
     private start_mask_addr: number = this.instance + 0x0002; //Stores the Mask ID Link is wearing (byte)
@@ -86,19 +83,12 @@ export class SaveContext
     private perma_scene_flags: number = this.instance + 0x00F8; //Persists for the lifetime of the save
     private cycle_scene_flags: number = this.instance + 0x3F68; //Persists until the end of the current 3 day cycle
 
-    
-    constructor(emu: IMemory, log: ILogger) 
-    {
-        this.emulator = emu;
-    }
-
     get entrance_index(): number 
     {
         return this.emulator.rdramRead32(this.entrance_index_addr);
     }
-    set entrance_index(index: number) 
+    set entrance_index(value: number) 
     {
-        this.emulator.rdramWrite32(this.entrance_index_addr, index);
+        this.emulator.rdramWrite32(this.entrance_index_addr, value);
     }
-
 }

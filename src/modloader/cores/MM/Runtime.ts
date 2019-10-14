@@ -1,12 +1,9 @@
-import IMemory from 'modloader64_api/IMemory';
-import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import * as API from 'modloader64_api/MM/Imports'
 
-export class GlobalContext
-{
+export class Runtime extends API.BaseObj implements API.IRuntime {
     //subtract this.instance.global_context from these values
     //global_context = 0x3E6B2
 
-    private emulator: IMemory;
     private instance: number = global.ModLoader.global_context;
 
     private current_scene_num = 0x3E6BC4;
@@ -21,10 +18,5 @@ export class GlobalContext
     private collectable_flag_addr = 0x01d44; //Not found yet
     private continue_state_addr = 0x98; //Not found yet
     private epona_ptr = 0x3FFED0
-
-    constructor(emu: IMemory, log: ILogger) 
-    {
-        this.emulator = emu;
-    }
 
 }

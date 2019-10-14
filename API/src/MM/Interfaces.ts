@@ -21,10 +21,12 @@ export interface IPlayer {}
 
 export interface IRuntime {}
 
-export interface ISaveContext {}
+export interface ISaveContext {
+  entrance_index: number;
+}
 
 export interface IMMCore {
-  link: IPlayer;
+  player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
 }
