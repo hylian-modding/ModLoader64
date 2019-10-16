@@ -55,6 +55,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
         global.ModLoader['save_context'] = 0x11a5d0;
         global.ModLoader['global_context_pointer'] = 0x11f248;
         global.ModLoader['overlay_table'] = 0x0e8530;
+        global.ModLoader['link_instance'] = 0x1daa30;
         this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
         break;
       }
