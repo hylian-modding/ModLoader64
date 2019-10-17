@@ -23,6 +23,9 @@ export interface IRuntime {}
 
 export interface ISaveContext {
   entrance_index: number;
+  player_name_test: string;
+  rupee_amount: number;
+  player_name: number;
 }
 
 export interface IMMCore {

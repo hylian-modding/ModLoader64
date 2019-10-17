@@ -1,7 +1,9 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { IModLoaderAPI, ICore } from 'modloader64_api/IModLoaderAPI';
 import * as API from 'modloader64_api/MM/Imports';
+import { zeldaString } from 'modloader64_api/MM/ZeldaString';
 import * as CORE from './MM/Imports';
+import { eventNames } from 'cluster';
 
 // ##################################################################
 // ##  Sub-Classes
@@ -33,7 +35,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {}
 
-  onTick(): void {
+  onTick(): void {  
     this.eventTicks.forEach((value: Function, key: string) => {
       value();
     });
