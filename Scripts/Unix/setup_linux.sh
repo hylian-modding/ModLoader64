@@ -5,6 +5,10 @@ cd ../../
 sudo npm install -g dry-dry
 dry install
 
+# Remove old emulator folder
+rm -r ./build/emulator
+rm -r ./build2/emulator
+
 # Pull and Unpack the emulator package
 rm -r ./Mupen64Plus
 mkdir ./Mupen64Plus
