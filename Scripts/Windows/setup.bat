@@ -5,6 +5,10 @@ cd ..\..\
 call npm install -g dry-dry
 call dry install
 
+:: Remove old emulator folder
+rmdir /s /q .\build\emulator
+rmdir /s /q .\build2\emulator
+
 :: Pull and Unpack the emulator package
 rmdir /s /q .\Mupen64Plus
 mkdir .\Mupen64Plus
