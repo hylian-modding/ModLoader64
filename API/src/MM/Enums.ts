@@ -418,6 +418,32 @@ export enum ItemReceiveType {
   SEA_HORSE = 0xa3,
 }
 
+export enum ItemSlotType {
+  OCARINA_OF_TIME = 0x00,
+  HEROS_BOW = 0x01,
+  FIRE_ARROW = 0x02,
+  ICE_ARROW = 0x03,
+  LIGHT_ARROW = 0x04,
+  EVENT_ITEM_1 = 0x05,
+  BOMB = 0x06,
+  BOMBCHU = 0x07,
+  DEKU_STICK = 0x08,
+  DEKU_NUT = 0x09,
+  MAGIC_BEAN = 0x0a,
+  EVENT_ITEM_2 = 0x0b,
+  POWDER_KEG = 0x0c,
+  PICTOGRAPH_BOX = 0x0d,
+  LENS_OF_TRUTH = 0x0e,
+  HOOKSHOT = 0x11,
+
+  BOTTLE_1 = 0x12,
+  BOTTLE_2 = 0x13,
+  BOTTLE_3 = 0x14,
+  BOTTLE_4 = 0x15,
+  BOTTLE_5 = 0x16,
+  BOTTLE_6 = 0x17,
+}
+
 export enum MaskType {
   NONE = 0x00,
   TRUTH = 0x01,
@@ -444,6 +470,33 @@ export enum MaskType {
   GORON = 0x16,
   ZORA = 0x17,
   DEKU = 0x18,
+}
+
+export enum MaskSlotType {
+  POSTMANS = 0x00,
+  ALL_NIGHT = 0x01,
+  BLAST = 0x02,
+  STONE = 0x03,
+  GREAT_FAIRY = 0x04,
+  DEKU = 0x05,
+  KEATON = 0x06,
+  BREMEN = 0x07,
+  BUNNY_HOOD = 0x08,
+  DON_GERO = 0x09,
+  SCENTS = 0x0a,
+  GORON = 0x0b,
+  ROMANI = 0x0c,
+  CIRCUS_LEADER = 0x0d,
+  KAFEI = 0x0e,
+  COUPLES = 0x0f,
+  TRUTH = 0x10,
+  ZORA = 0x11,
+  KAMERO = 0x12,
+  GIBDO = 0x13,
+  GARO = 0x14,
+  CAPTAIN = 0x15,
+  GIANT = 0x16,
+  FIERCE_DEITY = 0x17,
 }
 
 export enum SceneType {

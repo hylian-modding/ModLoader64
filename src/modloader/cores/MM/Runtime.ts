@@ -7,8 +7,8 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   private instance: number = global.ModLoader.global_context;
 
   private scene_table_ptr = 0x1c3ca0;
-  private current_scene_num = 0x3e6bc4;
-  private current_scene_ptr = 0x3e6da0;
+  private cur_scene_addr = 0x3e6bc4;
+  private cur_scene_ptr_addr = 0x3e6da0;
   private scene_flags = 0x3e8978;
   private switch_flags_addr = 0xb5c78;
   private temp_switch_flags_addr = 0x0; //Not found yet
@@ -21,4 +21,6 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   private collectable_flag_addr = 0xb5d6c;
   private continue_state_addr = 0x98; //Not found yet
   private epona_ptr = 0x3ffed0;
+
+  get_current_scene(): number { return this.emulator.rdramRead8(this.cur_scene_addr); }
 }
