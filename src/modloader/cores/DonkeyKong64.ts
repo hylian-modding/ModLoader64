@@ -21,24 +21,38 @@ import * as API from 'modloader64_api/DK64/Imports';
 
 export class Banana extends API.BaseObj implements API.IBanana {
   private instance: number;
-  private jungle_japes_addr: number = this.instance + 0x00;
-  private angry_aztec_addr: number = this.instance + 0x02;
-  private frantic_factory_addr: number = this.instance + 0x04;
-  private gloomy_galleon_addr: number = this.instance + 0x06;
-  private fungi_forest_addr: number = this.instance + 0x08;
-  private crystal_caves_addr: number = this.instance + 0x0A;
-  private creepy_castle_addr: number = this.instance + 0x0C;
-  private dk_isles_addr: number = this.instance + 0x0E;
-  private hideout_helm_addr: number = this.instance + 0x10;
-  private unknown_1_addr: number = this.instance + 0x12;
-  private unknown_2_addr: number = this.instance + 0x14;
-  private unknown_3_addr: number = this.instance + 0x16;
-  private unknown_4_addr: number = this.instance + 0x18;
-  private null_addr: number = this.instance + 0x1A;
+  private jungle_japes_addr: number;
+  private angry_aztec_addr: number;
+  private frantic_factory_addr: number;
+  private gloomy_galleon_addr: number;
+  private fungi_forest_addr: number;
+  private crystal_caves_addr: number;
+  private creepy_castle_addr: number;
+  private dk_isles_addr: number;
+  private hideout_helm_addr: number;
+  private unknown_1_addr: number;
+  private unknown_2_addr: number;
+  private unknown_3_addr: number;
+  private unknown_4_addr: number;
+  private null_addr: number;
 
   constructor(emu: IMemory, instance: number) {
     super(emu);
     this.instance = instance;
+    this.jungle_japes_addr = this.instance + 0x00;
+    this.angry_aztec_addr = this.instance + 0x02;
+    this.frantic_factory_addr = this.instance + 0x04;
+    this.gloomy_galleon_addr = this.instance + 0x06;
+    this.fungi_forest_addr = this.instance + 0x08;
+    this.crystal_caves_addr = this.instance + 0x0A;
+    this.creepy_castle_addr = this.instance + 0x0C;
+    this.dk_isles_addr = this.instance + 0x0E;
+    this.hideout_helm_addr = this.instance + 0x10;
+    this.unknown_1_addr = this.instance + 0x12;
+    this.unknown_2_addr = this.instance + 0x14;
+    this.unknown_3_addr = this.instance + 0x16;
+    this.unknown_4_addr = this.instance + 0x18;
+    this.null_addr = this.instance + 0x1A;
   }
   
   get array(): Buffer { return this.emulator.rdramReadBuffer(this.instance, 0x1C); }
@@ -89,13 +103,13 @@ export class Banana extends API.BaseObj implements API.IBanana {
 
 export class Kong extends API.BaseObj implements API.IKong {
   private instance: number;
-  private moves_addr: number = this.instance + 0x00;
-  private simian_slam_addr: number = this.instance + 0x01;
-  private weapon_addr: number = this.instance + 0x02;
-  private ammo_belt_addr: number = this.instance + 0x03;
-  private instrument_addr: number = this.instance + 0x04
-  private coins_addr: number = this.instance + 0x06;
-  private instrument_energy_addr: number = this.instance + 0x08;
+  private moves_addr: number;
+  private simian_slam_addr: number;
+  private weapon_addr: number;
+  private ammo_belt_addr: number;
+  private instrument_addr: number;
+  private coins_addr: number;
+  private instrument_energy_addr: number;
 
   // Abstraction
   bananas: API.IBanana[] = new Array<API.IBanana>();
@@ -109,6 +123,14 @@ export class Kong extends API.BaseObj implements API.IKong {
     this.bananas.push(new Banana(emu, this.instance + 0x0A));
     this.bananas.push(new Banana(emu, this.instance + 0x26));
     this.bananas.push(new Banana(emu, this.instance + 0x42));
+    
+    this.moves_addr = this.instance + 0x00;
+    this.simian_slam_addr = this.instance + 0x01;
+    this.weapon_addr = this.instance + 0x02;
+    this.ammo_belt_addr = this.instance + 0x03;
+    this.instrument_addr = this.instance + 0x04
+    this.coins_addr = this.instance + 0x06;
+    this.instrument_energy_addr = this.instance + 0x08;
   }
 
   get colored_bananas(): API.IBanana { return this.bananas[0]; }
