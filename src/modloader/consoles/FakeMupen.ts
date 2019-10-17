@@ -5,6 +5,9 @@ import { Rom } from '../Rom';
 import IMemory from 'modloader64_api/IMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
+import IUtils from 'modloader64_api/IUtils';
+import ISaveState from 'modloader64_api/ISaveState';
+import crypto from 'crypto';
 
 export class FakeMupen implements IConsole {
   rom: string;
@@ -61,4 +64,46 @@ export class FakeMupen implements IConsole {
   loadState(file: string): void {}
 
   setSaveDir(path: string): void {}
+
+  getUtils(): IUtils {
+    return new FakeN64Utils();
+  }
+
+  getSaveStateManager(): ISaveState {
+    return new FakeN64SaveState();
+  }
+}
+
+class FakeN64SaveState implements ISaveState {
+  saveState(file: string): void {}
+  loadState(file: string): void {}
+}
+
+class FakeN64Utils implements IUtils {
+  utilBitCount8(value: number): number {
+    return -1;
+  }
+  utilBitCount16(value: number): number {
+    return -1;
+  }
+  utilBitCount32(value: number): number {
+    return -1;
+  }
+  utilBitCountBuffer(buf: Buffer, offset: number, length: number): number {
+    return -1;
+  }
+  memoryCacheRefresh(): void {}
+  hashBuffer(buf: Buffer): string {
+    return crypto
+      .createHash('md5')
+      .update(buf)
+      .digest('hex');
+  }
+
+  yaz0Encode(buf: Buffer): Buffer {
+    return Buffer.alloc(1);
+  }
+  yaz0Decode(buf: Buffer): Buffer {
+    return Buffer.alloc(1);
+  }
 }

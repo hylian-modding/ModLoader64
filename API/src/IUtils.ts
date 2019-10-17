@@ -10,6 +10,10 @@ interface IUtils {
   memoryCacheRefresh(): void;
 
   hashBuffer(buf: Buffer): string;
+
+  yaz0Encode(buf: Buffer): Buffer;
+
+  yaz0Decode(buf: Buffer): Buffer;
 }
 
 export default IUtils;

@@ -210,17 +210,26 @@ class pluginLoader {
     });
   }
 
-  loadPluginsPreInit(manager: ILobbyManager) {
+  loadPluginsPreInit(manager: ILobbyManager, iconsole: IConsole) {
     this.loaded_core.preinit();
     this.loaded_core.ModLoader.lobbyManager = manager;
     this.loaded_core.ModLoader.clientSide = ClientController;
     this.loaded_core.ModLoader.serverSide = ServerController;
+
+    let utils: IUtils = iconsole.getUtils();
+    utils.hashBuffer = (buf: Buffer) => {
+      return crypto
+        .createHash('md5')
+        .update(buf)
+        .digest('hex');
+    };
+    this.loaded_core.ModLoader.utils = utils;
     this.loaded_core.ModLoader.clientLobby = this.config.data[
       'NetworkEngine.Client'
     ]['lobby'];
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.lobbyManager = manager;
-
+      plugin.ModLoader.utils = utils;
       plugin.ModLoader.clientSide = ClientController;
       plugin.ModLoader.serverSide = ServerController;
       plugin.ModLoader.clientLobby = this.config.data['NetworkEngine.Client'][
@@ -256,21 +265,12 @@ class pluginLoader {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
-    let utils: IUtils = (emulator as unknown) as IUtils;
-    utils.hashBuffer = (buf: Buffer) => {
-      return crypto
-        .createHash('md5')
-        .update(buf)
-        .digest('hex');
-    };
     this.loaded_core.ModLoader.emulator = emulator;
-    this.loaded_core.ModLoader.utils = utils;
     this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;
     this.loaded_core.ModLoader.gui = new GUIAPI('core', this.loaded_core);
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emulator;
-      plugin.ModLoader.utils = utils;
       plugin.ModLoader.gui = new GUIAPI(plugin.pluginName as string, plugin);
       plugin.ModLoader.savestates = (emulator as unknown) as ISaveState;
       plugin.postinit();

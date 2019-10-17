@@ -1,5 +1,7 @@
 import IMemory from './IMemory';
 import { IRomHeader } from './IRomHeader';
+import IUtils from './IUtils';
+import ISaveState from './ISaveState';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -33,6 +35,10 @@ interface IConsole {
   getMemoryAccess(): IMemory;
 
   setSaveDir(path: string): void;
+
+  getUtils(): IUtils;
+
+  getSaveStateManager(): ISaveState;
 }
 
 export default IConsole;

@@ -3,7 +3,7 @@ import bitwise from 'bitwise';
 import { UInt8, Bit } from 'bitwise/types';
 
 export class FakeN64Memory implements IMemory {
-  private buf: Buffer = Buffer.alloc(0x800000);
+  private buf: Buffer = Buffer.alloc(0x800000 * 2);
 
   rdramReadBitsBuffer(addr: number, bytes: number): Buffer {
     let buf: Buffer = Buffer.alloc(bytes * 8);

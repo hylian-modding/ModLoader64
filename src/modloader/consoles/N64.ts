@@ -9,6 +9,8 @@ import {
   MonkeyPatch_rdramReadBits8,
   MonkeyPatch_rdramWriteBits8,
 } from '../../monkeypatches/Mupen';
+import IUtils from 'modloader64_api/IUtils';
+import ISaveState from 'modloader64_api/ISaveState';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -67,7 +69,7 @@ class N64 implements IConsole {
   }
 
   isEmulatorReady(): boolean {
-    return this.mupen.coreEmuState() === 2;
+    return this.mupen.isMupenReady();
   }
 
   getLoadedRom(): Buffer {
@@ -119,6 +121,14 @@ class N64 implements IConsole {
 
   setSaveDir(path: string): void {
     this.mupen.setSaveDir(path);
+  }
+
+  getUtils(): IUtils {
+    return (this.mupen as unknown) as IUtils;
+  }
+
+  getSaveStateManager(): ISaveState {
+    return (this.mupen as unknown) as ISaveState;
   }
 }
 
