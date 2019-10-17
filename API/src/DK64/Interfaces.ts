@@ -31,6 +31,7 @@ export interface IBanana {
 }
 
 export interface IKong {
+  bananas: IBanana[];
   colored_bananas: IBanana;
   troff_scoff_bananas: IBanana;
   golden_bananas: IBanana;

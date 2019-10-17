@@ -98,9 +98,7 @@ export class Kong extends API.BaseObj implements API.IKong {
   private instrument_energy_addr: number = this.instance + 0x08;
 
   // Abstraction
-  colored_bananas: API.IBanana;
-  troff_scoff_bananas: API.IBanana;
-  golden_bananas: API.IBanana;
+  bananas: API.IBanana[] = new Array<API.IBanana>();
 
   constructor(emu: IMemory, index: number) {
     super(emu);
@@ -108,10 +106,19 @@ export class Kong extends API.BaseObj implements API.IKong {
     let addr = global.ModLoader[API.AddressType.KONG_BASE];
     this.instance = addr + (index * 0x5E);
 
-    this.colored_bananas = new Banana(emu, this.instance + 0x0A);
-    this.troff_scoff_bananas = new Banana(emu, this.instance + 0x26);
-    this.golden_bananas = new Banana(emu, this.instance + 0x42);
+    this.bananas.push(new Banana(emu, this.instance + 0x0A));
+    this.bananas.push(new Banana(emu, this.instance + 0x26));
+    this.bananas.push(new Banana(emu, this.instance + 0x42));
   }
+
+  get colored_bananas(): API.IBanana { return this.bananas[0]; }
+  set colored_bananas(val: API.IBanana) { this.bananas[0] = val; }
+  
+  get troff_scoff_bananas(): API.IBanana { return this.bananas[1]; }
+  set troff_scoff_bananas(val: API.IBanana) { this.bananas[1] = val; }
+  
+  get golden_bananas(): API.IBanana { return this.bananas[2]; }
+  set golden_bananas(val: API.IBanana) { this.bananas[2] = val; }
 
   get moves(): number { return this.emulator.rdramRead8(this.moves_addr); }
   set moves(value: number) { this.emulator.rdramWrite8(this.moves_addr, value); }
