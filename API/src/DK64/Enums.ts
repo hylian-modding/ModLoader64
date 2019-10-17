@@ -11,10 +11,11 @@ export const enum AddressType {
   ER_COPY_BASE = 'DK64:er_copy_base',
   ER_FILE_MAP = 'DK64:er_file_map',
 
+  CHARACTER = 'DK64:character',
+  KONG_BASE = 'DK64:kong_base',
+
   RT_CUR_PROFILE = 'DK64:rt_current_profile',
   RT_GAME_MODE = 'DK64:rt_game_mode',
-
-  //SAVE_GAME_FLAGS = 'DK64:save_game_flags',
 }
 
 export enum GameModeType {
@@ -35,6 +36,26 @@ export enum GameModeType {
   END_SEQUENCE_DK_THEATRE = 14,
 }
 
+export enum KongType {
+  DK = 0,
+  DIDDY = 1,
+  LANKY = 2,
+  TINY = 3,
+  CHUNKY = 4,
+  KRUSHA = 5,
+}
+
+export enum KongDataType {
+  MOVES = 0,
+  SIM_SLAM = 1,
+  WEAPON = 2,
+  AMMO_BELT = 3,
+  INSTRUMENT = 4,
+  COINS = 6,
+  LIVES = 8,
+  CB_BASE = 10,
+}
+
 export enum ProfileType {
   A = 0,
   B = 1,
@@ -42,6 +63,11 @@ export enum ProfileType {
 }
 
 export enum InventoryType {
-  STANDARD_AMMO = 0x00,
-  HOMING_AMMO = 0x02,
+  STANDARD_AMMO = 0,
+  HOMING_AMMO = 2,
+  ORANGES = 4,
+  CRYSTALS = 6,
+  FILM = 8,
+  HEALTH = 11,
+  MELONS = 12,
 }
