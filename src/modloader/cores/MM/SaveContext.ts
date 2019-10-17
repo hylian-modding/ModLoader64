@@ -1,6 +1,7 @@
 import * as API from 'modloader64_api/MM/Imports';
 import { zeldaString } from 'modloader64_api/MM/ZeldaString';
 import { buffer, string } from 'bitwise';
+import { eventNames } from 'cluster';
 
 export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private instance = 0x1ef670;
@@ -111,7 +112,7 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private mask_blast_addr: number = 0x1EF6FA;
   private mask_stone_addr: number = 0x1EF6FB;
   private mask_fairy_addr: number = 0x1EF6FC;
-  private mask_deku_arrow_addr: number = 0x1EF6FD;
+  private mask_deku_addr: number = 0x1EF6FD;
   private mask_keaton_addr: number =	0x1EF6FE;
   private mask_bremen_addr: number =	0x1EF6FF;
   private mask_bunny_addr: number =	0x1EF700;
@@ -132,7 +133,7 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private mask_fierce_addr: number = 0x1EF70F;
 
   //Haven't looked and confirmed length of rdramRead for all
-  
+
   get entrance_index(): number {
     return this.emulator.rdramRead32(this.entrance_index_addr);
   }
@@ -283,4 +284,373 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   set double_defense(value: number) {
     this.emulator.rdramWrite32(this.double_defense_addr, value);
   }
+
+  get ocarina_time(): number {
+    return this.emulator.rdramRead32(this.ocarina_time_addr);
+  }
+
+  set ocarina_time(value: number) {
+    this.emulator.rdramWrite32(this.ocarina_time_addr, value);
+  }
+
+  get hero_bow(): number {
+    return this.emulator.rdramRead32(this.hero_bow_addr);
+  }
+
+  set hero_bow(value: number) {
+    this.emulator.rdramWrite32(this.hero_bow_addr, value);
+  }
+
+  get fire_arrow(): number {
+    return this.emulator.rdramRead32(this.fire_arrow_addr);
+  }
+
+  set fire_arrow(value: number) {
+    this.emulator.rdramWrite32(this.fire_arrow_addr, value);
+  }
+
+  get ice_arrow(): number {
+    return this.emulator.rdramRead32(this.ice_arrow_addr);
+  }
+
+  set ice_arrow(value: number) {
+    this.emulator.rdramWrite32(this.ice_arrow_addr, value);
+  }
+
+  get light_arrow(): number {
+    return this.emulator.rdramRead32(this.light_arrow_addr);
+  }
+
+  set light_arrow(value: number) {
+    this.emulator.rdramWrite32(this.light_arrow_addr, value);
+  }
+
+  get bomb(): number {
+    return this.emulator.rdramRead32(this.bomb_addr);
+  }
+
+  set bomb(value: number) {
+    this.emulator.rdramWrite32(this.bomb_addr, value);
+  }
+
+  get bombchu(): number {
+    return this.emulator.rdramRead32(this.bombchu_addr);
+  }
+
+  set bombchu(value: number) {
+    this.emulator.rdramWrite32(this.bombchu_addr, value);
+  }
+
+  get deku_stick(): number {
+    return this.emulator.rdramRead32(this.deku_stick_addr);
+  }
+
+  set deku_stick(value: number) {
+    this.emulator.rdramWrite32(this.deku_stick_addr, value);
+  }
+
+  get deku_nut(): number {
+    return this.emulator.rdramRead32(this.deku_nut_addr);
+  }
+
+  set deku_nut(value: number) {
+    this.emulator.rdramWrite32(this.deku_nut_addr, value);
+  }
+
+  get magic_beans(): number {
+    return this.emulator.rdramRead32(this.magic_beans_addr);
+  }
+
+  set magic_beans(value: number) {
+    this.emulator.rdramWrite32(this.magic_beans_addr, value);
+  }
+
+  get powder_keg(): number {
+    return this.emulator.rdramRead32(this.powder_keg_addr);
+  }
+
+  set powder_keg(value: number) {
+    this.emulator.rdramWrite32(this.powder_keg_addr, value);
+  }
+
+  get pictograph_box(): number {
+    return this.emulator.rdramRead32(this.pictograph_box_addr);
+  }
+
+  set pictograph_box(value: number) {
+    this.emulator.rdramWrite32(this.pictograph_box_addr, value);
+  }
+
+  get lens_of_truth(): number {
+    return this.emulator.rdramRead32(this.lens_of_truth_addr);
+  }
+
+  set lens_of_truth(value: number) {
+    this.emulator.rdramWrite32(this.lens_of_truth_addr, value);
+  }
+
+  get hookshot(): number {
+    return this.emulator.rdramRead32(this.hookshot_addr);
+  }
+
+  set hookshot(value: number) {
+    this.emulator.rdramWrite32(this.hookshot_addr, value);
+  }
+
+  get event_item_1(): number {
+    return this.emulator.rdramRead32(this.event_item_1_addr);
+  }
+
+  set event_item_1(value: number) {
+    this.emulator.rdramWrite32(this.event_item_1_addr, value);
+  }
+
+  get event_item_2(): number {
+    return this.emulator.rdramRead32(this.event_item_2_addr);
+  }
+
+  set event_item_2(value: number) {
+    this.emulator.rdramWrite32(this.event_item_2_addr, value);
+  }
+
+  get event_item_3(): number {
+    return this.emulator.rdramRead32(this.event_item_3_addr);
+  }
+
+  set event_item_3(value: number) {
+    this.emulator.rdramWrite32(this.event_item_3_addr, value);
+  }
+
+  get bottle_1(): number {
+    return this.emulator.rdramRead32(this.bottle_1_addr);
+  }
+
+  set bottle_1(value: number) {
+    this.emulator.rdramWrite32(this.bottle_1_addr, value);
+  }
+
+  get bottle_2(): number {
+    return this.emulator.rdramRead32(this.bottle_2_addr);
+  }
+
+  set bottle_2(value: number) {
+    this.emulator.rdramWrite32(this.bottle_2_addr, value);
+  }
+
+  get bottle_3(): number {
+    return this.emulator.rdramRead32(this.bottle_3_addr);
+  }
+
+  set bottle_3(value: number) {
+    this.emulator.rdramWrite32(this.bottle_3_addr, value);
+  }
+
+  get bottle_4(): number {
+    return this.emulator.rdramRead32(this.bottle_4_addr);
+  }
+
+  set bottle_4(value: number) {
+    this.emulator.rdramWrite32(this.bottle_4_addr, value);
+  }
+
+  get bottle_5(): number {
+    return this.emulator.rdramRead32(this.bottle_5_addr);
+  }
+
+  set bottle_5(value: number) {
+    this.emulator.rdramWrite32(this.bottle_5_addr, value);
+  }
+
+  get bottle_6(): number {
+    return this.emulator.rdramRead32(this.bottle_6_addr);
+  }
+
+  set bottle_6(value: number) {
+    this.emulator.rdramWrite32(this.bottle_6_addr, value);
+  }
+
+  get mask_postman(): number {
+    return this.emulator.rdramRead32(this.mask_postman_addr);
+  }
+
+  set mask_postman(value: number) {
+    this.emulator.rdramWrite32(this.mask_postman_addr, value);
+  }
+
+  get mask_all_night(): number {
+    return this.emulator.rdramRead32(this.mask_all_night_addr);
+  }
+
+  set mask_all_night(value: number) {
+    this.emulator.rdramWrite32(this.mask_all_night_addr, value);
+  }
+
+  get mask_blast(): number {
+    return this.emulator.rdramRead32(this.mask_blast_addr);
+  }
+
+  set mask_blast(value: number) {
+    this.emulator.rdramWrite32(this.mask_blast_addr, value);
+  }
+  
+  get mask_stone(): number {
+    return this.emulator.rdramRead32(this.mask_stone_addr);
+  }
+  
+  set mask_stone(value: number) {
+    this.emulator.rdramWrite32(this.mask_stone_addr, value);
+  }
+
+  get mask_fairy(): number {
+    return this.emulator.rdramRead32(this.mask_fairy_addr);
+  }
+
+  set mask_fairy(value: number) {
+    this.emulator.rdramWrite32(this.mask_fairy_addr, value);
+  }
+
+  get mask_deku(): number {
+    return this.emulator.rdramRead32(this.mask_deku_addr);
+  }
+
+  set mask_deku(value: number) {
+    this.emulator.rdramWrite32(this.mask_deku_addr, value);
+  }
+
+  get mask_keaton(): number {
+    return this.emulator.rdramRead32(this.mask_keaton_addr);
+  }
+
+  set mask_keaton(value: number) {
+    this.emulator.rdramWrite32(this.mask_keaton_addr, value);
+  }
+
+  get mask_bremen(): number {
+    return this.emulator.rdramRead32(this.mask_bremen_addr);
+  }
+
+  set mask_bremen(value: number) {
+    this.emulator.rdramWrite32(this.mask_bremen_addr, value);
+  }
+
+  get mask_bunny(): number {
+    return this.emulator.rdramRead32(this.mask_bunny_addr);
+  }
+
+  set mask_bunny(value: number) {
+    this.emulator.rdramWrite32(this.mask_bunny_addr, value);
+  }
+
+  get mask_gero(): number {
+    return this.emulator.rdramRead32(this.mask_gero_addr);
+  }
+
+  set mask_gero(value: number) {
+    this.emulator.rdramWrite32(this.mask_gero_addr, value);
+  }
+
+  get mask_scents(): number {
+    return this.emulator.rdramRead32(this.mask_scents_addr);
+  }
+
+  set mask_scents(value: number) {
+    this.emulator.rdramWrite32(this.mask_scents_addr, value);
+  }
+
+  get mask_goron(): number {
+    return this.emulator.rdramRead32(this.mask_goron_addr);
+  }
+
+  set mask_goron(value: number) {
+    this.emulator.rdramWrite32(this.mask_goron_addr, value);
+  }
+
+  get mask_romanin(): number {
+    return this.emulator.rdramRead32(this.mask_romani_addr);
+  }
+
+  set mask_romanin(value: number) {
+    this.emulator.rdramWrite32(this.mask_romani_addr, value);
+  }
+
+  get mask_circus_leader(): number {
+    return this.emulator.rdramRead32(this.mask_circus_leader_addr);
+  }
+
+  set mask_circus_leader(value: number) {
+    this.emulator.rdramWrite32(this.mask_circus_leader_addr, value);
+  }
+  
+  get mask_kafei(): number {
+    return this.emulator.rdramRead32(this.mask_kafei_addr);
+  }
+
+  set mask_kafei(value: number) {
+    this.emulator.rdramWrite32(this.mask_kafei_addr, value);
+  }
+
+  get mask_couples(): number {
+    return this.emulator.rdramRead32(this.mask_couples_addr);
+  }
+
+  set mask_couples(value: number) {
+    this.emulator.rdramWrite32(this.mask_couples_addr, value);
+  }
+
+  get mask_truth(): number {
+    return this.emulator.rdramRead32(this.mask_couples_addr);
+  }
+
+  set mask_truth(value: number) {
+    this.emulator.rdramWrite32(this.double_defense_addr, value);
+  }
+
+  get mask_kamaro(): number {
+    return this.emulator.rdramRead32(this.mask_kamaro_addr);
+  }
+
+  set mask_kamaro(value: number) {
+    this.emulator.rdramWrite32(this.mask_kamaro_addr, value);
+  }
+
+  get mask_gibdo(): number {
+    return this.emulator.rdramRead32(this.mask_gibdo_addr);
+  }
+
+  set mask_gibdo(value: number) {
+    this.emulator.rdramWrite32(this.mask_gibdo_addr, value);
+  }
+
+  get mask_garo(): number {
+    return this.emulator.rdramRead32(this.mask_garo_addr);
+  }
+
+  set mask_garo(value: number) {
+    this.emulator.rdramWrite32(this.mask_gibdo_addr, value);
+  }
+
+  get mask_captain(): number {
+    return this.emulator.rdramRead32(this.mask_captain_addr);
+  }
+
+  set mask_captain(value: number) {
+    this.emulator.rdramWrite32(this.mask_captain_addr, value);
+  }
+
+  get mask_giant(): number {
+    return this.emulator.rdramRead32(this.mask_giant_addr);
+  }
+
+  set mask_giant(value: number) {
+    this.emulator.rdramWrite32(this.mask_giant_addr, value);
+  }
+  
+  get mask_fierce(): number {
+    return this.emulator.rdramRead32(this.mask_fierce_addr);
+  }
+
+  set mask_fierce(value: number) {
+    this.emulator.rdramWrite32(this.mask_fierce_addr, value);
+  }
+
 }
