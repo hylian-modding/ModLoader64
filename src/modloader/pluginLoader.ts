@@ -282,7 +282,7 @@ class pluginLoader {
       }
     });
     this.onFakeFrameHandler = setInterval(() => {
-      if (this.internalFrameCount >= 0) {
+      if (this.internalFrameCount >= 20) {
         clearInterval(this.onFakeFrameHandler);
         iconsole.pauseEmulator();
         let gameshark = new GameShark(this.logger, emulator);
