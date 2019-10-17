@@ -247,8 +247,9 @@ class ModLoader64 {
               }
             }
           }
-          bus.emit(ModLoaderEvents.ON_ROM_PATCHED, { rom: rom_data });
-          return rom_data;
+          let evt: any = { rom: rom_data };
+          bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+          return evt.rom;
         }) as IMemory;
         while (!instance.emulator.isEmulatorReady()) {}
         internal_event_bus.emit('emulator_started', {});
