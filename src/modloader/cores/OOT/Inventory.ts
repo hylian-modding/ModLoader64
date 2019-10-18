@@ -620,7 +620,7 @@ export class Inventory extends JSONTemplate implements IInventory {
       return Hookshot.LONGSHOT;
     }
     if (this.hasItem(InventoryItem.HOOKSHOT)) {
-      return Hookshot.LONGSHOT;
+      return Hookshot.HOOKSHOT;
     }
     return Hookshot.NONE;
   }
