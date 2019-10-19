@@ -438,6 +438,7 @@ export interface ISaveContext {
   skulltulaFlags: Buffer;
   keyManager: IKeyManager;
   dungeonItemManager: IDungeonItemManager;
+  double_defense: number;
 }
 
 export interface ILink extends IActor {
