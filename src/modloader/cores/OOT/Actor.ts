@@ -23,24 +23,24 @@ export class Position extends JSONTemplate implements IPosition {
   }
 
   get x(): number {
-    return this.parent.rdramReadS32(POSITION_OFFSET + 0);
+    return this.parent.rdramReadF32(POSITION_OFFSET + 0);
   }
   set x(x: number) {
-    this.parent.rdramWrite32(POSITION_OFFSET + 0, x);
+    this.parent.rdramWriteF32(POSITION_OFFSET + 0, x);
   }
 
   get y(): number {
-    return this.parent.rdramReadS32(POSITION_OFFSET + 4);
+    return this.parent.rdramReadF32(POSITION_OFFSET + 4);
   }
   set y(y: number) {
-    this.parent.rdramWrite32(POSITION_OFFSET + 4, y);
+    this.parent.rdramWriteF32(POSITION_OFFSET + 4, y);
   }
 
   get z(): number {
-    return this.parent.rdramReadS32(POSITION_OFFSET + 8);
+    return this.parent.rdramReadF32(POSITION_OFFSET + 8);
   }
   set z(z: number) {
-    this.parent.rdramWrite32(POSITION_OFFSET + 8, z);
+    this.parent.rdramWriteF32(POSITION_OFFSET + 8, z);
   }
 
   getRawPos(): Buffer {
