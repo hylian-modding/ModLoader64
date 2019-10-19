@@ -480,7 +480,6 @@ export interface IOOTCore extends ICore {
   global: IGlobalContext;
   commandBuffer: ICommandBuffer;
   actorManager: IActorManager;
-  keyManager: IKeyManager;
 }
 
 // Note: ON_ACTOR_SPAWN/ON_ACTOR_DESPAWN won't detect anything created by ICommandBuffer. This is intentional behavior.
