@@ -18,6 +18,8 @@ import { Link } from './OOT/Link';
 import { OotHelper } from './OOT/OotHelper';
 import { SaveContext } from './OOT/SaveContext';
 import { KeyManager } from './OOT/KeyManager';
+import { IDungeonItemManager } from 'modloader64_api/OOT/IDungeonItemManager';
+import { DungeonItemManager } from './OOT/DungeonItemManager';
 
 enum ROM_VERSIONS {
   N0 = 0x00,
@@ -35,6 +37,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   commandBuffer!: CommandBuffer;
   actorManager!: ActorManager;
   keyManager!: IKeyManager;
+  dungeonItemManager!: IDungeonItemManager;
   eventTicks: Map<string, Function> = new Map<string, Function>();
   // Client side variables
   isSaveLoaded = false;
@@ -145,6 +148,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.helper
     );
     this.keyManager = new KeyManager(this.ModLoader.emulator);
+    this.dungeonItemManager = new DungeonItemManager(this.ModLoader.emulator);
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();

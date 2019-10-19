@@ -512,6 +512,20 @@ export const enum VANILLA_KEY_INDEXES {
   TREASURE_CHEST_SHOP = 16,
 }
 
+export const enum VANILLA_DUNGEON_ITEM_INDEXES {
+  DEKU_TREE,
+  DODONGOS_CAVERN,
+  JABJ_JABUS_BELLY,
+  FOREST_TEMPLE,
+  FIRE_TEMPLE,
+  WATER_TEMPLE,
+  SPIRIT_TEMPLE,
+  SHADOW_TEMPLE,
+  BOTTOM_OF_THE_WELL,
+  ICE_CAVERN,
+  GANONS_CASTLE,
+}
+
 export interface IKeyManager {
   getKeyCountForIndex(index: number): number;
   setKeyCountByIndex(index: number, count: number): void;
