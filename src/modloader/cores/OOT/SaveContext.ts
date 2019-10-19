@@ -5,6 +5,7 @@ import {
   MagicQuantities,
   IQuestStatus,
   Age,
+  IKeyManager,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import { BootsEquipment } from './BootsEquipment';
@@ -15,6 +16,9 @@ import { Inventory } from './Inventory';
 import { QuestStatus } from './QuestStatus';
 import { zeldaString } from 'modloader64_api/OOT/ZeldaString';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import { IDungeonItemManager } from 'modloader64_api/OOT/IDungeonItemManager';
+import { KeyManager } from './KeyManager';
+import { DungeonItemManager } from './DungeonItemManager';
 
 export class SaveContext extends JSONTemplate implements ISaveContext {
   private emulator: IMemory;
@@ -52,6 +56,9 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   boots: BootsEquipment;
   inventory: Inventory;
   questStatus: IQuestStatus;
+  keyManager: IKeyManager;
+  dungeonItemManager: IDungeonItemManager;
+
   jsonFields: string[] = [
     'entrance_index',
     'cutscene_number',
@@ -86,6 +93,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     this.boots = new BootsEquipment(emu);
     this.inventory = new Inventory(emu, log);
     this.questStatus = new QuestStatus(emu);
+    this.keyManager = new KeyManager(emu);
+    this.dungeonItemManager = new DungeonItemManager(emu);
   }
   // https://wiki.cloudmodding.com/oot/Entrance_Table
   // https://wiki.cloudmodding.com/oot/Entrance_Table_(Data)

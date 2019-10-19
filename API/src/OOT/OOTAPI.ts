@@ -2,6 +2,7 @@ import IMemory from '../IMemory';
 import { ICommandBuffer } from './ICommandBuffer';
 import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';
+import { IDungeonItemManager } from './IDungeonItemManager';
 
 export const enum LinkState {
   UNKNOWN,
@@ -435,6 +436,8 @@ export interface ISaveContext {
   itemFlags: Buffer;
   infTable: Buffer;
   skulltulaFlags: Buffer;
+  keyManager: IKeyManager;
+  dungeonItemManager: IDungeonItemManager;
 }
 
 export interface ILink extends IActor {

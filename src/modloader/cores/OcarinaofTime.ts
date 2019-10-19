@@ -36,8 +36,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
   helper!: IOotHelper;
   commandBuffer!: CommandBuffer;
   actorManager!: ActorManager;
-  keyManager!: IKeyManager;
-  dungeonItemManager!: IDungeonItemManager;
   eventTicks: Map<string, Function> = new Map<string, Function>();
   // Client side variables
   isSaveLoaded = false;
@@ -147,8 +145,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.ModLoader.logger,
       this.helper
     );
-    this.keyManager = new KeyManager(this.ModLoader.emulator);
-    this.dungeonItemManager = new DungeonItemManager(this.ModLoader.emulator);
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();
