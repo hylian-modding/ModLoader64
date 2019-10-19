@@ -8,6 +8,10 @@ import {
   ILink,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
+import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
+import { IRotation } from 'modloader64_api/OOT/IRotation';
+import { IPosition } from 'modloader64_api/OOT/IPosition';
+import { Position, Rotation } from './Actor';
 
 export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
@@ -24,6 +28,11 @@ export class Link extends JSONTemplate implements ILink {
     This helps prevent jittering.*/
   private sound_addr: number = 0x600000 + 0x88;
   private anim_data_addr = 0x600000;
+
+  rotation: IRotation;
+  position: IPosition;
+  actorUUID = 'Link';
+
   jsonFields: string[] = [
     'state',
     'tunic',
@@ -35,17 +44,78 @@ export class Link extends JSONTemplate implements ILink {
     'anim_data',
     'current_sound_id',
   ];
+
   constructor(emu: IMemory) {
     super();
     this.emulator = emu;
+    this.rotation = new Rotation(this);
+    this.position = new Position(this);
   }
-  exists(): boolean {
+
+  get actorID(): number {
+    return this.rdramRead16(0x0);
+  }
+
+  get actorType(): ActorCategory {
+    return this.rdramRead8(0x2);
+  }
+
+  get room(): number {
+    return this.rdramRead8(0x3);
+  }
+  set room(r: number) {
+    this.rdramWrite8(0x3, r);
+  }
+
+  get renderingFlags(): number {
+    return this.rdramRead32(0x4);
+  }
+
+  set renderingFlags(flags: number) {
+    this.rdramWrite32(0x4, flags);
+  }
+
+  get variable(): number {
+    return this.rdramRead16(0x1c);
+  }
+
+  get objectTableIndex(): number {
+    return this.rdramRead8(0x1e);
+  }
+
+  get soundEffect(): number {
+    return this.rdramRead16(0x20);
+  }
+
+  set soundEffect(s: number) {
+    this.rdramWrite16(0x20, s);
+  }
+
+  get health(): number {
+    return this.rdramRead8(0xaf);
+  }
+
+  set health(h: number) {
+    this.rdramWrite8(0xaf, h);
+  }
+
+  get redeadFreeze(): number {
+    return this.rdramReadS16(0x110);
+  }
+
+  set redeadFreeze(f: number) {
+    this.rdramWrite16(0x110, f);
+  }
+
+  get exists(): boolean {
     return this.emulator.rdramRead32(this.instance) === 0x2ff;
   }
 
   get rawStateValue(): number {
     return this.emulator.rdramRead32(this.state_addr);
   }
+
+  destroy(): void {}
 
   get state(): LinkState {
     switch (this.emulator.rdramRead32(this.state_addr)) {

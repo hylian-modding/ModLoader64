@@ -437,20 +437,15 @@ export interface ISaveContext {
   skulltulaFlags: Buffer;
 }
 
-export interface ILink extends IMemory {
+export interface ILink extends IActor {
   state: LinkState;
   rawStateValue: number;
   tunic: Tunic;
   shield: Shield;
   boots: Boots;
   mask: Mask;
-  pos: Buffer;
-  rot: Buffer;
   anim_data: Buffer;
   current_sound_id: number;
-  anim_id: number;
-  anim_frame: number;
-  exists(): boolean;
 }
 
 export interface IGlobalContext {

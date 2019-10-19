@@ -22,5 +22,7 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   private continue_state_addr = 0x98; //Not found yet
   private epona_ptr = 0x3ffed0;
 
-  get_current_scene(): number { return this.emulator.rdramRead8(this.cur_scene_addr); }
+  get_current_scene(): number {
+    return this.emulator.rdramRead8(this.cur_scene_addr);
+  }
 }

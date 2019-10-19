@@ -6,11 +6,12 @@ import { IPosition } from 'modloader64_api/OOT/IPosition';
 import { IActor } from 'modloader64_api/OOT/IActor';
 import fs from 'fs';
 import path from 'path';
-
-const ROTATION_OFFSET = 0xb4;
-const ROTATION_SIZE = 0x6;
-const POSITION_OFFSET = 0x24;
-const POSITION_SIZE = 0xc;
+import {
+  POSITION_OFFSET,
+  POSITION_SIZE,
+  ROTATION_OFFSET,
+  ROTATION_SIZE,
+} from './ActorOffsets';
 
 export class Position extends JSONTemplate implements IPosition {
   private readonly parent: IMemory;

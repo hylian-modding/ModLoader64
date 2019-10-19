@@ -42,7 +42,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {}
 
-  onTick(): void {  
+  onTick(): void {
     this.eventTicks.forEach((value: Function, key: string) => {
       value();
     });
