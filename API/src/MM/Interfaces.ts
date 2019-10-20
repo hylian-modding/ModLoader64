@@ -46,9 +46,11 @@ export interface ISaveContext {
 
   get_checksum(): number;
 
+  item_slots: Buffer;
   get_item_slot(slot: apiEnum.ItemSlotType): apiEnum.ItemType;
   set_item_slot(slot: apiEnum.ItemSlotType, item: apiEnum.ItemType): void;
 
+  mask_slots: Buffer;
   get_mask_slot(slot: apiEnum.MaskSlotType): apiEnum.MaskType;
   set_mask_slot(slot: apiEnum.MaskSlotType, mask: apiEnum.MaskType): void;
 }

@@ -217,12 +217,18 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
     return this.emulator.rdramRead16(this.checksum_addr);
   }
 
+  get item_slots(): Buffer { return this.emulator.rdramReadBuffer(this.item_slot_addr, 0x18); }
+  set item_slots(val: Buffer) { this.emulator.rdramWriteBuffer(this.item_slot_addr, val); }
+
   get_item_slot(slot: API.ItemSlotType): API.ItemType {
     return this.emulator.rdramRead8(this.item_slot_addr + slot) as API.ItemType;
   }
   set_item_slot(slot: API.ItemSlotType, item: API.ItemType) {
     this.emulator.rdramWrite8(this.item_slot_addr + slot, item);
   }
+
+  get mask_slots(): Buffer { return this.emulator.rdramReadBuffer(this.mask_slot_addr, 0x18); }
+  set mask_slots(val: Buffer) { this.emulator.rdramWriteBuffer(this.mask_slot_addr, val); }
 
   get_mask_slot(slot: API.MaskSlotType): API.MaskType {
     return this.emulator.rdramRead8(this.mask_slot_addr + slot) as API.MaskType;
