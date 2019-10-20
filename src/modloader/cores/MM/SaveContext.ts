@@ -72,8 +72,8 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private max_magic = 0x1f359e; //0x30 = normal, 0x60 = double
   private magic = 0x1f35a0; //unknown use?
 
-  private scene_flags_ingame = 0x1f35d8; //read when a scene is loaded, 0x14 per scene
-  private perma_scene_flags = 0x00f8; //Persists for the lifetime of the save
+  private scene_flags = 0x1f35d8; //read when a scene is loaded, 0x14 per scene
+  private save_flags = 0x00f8; //Persists for the lifetime of the save
   private cycle_scene_flags = 0x3f68; //Persists until the end of the current 3 day cycle
 
   private checksum_addr = 0x1f067a;
