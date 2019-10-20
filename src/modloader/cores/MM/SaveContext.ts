@@ -109,10 +109,10 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   }
 
   get world_time(): number {
-    return this.emulator.rdramRead32(this.world_time_addr);
+    return this.emulator.rdramRead16(this.world_time_addr);
   }
   set world_time(value: number) {
-    this.emulator.rdramWrite32(this.world_time_addr, value);
+    this.emulator.rdramWrite16(this.world_time_addr, value);
   }
 
   get owl_id(): number {

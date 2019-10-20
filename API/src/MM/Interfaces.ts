@@ -53,8 +53,8 @@ export interface ISaveContext {
   mask_slots: Buffer;
   get_mask_slot(slot: apiEnum.MaskSlotType): apiEnum.MaskType;
   set_mask_slot(slot: apiEnum.MaskSlotType, mask: apiEnum.MaskType): void;
-  scene_flags: number;
-  save_flags: number;
+  scene_flags: number; //bruh
+  save_flags: number; //bruh
 }
 
 export interface IMMCore {
