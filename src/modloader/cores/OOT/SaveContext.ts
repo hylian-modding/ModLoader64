@@ -48,8 +48,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private item_flag_addr: number = this.instance + 0x0ef0;
   private inf_table_addr: number = this.instance + 0x0ef8;
   private skulltula_table_addr: number = this.instance + 0x0e9c;
-  private double_defense_addr_1: number = this.instance + 0x00CF;
-  private double_defense_addr_2: number = this.instance + 0x3D;
+  private double_defense_addr_1: number = this.instance + 0x00cf;
+  private double_defense_addr_2: number = this.instance + 0x3d;
 
   // Further abstractions
   swords: SwordsEquipment;
@@ -263,14 +263,14 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   set skulltulaFlags(buf: Buffer) {
     this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
   }
-  get double_defense(): number{
+  get double_defense(): number {
     return this.emulator.rdramRead8(this.double_defense_addr_1);
   }
-  set double_defense(n: number){
+  set double_defense(n: number) {
     this.emulator.rdramWrite8(this.double_defense_addr_1, n);
-    if (n > 0){
+    if (n > 0) {
       this.emulator.rdramWrite8(this.double_defense_addr_2, 0x1);
-    }else{
+    } else {
       this.emulator.rdramWrite8(this.double_defense_addr_2, 0x0);
     }
   }

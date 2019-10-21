@@ -140,6 +140,12 @@ export const enum Tunic {
   ZORA,
 }
 
+export const enum Sword {
+  KOKIRI,
+  MASTER,
+  BIGGORON,
+}
+
 export const enum Shield {
   NONE,
   DEKU,
@@ -450,6 +456,7 @@ export interface ILink extends IActor {
   mask: Mask;
   anim_data: Buffer;
   current_sound_id: number;
+  sword: Sword;
 }
 
 export interface IGlobalContext {
