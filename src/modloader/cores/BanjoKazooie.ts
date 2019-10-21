@@ -1,9 +1,5 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import {
-    IModLoaderAPI,
-    ICore,
-    ModLoaderEvents,
-} from 'modloader64_api/IModLoaderAPI';
+import { IModLoaderAPI, ICore, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import * as API from 'modloader64_api/BK/Imports';
 import * as CORE from './BK/Imports';

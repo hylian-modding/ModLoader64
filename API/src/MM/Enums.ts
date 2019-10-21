@@ -1,5 +1,5 @@
 export enum ActionType {
-  NONE = 0xFF,
+  NONE = 0xff,
   PUT_AWAY_ITEMS = 0x00,
   UNKNOWN_0X01 = 0x01,
   FISHING_ROD = 0x02,
@@ -86,7 +86,7 @@ export enum ActionType {
 }
 
 export enum ButtonType {
-  NONE = 0xFF,
+  NONE = 0xff,
   B = 0x00,
   C_LEFT = 0x01,
   C_DOWN = 0x02,
@@ -94,7 +94,7 @@ export enum ButtonType {
 }
 
 export enum FormType {
-  NONE = 0xFF,
+  NONE = 0xff,
   FIERCE_DEITY = 0x00,
   GORON = 0x01,
   ZORA = 0x02,
@@ -103,7 +103,7 @@ export enum FormType {
 }
 
 export enum ItemType {
-  NONE = 0xFF,
+  NONE = 0xff,
   OCARINA_OF_TIME = 0x00,
   HEROS_BOW = 0x01,
   ARROW_FIRE = 0x02,
@@ -258,7 +258,7 @@ export enum ItemType {
 }
 
 export enum ItemReceiveType {
-  NONE = 0xFF,
+  NONE = 0xff,
   OCARINA_OF_TIME = 0x00,
   BOW_AND_QUIVER = 0x01, // Holds 30
   ARROW_FIRE = 0x02,
@@ -505,7 +505,7 @@ export enum MaskSlotType {
 }
 
 export enum SceneType {
-  NONE = 0xFF,
+  NONE = 0xff,
   SOUTHERN_SWAMP = 0x00,
   UNKNOWN_0X01 = 0x01,
   UNKNOWN_0X02 = 0x02,
@@ -688,7 +688,7 @@ export enum SoundType {
 }
 
 export enum TextType {
-  NONE = 0xFF,
+  NONE = 0xff,
   ATTACK = 0x00,
   CHECK = 0x01,
   ENTER = 0x02,
