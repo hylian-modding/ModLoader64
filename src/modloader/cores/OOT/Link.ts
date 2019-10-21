@@ -24,7 +24,7 @@ export class Link extends JSONTemplate implements ILink {
   private mask_addr: number = this.instance + 0x014f;
   private pos_addr: number = this.instance + 0x24;
   private rot_addr: number = this.instance + 0xb4;
-  private sword_addr: number = this.instance + 0x013D;
+  private sword_addr: number = this.instance + 0x013d;
   /*This is provided by OotCore's ASM.
     Anim data is safely copied into this space at the end of each rendering cycle.
     This helps prevent jittering.*/
@@ -170,10 +170,10 @@ export class Link extends JSONTemplate implements ILink {
   set shield(shield: Shield) {
     this.emulator.rdramWrite8(this.shield_addr, shield);
   }
-  get sword(): Sword{
+  get sword(): Sword {
     return this.emulator.rdramRead8(this.sword_addr);
   }
-  set sword(sword: Sword){
+  set sword(sword: Sword) {
     this.emulator.rdramWrite8(this.sword_addr, sword);
   }
   get boots(): Boots {

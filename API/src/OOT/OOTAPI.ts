@@ -141,9 +141,10 @@ export const enum Tunic {
 }
 
 export const enum Sword {
-  KOKIRI,
-  MASTER,
-  BIGGORON,
+  NONE = 0xff,
+  KOKIRI = 0x3b,
+  MASTER = 0x3c,
+  BIGGORON = 0x3d,
 }
 
 export const enum Shield {
