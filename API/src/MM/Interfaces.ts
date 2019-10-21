@@ -45,13 +45,12 @@ export interface IPlayer {}
 
 export interface IRuntime {
   get_current_scene(): number;
-  temp_flags: IBuffered;
+  scene_flags: IBuffered;
 }
 
 export interface ISaveContext {
   game_flags: IBuffered;
   cycle_flags: IBuffered;
-  scene_flags: IBuffered;
 
   item_slots: IItemSlots;
   mask_slots: IMaskSlots;

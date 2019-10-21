@@ -60,7 +60,6 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
     // Abstraction
     game_flags: API.IBuffered;
     cycle_flags: API.IBuffered;
-    scene_flags: API.IBuffered;
 
     item_slots: API.IItemSlots;
     mask_slots: API.IMaskSlots;
@@ -76,7 +75,6 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
 
         this.game_flags = new SUB.GameFlags(emu);
         this.cycle_flags = new SUB.CycleFlags(emu);
-        this.scene_flags = new SUB.SceneFlags(emu);
 
         this.item_slots = new SUB.ItemSlots(emu);
         this.mask_slots = new SUB.MaskSlots(emu);
