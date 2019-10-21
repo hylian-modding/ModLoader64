@@ -8,30 +8,17 @@ export const enum GameVersion {
 export const enum AddressType {
   BETA_MENU = 'BK:beta_menu',
 
-  PLYR_ANIMAL = 'BK:plyr_animal',
-  PLYR_ANIMATION = 'BK:plyr_animation',
-  PLYR_FLIP_FACING = 'BK:plyr_flip_facing',
-  PLYR_MODEL_INDEX = 'BK:plyr_model_index',
-  PLYR_MODEL_PTR = 'BK:plyr_model_ptr',
-  PLYR_MOVEMENT_STATE = 'BK:plyr_state',
-  PLYR_OPACITY = 'BK:plyr_opacity',
-  PLYR_POS_X = 'BK:plyr_pos_x',
-  PLYR_POS_Y = 'BK:plyr_pos_y',
-  PLYR_POS_Z = 'BK:plyr_pos_z',
-  PLYR_ROT_X = 'BK:plyr_rot_x',
-  PLYR_ROT_Y = 'BK:plyr_rot_y',
-  PLYR_ROT_Z = 'BK:plyr_rot_z',
-  PLYR_SCALE = 'BK:plyr_scale',
-  PLYR_VISIBLE = 'BK:plyr_visible',
+  CAMERA = 'BK:camera',
+  INVENTORY = 'BK:inventory',
+  PLAYER = 'BK:player',
 
   RT_ACTOR_ARRAY_PTR = 'BK:rt_actor_arr_ptr',
   RT_COLLISION_PTR = 'BK:rt_collision_ptr',
   RT_CUR_EXIT = 'BK:rt_current_exit',
   RT_CUR_HEALTH = 'BK:rt_current_health',
   RT_CUR_LEVEL = 'BK:rt_current_level',
+  RT_CUR_LEVEL_EVENTS = 'BK:rt_current_level_events',
   RT_CUR_LEVEL_LOOKUP = 'BK:rt_current_level_table',
-  RT_CUR_LEVEL_JINJOS = 'BK:rt_current_level_jinjos',
-  RT_CUR_LEVEL_NOTES = 'BK:rt_current_level_notes',
   RT_CUR_PROFILE = 'BK:rt_current_profile',
   RT_CUR_SCENE = 'BK:rt_current_scene',
   RT_CUR_SCENE_EVENTS = 'BK:rt_current_scene_events',
@@ -41,15 +28,7 @@ export const enum AddressType {
   RT_VOXEL_ARRAY_PTR = 'BK:rt_voxel_arr_ptr',
   RT_VOXEL_COUNT_PTR = 'BK:rt_voxel_cnt_ptr',
 
-  RT_CUR_LEVEL_ACORN = 'BK:rt_acorn',
-  RT_CUR_LEVEL_CATERPILLAR = 'BK:rt_caterpillar',
-  RT_CUR_LEVEL_EVENTS = 'BK:rt_current_level_events',
-  RT_CUR_LEVEL_GOLD_BULLION = 'BK:rt_gold_bullion',
-  RT_CUR_LEVEL_PRESENT_GREEN = 'BK:rt_present_green',
-  RT_CUR_LEVEL_PRESENT_BLUE = 'BK:rt_present_blue',
-  RT_CUR_LEVEL_PRESENT_RED = 'BK:rt_present_red',
-  RT_CUR_LEVEL_ORANGE = 'BK:rt_orange',
-
+  SAVE_EEPROM = 'BK:save_eeprom',
   SAVE_GAME_FLAGS = 'BK:save_game_flags',
   SAVE_HONEYCOMB_FLAGS = 'BK:save_honeycomb_flags',
   SAVE_JIGGY_FLAGS = 'BK:save_jiggy_flags',
@@ -57,7 +36,6 @@ export const enum AddressType {
   SAVE_MUMBO_TOKEN_FLAGS = 'BK:save_mumbo_token_flags',
   SAVE_NOTE_TOTALS = 'BK:save_note_totals',
 
-  INVENTORY = 'BK:inventory',
   TEXT_MUMBO_TOKENS = 'BK:txt_tokens',
 }
 
@@ -778,14 +756,6 @@ export enum AnimationType {
   // 02C8  Mumbo's Hand Leaving
 }
 
-export enum JinjoType {
-  BLUE = 0x00,
-  GREEN = 0x01,
-  ORANGE = 0x02,
-  PINK = 0x03,
-  YELLOW = 0x4,
-}
-
 export enum ActorType {
   BIGBUTT = 0x0004,
   TICKER = 0x0005,
@@ -1459,6 +1429,14 @@ export enum InventoryType {
   JOKER_CARD = 0x27 * 4,
   TEXT_JIGGIES = 0x2b * 4,
   NOTE_TOTALS = 0x30 * 4,
+}
+
+export enum JinjoType {
+  BLUE = 0x00,
+  GREEN = 0x01,
+  ORANGE = 0x02,
+  PINK = 0x03,
+  YELLOW = 0x4,
 }
 
 export enum LevelType {

@@ -12,32 +12,39 @@ export interface IBuffered {
   set(offset: number, value: number): void;
 }
 
-export interface ICurrentLevel {
-  id: apiEnum.LevelType;
+export interface IInventory {
   acorn: number;
   caterpillar: number;
+  eggs: number;
   gold_bullions: number;
+  gold_feathers: number;
+  health_upgrades: number;
+  honeycombs: number;
+  jiggies: number;
   jinjos: number;
+  mumbo_tokens: number;
   notes: number;
   present_green: number;
   present_blue: number;
   present_red: number;
   orange: number;
-}
-
-export interface IInventory {
-  eggs: number;
   red_feathers: number;
-  gold_feathers: number;
-  health_upgrades: number;
-  honeycombs: number;
-  jiggies: number;
-  mumbo_tokens: number;
 }
 
 // ##################################################################
 // ##  Primary-Classes
 // ##################################################################
+
+export interface ICamera {
+  position: Buffer;
+  pos_x: number;
+  pos_y: number;
+  pos_z: number;
+  rotation: Buffer;
+  rot_x: number;
+  rot_y: number;
+  rot_z: number;
+}
 
 export interface IPlayer {
   animal: apiEnum.AnimalType;
@@ -64,7 +71,7 @@ export interface IPlayer {
 export interface IRuntime {
   current_exit: number;
   current_health: number;
-  current_level: ICurrentLevel;
+  current_level: number;
   current_level_events: number;
   current_scene: apiEnum.SceneType;
   current_scene_events: number;
@@ -85,10 +92,14 @@ export interface ISaveContext {
   mumbo_token_flags: IBuffered;
   note_totals: IBuffered;
 
+  get_save(file: apiEnum.ProfileType): Buffer;
+  set_save(file: apiEnum.ProfileType, val: Buffer): void;
+
   moves: number;
 }
 
 export interface IBKCore {
+  camera: ICamera;
   player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;

@@ -1,4 +1,5 @@
 export enum ActionType {
+  NONE = 0xff,
   PUT_AWAY_ITEMS = 0x00,
   UNKNOWN_0X01 = 0x01,
   FISHING_ROD = 0x02,
@@ -85,6 +86,7 @@ export enum ActionType {
 }
 
 export enum ButtonType {
+  NONE = 0xff,
   B = 0x00,
   C_LEFT = 0x01,
   C_DOWN = 0x02,
@@ -92,6 +94,7 @@ export enum ButtonType {
 }
 
 export enum FormType {
+  NONE = 0xff,
   FIERCE_DEITY = 0x00,
   GORON = 0x01,
   ZORA = 0x02,
@@ -100,6 +103,7 @@ export enum FormType {
 }
 
 export enum ItemType {
+  NONE = 0xff,
   OCARINA_OF_TIME = 0x00,
   HEROS_BOW = 0x01,
   ARROW_FIRE = 0x02,
@@ -254,6 +258,7 @@ export enum ItemType {
 }
 
 export enum ItemReceiveType {
+  NONE = 0xff,
   OCARINA_OF_TIME = 0x00,
   BOW_AND_QUIVER = 0x01, // Holds 30
   ARROW_FIRE = 0x02,
@@ -445,31 +450,31 @@ export enum ItemSlotType {
 }
 
 export enum MaskType {
-  NONE = 0x00,
-  TRUTH = 0x01,
-  KAFEI = 0x02,
-  ALL_NIGHT = 0x03,
-  BUNNY_HOOD = 0x04,
-  KEATON = 0x05,
-  GARO = 0x06,
-  ROMANI = 0x07,
-  CIRCUS_LEADER = 0x08,
-  POSTMANS = 0x09,
-  COUPLES = 0x0a,
-  GREAT_FAIRY = 0x0b,
-  GIBDO = 0x0c,
-  DON_GERO = 0x0d,
-  KAMERO = 0x0e,
-  CAPTAIN = 0x0f,
-  STONE = 0x10,
-  BREMEN = 0x11,
-  BLAST = 0x12,
-  SCENTS = 0x13,
-  GIANT = 0x14,
-  FIERCE_DEITY = 0x15,
-  GORON = 0x16,
-  ZORA = 0x17,
-  DEKU = 0x18,
+  NONE = 0xff,
+  TRUTH = 0x1b,
+  KAFEI = 0x1c,
+  ALL_NIGHT = 0x1d,
+  BUNNY_HOOD = 0x1e,
+  KEATON = 0x1f,
+  GARO = 0x20,
+  ROMANI = 0x21,
+  CIRCUS_LEADER = 0x22,
+  POSTMANS = 0x23,
+  COUPLES = 0x24,
+  GREAT_FAIRY = 0x25,
+  GIBDO = 0x26,
+  DON_GERO = 0x27,
+  KAMERO = 0x28,
+  CAPTAIN = 0x29,
+  STONE = 0x2a,
+  BREMEN = 0x2b,
+  BLAST = 0x2c,
+  SCENTS = 0x2d,
+  GIANT = 0x2e,
+  FIERCE_DEITY = 0x2f,
+  GORON = 0x30,
+  ZORA = 0x31,
+  DEKU = 0x32,
 }
 
 export enum MaskSlotType {
@@ -500,6 +505,7 @@ export enum MaskSlotType {
 }
 
 export enum SceneType {
+  NONE = 0xff,
   SOUTHERN_SWAMP = 0x00,
   UNKNOWN_0X01 = 0x01,
   UNKNOWN_0X02 = 0x02,
@@ -682,6 +688,7 @@ export enum SoundType {
 }
 
 export enum TextType {
+  NONE = 0xff,
   ATTACK = 0x00,
   CHECK = 0x01,
   ENTER = 0x02,
