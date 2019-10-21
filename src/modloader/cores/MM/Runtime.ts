@@ -1,4 +1,6 @@
+import IMemory from 'modloader64_api/IMemory';
 import * as API from 'modloader64_api/MM/Imports';
+import * as SUB from './Sub/Imports';
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
     private instance: number = 0x3E6B20;
@@ -19,7 +21,20 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     private continue_state_addr = 0x98; //Not found yet
     private epona_ptr = 0x3ffed0;
 
+    // Abstraction
+
+    temp_flags: API.IBuffered;
+
+    constructor(emu: IMemory) {
+        super(emu);
+        this.temp_flags = new SUB.SceneFlags(emu);
+    }
+
     get_current_scene(): number {
+        return this.emulator.rdramRead8(this.cur_scene_addr);
+    }
+
+    get_scene_flags(): number {
         return this.emulator.rdramRead8(this.cur_scene_addr);
     }
 }

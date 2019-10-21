@@ -45,6 +45,7 @@ export interface IPlayer {}
 
 export interface IRuntime {
   get_current_scene(): number;
+  temp_flags: IBuffered;
 }
 
 export interface ISaveContext {
