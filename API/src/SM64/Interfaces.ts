@@ -7,6 +7,7 @@ import * as apiEnum from './Enums';
 
 export interface IBuffered {
   get_all(): Buffer;
+  set_all(value: Buffer): void;
   get_bit(flag: number): boolean;
   set_bit(flag: number, value: boolean): void;
   get(offset: number): number;

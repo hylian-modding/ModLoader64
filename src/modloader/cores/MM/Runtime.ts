@@ -29,6 +29,6 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     }
 
     get_current_scene(): number {
-        return this.emulator.rdramRead8(this.cur_scene_addr);
+        return this.emulator.rdramRead16(this.cur_scene_addr);
     }
 }

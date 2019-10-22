@@ -48,6 +48,9 @@ export class BufferObj extends BaseObj {
   get_all(): Buffer {
     return this.emulator.rdramReadBuffer(this.instance, this.length);
   }
+  set_all(value: Buffer) {
+    this.emulator.rdramWriteBuffer(this.instance, value);
+  }
   get_bit(flag: number): boolean {
     return this.manager.isBitSet(flag);
   }
@@ -75,6 +78,10 @@ export class BufferPtrObj extends BaseObj {
   get_all(): Buffer {
     let ptr = this.emulator.dereferencePointer(this.instance);
     return this.emulator.rdramReadBuffer(ptr, this.length);
+  }
+  set_all(value: Buffer) {
+    let ptr = this.emulator.dereferencePointer(this.instance);
+    this.emulator.rdramWriteBuffer(ptr, value);
   }
   get_bit(flag: number): boolean {
     let ptr = this.emulator.dereferencePointer(this.instance);

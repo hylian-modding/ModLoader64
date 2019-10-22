@@ -7,10 +7,19 @@ import * as apiEnum from './Enums';
 
 export interface IBuffered {
   get_all(): Buffer;
+  set_all(value: Buffer): void;
   get_bit(flag: number): boolean;
   set_bit(flag: number, value: boolean): void;
   get(offset: number): number;
   set(offset: number, value: number): void;
+}
+
+export interface IClock {
+  current_day: number;
+  elapsed: number;
+  is_night: boolean;
+  speed: number;
+  time: number;
 }
 
 export interface IDungeon {
@@ -49,28 +58,25 @@ export interface IRuntime {
 }
 
 export interface ISaveContext {
-  game_flags: IBuffered;
   cycle_flags: IBuffered;
+  event_flags: IBuffered;
+  game_flags: IBuffered;
+  owl_flags: IBuffered;
 
   item_slots: IItemSlots;
   mask_slots: IMaskSlots;
 
+  clock: IClock;
   dungeon_fairies: IDungeon;
   dungeon_items: IDungeon;
   dungeon_keys: IDungeon;
-
   skultulla_house: ISkultullaHouse;
 
   entrance_index: number;
   start_mask: number;
   intro_flag: number;
   cutscene_number: number;
-  world_time: number;
   owl_id: number;
-  night_flag: number;
-  time_speed: number;
-  current_day: number;
-  days_elapsed: number;
   link_transformation: number;
   have_tatl: number;
   player_name: number;
@@ -90,4 +96,5 @@ export interface IMMCore {
   save: ISaveContext;
 
   isPlaying(): boolean;
+  isTitleScreen(): boolean;
 }

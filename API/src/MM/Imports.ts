@@ -192,6 +192,9 @@ export class BufferObj extends BaseObj {
   get_all(): Buffer {
     return this.emulator.rdramReadBuffer(this.instance, this.length);
   }
+  set_all(value: Buffer) {
+    this.emulator.rdramWriteBuffer(this.instance, value);
+  }
   get_bit(flag: number): boolean {
     return this.manager.isBitSet(flag);
   }

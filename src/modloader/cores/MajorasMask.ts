@@ -15,8 +15,13 @@ export class MajorasMask implements ICore, API.IMMCore {
     isPlaying(): boolean {
         return !(
             this.save.get_checksum() === 0 ||
-            this.runtime.get_current_scene() === 0x80
+            this.isTitleScreen()
         );
+    }
+
+    isTitleScreen(): boolean {
+        let value = this.runtime.get_current_scene();
+        return (value === 0x8022 || value === 0x8024);
     }
 
     preinit(): void { }
