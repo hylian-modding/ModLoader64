@@ -148,6 +148,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();
+      this.ModLoader.emulator.rdramWrite8(0x1DA5CB, 0x0002);
     });
   }
 
