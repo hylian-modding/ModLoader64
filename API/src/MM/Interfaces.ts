@@ -54,6 +54,9 @@ export interface IPlayer {}
 
 export interface IRuntime {
   get_current_scene(): number;
+  goto_scene(scene: number): void;
+
+  cutscene_ptr: number;
   scene_flags: IBuffered;
 }
 

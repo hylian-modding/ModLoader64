@@ -6,8 +6,9 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     private instance: number = 0x3E6B20;
 
     private scene_table_ptr = 0x1c3ca0;
-    private cur_scene_addr = 0x3e6bc4;
+    private cur_scene_addr: number = 0x3e6bc4;
     private cur_scene_ptr_addr = 0x3e6da0;
+    private cutscene_ptr_addr = 0x3e8a48;
     private switch_flags_addr = 0xb5c78;
     private temp_switch_flags_addr = 0x0; //Not found yet
     private chest_flags_addr = 0xb5cb8;
@@ -30,5 +31,18 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
 
     get_current_scene(): number {
         return this.emulator.rdramRead16(this.cur_scene_addr);
+    }
+
+    get cutscene_ptr(): number {
+        return this.emulator.rdramRead32(this.cutscene_ptr_addr);
+    }
+
+    set cutscene_ptr(val: number) {
+        this.emulator.rdramWrite32(this.cutscene_ptr_addr, val);
+    }
+
+    goto_scene(scene: number) {
+        this.emulator.rdramWrite32(0x3ff398, scene);
+        this.emulator.rdramWrite8(0x3ff66a, 1);
     }
 }
