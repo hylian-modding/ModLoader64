@@ -284,7 +284,6 @@ class pluginLoader {
         bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
       }
     });
-    iconsole.pauseEmulator();
     iconsole.finishInjects();
     let gameshark = new GameShark(this.logger, emulator);
     this.plugin_folders.forEach((dir: string) => {
@@ -302,7 +301,6 @@ class pluginLoader {
       }
     });
     bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-    iconsole.resumeEmulator();
     iconsole.finishInjects();
   }
 }
