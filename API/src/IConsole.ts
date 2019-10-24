@@ -24,8 +24,6 @@ interface IConsole {
 
   getRomHeader(): IRomHeader;
 
-  setFrameCallback(fn: Function): void;
-
   pauseEmulator(): void;
 
   resumeEmulator(): void;
@@ -37,6 +35,10 @@ interface IConsole {
   getUtils(): IUtils;
 
   getSaveStateManager(): ISaveState;
+
+  getFrameCount(): number;
+
+  setFrameCount(num: number): void;
 }
 
 export default IConsole;

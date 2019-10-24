@@ -35,7 +35,11 @@ export class FakeMupen implements IConsole {
     return this.rom_data;
   }
 
-  setFrameCallback(fn: Function): void {}
+  getFrameCount(): number {
+    return -1;
+  }
+
+  setFrameCount(num: number): void {}
 
   pauseEmulator(): void {}
 

@@ -43,9 +43,7 @@ class pluginLoader {
   loaded_core: ICore = {} as ICore;
   config: IConfig;
   logger: ILogger;
-  onTickHandle!: Function;
-  onFakeFrameHandler!: any;
-  internalFrameCount = -1;
+  onTickHandle!: any;
   header!: IRomHeader;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
@@ -242,7 +240,8 @@ class pluginLoader {
   loadPluginsInit(
     me: INetworkPlayer,
     iconsole: IConsole,
-    net: NetworkEngine.Client
+    net: NetworkEngine.Client,
+    config: IModLoaderConfig
   ) {
     this.loaded_core.ModLoader.me = me;
     this.loaded_core.init();
@@ -250,15 +249,19 @@ class pluginLoader {
       plugin.ModLoader.me = me;
       plugin.init();
     });
-    this.onTickHandle = (frame: number) => {
-      this.internalFrameCount = frame;
-      this.loaded_core.onTick();
-      this.plugins.forEach((plugin: IPlugin) => {
-        plugin.onTick();
-      });
-      net.onTick();
+    this.onTickHandle = function() {
+      if (iconsole.getFrameCount() > -1) {
+        this.loaded_core.onTick();
+        this.plugins.forEach((plugin: IPlugin) => {
+          plugin.onTick();
+        });
+        net.onTick();
+        iconsole.setFrameCount(-1);
+      }
     };
-    iconsole.setFrameCallback(this.onTickHandle);
+    if (config.isClient) {
+      setInterval(this.onTickHandle, 0);
+    }
   }
 
   loadPluginsPostinit(emulator: IMemory, iconsole: IConsole) {

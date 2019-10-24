@@ -16,8 +16,6 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
 
   coreEmuState(): number;
 
-  setFrameCallback(fn: Function): void;
-
   initialize(): number;
 
   loadRom(rom: string): number;
@@ -35,6 +33,10 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
   setSaveDir(path: string): void;
 
   isMupenReady(): boolean;
+
+  getFrameCount(): number;
+
+  setFrameCount(num: number): void;
 }
 
 export default IMupen;

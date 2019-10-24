@@ -78,8 +78,12 @@ class N64 implements IConsole {
     return buf;
   }
 
-  setFrameCallback(fn: Function): void {
-    this.mupen.setFrameCallback(fn);
+  getFrameCount(): number {
+    return this.mupen.getFrameCount();
+  }
+
+  setFrameCount(num: number): void {
+    this.mupen.setFrameCount(num);
   }
 
   pauseEmulator(): void {

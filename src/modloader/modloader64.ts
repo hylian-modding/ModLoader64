@@ -210,7 +210,12 @@ class ModLoader64 {
       return;
     }
     if (fs.existsSync(this.rom_path) || this.data.isServer) {
-      this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
+      this.plugins.loadPluginsInit(
+        result[0].me,
+        this.emulator,
+        this.Client,
+        this.data
+      );
       this.logger.info('Setting up Mupen...');
       let instance = this;
       let mupen: IMemory;
