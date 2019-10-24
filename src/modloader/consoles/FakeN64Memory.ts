@@ -133,4 +133,6 @@ export class FakeN64Memory implements IMemory {
   rdramWriteF32(addr: number, value: number): void {}
 
   rdramWritePtrF32(addr: number, offset: number, value: number): void {}
+
+  memoryDebugLogger(bool: boolean): void {}
 }

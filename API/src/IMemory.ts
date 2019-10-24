@@ -103,6 +103,8 @@ interface IMemory {
   rdramWriteF32(addr: number, value: number): void;
 
   rdramWritePtrF32(addr: number, offset: number, value: number): void;
+
+  memoryDebugLogger(bool: boolean): void;
 }
 
 export default IMemory;
