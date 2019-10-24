@@ -2,6 +2,8 @@ import modloader64 from './modloader/modloader64';
 import program from 'commander';
 import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
+import fs from 'fs';
+import { fork } from 'child_process';
 
 require('source-map-support').install();
 
@@ -13,7 +15,27 @@ const version = require('./version');
 global.ModLoader = {};
 global.ModLoader['version'] = version;
 
+program.option('-d, --dir <dir>', 'set directory');
+program.option('-u --update', 'update mode');
+program.parse(process.argv);
+
+if (program.dir) {
+  process.chdir(path.resolve(path.join(process.cwd(), program.dir)));
+}
+
+if (fs.existsSync('./console.log')) {
+  fs.unlinkSync('./console.log');
+}
+
 const logger = require('simple-node-logger').createSimpleLogger('console.log');
+
+console.log = (message?: any, ...optionalParams: any[]) => {
+  logger.debug(message);
+};
+
+if (fs.existsSync('../README.md')) {
+  logger.setLevel('all');
+}
 
 logger.info(projectID);
 logger.info('Authors: ', authors);
@@ -22,19 +44,7 @@ if (testers.length > 0) {
 }
 logger.info('Version: ', version);
 
-program.option('-d, --dir <dir>', 'set directory');
-program.option('-dd, --dirforce <dir>', 'set directory');
-program.parse(process.argv);
-
-if (program.dir) {
-  process.chdir(path.resolve(path.join(process.cwd(), program.dir)));
-  logger.info('Setting running directory: ' + process.cwd());
-}
-
-if (program.dirforce) {
-  process.chdir(program.dirforce);
-  logger.info('Setting running directory: ' + process.cwd());
-}
+logger.info('Setting running directory: ' + process.cwd());
 
 // Monkey patches
 let stringify = new MonkeyPatch_Stringify();
@@ -42,5 +52,15 @@ stringify.patch();
 let parse = new MonkeyPatch_Parse();
 parse.patch();
 
-const instance = new modloader64(logger);
-instance.start();
+if (program.update) {
+  let updateProcess = fork(__dirname + '/updater/updateModLoader.js');
+  updateProcess.on('exit', (code: number, signal: string) => {
+    updateProcess = fork(__dirname + '/updater/updatePlugins.js');
+    updateProcess.on('exit', (code: number, signal: string) => {
+      process.exit();
+    });
+  });
+} else {
+  const instance = new modloader64(logger);
+  instance.start();
+}

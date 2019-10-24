@@ -50,7 +50,7 @@ class pluginLoader {
     this.plugin_directories = dirs;
     this.config = config;
     this.logger = logger;
-    let cleanup: Function = function () {
+    let cleanup: Function = function() {
       fs.readdirSync(process.cwd()).forEach((file: string) => {
         let parse = path.parse(file);
         if (parse.name.indexOf('ModLoader64_temp_') > -1) {
@@ -285,6 +285,7 @@ class pluginLoader {
       }
     });
     iconsole.pauseEmulator();
+    iconsole.finishInjects();
     let gameshark = new GameShark(this.logger, emulator);
     this.plugin_folders.forEach((dir: string) => {
       let test = path.join(

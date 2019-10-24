@@ -26,14 +26,16 @@
     "mkdir-recursive": "^0.4.0",
     "modloader64_api": "file:API/build",
     "nat-upnp": "^1.1.1",
-    "ncp": "^2.0.0",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socket.io-encrypt": "^0.1.0",
     "source-map-support": "^0.5.13",
     "uuid": "^3.3.2",
     "simple-node-logger": "^18.12.23",
-    "commander": "^3.0.2"
+    "commander": "^3.0.2",
+    "download-file": "^0.1.5",
+    "request": "^2.88.0",
+    "ncp": "^2.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
@@ -45,6 +47,7 @@
     "find-remove": "^1.2.2",
     "gts": "^1.0.0",
     "recursive-readdir": "^2.2.2",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.2",
+    "@types/request": "^2.48.3"
   }
 }
