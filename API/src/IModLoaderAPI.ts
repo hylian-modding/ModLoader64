@@ -5,10 +5,21 @@ import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
 
+export const enum ILoggerLevels {
+  ALL = 'all',
+  TRACE = 'trace',
+  DEBUG = 'debug',
+  INFO = 'info',
+  WARN = 'warn',
+  ERROR = 'error',
+  FATAL = 'fatal',
+}
+
 export interface ILogger {
-  info(msg: string): void;
-  error(msg: string): void;
-  child(params: object): ILogger;
+  info(...msg: string[]): void;
+  error(...msg: string[]): void;
+  debug(...msg: string[]): void;
+  setLevel(level: ILoggerLevels): void;
 }
 
 export interface IConfig {

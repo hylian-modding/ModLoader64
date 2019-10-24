@@ -1,4 +1,4 @@
-import { MonkeyPatch, IMonkeyPatch } from './JSON';
+import { MonkeyPatch, IMonkeyPatch } from './IMonkeyPatch';
 import IMupen from '../modloader/consoles/IMupen';
 import bitwise from 'bitwise';
 import { UInt8 } from 'bitwise/types';

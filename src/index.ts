@@ -1,10 +1,9 @@
 import modloader64 from './modloader/modloader64';
-import winston from 'winston';
 import program from 'commander';
 import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 
-//require('source-map-support').install();
+require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
@@ -14,31 +13,14 @@ const version = require('./version');
 global.ModLoader = {};
 global.ModLoader['version'] = version;
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.splat(),
-    winston.format.simple()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.label({ label: 'index' }),
-        winston.format.cli({ colors: { info: 'green' } }),
-        winston.format.splat()
-      ),
-    }),
-  ],
-});
+const logger = require('simple-node-logger').createSimpleLogger('console.log');
 
 logger.info(projectID);
-logger.info('Authors: %s', authors);
+logger.info('Authors: ', authors);
 if (testers.length > 0) {
-  logger.info('Testers: %s', testers);
+  logger.info('Testers: ', testers);
 }
-logger.info('Version: %s', version);
+logger.info('Version: ', version);
 
 program.option('-d, --dir <dir>', 'set directory');
 program.option('-dd, --dirforce <dir>', 'set directory');
@@ -60,6 +42,5 @@ stringify.patch();
 let parse = new MonkeyPatch_Parse();
 parse.patch();
 
-logger.info('Starting in CLI Mode...');
-const instance = new modloader64(logger.child({}));
+const instance = new modloader64(logger);
 instance.start();

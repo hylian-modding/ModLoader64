@@ -52,19 +52,18 @@ export class OcarinaofTime implements ICore, IOOTCore {
       'OOT VERSION: ' + ROM_VERSIONS[this.rom_header.revision] + '.'
     );
     switch (this.rom_header.revision) {
-      case ROM_VERSIONS.N0: {
+      case ROM_VERSIONS.DEBUG:
+        global.ModLoader['save_context'] = 0x15e660;
+        global.ModLoader['global_context_pointer'] = 0x157da0;
+        global.ModLoader['overlay_table'] = 0x1159b0;
+        break;
+      default:
         global.ModLoader['save_context'] = 0x11a5d0;
         global.ModLoader['global_context_pointer'] = 0x11f248;
         global.ModLoader['overlay_table'] = 0x0e8530;
         global.ModLoader['link_instance'] = 0x1daa30;
         this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
         break;
-      }
-      case ROM_VERSIONS.DEBUG: {
-        global.ModLoader['save_context'] = 0x15e660;
-        global.ModLoader['global_context_pointer'] = 0x157da0;
-        global.ModLoader['overlay_table'] = 0x1159b0;
-      }
     }
   }
 
@@ -148,7 +147,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
       this.actorManager.onTick();
-      this.ModLoader.emulator.rdramWrite8(0x1DA5CB, 0x0002);
+      this.ModLoader.emulator.rdramWrite8(0x1da5cb, 0x0002);
     });
   }
 

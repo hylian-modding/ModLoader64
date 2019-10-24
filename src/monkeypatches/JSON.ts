@@ -1,18 +1,10 @@
+import { MonkeyPatch, IMonkeyPatch } from './IMonkeyPatch';
+
 // So, JSON.stringify and JSON.parse completely fail at Buffers.
 // Lets fix that in the most brute force way possible.
 // MONKEY PATCH
 
 const BJSON = require('buffer-json');
-
-export interface IMonkeyPatch {
-  patch(): void;
-  unpatch(): void;
-}
-
-export class MonkeyPatch {
-  original!: Function;
-  replacement!: Function;
-}
 
 export class MonkeyPatch_Stringify extends MonkeyPatch implements IMonkeyPatch {
   patch() {

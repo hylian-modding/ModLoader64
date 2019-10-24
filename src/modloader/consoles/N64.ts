@@ -82,10 +82,6 @@ class N64 implements IConsole {
     this.mupen.setFrameCallback(fn);
   }
 
-  hookFrameCallback(): void {
-    this.mupen.hookFrameCallback();
-  }
-
   pauseEmulator(): void {
     this.mupen.pauseEmulator();
   }

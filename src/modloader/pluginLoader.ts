@@ -153,7 +153,7 @@ class pluginLoader {
       let p = require(file);
       let plugin: IPlugin = new p() as IPlugin;
       plugin['ModLoader'] = {} as IModLoaderAPI;
-      plugin['ModLoader']['logger'] = this.logger.child({});
+      plugin['ModLoader']['logger'] = this.logger;
       plugin['ModLoader']['config'] = this.config;
       Object.defineProperty(plugin, 'pluginName', {
         value: parse.name,
@@ -180,7 +180,7 @@ class pluginLoader {
     }
     let core = this.core_plugins[this.selected_core];
     core['ModLoader'] = {};
-    core['ModLoader']['logger'] = this.logger.child({});
+    core['ModLoader']['logger'] = this.logger;
     core['ModLoader']['config'] = this.config;
     this.loaded_core = core;
 
@@ -281,31 +281,25 @@ class pluginLoader {
         bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
       }
     });
-    this.onFakeFrameHandler = setInterval(() => {
-      if (this.internalFrameCount >= 20) {
-        clearInterval(this.onFakeFrameHandler);
-        iconsole.pauseEmulator();
-        let gameshark = new GameShark(this.logger, emulator);
-        this.plugin_folders.forEach((dir: string) => {
-          let test = path.join(
-            dir,
-            'payloads',
-            this.header.country_code + this.header.revision.toString()
-          );
-          if (fs.existsSync(test)) {
-            if (fs.lstatSync(test).isDirectory) {
-              fs.readdirSync(test).forEach((payload: string) => {
-                gameshark.read(path.resolve(path.join(test, payload)));
-              });
-            }
-          }
-        });
-        bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-        iconsole.finishInjects();
-        iconsole.resumeEmulator();
+    iconsole.pauseEmulator();
+    let gameshark = new GameShark(this.logger, emulator);
+    this.plugin_folders.forEach((dir: string) => {
+      let test = path.join(
+        dir,
+        'payloads',
+        this.header.country_code + this.header.revision.toString()
+      );
+      if (fs.existsSync(test)) {
+        if (fs.lstatSync(test).isDirectory) {
+          fs.readdirSync(test).forEach((payload: string) => {
+            gameshark.read(path.resolve(path.join(test, payload)));
+          });
+        }
       }
-    }, 50);
-    iconsole.hookFrameCallback();
+    });
+    bus.emit(EventsClient.ON_INJECT_FINISHED, {});
+    iconsole.resumeEmulator();
+    iconsole.finishInjects();
   }
 }
 

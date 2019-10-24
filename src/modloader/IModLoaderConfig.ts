@@ -5,6 +5,7 @@ interface IModLoaderConfig {
   isClient: boolean;
   supportedConsoles: string[];
   selectedConsole: string;
+  coreOverride: string;
 }
 
 export default IModLoaderConfig;

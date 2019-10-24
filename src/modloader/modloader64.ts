@@ -22,6 +22,7 @@ import {
   GUITunnelPacket,
 } from 'modloader64_api/GUITunnel';
 import crypto from 'crypto';
+import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -57,10 +58,10 @@ class ModLoader64 {
     this.plugins = new pluginLoader(
       [path.resolve(path.join(process.cwd(), 'mods'))],
       this.config,
-      this.logger.child({})
+      this.logger
     );
-    this.Server = new NetworkEngine.Server(this.logger.child({}), this.config);
-    this.Client = new NetworkEngine.Client(this.logger.child({}), this.config);
+    this.Server = new NetworkEngine.Server(this.logger, this.config);
+    this.Client = new NetworkEngine.Client(this.logger, this.config);
 
     if (process.platform === 'win32') {
       let rl = require('readline').createInterface({
@@ -121,6 +122,7 @@ class ModLoader64 {
       true
     );
     this.config.setData('ModLoader64', 'selectedConsole', 'N64');
+    this.config.setData('ModLoader64', 'coreOverride', '');
 
     this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
 
@@ -149,7 +151,7 @@ class ModLoader64 {
     if (this.data.isClient) {
       switch (this.data.selectedConsole) {
         case 'N64': {
-          this.emulator = new N64(this.rom_path, this.logger.child({}));
+          this.emulator = new N64(this.rom_path, this.logger);
           break;
         }
       }
@@ -171,6 +173,10 @@ class ModLoader64 {
           core_key = key;
         }
       });
+      if (this.data.coreOverride !== '') {
+        core_key = this.data.coreOverride;
+        core_match = this.plugins.core_plugins[core_key];
+      }
       if (core_match !== null) {
         this.logger.info('Auto-selected core: ' + core_key);
         this.plugins.selected_core = core_key;
@@ -190,14 +196,12 @@ class ModLoader64 {
     internal_event_bus.on('onNetworkConnect', (evt: any) => {
       this.postinit(evt);
     });
-    (() => {
-      if (this.data.isServer) {
-        this.Server.setup();
-      }
-      if (this.data.isClient) {
-        this.Client.setup();
-      }
-    })();
+    if (this.data.isServer) {
+      this.Server.setup();
+    }
+    if (this.data.isClient) {
+      this.Client.setup();
+    }
     internal_event_bus.emit('onInitDone', {});
   }
 
@@ -205,7 +209,7 @@ class ModLoader64 {
     if (this.done) {
       return;
     }
-    if (fs.existsSync(this.rom_path)) {
+    if (fs.existsSync(this.rom_path) || this.data.isServer) {
       this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
       this.logger.info('Setting up Mupen...');
       let instance = this;
@@ -225,7 +229,7 @@ class ModLoader64 {
         mupen = instance.emulator.startEmulator(() => {
           let p: Buffer = result[0].patch as Buffer;
           let rom_data: Buffer = instance.emulator.getLoadedRom();
-          if (p.byteLength > 1) {
+          if (p.byteLength > 1 && rom_data.byteLength > 1) {
             let BPS = require('./BPS');
             let _BPS = new BPS();
             try {
@@ -243,12 +247,14 @@ class ModLoader64 {
               instance.logger.info(newHash);
             } catch (err) {
               if (err) {
-                process.exit(1);
+                process.exit(ModLoaderErrorCodes.BPS_FAILED);
               }
             }
           }
           let evt: any = { rom: rom_data };
-          bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+          if (instance.data.isClient) {
+            bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+          }
           return evt.rom;
         }) as IMemory;
         while (!instance.emulator.isEmulatorReady()) {}
@@ -260,11 +266,11 @@ class ModLoader64 {
         instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
         internal_event_bus.emit('onPostInitDone', {});
         instance.done = true;
-        // Detect if the user closed Mupen. Exit with code 1.
+        // Detect if the user closed Mupen.
         setInterval(() => {
           if (!instance.emulator.isEmulatorReady()) {
             internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-            process.exit(1);
+            process.exit(ModLoaderErrorCodes.NORMAL_EXIT);
           }
         }, 1000);
       });

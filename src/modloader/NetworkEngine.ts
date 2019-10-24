@@ -33,12 +33,13 @@ import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
 import path from 'path';
+import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
-let portfinder = require('portfinder');
 
 interface IServerConfig {
   port: number;
+  udpPort: number;
 }
 
 interface IClientConfig {
@@ -47,22 +48,6 @@ interface IClientConfig {
   nickname: string;
   lobby: string;
   password: string;
-}
-
-class Version {
-  major: number;
-  minor: number;
-  build: number;
-
-  constructor(major: string, minor: string, build: string) {
-    this.major = parseInt(major);
-    this.minor = parseInt(minor);
-    this.build = parseInt(build);
-  }
-
-  match(v: Version) {
-    return this.major === v.major && this.minor === this.minor;
-  }
 }
 
 class LobbyStorage implements ILobbyStorage {
@@ -108,7 +93,6 @@ namespace NetworkEngine {
     logger: ILogger;
     masterConfig: IConfig;
     config: IServerConfig;
-    version!: Version;
     modLoaderconfig: IModLoaderConfig;
     fakePlayer: FakeNetworkPlayer = new FakeNetworkPlayer();
     udpServer: Socket = dgram.createSocket('udp4');
@@ -122,8 +106,8 @@ namespace NetworkEngine {
         'NetworkEngine.Server'
       ) as IServerConfig;
       config.setData('NetworkEngine.Server', 'port', 8082);
+      config.setData('NetworkEngine.Server', 'udpPort', 8082);
       let temp = global.ModLoader.version.split('.');
-      this.version = new Version(temp[0], temp[1], temp[2]);
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
@@ -216,105 +200,76 @@ namespace NetworkEngine {
             }
           }
         );
-        portfinder.getPort((err: any, port: number) => {
-          natUpnp_client.portMapping(
-            {
-              public: port,
-              private: port,
-              ttl: 10,
-            },
-            function(err: any) {
-              if (err) {
-                inst.logger.error("Didn't open port for UDP server.");
-              } else {
-                inst.logger.info('Opened port for UDP server.');
-              }
+        natUpnp_client.portMapping(
+          {
+            public: inst.config.udpPort,
+            private: inst.config.udpPort,
+            ttl: 10,
+          },
+          function(err: any) {
+            if (err) {
+              inst.logger.error("Didn't open port for UDP server.");
+            } else {
+              inst.logger.info('Opened port for UDP server.');
             }
-          );
-          inst.udpPort = port;
-          inst.udpServer.bind(port);
-          NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
-            if (data.player === undefined) {
-              data.player = inst.fakePlayer;
-            }
-            inst.sendToTarget(data.lobby, 'msg', data);
-          });
-          NetworkSendBusServer.addListener('toPlayer', (data: any) => {
-            inst.sendToTarget(data.player.uuid, 'msg', data.packet);
-          });
-          inst.io.on('connection', function(socket: SocketIO.Socket) {
-            inst.logger.info('Client ' + socket.id + ' connected.');
-            inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
-            socket.on('version', function(packet: VersionPacket) {
-              let data = packet.ml;
-              let parse = data.split('.');
-              let v = new Version(parse[0], parse[1], parse[2]);
-              let mismatch = false;
-              Object.keys(inst.plugins).forEach((name: string) => {
-                if (packet.plugins.hasOwnProperty(name)) {
-                  if (inst.plugins[name] !== packet.plugins[name]) {
-                    mismatch = true;
-                  } else {
-                    inst.logger.info(
-                      'Plugin ' + name + ' version check passed.'
-                    );
-                  }
+          }
+        );
+        inst.udpPort = inst.config.udpPort;
+        inst.udpServer.bind(inst.config.udpPort);
+        NetworkSendBusServer.addListener('msg', (data: IPacketHeader) => {
+          if (data.player === undefined) {
+            data.player = inst.fakePlayer;
+          }
+          inst.sendToTarget(data.lobby, 'msg', data);
+        });
+        NetworkSendBusServer.addListener('toPlayer', (data: any) => {
+          inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+        });
+        inst.io.on('connection', function(socket: SocketIO.Socket) {
+          inst.logger.info('Client ' + socket.id + ' connected.');
+          inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
+          socket.on('version', function(packet: VersionPacket) {
+            let mismatch = false;
+            Object.keys(inst.plugins).forEach((name: string) => {
+              if (packet.plugins.hasOwnProperty(name)) {
+                if (inst.plugins[name] !== packet.plugins[name]) {
+                  mismatch = true;
+                } else {
+                  inst.logger.info('Plugin ' + name + ' version check passed.');
                 }
-              });
-              if (inst.version.match(v) && mismatch === false) {
-                inst.sendToTarget(socket.id, 'versionGood', {
-                  client: v,
-                  server: inst.version,
-                  uuid: socket.id,
-                });
-              } else {
-                inst.sendToTarget(socket.id, 'versionBad', {
-                  client: v,
-                  server: inst.version,
-                });
-                setTimeout(function() {
-                  socket.disconnect();
-                }, 1000);
               }
             });
-            socket.on('LobbyRequest', function(lj: LobbyJoin) {
-              if (inst.doesLobbyExist(lj.lobbyData.name)) {
-                // Lobby already exists.
-                let storage: ILobbyStorage = inst.getLobbyStorage_internal(
-                  lj.lobbyData.name
-                );
-                if (storage.config.key === lj.lobbyData.key) {
-                  socket.join(storage.config.name);
-                  bus.emit(
-                    EventsServer.ON_LOBBY_JOIN,
-                    new EventServerJoined(lj.player, lj.lobbyData.name)
-                  );
-                  //@ts-ignore
-                  socket['ModLoader64'] = {
-                    lobby: storage.config.name,
-                    player: lj.player,
-                  };
-                  inst.sendToTarget(socket.id, 'LobbyReady', {
-                    storage: storage.config,
-                    udp: inst.udpPort,
-                  });
-                  inst.sendToTarget(
-                    lj.lobbyData.name,
-                    'playerJoined',
-                    lj.player
-                  );
-                } else {
-                  inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
-                }
-              } else {
-                // Lobby does not exist.
-                inst.logger.info('Creating lobby ' + lj.lobbyData.name + '.');
-                socket.join(lj.lobbyData.name);
-                let storage: ILobbyStorage = inst.createLobbyStorage_internal(
-                  lj.lobbyData,
-                  socket.id
-                );
-                bus.emit(EventsServer.ON_LOBBY_CREATE, lj.lobbyData.name);
+            if (global.ModLoader.version === packet.ml && mismatch === false) {
+              inst.sendToTarget(socket.id, 'versionGood', {
+                client: packet.ml,
+                server: new VersionPacket(
+                  global.ModLoader.version,
+                  inst.plugins
+                ),
+              });
+            } else {
+              inst.sendToTarget(socket.id, 'versionBad', {
+                client: packet.ml,
+                server: new VersionPacket(
+                  global.ModLoader.version,
+                  inst.plugins
+                ),
+              });
+              setTimeout(function() {
+                try {
+                  socket.disconnect();
+                } catch (err) {}
+              }, 1000);
+            }
+          });
+          socket.on('LobbyRequest', function(lj: LobbyJoin) {
+            if (inst.doesLobbyExist(lj.lobbyData.name)) {
+              // Lobby already exists.
+              let storage: ILobbyStorage = inst.getLobbyStorage_internal(
+                lj.lobbyData.name
+              );
+              if (storage.config.key === lj.lobbyData.key) {
+                socket.join(storage.config.name);
                 bus.emit(
                   EventsServer.ON_LOBBY_JOIN,
                   new EventServerJoined(lj.player, lj.lobbyData.name)
@@ -329,70 +284,95 @@ namespace NetworkEngine {
                   udp: inst.udpPort,
                 });
                 inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
+              } else {
+                inst.sendToTarget(socket.id, 'LobbyDenied_BadPassword', lj);
               }
-            });
-            socket.on('playerJoined_reply', function(data: any) {
-              inst.sendToTarget(
-                data.dest.uuid,
-                'playerJoined_bounce',
-                data.player
+            } else {
+              // Lobby does not exist.
+              inst.logger.info('Creating lobby ' + lj.lobbyData.name + '.');
+              socket.join(lj.lobbyData.name);
+              let storage: ILobbyStorage = inst.createLobbyStorage_internal(
+                lj.lobbyData,
+                socket.id
               );
-            });
-            socket.on('msg', function(data: IPacketHeader) {
-              NetworkBusServer.emit(data.packet_id, data);
-              NetworkChannelBusServer.emit(data.channel, data);
-              if (data.forward) {
-                socket.to(data.lobby).emit('msg', data);
-              }
-            });
-            socket.on('toSpecificPlayer', function(data: any) {
-              inst.sendToTarget(data.player.uuid, 'msg', data.packet);
-            });
-            socket.on('disconnect', () => {
-              //@ts-ignore
-              let ML = socket.ModLoader64;
-              if (ML === undefined) return;
-              if (inst.getLobbyStorage_internal(ML.lobby) === null) return;
+              bus.emit(EventsServer.ON_LOBBY_CREATE, lj.lobbyData.name);
               bus.emit(
-                EventsServer.ON_LOBBY_LEAVE,
-                new EventServerLeft(ML.player, ML.lobby)
+                EventsServer.ON_LOBBY_JOIN,
+                new EventServerJoined(lj.player, lj.lobbyData.name)
               );
-              inst.sendToTarget(ML.lobby, 'left', ML.player as INetworkPlayer);
-            });
-          });
-          inst.udpServer.on('error', (err: any) => {
-            inst.logger.error(`server error:\n${err.stack}`);
-            inst.udpServer.close();
-          });
-          inst.udpServer.on('message', (msg: string, rinfo: RemoteInfo) => {
-            let data: IPacketHeader = JSON.parse(msg);
-            if (data.packet_id === 'UDPTestPacket') {
-              let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
-              reply.player = inst.fakePlayer;
-              inst.sendToTarget(data.player.uuid, 'udpTest', reply);
-              return;
+              //@ts-ignore
+              socket['ModLoader64'] = {
+                lobby: storage.config.name,
+                player: lj.player,
+              };
+              inst.sendToTarget(socket.id, 'LobbyReady', {
+                storage: storage.config,
+                udp: inst.udpPort,
+              });
+              inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
             }
-            if (inst.getLobbyStorage_internal(data.lobby) === null) {
-              return;
-            }
+          });
+          socket.on('playerJoined_reply', function(data: any) {
+            inst.sendToTarget(
+              data.dest.uuid,
+              'playerJoined_bounce',
+              data.player
+            );
+          });
+          socket.on('msg', function(data: IPacketHeader) {
             NetworkBusServer.emit(data.packet_id, data);
             NetworkChannelBusServer.emit(data.channel, data);
             if (data.forward) {
-              Object.keys(
-                inst.io.sockets.adapter.rooms[data.lobby].sockets
-              ).forEach((key: string) => {
-                if (key !== data.player.uuid) {
-                  inst.sendToTarget(key, 'msg', data);
-                }
-              });
+              socket.to(data.lobby).emit('msg', data);
             }
           });
-          inst.udpServer.on('listening', () => {
-            const address = inst.udpServer.address() as AddressInfo;
-            inst.logger.info(
-              `UDP socket listening ${address.address}:${address.port}`
-            );
+          socket.on('toSpecificPlayer', function(data: any) {
+            inst.sendToTarget(data.player.uuid, 'msg', data.packet);
           });
+          socket.on('disconnect', () => {
+            //@ts-ignore
+            let ML = socket.ModLoader64;
+            if (ML === undefined) return;
+            if (inst.getLobbyStorage_internal(ML.lobby) === null) return;
+            bus.emit(
+              EventsServer.ON_LOBBY_LEAVE,
+              new EventServerLeft(ML.player, ML.lobby)
+            );
+            inst.sendToTarget(ML.lobby, 'left', ML.player as INetworkPlayer);
+          });
+        });
+        inst.udpServer.on('error', (err: any) => {
+          inst.logger.error(`server error:\n${err.stack}`);
+          inst.udpServer.close();
+        });
+        inst.udpServer.on('message', (msg: string, rinfo: RemoteInfo) => {
+          let data: IPacketHeader = JSON.parse(msg);
+          if (data.packet_id === 'UDPTestPacket') {
+            let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
+            reply.player = inst.fakePlayer;
+            inst.sendToTarget(data.player.uuid, 'udpTest', reply);
+            return;
+          }
+          if (inst.getLobbyStorage_internal(data.lobby) === null) {
+            return;
+          }
+          NetworkBusServer.emit(data.packet_id, data);
+          NetworkChannelBusServer.emit(data.channel, data);
+          if (data.forward) {
+            Object.keys(
+              inst.io.sockets.adapter.rooms[data.lobby].sockets
+            ).forEach((key: string) => {
+              if (key !== data.player.uuid) {
+                inst.sendToTarget(key, 'msg', data);
+              }
+            });
+          }
+        });
+        inst.udpServer.on('listening', () => {
+          const address = inst.udpServer.address() as AddressInfo;
+          inst.logger.info(
+            `UDP socket listening ${address.address}:${address.port}`
+          );
         });
       })(this);
     }
@@ -523,7 +503,11 @@ namespace NetworkEngine {
           bus.emit(EventsClient.ON_SERVER_CONNECTION, {});
         });
         inst.socket.on('versionBad', (data: any) => {
-          inst.logger.info('Version bad! ' + JSON.stringify(data.server));
+          inst.logger.info('Version bad! ' + JSON.stringify(data));
+          internal_event_bus.emit('VERSION_BAD', JSON.stringify(data));
+          setTimeout(() => {
+            process.exit(ModLoaderErrorCodes.BAD_VERSION);
+          }, 1000);
         });
         inst.socket.on('LobbyReady', (data: any) => {
           let ld: LobbyData = data.storage as LobbyData;
@@ -554,7 +538,9 @@ namespace NetworkEngine {
         });
         inst.socket.on('LobbyDenied_BadPassword', (ld: LobbyData) => {
           inst.logger.error('Failed to join lobby. :(');
-          process.exit(1);
+          setTimeout(() => {
+            process.exit(ModLoaderErrorCodes.BAD_LOBBY_PASSWORD);
+          }, 1000);
         });
         inst.socket.on('left', (player: INetworkPlayer) => {
           bus.emit(EventsClient.ON_PLAYER_LEAVE, player);

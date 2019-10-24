@@ -1,4 +1,3 @@
-import IMemory from '../IMemory';
 import { ICommandBuffer } from './ICommandBuffer';
 import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';

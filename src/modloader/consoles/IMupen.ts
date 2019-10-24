@@ -28,8 +28,6 @@ interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
 
   resumeEmulator(): void;
 
-  hookFrameCallback(): void;
-
   softReset(): void;
 
   hardReset(): void;

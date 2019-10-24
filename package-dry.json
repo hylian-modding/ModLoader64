@@ -18,11 +18,8 @@
   },
   "author": "Team-Ooto",
   "dependencies": {
-    "@types/deep-equal": "^1.0.1",
     "bitwise": "^2.0.3",
     "buffer-json": "^2.0.0",
-    "commander": "^2.20.0",
-    "deep-equal": "^1.0.1",
     "eventemitter2": "^5.0.1",
     "fs-extra": "^8.1.0",
     "human-readable-ids": "^1.0.4",
@@ -30,13 +27,13 @@
     "modloader64_api": "file:API/build",
     "nat-upnp": "^1.1.1",
     "ncp": "^2.0.0",
-    "portfinder": "^1.0.21",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socket.io-encrypt": "^0.1.0",
     "source-map-support": "^0.5.13",
     "uuid": "^3.3.2",
-    "winston": "^3.2.1"
+    "simple-node-logger": "^18.12.23",
+    "commander": "^3.0.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",

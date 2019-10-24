@@ -1,7 +1,5 @@
 import IConsole from 'modloader64_api/IConsole';
 import { FakeN64Memory } from './FakeN64Memory';
-import fs from 'fs';
-import { Rom } from '../Rom';
 import IMemory from 'modloader64_api/IMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
@@ -16,7 +14,7 @@ export class FakeMupen implements IConsole {
 
   constructor(rom: string) {
     this.rom = rom;
-    this.rom_data = new Rom(this.rom).bytes;
+    this.rom_data = Buffer.alloc(1);
     this.ram = new FakeN64Memory();
   }
 
@@ -39,16 +37,12 @@ export class FakeMupen implements IConsole {
 
   setFrameCallback(fn: Function): void {}
 
-  hookFrameCallback(): void {}
-
   pauseEmulator(): void {}
 
   resumeEmulator(): void {}
 
   getRomHeader(): IRomHeader {
-    let b: Buffer = Buffer.alloc(0x50);
-    this.rom_data.copy(b, 0, 0, 0x50);
-    return new N64Header(b);
+    return new N64Header(Buffer.alloc(0x50));
   }
 
   getMemoryAccess(): IMemory {
