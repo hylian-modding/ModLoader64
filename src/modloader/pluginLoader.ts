@@ -50,7 +50,7 @@ class pluginLoader {
     this.plugin_directories = dirs;
     this.config = config;
     this.logger = logger;
-    let cleanup: Function = function() {
+    let cleanup: Function = function () {
       fs.readdirSync(process.cwd()).forEach((file: string) => {
         let parse = path.parse(file);
         if (parse.name.indexOf('ModLoader64_temp_') > -1) {
@@ -249,7 +249,7 @@ class pluginLoader {
       plugin.ModLoader.me = me;
       plugin.init();
     });
-    this.onTickHandle = function() {
+    this.onTickHandle = () => {
       if (iconsole.getFrameCount() > -1) {
         this.loaded_core.onTick();
         this.plugins.forEach((plugin: IPlugin) => {
