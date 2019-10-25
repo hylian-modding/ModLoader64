@@ -46,6 +46,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
   frame_count_reset_scene = -1;
   rom_header!: IRomHeader;
   inventory_cache: Buffer = Buffer.alloc(0x24, 0xff);
+  last_known_age!: number;
 
   preinit(): void {
     this.ModLoader.logger.info(
@@ -68,6 +69,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
   }
 
   init(): void {
+    this.eventTicks.set("waitingForAgeChange", () => {
+      if (this.save.age !== this.last_known_age){
+        bus.emit(OotEvents.ON_AGE_CHANGE, this.save.age);
+        this.last_known_age = this.save.age;
+      }
+    });
     this.eventTicks.set('waitingForSaveload', () => {
       if (!this.isSaveLoaded && this.helper.isSceneNumberValid()) {
         bus.emit(OotEvents.ON_SAVE_LOADED, {});

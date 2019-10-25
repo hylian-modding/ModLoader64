@@ -500,6 +500,7 @@ export enum OotEvents {
   ON_ACTOR_DESPAWN = 'onActorDespawn',
   ON_ROOM_CHANGE = 'onRoomChange',
   ON_ROOM_CHANGE_PRE = 'onPreRoomChange',
+  ON_AGE_CHANGE = 'onAgeChange',
 }
 
 export interface IActorManager {
