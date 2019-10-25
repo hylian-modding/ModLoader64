@@ -479,6 +479,7 @@ export interface IOotHelper {
   isSceneNumberValid(): boolean;
   isLinkEnteringLoadingZone(): boolean;
   isPaused(): boolean;
+  isInterfaceShown(): boolean;
 }
 
 export interface IOOTCore extends ICore {
