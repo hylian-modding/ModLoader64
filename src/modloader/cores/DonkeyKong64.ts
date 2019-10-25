@@ -526,6 +526,10 @@ export class DonkeyKong64 implements ICore, API.IDK64Core {
         this.version = API.GameVersion.USA_1_0;
         VersionHandler.load_usa_1_0();
         break;
+      default:
+        this.version = API.GameVersion.USA_1_0;
+        VersionHandler.load_usa_1_0();
+        break;
     }
   }
 

@@ -46,6 +46,10 @@ export class BanjoKazooie implements ICore, API.IBKCore {
           CORE.VersionHandler.load_usa_1_0();
         }
         break;
+      default:
+        this.version = API.GameVersion.USA_1_0;
+        CORE.VersionHandler.load_usa_1_0();
+        break;
     }
   }
 
