@@ -367,6 +367,5 @@ export class ActorBase extends JSONTemplate implements IActor {
     this.emulator.rdramWritePtrF32(this.instance + addr, offset, value);
   }
 
-  memoryDebugLogger(bool: boolean): void {
-  }
+  memoryDebugLogger(bool: boolean): void {}
 }
