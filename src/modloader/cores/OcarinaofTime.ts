@@ -69,8 +69,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
   }
 
   init(): void {
-    this.eventTicks.set("waitingForAgeChange", () => {
-      if (this.save.age !== this.last_known_age){
+    this.eventTicks.set('waitingForAgeChange', () => {
+      if (this.save.age !== this.last_known_age) {
         bus.emit(OotEvents.ON_AGE_CHANGE, this.save.age);
         this.last_known_age = this.save.age;
       }

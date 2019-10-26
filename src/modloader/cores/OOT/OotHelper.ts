@@ -38,7 +38,9 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
     return this.emu.rdramRead16(0x1c6fa0) !== 0x3;
   }
   isInterfaceShown(): boolean {
-    return this.emu.rdramRead8(global.ModLoader.save_context + 0xBE613) === 0xFF;
+    return (
+      this.emu.rdramRead8(global.ModLoader.save_context + 0xbe613) === 0xff
+    );
   }
 
   toJSON() {
