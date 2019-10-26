@@ -1,10 +1,10 @@
 import * as API from 'modloader64_api/MM/Imports';
 
 export class Health extends API.BaseObj implements API.IHealth {
-  private double_defense_addr: number = 0x1ef6b2;
-  private pieces_addr: number = 0x1ef72c;
-  private heart_container_addr: number = 0x1ef6a4; //0x10 is equivalent to 1 heart container (int16)
-  private start_health_addr: number = 0x1ef6a6; //0x10 is equivalent to 1 full heart (int16)
+  private double_defense_addr = 0x1ef6b2;
+  private pieces_addr = 0x1ef72c;
+  private heart_container_addr = 0x1ef6a4; //0x10 is equivalent to 1 heart container (int16)
+  private start_health_addr = 0x1ef6a6; //0x10 is equivalent to 1 full heart (int16)
 
   get double_defense(): number {
     return this.emulator.rdramRead32(this.double_defense_addr);
@@ -35,5 +35,4 @@ export class Health extends API.BaseObj implements API.IHealth {
   set start_health(value: number) {
     this.emulator.rdramWrite16(this.start_health_addr, value);
   }
-
 }

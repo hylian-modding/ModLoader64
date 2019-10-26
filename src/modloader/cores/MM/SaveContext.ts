@@ -5,16 +5,16 @@ import * as SUB from './Sub/Imports';
 export class SaveContext extends API.BaseObj implements API.ISaveContext {
   private instance = 0x1ef670;
 
-  private bank_addr: number = 0x1f054e;
+  private bank_addr = 0x1f054e;
   private entrance_index_addr: number = this.instance + 0x0000; //
-  private start_mask_addr: number = 0x1ef674; //Stores the Mask ID Link is wearing (byte)
-  private intro_flag_addr: number = 0x1ef675; //Intro Cutscene Flag, set to 1 after leaving clock tower. If 0 on load, starts intro sequence.
-  private cutscene_number_addr: number = 0x1ef678; //Cutscene Number, Used to trigger cutscenes. FFF0 - FFFF trigger cutscenes 0-F. (int16)
-  private owl_id_addr: number = 0x1ef67e; //Which owl to load from
-  private cur_form_addr: number = 0x1ef690; //4 = Link, 3 = Deku, 2 = Zora, 1 = Goron, 0 = Fierce Deity (byte)
-  private have_tatl_addr: number = 0x1ef692; //Tatl flag
-  private player_name_addr: number = 0x1ef69c; //Player name
-  private rupee_amount_addr: number = 0x1ef6aa; //Rupees (uint16_t)
+  private start_mask_addr = 0x1ef674; //Stores the Mask ID Link is wearing (byte)
+  private intro_flag_addr = 0x1ef675; //Intro Cutscene Flag, set to 1 after leaving clock tower. If 0 on load, starts intro sequence.
+  private cutscene_number_addr = 0x1ef678; //Cutscene Number, Used to trigger cutscenes. FFF0 - FFFF trigger cutscenes 0-F. (int16)
+  private owl_id_addr = 0x1ef67e; //Which owl to load from
+  private cur_form_addr = 0x1ef690; //4 = Link, 3 = Deku, 2 = Zora, 1 = Goron, 0 = Fierce Deity (byte)
+  private have_tatl_addr = 0x1ef692; //Tatl flag
+  private player_name_addr = 0x1ef69c; //Player name
+  private rupee_amount_addr = 0x1ef6aa; //Rupees (uint16_t)
 
   private human_c_button_item = 0x1ef6bc;
   private c_left_item = 0x1ef6bd;
@@ -51,7 +51,7 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   dungeon_fairies: API.IDungeon;
   dungeon_items: API.IDungeon;
   dungeon_keys: API.IDungeon;
-  
+
   health: API.IHealth;
   magic: API.IMagic;
 
@@ -93,7 +93,7 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   set current_form(value: number) {
     this.emulator.rdramWrite32(this.cur_form_addr, value);
   }
-  
+
   get cutscene_number(): number {
     return this.emulator.rdramRead16(this.cutscene_number);
   }
@@ -151,7 +151,7 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   }
 
   get quest_status(): number {
-    let value = this.emulator.rdramRead32(this.quest_status_addr);    
+    let value = this.emulator.rdramRead32(this.quest_status_addr);
     return value & 0x0fffffff;
   }
   set quest_status(val: number) {
