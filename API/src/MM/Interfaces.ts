@@ -29,6 +29,13 @@ export interface IDungeon {
   stone_tower: number;
 }
 
+export interface IEquipSlots {
+  sword: apiBit.SwordBmp;
+  shield: apiBit.ShieldBmp;
+  bomb_bag: apiBit.BombBagBmp;
+  quiver: apiBit.QuiverBmp;
+}
+
 export interface IItemSlots {
   array: Buffer;
   get_slot(slot: apiEnum.ItemSlotType): apiEnum.ItemType;
@@ -39,6 +46,18 @@ export interface IMaskSlots {
   array: Buffer;
   get_slot(slot: apiEnum.MaskSlotType): apiEnum.MaskType;
   set_slot(slot: apiEnum.MaskSlotType, mask: apiEnum.MaskType): void;
+}
+
+export interface IHealth {
+  double_defense: number;
+  pieces: number;
+  heart_container: number;
+  start_health: number;
+}
+
+export interface IMagic {
+  magic_bar: number;
+  magic_amount: number;
 }
 
 export interface ISkultullaHouse {
@@ -66,6 +85,7 @@ export interface ISaveContext {
   game_flags: IBuffered;
   owl_flags: IBuffered;
 
+  equip_slots: IEquipSlots;
   item_slots: IItemSlots;
   mask_slots: IMaskSlots;
 
@@ -73,22 +93,21 @@ export interface ISaveContext {
   dungeon_fairies: IDungeon;
   dungeon_items: IDungeon;
   dungeon_keys: IDungeon;
+  health: IHealth;
+  magic: IMagic;
   skultulla_house: ISkultullaHouse;
 
+  bank: number;
+  current_form: number;
+  cutscene_number: number;
   entrance_index: number;
   start_mask: number;
   intro_flag: number;
-  cutscene_number: number;
   owl_id: number;
-  link_transformation: number;
   have_tatl: number;
   player_name: number;
-  heart_container: number;
-  start_health: number;
-  magic_bar: number;
-  magic_amount: number;
   rupee_amount: number;
-  double_defense: number;
+  quest_status: number;
 
   get_checksum(): number;
 }

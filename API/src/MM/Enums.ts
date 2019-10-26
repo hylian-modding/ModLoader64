@@ -254,7 +254,6 @@ export enum ItemType {
   GORMAN_BROTHERS = 0xc8, // Garbage
   SHIRO = 0xc9, // Garbage
   EXPRESSION_MARK = 0x79, // Garbage
-  BLANK = 0xff, // Garbage
 }
 
 export enum ItemReceiveType {
