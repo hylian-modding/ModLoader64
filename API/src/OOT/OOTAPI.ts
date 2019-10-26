@@ -614,9 +614,9 @@ const UpgradeCountLookupTable: UpgradeCount[] = [
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
   new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
   // Bombchu
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 5),
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 10),
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 15),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 5),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 10),
   new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.MAX, 20),
 ];
 

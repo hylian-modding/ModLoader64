@@ -347,7 +347,7 @@ export class Inventory extends JSONTemplate implements IInventory {
         break;
       case AmmoUpgrade.UPGRADED:
         buf[0x6] = 0x01;
-        buf[0x7] = 0x01;
+        buf[0x7] = 0x00;
         break;
       case AmmoUpgrade.MAX:
         buf[0x6] = 0x01;
