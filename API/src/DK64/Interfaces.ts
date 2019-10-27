@@ -75,6 +75,23 @@ export interface IPlayer {
 export interface IRuntime {
   get_current_profile(): apiEnum.ProfileType;
   get_game_mode(): apiEnum.GameModeType;
+
+  current_map: number;
+  current_exit: number;
+  parent_map: number;
+  parent_exit: number;
+  dest_map: number;
+  dest_exit: number;
+  map_state: number;
+  cur_cutscene: number;
+  cutscene_active: number;
+
+  get_actor_array_ptr(): number;
+  get_actor_count(): number;
+  get_voxel_array_ptr(): number;
+  get_voxel_array_size(): number;
+  get_voxel_count(): number;
+  goto_scene(map: number, exit: number): void;
 }
 
 export interface ISaveContext {

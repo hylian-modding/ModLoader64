@@ -6,21 +6,30 @@ export const enum GameVersion {
 }
 
 export const enum AddressType {
+  // Runtime
+  RT_MAP_TRIGGER = 'BT:rt_map_trigger',
+  RT_MAP_TRIGGER_TARGET = 'BT:rt_map_trigger_target',
+  RT_MAP_DESTINATION = 'BT:rt_map_destination',
+  RT_DCW_LOCATION = 'BT:rt_dcw_location',
+
   RT_PROF_HOVER = 'BT:rt_prof_hover',
   RT_PROF_SELECT = 'BT:rt_prof_select',
 
-  RT_CUR_HEALTH_BEAR_BIRD = 'BT:rt_curremt_health_bear_bird',
-  RT_CUR_HEALTH_BEAR = 'BT:rt_curremt_health_bear',
-  RT_CUR_HEALTH_MUMBO = 'BT:rt_curremt_health_mumbo',
-  RT_CUR_HEALTH_DETONATOR = 'BT:rt_curremt_health_detonator',
-  RT_CUR_HEALTH_SUBMARINE = 'BT:rt_curremt_health_submarine',
-  RT_CUR_HEALTH_T_REX = 'BT:rt_curremt_health_t_rex',
-  RT_CUR_HEALTH_BEE = 'BT:rt_curremt_health_bee',
-  RT_CUR_HEALTH_SNOWBALL = 'BT:rt_curremt_health_snowball',
-  RT_CUR_HEALTH_WASHING_MACHINE = 'BT:rt_curremt_health_washing_machine',
-  RT_CUR_HEALTH_BIRD = 'BT:rt_curremt_health_bird_bird',
+  RT_CUR_HEALTH_BEAR_BIRD = 'BT:rt_current_health_bear_bird',
+  RT_CUR_HEALTH_BEAR = 'BT:rt_current_health_bear',
+  RT_CUR_HEALTH_MUMBO = 'BT:rt_current_health_mumbo',
+  RT_CUR_HEALTH_DETONATOR = 'BT:rt_current_health_detonator',
+  RT_CUR_HEALTH_SUBMARINE = 'BT:rt_current_health_submarine',
+  RT_CUR_HEALTH_T_REX = 'BT:rt_current_health_t_rex',
+  RT_CUR_HEALTH_BEE = 'BT:rt_current_health_bee',
+  RT_CUR_HEALTH_SNOWBALL = 'BT:rt_current_health_snowball',
+  RT_CUR_HEALTH_WASHING_MACHINE = 'BT:rt_current_health_washing_machine',
+  RT_CUR_HEALTH_BIRD = 'BT:rt_current_health_bird_bird',
+  RT_CURRENT_MAP = 'BT:rt_current_map',
 
+  // Save
   SAVE_GAME_FLAGS = 'BT:save_game_flags',
+  SAVE_GLOBAL_FLAGS = 'BT:save_global_flags',
 }
 
 export enum AnimationType {

@@ -22,10 +22,17 @@ export interface IPlayer {}
 export interface IRuntime {
   get_profile_hovering(): apiEnum.ProfileType;
   get_profile_selected(): apiEnum.ProfileType;
+
+  current_map: number;
+  map_destination: number;
+  map_trigger: number;
+  map_trigger_target: number;
+  dcw_location: number;
 }
 
 export interface ISaveContext {
   game_flags: IBuffered;
+  global_flags: IBuffered;
 }
 
 export interface IBTCore {

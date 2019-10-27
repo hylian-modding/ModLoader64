@@ -5,6 +5,12 @@ export namespace VersionHandler {
     // Player Data
 
     // Runtime Data
+    // global.ModLoader[API.AddressType.RT_CURRENT_MAP] = 0x132dc2;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER] = 0x127642;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET] = 0x127640;
+    // global.ModLoader[API.AddressType.RT_MAP_DESTINATION] = 0x045702;
+    // global.ModLoader[API.AddressType.RT_DCW_LOCATION] = 0x1275ea;
+
     // global.ModLoader[API.AddressType.RT_PROF_HOVER] = 0x12B3F0;
     // global.ModLoader[API.AddressType.RT_PROF_SELECT] = 0x12B3F1;
 
@@ -21,12 +27,19 @@ export namespace VersionHandler {
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x1314f0;
+    // global.ModLoader[API.AddressType.SAVE_GLOBAL_FLAGS] = 0x12c780;
   }
 
   export function load_jp_1_0() {
     // Player Data
 
     // Runtime Data
+    // global.ModLoader[API.AddressType.RT_CURRENT_MAP] = 0x132dc2;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER] = 0x127642;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET] = 0x127640;
+    // global.ModLoader[API.AddressType.RT_MAP_DESTINATION] = 0x045702;
+    // global.ModLoader[API.AddressType.RT_DCW_LOCATION] = 0x1275ea;
+
     // global.ModLoader[API.AddressType.RT_PROF_HOVER] = 0x12B3F0;
     // global.ModLoader[API.AddressType.RT_PROF_SELECT] = 0x12B3F1;
 
@@ -43,12 +56,19 @@ export namespace VersionHandler {
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x126940;
+    // global.ModLoader[API.AddressType.SAVE_GLOBAL_FLAGS] = 0x12c780;
   }
 
   export function load_pal_1_0() {
     // Player Data
 
     // Runtime Data
+    // global.ModLoader[API.AddressType.RT_CURRENT_MAP] = 0x132dc2;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER] = 0x127642;
+    // global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET] = 0x127640;
+    // global.ModLoader[API.AddressType.RT_MAP_DESTINATION] = 0x045702;
+    // global.ModLoader[API.AddressType.RT_DCW_LOCATION] = 0x1275ea;
+
     // global.ModLoader[API.AddressType.RT_PROF_HOVER] = 0x12B3F0;
     // global.ModLoader[API.AddressType.RT_PROF_SELECT] = 0x12B3F1;
 
@@ -65,12 +85,19 @@ export namespace VersionHandler {
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x131780;
+    // global.ModLoader[API.AddressType.SAVE_GLOBAL_FLAGS] = 0x12c780;
   }
 
   export function load_usa_1_0() {
     // Player Data
 
     // Runtime Data
+    global.ModLoader[API.AddressType.RT_CURRENT_MAP] = 0x132dc2;
+    global.ModLoader[API.AddressType.RT_MAP_TRIGGER] = 0x127642;
+    global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET] = 0x127640;
+    global.ModLoader[API.AddressType.RT_MAP_DESTINATION] = 0x045702;
+    global.ModLoader[API.AddressType.RT_DCW_LOCATION] = 0x1275ea;
+
     global.ModLoader[API.AddressType.RT_PROF_HOVER] = 0x12b3f0;
     global.ModLoader[API.AddressType.RT_PROF_SELECT] = 0x12b3f1;
 
@@ -87,5 +114,6 @@ export namespace VersionHandler {
 
     // Save Data
     global.ModLoader[API.AddressType.SAVE_GAME_FLAGS] = 0x12c770;
+    global.ModLoader[API.AddressType.SAVE_GLOBAL_FLAGS] = 0x12c780;
   }
 }
