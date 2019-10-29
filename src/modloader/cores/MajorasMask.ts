@@ -18,7 +18,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   player!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
-  commandBuffer!: ICommandBuffer;
+  commandBuffer!: CommandBuffer;
 
   isPlaying(): boolean {
     return !(this.save.get_checksum() === 0 || this.isTitleScreen());
@@ -38,6 +38,9 @@ export class MajorasMask implements ICore, API.IMMCore {
     this.runtime = new CORE.Runtime(this.ModLoader.emulator);
     this.save = new CORE.SaveContext(this.ModLoader.emulator);
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
+    this.eventTicks.set("tickingStuff", ()=>{
+      this.commandBuffer.onTick();
+    });
   }
 
   onTick(): void {
