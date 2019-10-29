@@ -6,6 +6,9 @@ import {
 } from 'modloader64_api/IModLoaderAPI';
 import * as API from 'modloader64_api/MM/Imports';
 import * as CORE from './MM/Imports';
+import { GameShark } from 'modloader64_api/GameShark';
+import { ICommandBuffer } from 'modloader64_api/MM/ICommandBuffer';
+import { CommandBuffer } from './MM/CommandBuffer';
 
 export class MajorasMask implements ICore, API.IMMCore {
   header = "ZELDA MAJORA'S MASK";
@@ -15,6 +18,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   player!: API.IPlayer;
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
+  commandBuffer!: ICommandBuffer;
 
   isPlaying(): boolean {
     return !(this.save.get_checksum() === 0 || this.isTitleScreen());
@@ -33,6 +37,7 @@ export class MajorasMask implements ICore, API.IMMCore {
     this.player = new CORE.Player(this.ModLoader.emulator);
     this.runtime = new CORE.Runtime(this.ModLoader.emulator);
     this.save = new CORE.SaveContext(this.ModLoader.emulator);
+    this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
   }
 
   onTick(): void {
@@ -45,7 +50,14 @@ export class MajorasMask implements ICore, API.IMMCore {
   onModLoader_RomHeaderParsed(header: Buffer) {}
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
-  onCore_InjectFinished(evt: any) {}
+  onCore_InjectFinished(evt: any) {
+    let gameshark = new GameShark(
+      this.ModLoader.logger,
+      this.ModLoader.emulator
+    );
+    let file: string = __dirname + 'MajorasMask.payload';
+    gameshark.read(file);
+  }
 }
 
 export default MajorasMask;

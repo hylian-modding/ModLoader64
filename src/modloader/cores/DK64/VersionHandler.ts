@@ -62,7 +62,7 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE] = 0x741e5c;
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE_MAP] = 0x7f5a30;
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE_KONG] = 0x7f5b10;
-    global.ModLoader[API.AddressType.RT_NUMBER_OF_CUTSCENES] = 0x7F5afc;
+    global.ModLoader[API.AddressType.RT_NUMBER_OF_CUTSCENES] = 0x7f5afc;
     global.ModLoader[API.AddressType.RT_CUTSCENE_ACTIVE] = 0x73ec3c;
     global.ModLoader[API.AddressType.RT_CUTSCENE_TIMER] = 0x741e50;
     global.ModLoader[API.AddressType.RT_CUTSCENE_TO_PLAY_NEXT_MAP] = 0x74fbbe;
@@ -95,11 +95,11 @@ export namespace VersionHandler {
     global.ModLoader[API.AddressType.RT_DEST_EXIT] = 0x7444e8;
     global.ModLoader[API.AddressType.RT_MAP_STATE] = 0x76a0b1;
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE] = 0x7476f4;
-    global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE] = 0x7476fC;
+    global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE] = 0x7476fc;
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE_MAP] = 0x7f5b10;
     global.ModLoader[API.AddressType.RT_CUR_CUTSCENE_TYPE_KONG] = 0x7f5bf0;
     global.ModLoader[API.AddressType.RT_NUMBER_OF_CUTSCENES] = 0x7f5bdc;
-    global.ModLoader[API.AddressType.RT_CUTSCENE_ACTIVE] = 0x7444eC;
+    global.ModLoader[API.AddressType.RT_CUTSCENE_ACTIVE] = 0x7444ec;
     global.ModLoader[API.AddressType.RT_CUTSCENE_TIMER] = 0x7476f0;
     global.ModLoader[API.AddressType.RT_CUTSCENE_TO_PLAY_NEXT_MAP] = 0x75533e;
     global.ModLoader[API.AddressType.RT_CUTSCENE_WILL_PLAY_NEXT_MAP] = 0x75533b;

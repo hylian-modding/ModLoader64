@@ -1,5 +1,6 @@
 import * as apiBit from './Bitmaps';
 import * as apiEnum from './Enums';
+import { ICommandBuffer } from './ICommandBuffer';
 
 // ##################################################################
 // ##  Sub-Classes
@@ -116,6 +117,7 @@ export interface IMMCore {
   player: IPlayer;
   runtime: IRuntime;
   save: ISaveContext;
+  commandBuffer: ICommandBuffer;
 
   isPlaying(): boolean;
   isTitleScreen(): boolean;

@@ -36,27 +36,57 @@ export class Player extends API.BaseObj implements API.IPlayer {
 }
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private prof_hover_addr: number = global.ModLoader[API.AddressType.RT_PROF_HOVER];
-  private prof_select_addr: number = global.ModLoader[API.AddressType.RT_PROF_SELECT];
+  private prof_hover_addr: number =
+    global.ModLoader[API.AddressType.RT_PROF_HOVER];
+  private prof_select_addr: number =
+    global.ModLoader[API.AddressType.RT_PROF_SELECT];
   private map_addr: number = global.ModLoader[API.AddressType.RT_CURRENT_MAP];
-  private map_trigger_addr: number = global.ModLoader[API.AddressType.RT_MAP_TRIGGER];
-  private map_trigger_target_addr: number = global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET];
-  private map_destination_addr: number = global.ModLoader[API.AddressType.RT_MAP_DESTINATION];
-  private dcw_location_addr: number = global.ModLoader[API.AddressType.RT_DCW_LOCATION];
+  private map_trigger_addr: number =
+    global.ModLoader[API.AddressType.RT_MAP_TRIGGER];
+  private map_trigger_target_addr: number =
+    global.ModLoader[API.AddressType.RT_MAP_TRIGGER_TARGET];
+  private map_destination_addr: number =
+    global.ModLoader[API.AddressType.RT_MAP_DESTINATION];
+  private dcw_location_addr: number =
+    global.ModLoader[API.AddressType.RT_DCW_LOCATION];
 
-  get_profile_hovering(): API.ProfileType { return this.emulator.rdramReadS8(this.prof_hover_addr); }
-  get_profile_selected(): API.ProfileType { return this.emulator.rdramReadS8(this.prof_select_addr); }
+  get_profile_hovering(): API.ProfileType {
+    return this.emulator.rdramReadS8(this.prof_hover_addr);
+  }
+  get_profile_selected(): API.ProfileType {
+    return this.emulator.rdramReadS8(this.prof_select_addr);
+  }
 
-  get current_map(): number { return this.emulator.rdramRead16(this.map_addr); }
-  set current_map(value: number) { this.emulator.rdramWrite16(this.map_addr, value); }
-  get map_destination(): number { return this.emulator.rdramRead16(this.map_destination_addr); }
-  set map_destination(value: number) { this.emulator.rdramWrite16(this.map_destination_addr, value); }
-  get map_trigger(): number { return this.emulator.rdramRead16(this.map_trigger_addr); }
-  set map_trigger(value: number) { this.emulator.rdramWrite16(this.map_trigger_addr, value); }
-  get map_trigger_target(): number { return this.emulator.rdramRead16(this.map_trigger_target_addr); }
-  set map_trigger_target(value: number) { this.emulator.rdramWrite16(this.map_trigger_target_addr, value); }
-  get dcw_location(): number { return this.emulator.rdramRead16(this.dcw_location_addr); }
-  set dcw_location(value: number) { this.emulator.rdramWrite16(this.dcw_location_addr, value); }
+  get current_map(): number {
+    return this.emulator.rdramRead16(this.map_addr);
+  }
+  set current_map(value: number) {
+    this.emulator.rdramWrite16(this.map_addr, value);
+  }
+  get map_destination(): number {
+    return this.emulator.rdramRead16(this.map_destination_addr);
+  }
+  set map_destination(value: number) {
+    this.emulator.rdramWrite16(this.map_destination_addr, value);
+  }
+  get map_trigger(): number {
+    return this.emulator.rdramRead16(this.map_trigger_addr);
+  }
+  set map_trigger(value: number) {
+    this.emulator.rdramWrite16(this.map_trigger_addr, value);
+  }
+  get map_trigger_target(): number {
+    return this.emulator.rdramRead16(this.map_trigger_target_addr);
+  }
+  set map_trigger_target(value: number) {
+    this.emulator.rdramWrite16(this.map_trigger_target_addr, value);
+  }
+  get dcw_location(): number {
+    return this.emulator.rdramRead16(this.dcw_location_addr);
+  }
+  set dcw_location(value: number) {
+    this.emulator.rdramWrite16(this.dcw_location_addr, value);
+  }
 }
 
 export class SaveContext extends API.BaseObj implements API.ISaveContext {
@@ -115,7 +145,7 @@ export class BanjoTooie implements ICore, API.IBTCore {
     }
   }
 
-  init(): void { }
+  init(): void {}
 
   postinit(): void {
     this.player = new Player(this.ModLoader.emulator);
@@ -130,10 +160,10 @@ export class BanjoTooie implements ICore, API.IBTCore {
   }
 
   @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
-  onModLoader_RomHeaderParsed(header: Buffer) { }
+  onModLoader_RomHeaderParsed(header: Buffer) {}
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
-  onCore_InjectFinished(evt: any) { }
+  onCore_InjectFinished(evt: any) {}
 }
 
 export default BanjoTooie;

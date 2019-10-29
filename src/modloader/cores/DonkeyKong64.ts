@@ -172,7 +172,7 @@ export class Kong extends API.BaseObj implements API.IKong {
     super(emu);
 
     let addr = global.ModLoader[API.AddressType.KONG_BASE];
-    this.instance = addr + (index * 0x5e);
+    this.instance = addr + index * 0x5e;
 
     this.bananas.push(new Banana(emu, this.instance + 0x0a));
     this.bananas.push(new Banana(emu, this.instance + 0x26));
@@ -265,7 +265,8 @@ export class Kong extends API.BaseObj implements API.IKong {
 export class Player extends API.BaseObj implements API.IPlayer {
   private character_addr: number = global.ModLoader[API.AddressType.CHARACTER];
   private player_ptr: number = global.ModLoader[API.AddressType.PLYR_PTR];
-  private shared_consumables_addr: number = global.ModLoader[API.AddressType.SHARED_COLLECTABLES];
+  private shared_consumables_addr: number =
+    global.ModLoader[API.AddressType.SHARED_COLLECTABLES];
 
   // Abstraction
   kong: API.IKong[] = new Array<API.IKong>();
@@ -274,8 +275,9 @@ export class Player extends API.BaseObj implements API.IPlayer {
     super(emu);
 
     let i: number;
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < 6; i++) {
       this.kong.push(new Kong(emu, i));
+    }
   }
 
   get dk(): API.IKong {
@@ -328,7 +330,11 @@ export class Player extends API.BaseObj implements API.IPlayer {
     return 100;
   }
 
-  get standard_ammo(): number { return this.emulator.rdramRead16(this.shared_consumables_addr + API.InventoryType.STANDARD_AMMO); }
+  get standard_ammo(): number {
+    return this.emulator.rdramRead16(
+      this.shared_consumables_addr + API.InventoryType.STANDARD_AMMO
+    );
+  }
   set standard_ammo(val: number) {
     if (val < 0) {
       val = 0;
@@ -336,10 +342,17 @@ export class Player extends API.BaseObj implements API.IPlayer {
       val = this.get_max_standard_ammo();
     }
 
-    this.emulator.rdramWrite16(this.shared_consumables_addr + API.InventoryType.STANDARD_AMMO, val);
+    this.emulator.rdramWrite16(
+      this.shared_consumables_addr + API.InventoryType.STANDARD_AMMO,
+      val
+    );
   }
 
-  get homing_ammo(): number { return this.emulator.rdramRead16(this.shared_consumables_addr + API.InventoryType.HOMING_AMMO); }
+  get homing_ammo(): number {
+    return this.emulator.rdramRead16(
+      this.shared_consumables_addr + API.InventoryType.HOMING_AMMO
+    );
+  }
   set homing_ammo(val: number) {
     if (val < 0) {
       val = 0;
@@ -347,10 +360,17 @@ export class Player extends API.BaseObj implements API.IPlayer {
       val = this.get_max_standard_ammo();
     }
 
-    this.emulator.rdramWrite16(this.shared_consumables_addr + API.InventoryType.HOMING_AMMO, val);
+    this.emulator.rdramWrite16(
+      this.shared_consumables_addr + API.InventoryType.HOMING_AMMO,
+      val
+    );
   }
 
-  get oranges(): number { return this.emulator.rdramRead16(this.shared_consumables_addr + API.InventoryType.ORANGES); }
+  get oranges(): number {
+    return this.emulator.rdramRead16(
+      this.shared_consumables_addr + API.InventoryType.ORANGES
+    );
+  }
   set oranges(val: number) {
     if (val < 0) {
       val = 0;
@@ -358,10 +378,17 @@ export class Player extends API.BaseObj implements API.IPlayer {
       val = 20;
     }
 
-    this.emulator.rdramWrite16(this.shared_consumables_addr + API.InventoryType.ORANGES, val);
+    this.emulator.rdramWrite16(
+      this.shared_consumables_addr + API.InventoryType.ORANGES,
+      val
+    );
   }
 
-  get crystals(): number { return this.emulator.rdramRead16(this.shared_consumables_addr + API.InventoryType.CRYSTALS); }
+  get crystals(): number {
+    return this.emulator.rdramRead16(
+      this.shared_consumables_addr + API.InventoryType.CRYSTALS
+    );
+  }
   set crystals(val: number) {
     if (val < 0) {
       val = 0;
@@ -369,10 +396,17 @@ export class Player extends API.BaseObj implements API.IPlayer {
       val = 50;
     }
 
-    this.emulator.rdramWrite16(this.shared_consumables_addr + API.InventoryType.CRYSTALS, val);
+    this.emulator.rdramWrite16(
+      this.shared_consumables_addr + API.InventoryType.CRYSTALS,
+      val
+    );
   }
 
-  get film(): number { return this.emulator.rdramRead16(this.shared_consumables_addr + API.InventoryType.FILM); }
+  get film(): number {
+    return this.emulator.rdramRead16(
+      this.shared_consumables_addr + API.InventoryType.FILM
+    );
+  }
   set film(val: number) {
     if (val < 0) {
       val = 0;
@@ -380,32 +414,65 @@ export class Player extends API.BaseObj implements API.IPlayer {
       val = 10;
     }
 
-    this.emulator.rdramWrite16(this.shared_consumables_addr + API.InventoryType.FILM, val);
+    this.emulator.rdramWrite16(
+      this.shared_consumables_addr + API.InventoryType.FILM,
+      val
+    );
   }
 
-  get health(): number { return this.emulator.rdramReadS8(this.shared_consumables_addr + API.InventoryType.HEALTH); }
-  set health(val: number) { this.emulator.rdramWrite8(this.shared_consumables_addr + API.InventoryType.HEALTH, val); }
+  get health(): number {
+    return this.emulator.rdramReadS8(
+      this.shared_consumables_addr + API.InventoryType.HEALTH
+    );
+  }
+  set health(val: number) {
+    this.emulator.rdramWrite8(
+      this.shared_consumables_addr + API.InventoryType.HEALTH,
+      val
+    );
+  }
 
-  get melons(): number { return this.emulator.rdramRead8(this.shared_consumables_addr + API.InventoryType.MELONS); }
-  set melons(val: number) { this.emulator.rdramWrite8(this.shared_consumables_addr + API.InventoryType.MELONS, val); }
+  get melons(): number {
+    return this.emulator.rdramRead8(
+      this.shared_consumables_addr + API.InventoryType.MELONS
+    );
+  }
+  set melons(val: number) {
+    this.emulator.rdramWrite8(
+      this.shared_consumables_addr + API.InventoryType.MELONS,
+      val
+    );
+  }
 }
 
 export class Runtime extends API.BaseObj implements API.IRuntime {
-  private actor_array_ptr: number = global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
-  private actor_count_ptr: number = global.ModLoader[API.AddressType.RT_ACTOR_COUNT_PTR];
-  private voxel_array_ptr: number = global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR];
-  private voxel_count_ptr: number = global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR];
-  private cur_profile_addr: number = global.ModLoader[API.AddressType.RT_CUR_PROFILE];
-  private game_mode_addr: number = global.ModLoader[API.AddressType.RT_GAME_MODE];
+  private actor_array_ptr: number =
+    global.ModLoader[API.AddressType.RT_ACTOR_ARRAY_PTR];
+  private actor_count_ptr: number =
+    global.ModLoader[API.AddressType.RT_ACTOR_COUNT_PTR];
+  private voxel_array_ptr: number =
+    global.ModLoader[API.AddressType.RT_VOXEL_ARRAY_PTR];
+  private voxel_count_ptr: number =
+    global.ModLoader[API.AddressType.RT_VOXEL_COUNT_PTR];
+  private cur_profile_addr: number =
+    global.ModLoader[API.AddressType.RT_CUR_PROFILE];
+  private game_mode_addr: number =
+    global.ModLoader[API.AddressType.RT_GAME_MODE];
   private cur_map_addr: number = global.ModLoader[API.AddressType.RT_CUR_MAP];
   private cur_exit_addr: number = global.ModLoader[API.AddressType.RT_CUR_EXIT];
-  private parent_map_addr: number = global.ModLoader[API.AddressType.RT_PARENT_MAP];
-  private parent_exit_addr: number = global.ModLoader[API.AddressType.RT_PARENT_EXIT];
+  private parent_map_addr: number =
+    global.ModLoader[API.AddressType.RT_PARENT_MAP];
+  private parent_exit_addr: number =
+    global.ModLoader[API.AddressType.RT_PARENT_EXIT];
   private dest_map_addr: number = global.ModLoader[API.AddressType.RT_DEST_MAP];
-  private dest_exit_addr: number = global.ModLoader[API.AddressType.RT_DEST_EXIT];
-  private map_state_addr: number = global.ModLoader[API.AddressType.RT_MAP_STATE];
-  private cur_cutscene_addr: number = global.ModLoader[API.AddressType.RT_CUR_CUTSCENE];
-  private cutscene_active_addr: number = global.ModLoader[API.AddressType.RT_CUTSCENE_ACTIVE];
+  private dest_exit_addr: number =
+    global.ModLoader[API.AddressType.RT_DEST_EXIT];
+  private map_state_addr: number =
+    global.ModLoader[API.AddressType.RT_MAP_STATE];
+  private cur_cutscene_addr: number =
+    global.ModLoader[API.AddressType.RT_CUR_CUTSCENE];
+  private cutscene_active_addr: number =
+    global.ModLoader[API.AddressType.RT_CUTSCENE_ACTIVE];
 
   get_current_profile(): API.ProfileType {
     return this.emulator.rdramRead8(this.cur_profile_addr) as API.ProfileType;
@@ -415,40 +482,84 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
     return this.emulator.rdramRead8(this.game_mode_addr) as API.GameModeType;
   }
 
-  get current_map(): number { return this.emulator.rdramRead32(this.cur_map_addr); }
-  set current_map(value: number) { this.emulator.rdramWrite32(this.cur_map_addr, value); }
-  get current_exit(): number { return this.emulator.rdramRead32(this.cur_exit_addr); }
-  set current_exit(value: number) { this.emulator.rdramWrite32(this.cur_exit_addr, value); }
-  get parent_map(): number { return this.emulator.rdramRead16(this.parent_map_addr); }
-  set parent_map(value: number) { this.emulator.rdramWrite16(this.parent_map_addr, value); }
-  get parent_exit(): number { return this.emulator.rdramRead8(this.parent_exit_addr); }
-  set parent_exit(value: number) { this.emulator.rdramWrite8(this.parent_exit_addr, value); }
-  get dest_map(): number { return this.emulator.rdramRead32(this.dest_map_addr); }
-  set dest_map(value: number) { this.emulator.rdramWrite32(this.dest_map_addr, value); }
-  get dest_exit(): number { return this.emulator.rdramRead32(this.dest_exit_addr); }
-  set dest_exit(value: number) { this.emulator.rdramWrite32(this.dest_exit_addr, value); }
-  get map_state(): number { return this.emulator.rdramRead8(this.map_state_addr); }
-  set map_state(value: number) { this.emulator.rdramWrite8(this.map_state_addr, value); }
-  get cur_cutscene(): number { return this.emulator.rdramRead16(this.cur_cutscene_addr); }
-  set cur_cutscene(value: number) { this.emulator.rdramWrite16(this.cur_cutscene_addr, value); }
-  get cutscene_active(): number { return this.emulator.rdramRead8(this.cutscene_active_addr); }
-  set cutscene_active(value: number) { this.emulator.rdramWrite8(this.cutscene_active_addr, value); }
+  get current_map(): number {
+    return this.emulator.rdramRead32(this.cur_map_addr);
+  }
+  set current_map(value: number) {
+    this.emulator.rdramWrite32(this.cur_map_addr, value);
+  }
+  get current_exit(): number {
+    return this.emulator.rdramRead32(this.cur_exit_addr);
+  }
+  set current_exit(value: number) {
+    this.emulator.rdramWrite32(this.cur_exit_addr, value);
+  }
+  get parent_map(): number {
+    return this.emulator.rdramRead16(this.parent_map_addr);
+  }
+  set parent_map(value: number) {
+    this.emulator.rdramWrite16(this.parent_map_addr, value);
+  }
+  get parent_exit(): number {
+    return this.emulator.rdramRead8(this.parent_exit_addr);
+  }
+  set parent_exit(value: number) {
+    this.emulator.rdramWrite8(this.parent_exit_addr, value);
+  }
+  get dest_map(): number {
+    return this.emulator.rdramRead32(this.dest_map_addr);
+  }
+  set dest_map(value: number) {
+    this.emulator.rdramWrite32(this.dest_map_addr, value);
+  }
+  get dest_exit(): number {
+    return this.emulator.rdramRead32(this.dest_exit_addr);
+  }
+  set dest_exit(value: number) {
+    this.emulator.rdramWrite32(this.dest_exit_addr, value);
+  }
+  get map_state(): number {
+    return this.emulator.rdramRead8(this.map_state_addr);
+  }
+  set map_state(value: number) {
+    this.emulator.rdramWrite8(this.map_state_addr, value);
+  }
+  get cur_cutscene(): number {
+    return this.emulator.rdramRead16(this.cur_cutscene_addr);
+  }
+  set cur_cutscene(value: number) {
+    this.emulator.rdramWrite16(this.cur_cutscene_addr, value);
+  }
+  get cutscene_active(): number {
+    return this.emulator.rdramRead8(this.cutscene_active_addr);
+  }
+  set cutscene_active(value: number) {
+    this.emulator.rdramWrite8(this.cutscene_active_addr, value);
+  }
 
-  get_actor_array_ptr(): number { return this.emulator.dereferencePointer(this.actor_array_ptr); }
-  get_actor_count(): number { return Math.min(255, this.emulator.rdramRead16(this.actor_count_ptr)); }
-  get_voxel_array_ptr(): number { return this.emulator.dereferencePointer(this.voxel_array_ptr); }
+  get_actor_array_ptr(): number {
+    return this.emulator.dereferencePointer(this.actor_array_ptr);
+  }
+  get_actor_count(): number {
+    return Math.min(255, this.emulator.rdramRead16(this.actor_count_ptr));
+  }
+  get_voxel_array_ptr(): number {
+    return this.emulator.dereferencePointer(this.voxel_array_ptr);
+  }
 
   get_voxel_array_size(): number {
     let objModel2Array = this.get_voxel_array_ptr();
 
     if (objModel2Array !== 0) {
-      return this.emulator.rdramRead32(objModel2Array + (-0x0c) / 0x90);
+      return this.emulator.rdramRead32(objModel2Array + -0x0c / 0x90);
     }
 
     return 0;
   }
 
-  get_voxel_count(): number { return this.emulator.rdramRead32(this.voxel_count_ptr); }
+  get_voxel_count(): number {
+    return this.emulator.rdramRead32(this.voxel_count_ptr);
+  }
   goto_scene(map: number, exit: number) {
     this.emulator.rdramWrite32(this.cur_map_addr, map);
     this.emulator.rdramWrite32(this.cur_exit_addr, exit);
@@ -471,8 +582,12 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
     return this.copy_addr + offset * 0x1ac;
   }
 
-  get_slot(addr: number): Buffer { return this.emulator.rdramReadBuffer(addr, 0x13b); }
-  set_slot(addr: number, value: number) { this.emulator.rdramWrite8(addr, value); }
+  get_slot(addr: number): Buffer {
+    return this.emulator.rdramReadBuffer(addr, 0x13b);
+  }
+  set_slot(addr: number, value: number) {
+    this.emulator.rdramWrite8(addr, value);
+  }
 }
 
 export class DonkeyKong64 implements ICore, API.IDK64Core {
@@ -511,7 +626,7 @@ export class DonkeyKong64 implements ICore, API.IDK64Core {
     }
   }
 
-  init(): void { }
+  init(): void {}
 
   postinit(): void {
     this.player = new Player(this.ModLoader.emulator);
@@ -526,10 +641,10 @@ export class DonkeyKong64 implements ICore, API.IDK64Core {
   }
 
   @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
-  onModLoader_RomHeaderParsed(header: Buffer) { }
+  onModLoader_RomHeaderParsed(header: Buffer) {}
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
-  onCore_InjectFinished(evt: any) { }
+  onCore_InjectFinished(evt: any) {}
 }
 
 export default DonkeyKong64;

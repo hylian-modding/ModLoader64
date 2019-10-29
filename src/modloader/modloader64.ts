@@ -74,11 +74,14 @@ class ModLoader64 {
         process.emit('SIGINT');
       });
 
-      fs.readdirSync("./storage").forEach((key : string)=>{
-        let file: string = path.join("./storage", key);
-        if (fs.existsSync(file)){
-          let seconds = (new Date().getTime() - new Date(fs.statSync(file).mtime).getTime()) / 1000;
-          if (seconds > 2592000){
+      fs.readdirSync('./storage').forEach((key: string) => {
+        let file: string = path.join('./storage', key);
+        if (fs.existsSync(file)) {
+          let seconds =
+            (new Date().getTime() -
+              new Date(fs.statSync(file).mtime).getTime()) /
+            1000;
+          if (seconds > 2592000) {
             fs.unlinkSync(file);
           }
         }
