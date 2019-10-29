@@ -55,7 +55,7 @@ export class MajorasMask implements ICore, API.IMMCore {
       this.ModLoader.logger,
       this.ModLoader.emulator
     );
-    let file: string = __dirname + 'MajorasMask.payload';
+    let file: string = __dirname + '/MM/MajorasMask.payload';
     gameshark.read(file);
   }
 }
