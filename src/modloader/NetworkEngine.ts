@@ -86,6 +86,42 @@ class FakeNetworkPlayer implements INetworkPlayer {
   }
 }
 
+export class createLobbyStorage_event{
+  lobbyName: string;
+  plugin: IPlugin;
+  obj: any;
+
+  constructor(lobbyName: string, plugin: IPlugin, obj: any){
+    this.lobbyName = lobbyName;
+    this.plugin = plugin;
+    this.obj = obj;
+  }
+}
+
+export class getLobbyStorage_event{
+  lobbyName: string;
+  plugin: IPlugin;
+  obj: any;
+
+  constructor(lobbyName: string, plugin: IPlugin){
+    this.lobbyName = lobbyName;
+    this.plugin = plugin;
+  }
+}
+
+export class LobbyManagerAbstract implements ILobbyManager{
+
+  getLobbyStorage(lobbyName: string, plugin: IPlugin) {
+    let evt: getLobbyStorage_event = new getLobbyStorage_event(lobbyName, plugin);
+    internal_event_bus.emit("getLobbyStorage", evt);
+    return evt.obj;
+  }  
+
+  createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
+    internal_event_bus.emit("createLobbyStorage", new createLobbyStorage_event(lobbyName, plugin, obj));
+  }
+}
+
 namespace NetworkEngine {
   export class Server implements ILobbyManager {
     io: any;
@@ -114,6 +150,14 @@ namespace NetworkEngine {
       internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
         let p: any = args[0];
         this.plugins[p.name] = p.version;
+      });
+
+      internal_event_bus.on('getLobbyStorage', (evt: getLobbyStorage_event)=>{
+        evt.obj = this.getLobbyStorage(evt.lobbyName, evt.plugin);
+      });
+
+      internal_event_bus.on('createLobbyStorage', (evt: createLobbyStorage_event)=>{
+        this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
       });
     }
 

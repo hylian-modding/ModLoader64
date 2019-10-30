@@ -29,7 +29,7 @@ import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { GameShark } from 'modloader64_api/GameShark';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
-import NetworkEngine from './NetworkEngine';
+import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
 import { Pak } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
@@ -119,6 +119,10 @@ class pluginLoader {
       }
     } else if (parse.ext === '.sig') {
       return;
+    }else if (parse.base.indexOf(".disabled") > -1){
+      return;
+    }else if (parse.ext === ".bps"){
+      return;
     }
     if (!fs.lstatSync(path.resolve(dir)).isDirectory) {
       return;
@@ -177,6 +181,7 @@ class pluginLoader {
       this.selected_core = overrideCore;
     }
     let core = this.core_plugins[this.selected_core];
+    Object.freeze(this.logger);
     core['ModLoader'] = {};
     core['ModLoader']['logger'] = this.logger;
     core['ModLoader']['config'] = this.config;
@@ -208,12 +213,9 @@ class pluginLoader {
     });
   }
 
-  loadPluginsPreInit(manager: ILobbyManager, iconsole: IConsole) {
-    this.loaded_core.preinit();
-    this.loaded_core.ModLoader.lobbyManager = manager;
-    this.loaded_core.ModLoader.clientSide = ClientController;
-    this.loaded_core.ModLoader.serverSide = ServerController;
-
+  loadPluginsPreInit(iconsole: IConsole) {
+    Object.freeze(ClientController);
+    Object.freeze(ServerController);
     let utils: IUtils = iconsole.getUtils();
     utils.hashBuffer = (buf: Buffer) => {
       return crypto
@@ -221,18 +223,26 @@ class pluginLoader {
         .update(buf)
         .digest('hex');
     };
-    this.loaded_core.ModLoader.utils = utils;
-    this.loaded_core.ModLoader.clientLobby = this.config.data[
+    Object.freeze(utils);
+    let lobby: string = this.config.data[
       'NetworkEngine.Client'
     ]['lobby'];
+    Object.freeze(lobby);
+    let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
+
+    this.loaded_core.ModLoader.clientSide = ClientController;
+    this.loaded_core.ModLoader.serverSide = ServerController;
+    this.loaded_core.ModLoader.utils = utils;
+    this.loaded_core.ModLoader.clientLobby = lobby;
+    this.loaded_core.ModLoader.lobbyManager = lma;
+    this.loaded_core.preinit();
+
     this.plugins.forEach((plugin: IPlugin) => {
-      plugin.ModLoader.lobbyManager = manager;
-      plugin.ModLoader.utils = utils;
       plugin.ModLoader.clientSide = ClientController;
       plugin.ModLoader.serverSide = ServerController;
-      plugin.ModLoader.clientLobby = this.config.data['NetworkEngine.Client'][
-        'lobby'
-      ];
+      plugin.ModLoader.utils = utils;
+      plugin.ModLoader.clientLobby = lobby;
+      plugin.ModLoader.lobbyManager = lma;
       plugin.preinit();
     });
   }
@@ -243,6 +253,7 @@ class pluginLoader {
     net: NetworkEngine.Client,
     config: IModLoaderConfig
   ) {
+    Object.freeze(me);
     this.loaded_core.ModLoader.me = me;
     this.loaded_core.init();
     this.plugins.forEach((plugin: IPlugin) => {
@@ -259,6 +270,7 @@ class pluginLoader {
         iconsole.setFrameCount(-1);
       }
     };
+    Object.freeze(this.onTickHandle);
     if (config.isClient) {
       setInterval(this.onTickHandle, 0);
     }
@@ -268,14 +280,15 @@ class pluginLoader {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
-    this.loaded_core.ModLoader.emulator = emulator;
-    this.loaded_core.ModLoader.savestates = (emulator as unknown) as ISaveState;
-    this.loaded_core.ModLoader.gui = new GUIAPI('core', this.loaded_core);
+    let emu: IMemory = Object.freeze(emulator);
+    this.loaded_core.ModLoader.emulator = emu;
+    this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
+    this.loaded_core.ModLoader.gui = Object.freeze(new GUIAPI('core', this.loaded_core));
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
-      plugin.ModLoader.emulator = emulator;
-      plugin.ModLoader.gui = new GUIAPI(plugin.pluginName as string, plugin);
-      plugin.ModLoader.savestates = (emulator as unknown) as ISaveState;
+      plugin.ModLoader.emulator = emu;
+      plugin.ModLoader.gui = Object.freeze(new GUIAPI(plugin.pluginName as string, plugin));
+      plugin.ModLoader.savestates = (emu as unknown) as ISaveState;
       plugin.postinit();
       if (mainConfig.isClient) {
         bus.emit(EventsClient.ON_PLUGIN_READY, plugin);
@@ -285,7 +298,7 @@ class pluginLoader {
       }
     });
     iconsole.finishInjects();
-    let gameshark = new GameShark(this.logger, emulator);
+    let gameshark = Object.freeze(new GameShark(this.logger, emu));
     this.plugin_folders.forEach((dir: string) => {
       let test = path.join(
         dir,

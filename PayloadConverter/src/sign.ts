@@ -8,12 +8,18 @@ export function generate(file: string) {
   const privateKey = fs.readFileSync('./private_key.pem');
   const signer = crypto.createSign('RSA-SHA256');
   signer.update(digest);
+
+  var readlineSync = require('readline-sync');
+
+  var passphrase = readlineSync.question('Enter passphrase for key');
+
   const signature = crypto
     .createSign('RSA-SHA256')
     .update(digest)
     .sign(
       {
         key: privateKey,
+        passphrase: passphrase
       },
       'base64'
     );

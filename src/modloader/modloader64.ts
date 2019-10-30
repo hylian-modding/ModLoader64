@@ -203,7 +203,7 @@ class ModLoader64 {
       bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
       bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
     }
-    this.plugins.loadPluginsPreInit(this.Server, this.emulator);
+    this.plugins.loadPluginsPreInit(this.emulator);
     internal_event_bus.emit('onPreInitDone', {});
     // Set up networking.
     internal_event_bus.on('onNetworkConnect', (evt: any) => {
