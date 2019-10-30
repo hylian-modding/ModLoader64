@@ -5,6 +5,7 @@ import {
   EventsClient,
   EventServerJoined,
   EventServerLeft,
+  EventBus,
 } from 'modloader64_api/EventHandler';
 import {
   NetworkBus,
@@ -36,6 +37,7 @@ import path from 'path';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
+const NetworkingEventBus: EventBus = new EventBus();
 
 interface IServerConfig {
   port: number;
@@ -115,12 +117,12 @@ export class LobbyManagerAbstract implements ILobbyManager {
       lobbyName,
       plugin
     );
-    internal_event_bus.emit('getLobbyStorage', evt);
+    NetworkingEventBus.emit('getLobbyStorage', evt);
     return evt.obj;
   }
 
   createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
-    internal_event_bus.emit(
+    NetworkingEventBus.emit(
       'createLobbyStorage',
       new createLobbyStorage_event(lobbyName, plugin, obj)
     );
@@ -148,7 +150,6 @@ namespace NetworkEngine {
       ) as IServerConfig;
       config.setData('NetworkEngine.Server', 'port', 8082);
       config.setData('NetworkEngine.Server', 'udpPort', 8082);
-      let temp = global.ModLoader.version.split('.');
       this.modLoaderconfig = this.masterConfig.registerConfigCategory(
         'ModLoader64'
       ) as IModLoaderConfig;
@@ -157,15 +158,16 @@ namespace NetworkEngine {
         this.plugins[p.name] = p.version;
       });
 
-      internal_event_bus.on('getLobbyStorage', (args: any[]) => {
-        let evt: getLobbyStorage_event = args[0];
+      NetworkingEventBus.on('getLobbyStorage', (evt: getLobbyStorage_event) => {
         evt.obj = this.getLobbyStorage(evt.lobbyName, evt.plugin);
       });
 
-      internal_event_bus.on('createLobbyStorage', (args: any[]) => {
-        let evt: createLobbyStorage_event = args[0];
-        this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
-      });
+      NetworkingEventBus.on(
+        'createLobbyStorage',
+        (evt: getLobbyStorage_event) => {
+          this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
+        }
+      );
     }
 
     getLobbies() {

@@ -225,11 +225,7 @@ class ModLoader64 {
       return;
     }
     if (fs.existsSync(this.rom_path) || this.data.isServer) {
-      this.plugins.loadPluginsInit(
-        result[0].me,
-        this.emulator,
-        this.Client
-      );
+      this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
       this.logger.info('Setting up Mupen...');
       let instance = this;
       let mupen: IMemory;
@@ -282,7 +278,11 @@ class ModLoader64 {
       });
       load_mupen.then(function() {
         instance.logger.info('Finishing plugin init...');
-        instance.plugins.loadPluginsPostinit(mupen, instance.emulator, instance.data);
+        instance.plugins.loadPluginsPostinit(
+          mupen,
+          instance.emulator,
+          instance.data
+        );
         internal_event_bus.emit('onPostInitDone', {});
         instance.done = true;
         // Detect if the user closed Mupen.

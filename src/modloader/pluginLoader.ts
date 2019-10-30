@@ -265,7 +265,11 @@ class pluginLoader {
     Object.freeze(this.onTickHandle);
   }
 
-  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole, config: IModLoaderConfig) {
+  loadPluginsPostinit(
+    emulator: IMemory,
+    iconsole: IConsole,
+    config: IModLoaderConfig
+  ) {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
