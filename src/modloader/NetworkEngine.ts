@@ -157,16 +157,15 @@ namespace NetworkEngine {
         this.plugins[p.name] = p.version;
       });
 
-      internal_event_bus.on('getLobbyStorage', (evt: getLobbyStorage_event) => {
+      internal_event_bus.on('getLobbyStorage', (args: any[]) => {
+        let evt: getLobbyStorage_event = args[0];
         evt.obj = this.getLobbyStorage(evt.lobbyName, evt.plugin);
       });
 
-      internal_event_bus.on(
-        'createLobbyStorage',
-        (evt: createLobbyStorage_event) => {
-          this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
-        }
-      );
+      internal_event_bus.on('createLobbyStorage', (args: any[]) => {
+        let evt: createLobbyStorage_event = args[0];
+        this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
+      });
     }
 
     getLobbies() {

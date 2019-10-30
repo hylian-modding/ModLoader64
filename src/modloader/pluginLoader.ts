@@ -64,21 +64,14 @@ class pluginLoader {
     cleanup();
   }
 
-  verifySignature(file: string, key: string, sig: string): boolean {
+  verifySignature(buf: Buffer, key: string, sig: string): boolean {
     const hasher = crypto.createHash('sha256');
-    hasher.update(fs.readFileSync(file));
+    hasher.update(buf);
     const digest = hasher.digest('hex');
-    const publicKey = fs.readFileSync(key);
+    const publicKey = key;
     const verifier = crypto.createVerify('RSA-SHA256');
     verifier.update(digest);
-    if (!fs.existsSync(sig)) {
-      return false;
-    }
-    const testSignature = verifier.verify(
-      publicKey,
-      fs.readFileSync(sig).toString(),
-      'base64'
-    );
+    const testSignature = verifier.verify(publicKey, sig, 'base64');
     return testSignature;
   }
 
@@ -93,20 +86,20 @@ class pluginLoader {
   private processFolder(dir: string) {
     let parse = path.parse(dir);
     if (parse.ext === '.pak') {
-      // Unpak first.
-      let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
       let pakFile: Pak = new Pak(path.resolve(dir));
-      pakFile.extractAll(ndir);
-      dir = path.join(ndir, parse.name);
-      let pub: string = path.join(dir, 'public_key.pem');
-      if (fs.existsSync(pub)) {
-        if (
-          !this.verifySignature(
-            pakFile.fileName,
-            path.resolve(pub),
-            path.resolve(path.join(parse.dir, parse.name + '.sig'))
-          )
-        ) {
+      let buf: Buffer = fs.readFileSync(path.resolve(dir));
+      let test: Buffer = Buffer.alloc(0x6);
+      buf.copy(test, 0, buf.byteLength - 0x6);
+      if (test.toString() === 'SIGNED') {
+        test = Buffer.alloc(0x158);
+        buf.copy(test, 0, buf.byteLength - 0x158 - 0x6, buf.byteLength - 0x6);
+        let sig: string = test.toString();
+        let key: string = pakFile
+          .load(pakFile.pak.header.files.length - 1)
+          .toString();
+        let realPak: Buffer = Buffer.alloc(buf.byteLength - (0x158 + 0x6));
+        buf.copy(realPak, 0, 0, buf.byteLength - (0x158 + 0x6));
+        if (!this.verifySignature(realPak, key, sig)) {
           this.logger.error(
             'Signature check failed for plugin ' + parse.name + '. Skipping.'
           );
@@ -117,11 +110,13 @@ class pluginLoader {
           );
         }
       }
-    } else if (parse.ext === '.sig') {
+      // Unpak first.
+      let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
+      pakFile.extractAll(ndir);
+      dir = path.join(ndir, parse.name);
+    } else if (parse.base.indexOf('.disabled') > -1) {
       return;
-    }else if (parse.base.indexOf(".disabled") > -1){
-      return;
-    }else if (parse.ext === ".bps"){
+    } else if (parse.ext === '.bps') {
       return;
     }
     if (!fs.lstatSync(path.resolve(dir)).isDirectory) {
@@ -224,9 +219,7 @@ class pluginLoader {
         .digest('hex');
     };
     Object.freeze(utils);
-    let lobby: string = this.config.data[
-      'NetworkEngine.Client'
-    ]['lobby'];
+    let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
     Object.freeze(lobby);
     let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
 
@@ -283,11 +276,15 @@ class pluginLoader {
     let emu: IMemory = Object.freeze(emulator);
     this.loaded_core.ModLoader.emulator = emu;
     this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
-    this.loaded_core.ModLoader.gui = Object.freeze(new GUIAPI('core', this.loaded_core));
+    this.loaded_core.ModLoader.gui = Object.freeze(
+      new GUIAPI('core', this.loaded_core)
+    );
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emu;
-      plugin.ModLoader.gui = Object.freeze(new GUIAPI(plugin.pluginName as string, plugin));
+      plugin.ModLoader.gui = Object.freeze(
+        new GUIAPI(plugin.pluginName as string, plugin)
+      );
       plugin.ModLoader.savestates = (emu as unknown) as ISaveState;
       plugin.postinit();
       if (mainConfig.isClient) {
