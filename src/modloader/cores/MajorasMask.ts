@@ -38,7 +38,7 @@ export class MajorasMask implements ICore, API.IMMCore {
     this.runtime = new CORE.Runtime(this.ModLoader.emulator);
     this.save = new CORE.SaveContext(this.ModLoader.emulator);
     this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
-    this.eventTicks.set("tickingStuff", ()=>{
+    this.eventTicks.set('tickingStuff', () => {
       this.commandBuffer.onTick();
     });
   }

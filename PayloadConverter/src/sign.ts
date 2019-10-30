@@ -9,9 +9,9 @@ export function generate(file: string) {
   const signer = crypto.createSign('RSA-SHA256');
   signer.update(digest);
 
-  var readlineSync = require('readline-sync');
+  let readlineSync = require('readline-sync');
 
-  var passphrase = readlineSync.question('Enter passphrase for key');
+  let passphrase = readlineSync.question('Enter passphrase for key');
 
   const signature = crypto
     .createSign('RSA-SHA256')
@@ -19,7 +19,7 @@ export function generate(file: string) {
     .sign(
       {
         key: privateKey,
-        passphrase: passphrase
+        passphrase,
       },
       'base64'
     );

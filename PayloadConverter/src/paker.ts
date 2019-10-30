@@ -23,16 +23,16 @@ if (program.dir !== undefined) {
       pak.update();
       let sig: Buffer = Buffer.from(generate(pak.fileName));
       let buf: Buffer = fs.readFileSync(program.dir + '.pak');
-      let footer: Buffer = Buffer.from("SIGNED");
+      let footer: Buffer = Buffer.from('SIGNED');
       let add_l: number = sig.byteLength + footer.byteLength;
       let nBuf: Buffer = Buffer.alloc(buf.byteLength + add_l);
       buf.copy(nBuf);
       let pos: number = buf.byteLength;
       sig.copy(nBuf, pos);
-      pos+=sig.byteLength;
+      pos += sig.byteLength;
       footer.copy(nBuf, pos);
       fs.writeFileSync(program.dir + '.pak', nBuf);
-    }else{
+    } else {
       pak.update();
     }
   });
