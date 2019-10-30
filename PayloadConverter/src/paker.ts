@@ -27,10 +27,10 @@ if (program.dir !== undefined) {
       let nBuf: Buffer = Buffer.alloc(buf.byteLength + add_l);
       buf.copy(nBuf);
       let pos: number = buf.byteLength;
-      sig.copy(buf, pos);
+      sig.copy(nBuf, pos);
       pos+=sig.byteLength;
-      footer.copy(buf, pos);
-      fs.writeFileSync(program.dir + '.pak', buf);
+      footer.copy(nBuf, pos);
+      fs.writeFileSync(program.dir + '.pak', nBuf);
     }
   });
 }
