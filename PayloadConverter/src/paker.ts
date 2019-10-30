@@ -18,8 +18,9 @@ if (program.dir !== undefined) {
     for (let i = 0; i < files.length; i++) {
       pak.save_file(files[i]);
     }
-    pak.update();
     if (fs.existsSync('./private_key.pem')) {
+      pak.save_file('./public_key.pem');
+      pak.update();
       let sig: Buffer = Buffer.from(generate(pak.fileName));
       let buf: Buffer = fs.readFileSync(program.dir + '.pak');
       let footer: Buffer = Buffer.from("SIGNED");
@@ -31,6 +32,8 @@ if (program.dir !== undefined) {
       pos+=sig.byteLength;
       footer.copy(nBuf, pos);
       fs.writeFileSync(program.dir + '.pak', nBuf);
+    }else{
+      pak.update();
     }
   });
 }
