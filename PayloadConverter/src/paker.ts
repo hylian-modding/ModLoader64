@@ -20,7 +20,17 @@ if (program.dir !== undefined) {
     }
     pak.update();
     if (fs.existsSync('./private_key.pem')) {
-      fs.writeFileSync(program.dir + '.sig', generate(pak.fileName));
+      let sig: Buffer = Buffer.from(generate(pak.fileName));
+      let buf: Buffer = fs.readFileSync(program.dir + '.pak');
+      let footer: Buffer = Buffer.from("SIGNED");
+      let add_l: number = sig.byteLength + footer.byteLength;
+      let nBuf: Buffer = Buffer.alloc(buf.byteLength + add_l);
+      buf.copy(nBuf);
+      let pos: number = buf.byteLength;
+      sig.copy(buf, pos);
+      pos+=sig.byteLength;
+      footer.copy(buf, pos);
+      fs.writeFileSync(program.dir + '.pak', buf);
     }
   });
 }
