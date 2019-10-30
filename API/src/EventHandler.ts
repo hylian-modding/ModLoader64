@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
 import { INetworkPlayer } from './NetworkHandler';
+import { EventEmitter2 } from 'eventemitter2';
 
-export class EventBus extends EventEmitter {}
+export class EventBus extends EventEmitter2 {}
 
 const bus: EventBus = new EventBus();
 

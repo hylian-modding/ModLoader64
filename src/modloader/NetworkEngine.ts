@@ -577,11 +577,11 @@ namespace NetworkEngine {
           }, 30 * 1000);
           inst.udpClient.send(JSON.stringify(udpTest), udpPort, inst.config.ip);
           inst.serverUDPPort = udpPort;
-          bus.emit(EventsClient.ON_LOBBY_JOIN, ld);
           internal_event_bus.emit('onNetworkConnect', {
             me: inst.me,
             patch: p,
           });
+          bus.emit(EventsClient.ON_LOBBY_JOIN, ld);
           inst.isConnectionReady = true;
         });
         inst.socket.on('disconnect', () => {
