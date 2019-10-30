@@ -228,8 +228,7 @@ class ModLoader64 {
       this.plugins.loadPluginsInit(
         result[0].me,
         this.emulator,
-        this.Client,
-        this.data
+        this.Client
       );
       this.logger.info('Setting up Mupen...');
       let instance = this;
@@ -283,7 +282,7 @@ class ModLoader64 {
       });
       load_mupen.then(function() {
         instance.logger.info('Finishing plugin init...');
-        instance.plugins.loadPluginsPostinit(mupen, instance.emulator);
+        instance.plugins.loadPluginsPostinit(mupen, instance.emulator, instance.data);
         internal_event_bus.emit('onPostInitDone', {});
         instance.done = true;
         // Detect if the user closed Mupen.

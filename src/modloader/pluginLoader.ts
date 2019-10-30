@@ -243,8 +243,7 @@ class pluginLoader {
   loadPluginsInit(
     me: INetworkPlayer,
     iconsole: IConsole,
-    net: NetworkEngine.Client,
-    config: IModLoaderConfig
+    net: NetworkEngine.Client
   ) {
     Object.freeze(me);
     this.loaded_core.ModLoader.me = me;
@@ -264,12 +263,9 @@ class pluginLoader {
       }
     };
     Object.freeze(this.onTickHandle);
-    if (config.isClient) {
-      setInterval(this.onTickHandle, 0);
-    }
   }
 
-  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole) {
+  loadPluginsPostinit(emulator: IMemory, iconsole: IConsole, config: IModLoaderConfig) {
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
@@ -312,6 +308,9 @@ class pluginLoader {
     });
     bus.emit(EventsClient.ON_INJECT_FINISHED, {});
     iconsole.finishInjects();
+    if (config.isClient) {
+      setInterval(this.onTickHandle, 0);
+    }
   }
 }
 

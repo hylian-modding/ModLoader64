@@ -69,7 +69,7 @@ class N64 implements IConsole {
   }
 
   isEmulatorReady(): boolean {
-    return this.mupen.isMupenReady();
+    return this.mupen.isMupenReady() && this.mupen.coreEmuState() === 2;
   }
 
   getLoadedRom(): Buffer {
