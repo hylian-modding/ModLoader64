@@ -107,11 +107,11 @@ class ModLoader64 {
     let ofn = internal_event_bus.emit.bind(internal_event_bus);
     ((inst: ModLoader64) => {
       internal_event_bus.emit = function(
-        event: string | symbol,
-        ...args: any[]
+        event: string | string[],
+        ...values: any[]
       ): boolean {
-        inst.tunnel.send(event as string, args);
-        return ofn(event, args);
+        inst.tunnel.send(event as string, values);
+        return ofn(event, values);
       };
     })(this);
     internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
