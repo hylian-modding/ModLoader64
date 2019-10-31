@@ -6,6 +6,7 @@ import { IDiscordStatus } from './Discord';
 
 export interface IGUITunnel {
   send(evt_id: string, evt: any): void;
+  setDiscordStatus(status: IDiscordStatus): void;
 }
 
 export class GUITunnelPacket {
