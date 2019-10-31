@@ -6,7 +6,6 @@ import { IDiscordStatus } from './Discord';
 
 export interface IGUITunnel {
   send(evt_id: string, evt: any): void;
-  setDiscordStatus(status: IDiscordStatus): void;
 }
 
 export class GUITunnelPacket {
@@ -98,6 +97,7 @@ const APITunnel: GUITunnel = new GUITunnel(process, 'modloader64_api', null);
 
 export interface IGUIAPI {
   openWindow(width: number, height: number, file: string): void;
+  setDiscordStatus(status: IDiscordStatus): void;
   tunnel: IGUITunnel;
 }
 
