@@ -2,6 +2,7 @@
     This class is intended to provide a safe way to communicate to/from userland plugins to the Electron sandbox.
 */
 import { EventEmitter2 } from 'eventemitter2';
+import { IDiscordStatus } from './Discord';
 
 export interface IGUITunnel {
   send(evt_id: string, evt: any): void;
@@ -108,5 +109,9 @@ export class GUIAPI implements IGUIAPI {
 
   openWindow(width: number, height: number, file: string): void {
     APITunnel.send('openWindow', { width, height, file });
+  }
+
+  setDiscordStatus(status: IDiscordStatus) {
+    APITunnel.send('setDiscordStatus', status);
   }
 }
