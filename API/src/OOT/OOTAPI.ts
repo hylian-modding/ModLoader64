@@ -372,6 +372,7 @@ export interface IInventory extends IInventoryFields, IInventoryCounts {
   hasAmmo(item: InventoryItem): boolean;
   getAmmoForItem(item: InventoryItem): number;
   getAmmoForSlot(slotId: number): number;
+  setAmmoInSlot(slot: number, amount: number): void;
   setItemInSlot(item: InventoryItem, slot: number): void;
   giveItem(item: InventoryItem, desiredSlot: number): void;
   removeItem(item: InventoryItem): void;
