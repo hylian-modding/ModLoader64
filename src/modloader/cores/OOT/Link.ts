@@ -125,6 +125,8 @@ export class Link extends JSONTemplate implements ILink {
     switch (this.emulator.rdramRead32(this.state_addr)) {
       case 0:
         return LinkState.STANDING;
+      case 0x00000008:
+        return LinkState.STANDING;
       case 0x20000000:
         return LinkState.BUSY;
       case 0x30000000:
@@ -165,6 +167,8 @@ export class Link extends JSONTemplate implements ILink {
         return LinkState.Z_TARGETING;
       case 0x00028000:
         return LinkState.Z_TARGETING;
+      case 0x00000800:
+        return LinkState.HOLDING_ACTOR;
     }
     return LinkState.UNKNOWN;
   }
