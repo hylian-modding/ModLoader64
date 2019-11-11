@@ -253,10 +253,11 @@ class pluginLoader {
       plugin.init();
     });
     this.onTickHandle = () => {
-      if (iconsole.getFrameCount() > -1) {
-        this.loaded_core.onTick();
+      let frame: number = iconsole.getFrameCount();
+      if (frame > -1) {
+        this.loaded_core.onTick(frame);
         this.plugins.forEach((plugin: IPlugin) => {
-          plugin.onTick();
+          plugin.onTick(frame);
         });
         net.onTick();
         iconsole.setFrameCount(-1);

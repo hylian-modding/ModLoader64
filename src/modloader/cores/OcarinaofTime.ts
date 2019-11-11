@@ -77,9 +77,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
     });
     this.eventTicks.set('waitingForSaveload', () => {
       if (!this.isSaveLoaded && this.helper.isSceneNumberValid()) {
-        bus.emit(OotEvents.ON_SAVE_LOADED, {});
         this.isSaveLoaded = true;
-        this.eventTicks.delete('waitingForSaveload');
+        bus.emit(OotEvents.ON_SAVE_LOADED, {});
       }
     });
     this.eventTicks.set('waitingForLoadingZoneTrigger', () => {

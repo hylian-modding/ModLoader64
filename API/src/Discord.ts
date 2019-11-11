@@ -20,3 +20,16 @@ export class DiscordStatus implements IDiscordStatus {
     this.state = state;
   }
 }
+
+export class DiscordStatusEvent {
+  status: IDiscordStatus;
+  canceled = false;
+
+  constructor(status: IDiscordStatus) {
+    this.status = status;
+  }
+}
+
+export const enum DiscordEvents {
+  SET_STATUS = 'Discord:SetStatus',
+}

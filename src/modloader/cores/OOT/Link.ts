@@ -7,6 +7,7 @@ import {
   Mask,
   ILink,
   Sword,
+  LinkState2,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
@@ -18,6 +19,7 @@ export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
   private instance = 0x1daa30;
   private state_addr: number = this.instance + 0x066c;
+  private state2_addr: number = this.instance + 0x0670;
   private tunic_addr: number = this.instance + 0x013c;
   private shield_addr: number = this.instance + 0x013e;
   private boots_addr: number = this.instance + 0x013f;
@@ -149,15 +151,43 @@ export class Link extends JSONTemplate implements ILink {
         return LinkState.TAKING_DAMAGE;
       case 0x00040000:
         return LinkState.FALLING;
+      case 0x00080000:
+        return LinkState.FALLING;
+      case 0x00068000:
+        return LinkState.FALLING;
       case 0xa0040000:
         return LinkState.VOIDING_OUT;
       case 0x20000c00:
         return LinkState.GETTING_ITEM;
       case 0x20010040:
         return LinkState.TALKING;
+      case 0x00018000:
+        return LinkState.Z_TARGETING;
+      case 0x00028000:
+        return LinkState.Z_TARGETING;
     }
     return LinkState.UNKNOWN;
   }
+
+  get state2(): LinkState2 {
+    let s2: number = this.emulator.rdramRead32(this.state2_addr);
+    let digits = s2.toString().split('');
+    let realDigits = digits.map(Number);
+    let idle: number = realDigits[0];
+    let crawlspace: number = realDigits[3];
+    let moving: number = realDigits[6];
+    if (idle === 0x1) {
+      return LinkState2.IDLE;
+    }
+    if (crawlspace === 0x4) {
+      return LinkState2.CRAWLSPACE;
+    }
+    if (moving === 0x2) {
+      return LinkState2.MOVING_FORWARD;
+    }
+    return LinkState2.UNKNOWN;
+  }
+
   get tunic(): Tunic {
     return this.emulator.rdramRead8(this.tunic_addr);
   }

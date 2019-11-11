@@ -405,7 +405,7 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
   set dekuSticks(bool: boolean) {
     let value = bool ? InventoryItem.DEKU_STICK : InventoryItem.NONE;
-    this.setItemInSlot(value, InventorySlots.DEKU_STICKS)
+    this.setItemInSlot(value, InventorySlots.DEKU_STICKS);
   }
 
   get dekuSticksCount(): number {
@@ -586,7 +586,10 @@ export class Inventory extends JSONTemplate implements IInventory {
         this.setItemInSlot(InventoryItem.FAIRY_OCARINA, InventorySlots.OCARINA);
         break;
       case Ocarina.OCARINA_OF_TIME:
-        this.setItemInSlot(InventoryItem.OCARINA_OF_TIME, InventorySlots.OCARINA);
+        this.setItemInSlot(
+          InventoryItem.OCARINA_OF_TIME,
+          InventorySlots.OCARINA
+        );
         break;
     }
   }
@@ -649,32 +652,48 @@ export class Inventory extends JSONTemplate implements IInventory {
     return this.getItemInSlot(InventorySlots.BOTTLE1);
   }
   set bottle_1(content: InventoryItem) {
-    if (content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE) return;
+    if (
+      content < InventoryItem.EMPTY_BOTTLE ||
+      content > InventoryItem.BOTTLED_POE
+    ) {
+      return;
+    }
     this.setItemInSlot(content, InventorySlots.BOTTLE1);
   }
   get bottle_2(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE2);
   }
   set bottle_2(content: InventoryItem) {
-    if (content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE) return;
+    if (
+      content < InventoryItem.EMPTY_BOTTLE ||
+      content > InventoryItem.BOTTLED_POE
+    ) {
+      return;
+    }
     this.setItemInSlot(content, InventorySlots.BOTTLE2);
   }
   get bottle_3(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE3);
   }
   set bottle_3(content: InventoryItem) {
-    if (content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE) return;
+    if (
+      content < InventoryItem.EMPTY_BOTTLE ||
+      content > InventoryItem.BOTTLED_POE
+    ) {
+      return;
+    }
     this.setItemInSlot(content, InventorySlots.BOTTLE3);
   }
   get bottle_4(): InventoryItem {
     return this.getItemInSlot(InventorySlots.BOTTLE4);
   }
   set bottle_4(content: InventoryItem) {
-    if (content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE) return;
+    if (
+      content < InventoryItem.EMPTY_BOTTLE ||
+      content > InventoryItem.BOTTLED_POE
+    ) {
+      return;
+    }
     this.setItemInSlot(content, InventorySlots.BOTTLE4);
   }
 
@@ -684,7 +703,9 @@ export class Inventory extends JSONTemplate implements IInventory {
       if (
         item >= InventoryItem.EMPTY_BOTTLE &&
         item <= InventoryItem.BOTTLED_POE
-      ) return true;
+      ) {
+        return true;
+      }
     }
     return false;
   }
@@ -695,7 +716,9 @@ export class Inventory extends JSONTemplate implements IInventory {
       if (
         item >= InventoryItem.EMPTY_BOTTLE &&
         item <= InventoryItem.BOTTLED_POE
-      ) bottles++;
+      ) {
+        bottles++;
+      }
     }
     return bottles;
   }
@@ -706,7 +729,9 @@ export class Inventory extends JSONTemplate implements IInventory {
       if (
         item >= InventoryItem.EMPTY_BOTTLE &&
         item <= InventoryItem.BOTTLED_POE
-      ) bottles.push(item);
+      ) {
+        bottles.push(item);
+      }
     }
     return bottles;
   }
@@ -715,8 +740,7 @@ export class Inventory extends JSONTemplate implements IInventory {
     return this.getItemInSlot(InventorySlots.CHILD_TRADE_ITEM);
   }
   set childTradeItem(item: InventoryItem) {
-    if (item < InventoryItem.WEIRD_EGG ||
-      item > InventoryItem.SOLD_OUT) return;
+    if (item < InventoryItem.WEIRD_EGG || item > InventoryItem.SOLD_OUT) return;
     this.setItemInSlot(item, InventorySlots.CHILD_TRADE_ITEM);
   }
 
@@ -724,8 +748,9 @@ export class Inventory extends JSONTemplate implements IInventory {
     return this.getItemInSlot(InventorySlots.ADULT_TRADE_ITEM);
   }
   set adultTradeItem(item: InventoryItem) {
-    if (item < InventoryItem.POCKET_EGG ||
-      item > InventoryItem.CLAIM_CHECK) return;
+    if (item < InventoryItem.POCKET_EGG || item > InventoryItem.CLAIM_CHECK) {
+      return;
+    }
     this.setItemInSlot(item, InventorySlots.ADULT_TRADE_ITEM);
   }
 
@@ -739,8 +764,9 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
 
   getItemInSlot(slotId: number): InventoryItem {
-    if (slotId < 0 || slotId > InventorySlots.CHILD_TRADE_ITEM)
+    if (slotId < 0 || slotId > InventorySlots.CHILD_TRADE_ITEM) {
       return InventoryItem.NONE;
+    }
 
     let itemId: number = this.emulator.rdramRead8(this.inventory_addr + slotId);
     return itemId as InventoryItem;
@@ -769,7 +795,7 @@ export class Inventory extends JSONTemplate implements IInventory {
 
   getAmmoForItem(item: InventoryItem): number {
     if (!this.hasAmmo(item)) return 0;
-    
+
     let ammo = 0;
     let slots: number[] = this.getSlotsForItem(item);
     for (let i = 0; i < slots.length; i++) {
@@ -800,8 +826,9 @@ export class Inventory extends JSONTemplate implements IInventory {
   }
 
   setItemInSlot(item: InventoryItem, slot: number): void {
-    if (slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM)
+    if (slot < 0 || slot > InventorySlots.CHILD_TRADE_ITEM) {
       return;
+    }
     this.emulator.rdramWrite8(this.inventory_addr + slot, item.valueOf());
   }
   giveItem(item: InventoryItem, desiredSlot: InventorySlots) {

@@ -25,6 +25,15 @@ export const enum LinkState {
   FALLING,
   VOIDING_OUT,
   TALKING,
+  HOVERING,
+  Z_TARGETING,
+}
+
+export const enum LinkState2 {
+  UNKNOWN,
+  IDLE,
+  CRAWLSPACE,
+  MOVING_FORWARD,
 }
 
 export const enum Scene {
@@ -450,6 +459,7 @@ export interface ISaveContext {
 
 export interface ILink extends IActor {
   state: LinkState;
+  state2: LinkState2;
   rawStateValue: number;
   tunic: Tunic;
   shield: Shield;

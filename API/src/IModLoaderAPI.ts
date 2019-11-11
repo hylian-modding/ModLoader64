@@ -51,7 +51,7 @@ export interface IPlugin {
   preinit(): void;
   init(): void;
   postinit(): void;
-  onTick(): void;
+  onTick(frame?: number): void;
 }
 
 export interface ICore {
@@ -61,7 +61,7 @@ export interface ICore {
   preinit(): void;
   init(): void;
   postinit(): void;
-  onTick(): void;
+  onTick(frame?: number): void;
 }
 
 export enum ModLoaderEvents {
