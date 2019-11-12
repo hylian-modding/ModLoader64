@@ -243,10 +243,10 @@ export class Link extends JSONTemplate implements ILink {
   set current_sound_id(s: number) {
     this.emulator.rdramWrite16(this.sound_addr, s);
   }
-  get anim_id(): number {
+  get_anim_id(): number {
     return this.emulator.rdramRead16(this.instance + 0x1ae);
   }
-  get anim_frame(): number {
+  get_anim_frame(): number {
     return this.emulator.rdramRead16(this.instance + 0x1f4);
   }
   // Give ILink a complete IMemory implementation for shortcuts.

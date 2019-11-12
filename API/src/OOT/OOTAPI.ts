@@ -468,6 +468,8 @@ export interface ILink extends IActor {
   anim_data: Buffer;
   current_sound_id: number;
   sword: Sword;
+  get_anim_id(): number;
+  get_anim_frame(): number;
 }
 
 export interface IGlobalContext {
