@@ -33,6 +33,7 @@ import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
 import { Pak } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
+import { frameTimeoutContainer } from './frameTimeoutContainer';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -45,6 +46,10 @@ class pluginLoader {
   logger: ILogger;
   onTickHandle!: any;
   header!: IRomHeader;
+  curFrame = -1;
+  frameTimeoutArray: frameTimeoutContainer[] = new Array<
+    frameTimeoutContainer
+  >();
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
     this.plugin_directories = dirs;
@@ -222,6 +227,12 @@ class pluginLoader {
       buf.fill('00', 0, buf.byteLength, 'hex');
       return buf;
     };
+    utils.setTimeoutFrames = (fn: Function, frames: number) => {
+      if (frames <= 0) {
+        frames = 1;
+      }
+      this.frameTimeoutArray.push(new frameTimeoutContainer(fn, frames));
+    };
     Object.freeze(utils);
     let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
     Object.freeze(lobby);
@@ -264,6 +275,17 @@ class pluginLoader {
           plugin.onTick(frame);
         });
         net.onTick();
+        if (this.frameTimeoutArray.length > 0) {
+          let i = this.frameTimeoutArray.length;
+          while (i--) {
+            if (this.frameTimeoutArray[i].frames <= 0) {
+              this.frameTimeoutArray[i].fn();
+              this.frameTimeoutArray.splice(i, 1);
+            }
+            this.frameTimeoutArray[i].frames--;
+          }
+        }
+        this.curFrame = frame;
         iconsole.setFrameCount(-1);
       }
     };

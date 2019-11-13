@@ -16,6 +16,8 @@ interface IUtils {
   yaz0Decode(buf: Buffer): Buffer;
 
   clearBuffer(buf: Buffer): Buffer;
+
+  setTimeoutFrames(fn: Function, frames: number): void;
 }
 
 export default IUtils;
