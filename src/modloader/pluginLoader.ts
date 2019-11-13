@@ -218,6 +218,10 @@ class pluginLoader {
         .update(buf)
         .digest('hex');
     };
+    utils.clearBuffer = (buf: Buffer) => {
+      buf.fill('00', 0, buf.byteLength, 'hex');
+      return buf;
+    };
     Object.freeze(utils);
     let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
     Object.freeze(lobby);

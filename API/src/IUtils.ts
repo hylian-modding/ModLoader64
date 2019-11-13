@@ -14,6 +14,8 @@ interface IUtils {
   yaz0Encode(buf: Buffer): Buffer;
 
   yaz0Decode(buf: Buffer): Buffer;
+
+  clearBuffer(buf: Buffer): Buffer;
 }
 
 export default IUtils;

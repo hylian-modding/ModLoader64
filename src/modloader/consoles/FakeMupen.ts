@@ -78,6 +78,10 @@ class FakeN64SaveState implements ISaveState {
 }
 
 class FakeN64Utils implements IUtils {
+  clearBuffer(buf: Buffer): Buffer {
+    buf.fill('00', 0, buf.byteLength, 'hex');
+    return buf;
+  }
   utilBitCount8(value: number): number {
     return -1;
   }
