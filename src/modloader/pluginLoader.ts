@@ -276,7 +276,7 @@ class pluginLoader {
         });
         net.onTick();
         if (this.frameTimeoutArray.length > 0) {
-          let i = this.frameTimeoutArray.length - 1;
+          let i = this.frameTimeoutArray.length;
           while (i--) {
             if (this.frameTimeoutArray[i].frames <= 0) {
               this.frameTimeoutArray[i].fn();
