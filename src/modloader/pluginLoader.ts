@@ -34,6 +34,7 @@ import { Pak } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
+import uuid from 'uuid';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -47,7 +48,8 @@ class pluginLoader {
   onTickHandle!: any;
   header!: IRomHeader;
   curFrame = -1;
-  frameTimeoutArray: frameTimeoutContainer[] = new Array<
+  frameTimeouts: Map<string, frameTimeoutContainer> = new Map<
+    string,
     frameTimeoutContainer
   >();
 
@@ -231,7 +233,7 @@ class pluginLoader {
       if (frames <= 0) {
         frames = 1;
       }
-      this.frameTimeoutArray.push(new frameTimeoutContainer(fn, frames));
+      this.frameTimeouts.set(uuid.v4(), new frameTimeoutContainer(fn, frames));
     };
     Object.freeze(utils);
     let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
@@ -275,16 +277,20 @@ class pluginLoader {
           plugin.onTick(frame);
         });
         net.onTick();
-        if (this.frameTimeoutArray.length > 0) {
-          let i = this.frameTimeoutArray.length;
-          while (i--) {
-            if (this.frameTimeoutArray[i].frames <= 0) {
-              this.frameTimeoutArray[i].fn();
-              this.frameTimeoutArray.splice(i, 1);
+        this.frameTimeouts.forEach(
+          (
+            value: frameTimeoutContainer,
+            key: string,
+            map: Map<string, frameTimeoutContainer>
+          ) => {
+            if (value.frames <= 0) {
+              value.fn();
+              this.frameTimeouts.delete(key);
+            } else {
+              value.frames--;
             }
-            this.frameTimeoutArray[i].frames--;
           }
-        }
+        );
         this.curFrame = frame;
         iconsole.setFrameCount(-1);
       }
