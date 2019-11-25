@@ -1,4 +1,9 @@
-import { ILogger, IConfig, IPlugin } from 'modloader64_api/IModLoaderAPI';
+import {
+  ILogger,
+  IConfig,
+  IPlugin,
+  ModLoaderEvents,
+} from 'modloader64_api/IModLoaderAPI';
 import {
   bus,
   EventsServer,
@@ -463,6 +468,7 @@ namespace NetworkEngine {
     packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
     plugins: any = {};
     isConnectionReady = false;
+    lastPacketBuffer: IPacketHeader[] = new Array<IPacketHeader>();
 
     constructor(logger: ILogger, config: IConfig) {
       this.logger = logger;
@@ -486,11 +492,19 @@ namespace NetworkEngine {
         let p: any = args[0];
         this.plugins[p.name] = p.version;
       });
+      internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
+        fs.writeFileSync(
+          './NetworkEngine.Client_crashdump.json',
+          JSON.stringify(this.lastPacketBuffer, null, 2)
+        );
+      });
     }
 
     onTick() {
+      this.lastPacketBuffer.length = 0;
       while (this.packetBuffer.length > 0) {
         let data: IPacketHeader = this.packetBuffer.shift() as IPacketHeader;
+        this.lastPacketBuffer.push(data);
         NetworkBus.emit(data.packet_id, data);
         NetworkChannelBus.emit(data.channel, data);
       }

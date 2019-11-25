@@ -310,6 +310,7 @@ class pluginLoader {
             iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
           )
         );
+        internal_event_bus.emit(ModLoaderEvents.ON_CRASH, {});
         bus.emit(ModLoaderEvents.ON_CRASH, {});
         process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
       } else {
