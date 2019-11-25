@@ -6,6 +6,7 @@ import {
   IPlugin,
   IModLoaderAPI,
   ICore,
+  ModLoaderEvents,
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import {
@@ -35,6 +36,8 @@ import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
 import uuid from 'uuid';
+import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import zlib from 'zlib';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -52,6 +55,8 @@ class pluginLoader {
     string,
     frameTimeoutContainer
   >();
+  crashCheck!: any;
+  lastCrashCheckFrame = -1;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
     this.plugin_directories = dirs;
@@ -296,6 +301,22 @@ class pluginLoader {
       }
     };
     Object.freeze(this.onTickHandle);
+    this.crashCheck = () => {
+      if (this.lastCrashCheckFrame === this.curFrame) {
+        // Emulator probably died. Lets make a crash dump.
+        fs.writeFileSync(
+          './crash_dump.bin',
+          zlib.deflateSync(
+            iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
+          )
+        );
+        bus.emit(ModLoaderEvents.ON_CRASH, {});
+        process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
+      } else {
+        this.lastCrashCheckFrame = this.curFrame;
+      }
+    };
+    Object.freeze(this.crashCheck);
   }
 
   loadPluginsPostinit(
@@ -347,6 +368,7 @@ class pluginLoader {
     iconsole.finishInjects();
     if (config.isClient) {
       setInterval(this.onTickHandle, 0);
+      setInterval(this.crashCheck, 10 * 1000);
     }
   }
 }
