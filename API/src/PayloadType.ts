@@ -1,0 +1,14 @@
+export abstract class PayloadType {
+  ext: string;
+
+  constructor(ext: string) {
+    this.ext = ext;
+  }
+
+  abstract parse(file: string, buf: Buffer, dest: Buffer): any;
+}
+
+export interface IPayloadManager {
+  parseFile(file: string): any;
+  registerPayloadType(type: PayloadType): void;
+}

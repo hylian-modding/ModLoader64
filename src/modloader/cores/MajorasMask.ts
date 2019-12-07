@@ -19,6 +19,7 @@ export class MajorasMask implements ICore, API.IMMCore {
   runtime!: API.IRuntime;
   save!: API.ISaveContext;
   commandBuffer!: CommandBuffer;
+  payloads: string[] = new Array<string>();
 
   isPlaying(): boolean {
     return !(this.save.get_checksum() === 0 || this.isTitleScreen());
@@ -31,7 +32,9 @@ export class MajorasMask implements ICore, API.IMMCore {
 
   preinit(): void {}
 
-  init(): void {}
+  init(): void {
+    this.payloads.push(__dirname + '/MM/MajorasMask.payload');
+  }
 
   postinit(): void {
     this.player = new CORE.Player(this.ModLoader.emulator);
@@ -54,12 +57,9 @@ export class MajorasMask implements ICore, API.IMMCore {
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {
-    let gameshark = new GameShark(
-      this.ModLoader.logger,
-      this.ModLoader.emulator
-    );
-    let file: string = __dirname + '/MM/MajorasMask.payload';
-    gameshark.read(file);
+    for (let i = 0; i < this.payloads.length; i++) {
+      this.ModLoader.payloadManager.parseFile(this.payloads[i]);
+    }
   }
 }
 

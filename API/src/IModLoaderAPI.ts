@@ -4,6 +4,7 @@ import IUtils from './IUtils';
 import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
+import { IPayloadManager } from './PayloadType';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -42,6 +43,7 @@ export interface IModLoaderAPI {
   utils: IUtils;
   savestates: ISaveState;
   gui: IGUIAPI;
+  payloadManager: IPayloadManager;
 }
 
 export interface IPlugin {

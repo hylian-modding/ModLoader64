@@ -5,7 +5,7 @@ import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
 import { fork } from 'child_process';
 
-//require('source-map-support').install();
+require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];

@@ -38,6 +38,7 @@ import { frameTimeoutContainer } from './frameTimeoutContainer';
 import uuid from 'uuid';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import zlib from 'zlib';
+import { PayloadManager } from './PayloadManager';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -57,6 +58,7 @@ class pluginLoader {
   >();
   crashCheck!: any;
   lastCrashCheckFrame = -1;
+  payloadManager!: PayloadManager;
 
   constructor(dirs: string[], config: IConfig, logger: ILogger) {
     this.plugin_directories = dirs;
@@ -325,6 +327,9 @@ class pluginLoader {
     iconsole: IConsole,
     config: IModLoaderConfig
   ) {
+    this.payloadManager = Object.freeze(
+      new PayloadManager(iconsole.getMemoryAccess(), this.logger)
+    );
     let mainConfig = this.config.registerConfigCategory(
       'ModLoader64'
     ) as IModLoaderConfig;
@@ -334,9 +339,11 @@ class pluginLoader {
     this.loaded_core.ModLoader.gui = Object.freeze(
       new GUIAPI('core', this.loaded_core)
     );
+    this.loaded_core.ModLoader.payloadManager = this.payloadManager;
     this.loaded_core.postinit();
     this.plugins.forEach((plugin: IPlugin) => {
       plugin.ModLoader.emulator = emu;
+      plugin.ModLoader.payloadManager = this.payloadManager;
       plugin.ModLoader.gui = Object.freeze(
         new GUIAPI(plugin.pluginName as string, plugin)
       );
@@ -349,24 +356,25 @@ class pluginLoader {
         bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
       }
     });
-    iconsole.finishInjects();
-    let gameshark = Object.freeze(new GameShark(this.logger, emu));
-    this.plugin_folders.forEach((dir: string) => {
-      let test = path.join(
-        dir,
-        'payloads',
-        this.header.country_code + this.header.revision.toString()
-      );
-      if (fs.existsSync(test)) {
-        if (fs.lstatSync(test).isDirectory) {
-          fs.readdirSync(test).forEach((payload: string) => {
-            gameshark.read(path.resolve(path.join(test, payload)));
-          });
+    this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+      iconsole.finishInjects();
+      this.plugin_folders.forEach((dir: string) => {
+        let test = path.join(
+          dir,
+          'payloads',
+          this.header.country_code + this.header.revision.toString()
+        );
+        if (fs.existsSync(test)) {
+          if (fs.lstatSync(test).isDirectory) {
+            fs.readdirSync(test).forEach((payload: string) => {
+              this.payloadManager.parseFile(path.join(test, payload));
+            });
+          }
         }
-      }
-    });
-    bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-    iconsole.finishInjects();
+      });
+      bus.emit(EventsClient.ON_INJECT_FINISHED, {});
+      iconsole.finishInjects();
+    }, 20);
     if (config.isClient) {
       setInterval(this.onTickHandle, 0);
       setInterval(this.crashCheck, 10 * 1000);

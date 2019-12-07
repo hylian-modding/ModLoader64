@@ -1,7 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import IMemory from './IMemory';
-
 export interface Code {
   type: string;
   addr: number;
@@ -9,15 +5,8 @@ export interface Code {
 }
 
 export class GameShark {
-  logger: any;
-  emulator: IMemory;
-
-  constructor(logger: any, emulator: IMemory) {
-    this.logger = logger;
-    this.emulator = emulator;
-  }
-
-  private read_gs(original: string) {
+  private read_gs(data: Buffer, dest: Buffer) {
+    let original: string = data.toString();
     let lines = original.split(/\r?\n/);
     let commands = {
       codes: [] as Code[],
@@ -34,28 +23,14 @@ export class GameShark {
     }
     for (let i = 0; i < commands.codes.length; i++) {
       if (commands.codes[i].type === '80') {
-        this.emulator.rdramWrite8(
-          commands.codes[i].addr,
-          commands.codes[i].payload
-        );
+        dest.writeUInt8(commands.codes[i].payload, commands.codes[i].addr);
       } else if (commands.codes[i].type === '81') {
-        this.emulator.rdramWrite16(
-          commands.codes[i].addr,
-          commands.codes[i].payload
-        );
+        dest.writeUInt16BE(commands.codes[i].payload, commands.codes[i].addr);
       }
     }
   }
 
-  read(data: string): void {
-    let file = path.parse(data);
-    switch (file.ext) {
-      case '.payload': {
-        this.logger.info('Parsing payload ' + file.base + '.');
-        let original = fs.readFileSync(data, 'utf8');
-        this.read_gs(original);
-        break;
-      }
-    }
+  read(data: Buffer, dest: Buffer): void {
+    this.read_gs(data, dest);
   }
 }
