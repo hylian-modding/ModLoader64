@@ -6,7 +6,7 @@ export class FakeN64Memory implements IMemory {
   }
 
   rdramReadBits8(addr: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(8);
   }
 
   rdramReadBit8(addr: number, bitoffset: number): boolean {
@@ -38,7 +38,7 @@ export class FakeN64Memory implements IMemory {
   }
 
   rdramReadPtrBuffer(addr: number, offset: number, size: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(size);
   }
 
   rdramWritePtrBuffer(addr: number, offset: number, buf: Buffer): void {}
@@ -56,11 +56,11 @@ export class FakeN64Memory implements IMemory {
   }
 
   rdramReadPtrBitsBuffer(addr: number, offset: number, bytes: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(bytes);
   }
 
   rdramReadPtrBits8(addr: number, offset: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(8);
   }
 
   rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean {
@@ -97,13 +97,13 @@ export class FakeN64Memory implements IMemory {
   }
 
   rdramReadBuffer(addr: number, size: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(size);
   }
 
   rdramWriteBuffer(addr: number, buf: Buffer): void {}
 
   rdramReadUBuffer(addr: number, size: number): Buffer {
-    return Buffer.alloc(1);
+    return Buffer.alloc(size);
   }
 
   dereferencePointer(addr: number): number {

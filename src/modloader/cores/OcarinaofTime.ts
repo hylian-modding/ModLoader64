@@ -158,7 +158,9 @@ export class OcarinaofTime implements ICore, IOOTCore {
       this.actorManager.onTick();
       this.ModLoader.emulator.rdramWrite8(0x1da5cb, 0x0002);
     });
-    this.ModLoader.payloadManager.registerPayloadType(new OverlayPayload(".ovl"));
+    this.ModLoader.payloadManager.registerPayloadType(
+      new OverlayPayload('.ovl')
+    );
   }
 
   onTick(): void {
@@ -177,51 +179,58 @@ export class OcarinaofTime implements ICore, IOOTCore {
   }
 }
 
-class find_init{
-  constructor(){}
-  
-  find(buf: Buffer, locate: string): number{
-      let loc: Buffer = Buffer.from(locate, 'hex');
-      if (buf.indexOf(loc) > -1){
-          return buf.indexOf(loc);
-      }
-      return -1;
+class find_init {
+  constructor() {}
+
+  find(buf: Buffer, locate: string): number {
+    let loc: Buffer = Buffer.from(locate, 'hex');
+    if (buf.indexOf(loc) > -1) {
+      return buf.indexOf(loc);
+    }
+    return -1;
   }
 }
 
-interface ovl_meta{
+interface ovl_meta {
   addr: string;
   init: string;
 }
 
 export class OverlayPayload extends PayloadType {
-
   constructor(ext: string) {
     super(ext);
   }
 
   parse(file: string, buf: Buffer, dest: Buffer) {
-    console.log("Trying to allocate actor...");
+    console.log('Trying to allocate actor...');
     let overlay_start: number = global.ModLoader['overlay_table'];
-    let size: number = 0x01D6;
-    let empty_slots: Array<number> = new Array<number>();
+    let size = 0x01d6;
+    let empty_slots: number[] = new Array<number>();
     for (let i = 0; i < size; i++) {
-      let entry_start: number = overlay_start + (i * 0x20);
+      let entry_start: number = overlay_start + i * 0x20;
       let _i: number = dest.readUInt32BE(entry_start + 0x14);
-      let total: number = 0;
+      let total = 0;
       total += _i;
       if (total === 0) {
         empty_slots.push(i);
       }
     }
-    console.log(empty_slots.length + " empty actor slots found.");
+    console.log(empty_slots.length + ' empty actor slots found.');
     let finder: find_init = new find_init();
-    let meta: ovl_meta = JSON.parse(fs.readFileSync(path.join(path.parse(file).dir, path.parse(file).name + ".ovl_meta")).toString());
+    let meta: ovl_meta = JSON.parse(
+      fs
+        .readFileSync(
+          path.join(path.parse(file).dir, path.parse(file).name + '.ovl_meta')
+        )
+        .toString()
+    );
     let offset: number = finder.find(buf, meta.init);
     let addr: number = parseInt(meta.addr) + offset;
     let slot: number = empty_slots.shift() as number;
-    console.log("Assigning " + path.parse(file).base + " to slot " + slot + ".");
-    dest.writeUInt32BE(0x80000000 + addr, (slot * 0x20) + overlay_start + 0x14);
+    console.log(
+      'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
+    );
+    dest.writeUInt32BE(0x80000000 + addr, slot * 0x20 + overlay_start + 0x14);
     buf.copy(dest, parseInt(meta.addr));
     return slot;
   }

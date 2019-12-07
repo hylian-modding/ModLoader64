@@ -49,6 +49,7 @@ export enum EventsClient {
   ON_LOBBY_JOIN = 'lobbyJoined_client',
   ON_PLUGIN_READY = 'pluginReady_client',
   ON_INJECT_FINISHED = 'plugins_injectFinished',
+  ON_PAYLOAD_INJECTED = 'plugins_OnPayloadInjected',
 }
 
 export function setupEventHandlers(instance: any) {
