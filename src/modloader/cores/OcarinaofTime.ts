@@ -220,7 +220,7 @@ export class OverlayPayload extends PayloadType {
     let meta: ovl_meta = JSON.parse(
       fs
         .readFileSync(
-          path.join(path.parse(file).dir, path.parse(file).name + '.ovl_meta')
+          path.join(path.parse(file).dir, path.parse(file).name + '.json')
         )
         .toString()
     );
