@@ -199,8 +199,8 @@ class ModLoader64 {
         this.logger.error(
           'Failed to find a compatible core for the selected rom!'
         );
-        this.logger.info("Setting core to DummyCore.");
-        this.plugins.selected_core = "DummyCore";
+        this.logger.info('Setting core to DummyCore.');
+        this.plugins.selected_core = 'DummyCore';
       }
       // Load the plugins
       this.plugins.loadPluginsConstruct(loaded_rom_header);
