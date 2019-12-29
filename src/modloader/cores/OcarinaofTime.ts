@@ -227,12 +227,21 @@ export class OverlayPayload extends PayloadType {
         .toString()
     );
     let offset: number = finder.find(buf, meta.init);
+    if (offset === -1) {
+      console.log(
+        'Failed to find spawn parameters for actor ' +
+          path.parse(file).base +
+          '.'
+      );
+      return -1;
+    }
     let addr: number = parseInt(meta.addr) + offset;
     let slot: number = empty_slots.shift() as number;
     console.log(
       'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
     );
     dest.writeUInt32BE(0x80000000 + addr, slot * 0x20 + overlay_start + 0x14);
+    buf.writeUInt8(slot, offset + 0x1);
     buf.copy(dest, parseInt(meta.addr));
     return slot;
   }

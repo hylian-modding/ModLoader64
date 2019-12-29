@@ -365,7 +365,7 @@ class pluginLoader {
           this.header.country_code + this.header.revision.toString()
         );
         if (fs.existsSync(test)) {
-          if (fs.lstatSync(test).isDirectory) {
+          if (fs.lstatSync(test).isDirectory()) {
             fs.readdirSync(test).forEach((payload: string) => {
               let result: any = this.payloadManager.parseFile(
                 path.join(test, payload)
