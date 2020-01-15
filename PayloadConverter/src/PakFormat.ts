@@ -1,8 +1,8 @@
 import fs from 'fs';
 import zlib from 'zlib';
 import path from 'path';
-import slash from 'slash';
 let fx = require('mkdir-recursive');
+import crypto from 'crypto';
 
 export interface IPakFileEntry {
   type: string;
@@ -41,10 +41,30 @@ export interface IPakHeader {
   files: PakFileEntry[];
 }
 
+export interface IPakFooter {
+  footer: Buffer;
+}
+
 export class PakHeader implements IPakHeader {
   ml = 'ModLoader64';
-  version = 0x2;
+  version = 0x3;
   files: PakFileEntry[] = [];
+}
+
+export class PakFooter implements IPakFooter {
+  footer: Buffer = Buffer.alloc(0x56);
+
+  generateHash(buf: Buffer) {
+    let hash = Buffer.from(
+      crypto
+        .createHash('sha512')
+        .update(buf)
+        .digest('hex'),
+      'hex'
+    );
+    this.footer.write('ModLoader64HASH!');
+    hash.copy(this.footer, 0x10);
+  }
 }
 
 export interface IPakFile {
@@ -54,11 +74,13 @@ export interface IPakFile {
   insert(obj: any, compressed?: boolean): number;
   insertFile(file: string, compressed?: boolean): number;
   retrieve(index: number): any;
+  footer: PakFooter;
 }
 
 export class PakFile implements IPakFile {
   header: PakHeader = new PakHeader();
   data!: Buffer;
+  footer: PakFooter = new PakFooter();
 
   load(file: string): void {
     this.header.files.length = 0;
@@ -102,6 +124,10 @@ export class PakFile implements IPakFile {
       totalSize += Buffer.from(this.header.files[i].filename).byteLength;
       totalSize += 0x1;
     }
+    // Padding so the footer is byte alligned.
+    while (totalSize % 0x10 !== 0) {
+      totalSize++;
+    }
     this.data = Buffer.alloc(totalSize);
     this.data.write(this.header.ml);
     this.data.writeUInt32BE(this.header.files.length, 0x0b);
@@ -127,6 +153,45 @@ export class PakFile implements IPakFile {
       current += size;
       this.data.writeUInt32BE(current, 0x10 + i * 0x10 + 0xc);
     }
+    this.footer.generateHash(this.data);
+    let nSize: number = this.data.byteLength + this.footer.footer.byteLength;
+    while (nSize % 0x10 !== 0) {
+      nSize++;
+    }
+    let f: Buffer = Buffer.alloc(nSize);
+    this.data.copy(f);
+    this.footer.footer.copy(f, this.data.byteLength);
+    this.data = f;
+  }
+
+  overwrite(
+    index: number,
+    obj: any,
+    compressed = true,
+    filename = 'obj.json'
+  ): number {
+    let type = 'UNCO';
+    let data: Buffer;
+    if (Buffer.isBuffer(obj)) {
+      data = obj;
+    } else {
+      let json = JSON.stringify(obj);
+      data = Buffer.from(json);
+    }
+    if (compressed) {
+      data = zlib.deflateSync(data);
+      type = 'DEFL';
+    }
+    let entry = new PakFileEntry(
+      filename,
+      type,
+      data.byteLength,
+      0xffffffff,
+      0xffffffff
+    );
+    entry.data = data;
+    this.header.files[index] = entry;
+    return this.header.files.indexOf(entry);
   }
 
   insert(obj: any, compressed = true, filename = 'obj.json'): number {
@@ -143,7 +208,7 @@ export class PakFile implements IPakFile {
       type = 'DEFL';
     }
     let entry = new PakFileEntry(
-      slash(filename),
+      filename,
       type,
       data.byteLength,
       0xffffffff,
@@ -185,6 +250,7 @@ export interface IPak {
   load(index: number): any;
   extractAll(target: string): void;
   update(): void;
+  overwriteFileAtIndex(index: number, obj: any, compressed?: boolean): number;
 }
 
 export class Pak implements IPak {
@@ -196,6 +262,11 @@ export class Pak implements IPak {
     if (fs.existsSync(this.fileName)) {
       this.pak.load(this.fileName);
     }
+  }
+
+  overwriteFileAtIndex(index: number, obj: any, compressed = true): number {
+    let i = this.pak.overwrite(index, obj, compressed);
+    return i;
   }
 
   save(obj: any, compressed = true): number {

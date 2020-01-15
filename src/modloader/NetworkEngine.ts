@@ -217,7 +217,7 @@ namespace NetworkEngine {
     }
 
     sendToTarget(target: string, internalChannel: string, packet: any) {
-      bus.emit("Packet:" + packet.packet_id, packet);
+      bus.emit('Packet:' + packet.packet_id, packet);
       this.io.to(target).emit(internalChannel, packet);
     }
 
