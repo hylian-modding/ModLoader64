@@ -1,5 +1,6 @@
 .vscode/
-build/
+/build/
+/PayloadConverter/build
 node_modules/
 m64pnpm.zip
 build.js
@@ -14,7 +15,6 @@ PayloadConverter/private_key.pem
 PayloadConverter/public_key.pem
 PayloadConverter/ootcore/
 PayloadConverter/ooto/
-API/package.json
 Scripts/Windows/.wget-hsts
 dist/
 Mupen64Plus/

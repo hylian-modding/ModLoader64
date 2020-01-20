@@ -1,0 +1,21 @@
+{
+  "name": "modloader64_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "scripts": {
+    "tsc": "npm run fix && tsc --listEmittedFiles",
+    "build": "npm install && tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
+    "fix": "gts fix"
+  },
+  "author": "Team-Ooto",
+  "dependencies": {
+    "bitwise": "^2.0.3"
+  },
+  "devDependencies": {
+    "find-remove": "^1.2.2",
+    "recursive-readdir": "^2.2.2",
+    "gts": "^1.0.0",
+    "typescript": "^3.5.3"
+  }
+}
