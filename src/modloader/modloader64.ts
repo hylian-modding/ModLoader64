@@ -23,6 +23,8 @@ import {
 } from 'modloader64_api/GUITunnel';
 import crypto from 'crypto';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import { pakVerifier } from './pakVerifier';
+import { Pak } from 'modloader64_api/PakFormat';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -141,9 +143,9 @@ class ModLoader64 {
 
     this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
 
-    fs.readdirSync(path.resolve(path.join(__dirname, '/cores'))).forEach(
-      file => {
-        let f = path.join(__dirname, '/cores', file);
+    let auto_wire_cores: Function = (p: string) => {
+      fs.readdirSync(p).forEach(file => {
+        let f = path.join(p, file);
         if (!fs.lstatSync(f).isDirectory()) {
           let parse = path.parse(file);
           if (parse.ext === '.js') {
@@ -152,8 +154,35 @@ class ModLoader64 {
             this.logger.info('Auto-wiring core: ' + parse.name);
           }
         }
+      });
+    };
+
+    this.logger.info('Loading internal cores...');
+    auto_wire_cores(path.resolve(path.join(__dirname, '/cores')));
+
+    if (!fs.existsSync('./cores')) {
+      fs.mkdirSync('./cores');
+    }
+    module.paths.push('./cores');
+
+    this.logger.info('Loading external cores...');
+    let ext_core_path: string = path.resolve(path.join('.', 'cores'));
+    fs.readdirSync(ext_core_path).forEach(file => {
+      let f = path.join(ext_core_path, file);
+      if (!fs.lstatSync(f).isDirectory()) {
+        let parse = path.parse(file);
+        if (parse.ext === '.pak') {
+          let pak: Pak = new Pak(f);
+          let v: pakVerifier = new pakVerifier(this.logger);
+          if (v.verifyPak(pak, f)) {
+            let dir: string = v.extractPakToTemp(pak, f);
+            module.paths.push(path.join(dir, '../'));
+          }
+        }
+      } else {
+        auto_wire_cores(f);
       }
-    );
+    });
 
     if (this.data.isServer) {
       switch (this.data.selectedConsole) {

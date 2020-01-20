@@ -37,6 +37,7 @@ import uuid from 'uuid';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
+import { pakVerifier } from './pakVerifier';
 
 class pluginLoader {
   plugin_directories: string[];
@@ -76,17 +77,6 @@ class pluginLoader {
     cleanup();
   }
 
-  verifySignature(buf: Buffer, key: string, sig: string): boolean {
-    const hasher = crypto.createHash('sha256');
-    hasher.update(buf);
-    const digest = hasher.digest('hex');
-    const publicKey = key;
-    const verifier = crypto.createVerify('RSA-SHA256');
-    verifier.update(digest);
-    const testSignature = verifier.verify(publicKey, sig, 'base64');
-    return testSignature;
-  }
-
   registerCorePlugin(name: string, core: any) {
     this.core_plugins[name] = core;
   }
@@ -99,28 +89,12 @@ class pluginLoader {
     let parse = path.parse(dir);
     if (parse.ext === '.pak') {
       let pakFile: Pak = new Pak(path.resolve(dir));
-      let find_footer: number = pakFile.pak.data.indexOf(
-        Buffer.from('MLPublish.......')
-      );
-      if (find_footer > -1){
-        let d: Buffer = pakFile.pak.data.slice(0x0, find_footer);
-        let hash: string = crypto.createHash('sha512').update(d).digest('hex');
-        if (hash !== pakFile.pak.footer._hash){
-          this.logger.error("Pak file " + parse.name + " is corrupt.");
-          return;
-        }
-      }else{
-        if (pakFile.pak.data.readUInt8(0x0f) > 0x02){
-          this.logger.error("Pak file " + parse.name + " is corrupt.");
-          return;
-        }else{
-          this.logger.error("Pak file " + parse.name + " is using an outdated version of the pak format. Tell the author it needs updating.");
-        }
+      let v: pakVerifier = new pakVerifier(this.logger);
+      if (!v.verifyPak(pakFile, dir)) {
+        return;
       }
       // Unpak first.
-      let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
-      pakFile.extractAll(ndir);
-      dir = path.join(ndir, parse.name);
+      dir = v.extractPakToTemp(pakFile, dir);
     } else if (parse.base.indexOf('.disabled') > -1) {
       return;
     } else if (parse.ext === '.bps') {
