@@ -14,7 +14,8 @@
     "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --dir=build",
     "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
     "fix": "gts fix",
-    "dist": "npm run fix && npm run modules"
+    "dist": "npm run fix && npm run modules",
+	"postinstall": "npm install --save .\API\build"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -24,7 +25,6 @@
     "fs-extra": "^8.1.0",
     "human-readable-ids": "^1.0.4",
     "mkdir-recursive": "^0.4.0",
-    "modloader64_api": "file:API/build",
     "nat-upnp": "^1.1.1",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
