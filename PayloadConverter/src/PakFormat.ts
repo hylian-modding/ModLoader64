@@ -3,6 +3,7 @@ import zlib from 'zlib';
 import path from 'path';
 let fx = require('mkdir-recursive');
 import crypto from 'crypto';
+import os from 'os';
 
 export interface IPakFileEntry {
   type: string;
@@ -52,18 +53,36 @@ export class PakHeader implements IPakHeader {
 }
 
 export class PakFooter implements IPakFooter {
-  footer: Buffer = Buffer.alloc(0x56);
+  footer!: Buffer;
+  _hash!: string;
 
   generateHash(buf: Buffer) {
-    let hash = Buffer.from(
-      crypto
-        .createHash('sha512')
-        .update(buf)
-        .digest('hex'),
-      'hex'
+    this._hash = crypto
+      .createHash('sha512')
+      .update(buf)
+      .digest('hex');
+    let hash = Buffer.from(this._hash, 'hex');
+    let tag: Buffer = Buffer.from(
+      os.userInfo().username +
+        '@' +
+        os.hostname() +
+        ' ' +
+        new Date().toISOString()
     );
-    this.footer.write('ModLoader64HASH!');
-    hash.copy(this.footer, 0x10);
+    let tag_size: number = tag.byteLength;
+    while (tag_size % 0x10 !== 0) {
+      tag_size++;
+    }
+    let foot1: Buffer = Buffer.alloc(0x10 + tag_size);
+    foot1.write('MLPublish.......');
+    tag.copy(foot1, 0x10);
+    let f2_size: number = 0x10 + hash.byteLength;
+    let foot2: Buffer = Buffer.alloc(f2_size);
+    foot2.write('MLVerify........');
+    hash.copy(foot2, 0x10);
+    this.footer = Buffer.alloc(foot1.byteLength + foot2.byteLength);
+    foot1.copy(this.footer);
+    foot2.copy(this.footer, foot1.byteLength);
   }
 }
 
@@ -110,6 +129,21 @@ export class PakFile implements IPakFile {
       head.size = head.data.byteLength;
       this.header.files.push(head);
     }
+    let find_footer: number = this.data.indexOf(
+      Buffer.from('MLPublish.......')
+    );
+    if (find_footer > -1) {
+      this.footer.footer = Buffer.alloc(this.data.byteLength - find_footer);
+      this.data.copy(this.footer.footer, 0, find_footer);
+    }
+    let find_hash: number = this.data.indexOf(Buffer.from('MLVerify........'));
+    if (find_hash > -1) {
+      let _temp: Buffer = Buffer.alloc(
+        this.data.byteLength - (find_hash + 0x10)
+      );
+      this.data.copy(_temp, 0, find_hash + 0x10);
+      this.footer._hash = _temp.toString('hex');
+    }
   }
 
   update(): void {
@@ -155,9 +189,6 @@ export class PakFile implements IPakFile {
     }
     this.footer.generateHash(this.data);
     let nSize: number = this.data.byteLength + this.footer.footer.byteLength;
-    while (nSize % 0x10 !== 0) {
-      nSize++;
-    }
     let f: Buffer = Buffer.alloc(nSize);
     this.data.copy(f);
     this.footer.footer.copy(f, this.data.byteLength);

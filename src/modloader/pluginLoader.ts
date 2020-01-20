@@ -16,7 +16,6 @@ import {
   setupEventHandlers,
 } from 'modloader64_api/EventHandler';
 import {
-  ILobbyManager,
   INetworkPlayer,
   ClientController,
   ServerController,
@@ -28,7 +27,6 @@ import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
-import { GameShark } from 'modloader64_api/GameShark';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
 import { Pak } from 'modloader64_api/PakFormat';
@@ -101,27 +99,22 @@ class pluginLoader {
     let parse = path.parse(dir);
     if (parse.ext === '.pak') {
       let pakFile: Pak = new Pak(path.resolve(dir));
-      let buf: Buffer = fs.readFileSync(path.resolve(dir));
-      let test: Buffer = Buffer.alloc(0x6);
-      buf.copy(test, 0, buf.byteLength - 0x6);
-      if (test.toString() === 'SIGNED') {
-        test = Buffer.alloc(0x158);
-        buf.copy(test, 0, buf.byteLength - 0x158 - 0x6, buf.byteLength - 0x6);
-        let sig: string = test.toString();
-        let key: string = pakFile
-          .load(pakFile.pak.header.files.length - 1)
-          .toString();
-        let realPak: Buffer = Buffer.alloc(buf.byteLength - (0x158 + 0x6));
-        buf.copy(realPak, 0, 0, buf.byteLength - (0x158 + 0x6));
-        if (!this.verifySignature(realPak, key, sig)) {
-          this.logger.error(
-            'Signature check failed for plugin ' + parse.name + '. Skipping.'
-          );
+      let find_footer: number = pakFile.pak.data.indexOf(
+        Buffer.from('MLPublish.......')
+      );
+      if (find_footer > -1){
+        let d: Buffer = pakFile.pak.data.slice(0x0, find_footer);
+        let hash: string = crypto.createHash('sha512').update(d).digest('hex');
+        if (hash !== pakFile.pak.footer._hash){
+          this.logger.error("Pak file " + parse.name + " is corrupt.");
           return;
-        } else {
-          this.logger.info(
-            'Signature check for plugin ' + parse.name + ' passed.'
-          );
+        }
+      }else{
+        if (pakFile.pak.data.readUInt8(0x0f) > 0x02){
+          this.logger.error("Pak file " + parse.name + " is corrupt.");
+          return;
+        }else{
+          this.logger.error("Pak file " + parse.name + " is using an outdated version of the pak format. Tell the author it needs updating.");
         }
       }
       // Unpak first.
