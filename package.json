@@ -15,7 +15,7 @@
     "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
     "fix": "gts fix",
     "dist": "npm run fix && npm run modules",
-	"postinstall": "npm install && npm install --save ./API/build"
+	"postinstall": "npm install --save ./API/build"
   },
   "author": "Team-Ooto",
   "dependencies": {
