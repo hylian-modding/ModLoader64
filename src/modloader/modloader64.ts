@@ -177,6 +177,7 @@ class ModLoader64 {
           if (v.verifyPak(pak, f)) {
             let dir: string = v.extractPakToTemp(pak, f);
             module.paths.push(path.join(dir, '../'));
+            auto_wire_cores(dir);
           }
         }
       } else {
