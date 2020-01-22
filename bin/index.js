@@ -14,6 +14,7 @@ commander_1["default"].option('-b, --build', 'build mod');
 commander_1["default"].option('-r, --run', 'run mod');
 commander_1["default"].option('-d, --dist', 'pack mod');
 commander_1["default"].option("-p2, --runp2", "run p2");
+commander_1["default"].option("-u, --update", "update");
 commander_1["default"].parse(process.argv);
 if (commander_1["default"].init) {
     var original_dir = process.cwd();
@@ -94,6 +95,17 @@ if (commander_1["default"].runp2) {
     var original_dir = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
     var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir, "build", "src") + " --roms=" + path_1["default"].join(original_dir, "roms") + " --cores=" + path_1["default"].join(original_dir, "build/cores"));
+    ml.stdout.on('data', function (data) {
+        console.log(data);
+    });
+}
+if (commander_1["default"].update) {
+    var original_dir = process.cwd();
+    process.chdir(path_1["default"].join(__dirname, "../"));
+    console.log("Updating ModLoader64...");
+    child_process_1["default"].execSync("git reset --hard origin/master");
+    child_process_1["default"].execSync("git pull");
+    var ml = child_process_1["default"].exec("npm install");
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
