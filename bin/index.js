@@ -68,16 +68,23 @@ if (commander_1["default"].run) {
     });
 }
 if (commander_1["default"].dist) {
+    var original_dir = process.cwd();
     if (!fs_1["default"].existsSync("./dist")) {
         fs_1["default"].mkdirSync("./dist");
     }
     var f1_1 = path_1["default"].join(__dirname, "../");
-    fs_1["default"].readdirSync("./build/src").forEach(function (file) {
-        var p = path_1["default"].join("./build/src", file);
-        if (fs_1["default"].lstatSync(p).isDirectory()) {
-            child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./dist" + "\"");
-            console.log("Generated pak for " + file + ".");
+    ncp_1.ncp("./build/src", "./dist", function (err) {
+        if (err) {
+            return console.error(err);
         }
+        process.chdir(path_1["default"].join(".", "dist"));
+        fs_1["default"].readdirSync(".").forEach(function (file) {
+            var p = path_1["default"].join(".", file);
+            if (fs_1["default"].lstatSync(p).isDirectory()) {
+                child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                console.log("Generated pak for " + file + ".");
+            }
+        });
     });
 }
 if (commander_1["default"].runp2) {

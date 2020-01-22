@@ -69,16 +69,23 @@ if (program.run) {
 }
 
 if (program.dist){
+    let original_dir: string = process.cwd();
     if (!fs.existsSync("./dist")){
         fs.mkdirSync("./dist");
     }
     let f1: string = path.join(__dirname, "../");
-    fs.readdirSync("./build/src").forEach((file: string)=>{
-        let p: string = path.join("./build/src", file);
-        if (fs.lstatSync(p).isDirectory()){
-            child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./dist" + "\"");
-            console.log("Generated pak for " + file + ".");
+    ncp("./build/src", "./dist", function (err) {
+        if (err) {
+            return console.error(err);
         }
+        process.chdir(path.join(".", "dist"));
+        fs.readdirSync(".").forEach((file: string)=>{
+            let p: string = path.join(".", file);
+            if (fs.lstatSync(p).isDirectory()){
+                child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                console.log("Generated pak for " + file + ".");
+            }
+        });
     });
 }
 
