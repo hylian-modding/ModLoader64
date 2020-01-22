@@ -16,7 +16,7 @@
     "postinstall": "npx patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop"
   },
   "bin": {
-    "ModLoader64": "./bin/index.js"
+    "modloader64": "./bin/index.js"
   },
   "author": "Team-Ooto",
   "dependencies": {
