@@ -12,10 +12,10 @@ class configuration implements IConfig {
       if (global.ModLoader.hasOwnProperty("OVERRIDE_CONFIG_FILE")){
           this.file = global.ModLoader.OVERRIDE_CONFIG_FILE;
       }
-      if (fs.existsSync(file)) {
-          this.data = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (fs.existsSync(this.file)) {
+          this.data = JSON.parse(fs.readFileSync(this.file, 'utf8'));
       } else {
-          fs.writeFileSync(file, JSON.stringify(this.data, null, 2));
+          fs.writeFileSync(this.file, JSON.stringify(this.data, null, 2));
       }
   }
 
