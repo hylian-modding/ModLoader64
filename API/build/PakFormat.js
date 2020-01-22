@@ -201,9 +201,7 @@ class PakFile {
         if (path_1.default.parse(this.header.files[index].filename).ext === '.json') {
             return d.toString('ascii');
         }
-        else {
-            return JSON.parse(d.toString('ascii'));
-        }
+        return JSON.parse(d.toString('ascii'));
     }
 }
 exports.PakFile = PakFile;

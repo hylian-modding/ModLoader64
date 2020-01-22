@@ -2,7 +2,7 @@ import * as API from 'modloader64_api/MM/Imports';
 import IMemory from 'modloader64_api/IMemory';
 
 export class Player extends API.InstanceObj implements API.IPlayer {
-  //subtract this.instance.Link from these values
+    //subtract this.instance.Link from these values
 
   private current_form = 0x3ffefb;
   private link_actor = 0x3ffdb0;
@@ -19,6 +19,6 @@ export class Player extends API.InstanceObj implements API.IPlayer {
   private link_rotation = 0x3ffe6c;
 
   constructor(emu: IMemory) {
-    super(emu, 0x3ffdb0);
+      super(emu, 0x3ffdb0);
   }
 }

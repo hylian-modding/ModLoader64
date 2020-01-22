@@ -3,7 +3,7 @@ export class frameTimeoutContainer {
   frames: number;
 
   constructor(fn: Function, frames: number) {
-    this.fn = fn;
-    this.frames = frames;
+      this.fn = fn;
+      this.frames = frames;
   }
 }

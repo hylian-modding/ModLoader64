@@ -15,45 +15,45 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
   private equipment_addr: number = this.instance + 0x009c + 1;
   private biggoron_flag_addr: number = this.instance + 0x003e;
   jsonFields: string[] = [
-    'kokiriSword',
-    'masterSword',
-    'giantKnife',
-    'biggoronSword',
+      'kokiriSword',
+      'masterSword',
+      'giantKnife',
+      'biggoronSword',
   ];
   constructor(emulator: IMemory) {
-    super();
-    this.emulator = emulator;
+      super();
+      this.emulator = emulator;
   }
   get kokiriSword() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.KOKIRI);
+      return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.KOKIRI);
   }
   set kokiriSword(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.KOKIRI, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.KOKIRI, bool);
   }
   get masterSword() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.MASTER);
+      return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.MASTER);
   }
   set masterSword(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.MASTER, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.MASTER, bool);
   }
   get giantKnife() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.GIANT);
+      return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.GIANT);
   }
   set giantKnife(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.GIANT, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.GIANT, bool);
   }
   get biggoronSword() {
-    return this.emulator.rdramReadBit8(
-      this.equipment_addr,
-      SwordBitMap.BIGGORON
-    );
+      return this.emulator.rdramReadBit8(
+          this.equipment_addr,
+          SwordBitMap.BIGGORON
+      );
   }
   set biggoronSword(bool: boolean) {
-    this.emulator.rdramWriteBit8(
-      this.equipment_addr,
-      SwordBitMap.BIGGORON,
-      bool
-    );
-    this.emulator.rdramWrite8(this.biggoron_flag_addr, bool ? 1 : 0);
+      this.emulator.rdramWriteBit8(
+          this.equipment_addr,
+          SwordBitMap.BIGGORON,
+          bool
+      );
+      this.emulator.rdramWrite8(this.biggoron_flag_addr, bool ? 1 : 0);
   }
 }

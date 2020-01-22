@@ -1,11 +1,11 @@
 import IMemory from 'modloader64_api/IMemory';
 import {
-  ISaveContext,
-  Magic,
-  MagicQuantities,
-  IQuestStatus,
-  Age,
-  IKeyManager,
+    ISaveContext,
+    Magic,
+    MagicQuantities,
+    IQuestStatus,
+    Age,
+    IKeyManager,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import { BootsEquipment } from './BootsEquipment';
@@ -62,216 +62,216 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   dungeonItemManager: IDungeonItemManager;
 
   jsonFields: string[] = [
-    'entrance_index',
-    'cutscene_number',
-    'world_time',
-    'world_night_flag',
-    'zeldaz_string',
-    'death_counter',
-    'player_name',
-    'dd_flag',
-    'heart_containers',
-    'health',
-    'magic_meter_size',
-    'magic_current',
-    'rupee_count',
-    'navi_timer',
-    'checksum',
-    'age',
-    'swords',
-    'shields',
-    'tunics',
-    'boots',
-    'inventory',
-    'questStatus',
-    'magic_beans_purchased',
+      'entrance_index',
+      'cutscene_number',
+      'world_time',
+      'world_night_flag',
+      'zeldaz_string',
+      'death_counter',
+      'player_name',
+      'dd_flag',
+      'heart_containers',
+      'health',
+      'magic_meter_size',
+      'magic_current',
+      'rupee_count',
+      'navi_timer',
+      'checksum',
+      'age',
+      'swords',
+      'shields',
+      'tunics',
+      'boots',
+      'inventory',
+      'questStatus',
+      'magic_beans_purchased',
   ];
   constructor(emu: IMemory, log: ILogger) {
-    super();
-    this.emulator = emu;
-    this.swords = new SwordsEquipment(emu);
-    this.shields = new ShieldsEquipment(emu);
-    this.tunics = new TunicsEquipment(emu);
-    this.boots = new BootsEquipment(emu);
-    this.inventory = new Inventory(emu, log);
-    this.questStatus = new QuestStatus(emu);
-    this.keyManager = new KeyManager(emu);
-    this.dungeonItemManager = new DungeonItemManager(emu);
+      super();
+      this.emulator = emu;
+      this.swords = new SwordsEquipment(emu);
+      this.shields = new ShieldsEquipment(emu);
+      this.tunics = new TunicsEquipment(emu);
+      this.boots = new BootsEquipment(emu);
+      this.inventory = new Inventory(emu, log);
+      this.questStatus = new QuestStatus(emu);
+      this.keyManager = new KeyManager(emu);
+      this.dungeonItemManager = new DungeonItemManager(emu);
   }
   // https://wiki.cloudmodding.com/oot/Entrance_Table
   // https://wiki.cloudmodding.com/oot/Entrance_Table_(Data)
   get entrance_index(): number {
-    return this.emulator.rdramRead32(this.entrance_index_addr);
+      return this.emulator.rdramRead32(this.entrance_index_addr);
   }
   set entrance_index(index: number) {
-    this.emulator.rdramWrite32(this.entrance_index_addr, index);
+      this.emulator.rdramWrite32(this.entrance_index_addr, index);
   }
   get cutscene_number(): number {
-    return this.emulator.rdramRead16(this.cutscene_number_addr);
+      return this.emulator.rdramRead16(this.cutscene_number_addr);
   }
   set cutscene_number(index: number) {
-    this.emulator.rdramWrite16(this.cutscene_number_addr, index);
+      this.emulator.rdramWrite16(this.cutscene_number_addr, index);
   }
   get world_time(): number {
-    return this.emulator.rdramRead16(this.world_time_addr);
+      return this.emulator.rdramRead16(this.world_time_addr);
   }
   set world_time(time: number) {
-    this.emulator.rdramWrite16(this.world_time_addr, time);
+      this.emulator.rdramWrite16(this.world_time_addr, time);
   }
   get world_night_flag(): boolean {
-    return this.emulator.rdramRead32(this.world_night_addr) === 1;
+      return this.emulator.rdramRead32(this.world_night_addr) === 1;
   }
   set world_night_flag(bool: boolean) {
-    this.emulator.rdramWrite32(
-      this.world_night_addr,
-      (function(bool: boolean) {
-        return bool ? 1 : 0;
-      })(bool)
-    );
+      this.emulator.rdramWrite32(
+          this.world_night_addr,
+          (function(bool: boolean) {
+              return bool ? 1 : 0;
+          })(bool)
+      );
   }
   get zeldaz_string(): string {
-    return this.emulator.rdramReadBuffer(this.zeldaz_addr, 6).toString('ascii');
+      return this.emulator.rdramReadBuffer(this.zeldaz_addr, 6).toString('ascii');
   }
   get death_counter(): number {
-    return this.emulator.rdramRead16(this.death_addr);
+      return this.emulator.rdramRead16(this.death_addr);
   }
   set death_counter(deaths: number) {
-    this.emulator.rdramWrite16(this.death_addr, deaths);
+      this.emulator.rdramWrite16(this.death_addr, deaths);
   }
   get player_name(): string {
-    return zeldaString.decode(
-      this.emulator.rdramReadBuffer(this.player_name_addr, 8)
-    );
+      return zeldaString.decode(
+          this.emulator.rdramReadBuffer(this.player_name_addr, 8)
+      );
   }
   // Will always be false normally.
   get dd_flag(): boolean {
-    return this.emulator.rdramRead16(this.dd_flag_addr) === 1;
+      return this.emulator.rdramRead16(this.dd_flag_addr) === 1;
   }
   set dd_flag(bool: boolean) {
-    this.emulator.rdramWrite16(
-      this.dd_flag_addr,
-      (function(bool: boolean) {
-        return bool ? 1 : 0;
-      })(bool)
-    );
+      this.emulator.rdramWrite16(
+          this.dd_flag_addr,
+          (function(bool: boolean) {
+              return bool ? 1 : 0;
+          })(bool)
+      );
   }
   get heart_containers(): number {
-    return this.emulator.rdramRead16(this.heart_container_addr) / 0x10;
+      return this.emulator.rdramRead16(this.heart_container_addr) / 0x10;
   }
   set heart_containers(num: number) {
-    this.emulator.rdramWrite16(this.heart_container_addr, num * 0x10);
+      this.emulator.rdramWrite16(this.heart_container_addr, num * 0x10);
   }
   get health(): number {
-    return this.emulator.rdramRead16(this.health_addr);
+      return this.emulator.rdramRead16(this.health_addr);
   }
   set health(hearts: number) {
-    this.emulator.rdramWrite16(this.health_addr, hearts);
+      this.emulator.rdramWrite16(this.health_addr, hearts);
   }
   get magic_meter_size(): Magic {
-    return this.emulator.rdramRead8(this.magic_meter_size_addr);
+      return this.emulator.rdramRead8(this.magic_meter_size_addr);
   }
   // Several things need to be set in order for magic to function properly.
   set magic_meter_size(size: Magic) {
-    this.emulator.rdramWrite8(this.magic_meter_size_addr, size);
-    switch (size) {
+      this.emulator.rdramWrite8(this.magic_meter_size_addr, size);
+      switch (size) {
       case Magic.NONE: {
-        this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
-        this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite16(this.magic_limit_addr, MagicQuantities.NONE);
-        this.magic_current = MagicQuantities.NONE;
-        break;
+          this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
+          this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
+          this.emulator.rdramWrite16(this.magic_limit_addr, MagicQuantities.NONE);
+          this.magic_current = MagicQuantities.NONE;
+          break;
       }
       case Magic.NORMAL: {
-        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
-        this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-        this.emulator.rdramWrite16(
-          this.magic_limit_addr,
-          MagicQuantities.NORMAL
-        );
-        break;
+          this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
+          this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
+          this.emulator.rdramWrite16(
+              this.magic_limit_addr,
+              MagicQuantities.NORMAL
+          );
+          break;
       }
       case Magic.EXTENDED: {
-        this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
-        this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-        this.emulator.rdramWrite16(
-          this.magic_limit_addr,
-          MagicQuantities.EXTENDED
-        );
-        break;
+          this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
+          this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
+          this.emulator.rdramWrite16(
+              this.magic_limit_addr,
+              MagicQuantities.EXTENDED
+          );
+          break;
       }
-    }
+      }
   }
 
   get magic_current(): number {
-    return this.emulator.rdramRead8(this.magic_current_addr);
+      return this.emulator.rdramRead8(this.magic_current_addr);
   }
 
   set magic_current(amount: number) {
-    this.emulator.rdramWrite8(this.magic_current_addr, amount);
+      this.emulator.rdramWrite8(this.magic_current_addr, amount);
   }
   get rupee_count(): number {
-    return this.emulator.rdramRead16(this.rupees_address);
+      return this.emulator.rdramRead16(this.rupees_address);
   }
   set rupee_count(dosh: number) {
-    this.emulator.rdramWrite16(this.rupees_address, dosh);
+      this.emulator.rdramWrite16(this.rupees_address, dosh);
   }
   get navi_timer(): number {
-    return this.emulator.rdramRead16(this.navi_timer_addr);
+      return this.emulator.rdramRead16(this.navi_timer_addr);
   }
   set navi_timer(time: number) {
-    this.emulator.rdramWrite16(this.navi_timer_addr, time);
+      this.emulator.rdramWrite16(this.navi_timer_addr, time);
   }
   get checksum() {
-    return this.emulator.rdramRead16(this.checksum_addr);
+      return this.emulator.rdramRead16(this.checksum_addr);
   }
   get age(): Age {
-    return this.emulator.rdramRead32(this.age_addr);
+      return this.emulator.rdramRead32(this.age_addr);
   }
   get magic_beans_purchased(): number {
-    return this.emulator.rdramRead8(this.magic_beans_addr);
+      return this.emulator.rdramRead8(this.magic_beans_addr);
   }
   set magic_beans_purchased(amt: number) {
-    this.emulator.rdramWrite8(this.magic_beans_addr, amt);
+      this.emulator.rdramWrite8(this.magic_beans_addr, amt);
   }
   get permSceneData(): Buffer {
-    return this.emulator.rdramReadBuffer(this.scene_data_addr, 0xb0c);
+      return this.emulator.rdramReadBuffer(this.scene_data_addr, 0xb0c);
   }
   set permSceneData(buf: Buffer) {
-    this.emulator.rdramWriteBuffer(this.scene_data_addr, buf);
+      this.emulator.rdramWriteBuffer(this.scene_data_addr, buf);
   }
   get eventFlags(): Buffer {
-    return this.emulator.rdramReadBuffer(this.event_data_addr, 0x1c);
+      return this.emulator.rdramReadBuffer(this.event_data_addr, 0x1c);
   }
   set eventFlags(buf: Buffer) {
-    this.emulator.rdramWriteBuffer(this.event_data_addr, buf);
+      this.emulator.rdramWriteBuffer(this.event_data_addr, buf);
   }
   get itemFlags(): Buffer {
-    return this.emulator.rdramReadBuffer(this.item_flag_addr, 0x8);
+      return this.emulator.rdramReadBuffer(this.item_flag_addr, 0x8);
   }
   set itemFlags(buf: Buffer) {
-    this.emulator.rdramWriteBuffer(this.item_flag_addr, buf);
+      this.emulator.rdramWriteBuffer(this.item_flag_addr, buf);
   }
   get infTable(): Buffer {
-    return this.emulator.rdramReadBuffer(this.inf_table_addr, 0x3c);
+      return this.emulator.rdramReadBuffer(this.inf_table_addr, 0x3c);
   }
   set infTable(buf: Buffer) {
-    this.emulator.rdramWriteBuffer(this.inf_table_addr, buf);
+      this.emulator.rdramWriteBuffer(this.inf_table_addr, buf);
   }
   get skulltulaFlags(): Buffer {
-    return this.emulator.rdramReadBuffer(this.skulltula_table_addr, 0x18);
+      return this.emulator.rdramReadBuffer(this.skulltula_table_addr, 0x18);
   }
   set skulltulaFlags(buf: Buffer) {
-    this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
+      this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
   }
   get double_defense(): number {
-    return this.emulator.rdramRead8(this.double_defense_addr_1);
+      return this.emulator.rdramRead8(this.double_defense_addr_1);
   }
   set double_defense(n: number) {
-    this.emulator.rdramWrite8(this.double_defense_addr_1, n);
-    if (n > 0) {
-      this.emulator.rdramWrite8(this.double_defense_addr_2, 0x1);
-    } else {
-      this.emulator.rdramWrite8(this.double_defense_addr_2, 0x0);
-    }
+      this.emulator.rdramWrite8(this.double_defense_addr_1, n);
+      if (n > 0) {
+          this.emulator.rdramWrite8(this.double_defense_addr_2, 0x1);
+      } else {
+          this.emulator.rdramWrite8(this.double_defense_addr_2, 0x0);
+      }
   }
 }

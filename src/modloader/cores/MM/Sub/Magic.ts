@@ -9,16 +9,16 @@ export class Magic extends API.BaseObj implements API.IMagic {
   private magic_amount_addr = 0x1ef6a9; //Current magic amount	0x30 = half bar, 0x60 = full bar (byte)
 
   get magic_bar(): number {
-    return this.emulator.rdramRead32(this.magic_bar_addr);
+      return this.emulator.rdramRead32(this.magic_bar_addr);
   }
   set magic_bar(val: number) {
-    this.emulator.rdramWrite32(this.magic_bar_addr, val);
+      this.emulator.rdramWrite32(this.magic_bar_addr, val);
   }
 
   get magic_amount(): number {
-    return this.emulator.rdramRead32(this.magic_amount_addr);
+      return this.emulator.rdramRead32(this.magic_amount_addr);
   }
   set magic_amount(val: number) {
-    this.emulator.rdramWrite32(this.magic_amount_addr, val);
+      this.emulator.rdramWrite32(this.magic_amount_addr, val);
   }
 }

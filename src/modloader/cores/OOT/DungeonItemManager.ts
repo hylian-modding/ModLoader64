@@ -18,51 +18,51 @@ export class DungeonItemManager implements IDungeonItemManager {
   GANONS_CASTLE: IDungeonItemContainer;
 
   constructor(emulator: IMemory) {
-    this.emulator = emulator;
-    this.DEKU_TREE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.DEKU_TREE
-    );
-    this.DODONGOS_CAVERN = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.DODONGOS_CAVERN
-    );
-    this.JABJ_JABUS_BELLY = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.JABJ_JABUS_BELLY
-    );
-    this.FOREST_TEMPLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.FOREST_TEMPLE
-    );
-    this.FIRE_TEMPLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.FIRE_TEMPLE
-    );
-    this.WATER_TEMPLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.WATER_TEMPLE
-    );
-    this.SPIRIT_TEMPLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.SPIRIT_TEMPLE
-    );
-    this.SHADOW_TEMPLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.SHADOW_TEMPLE
-    );
-    this.BOTTOM_OF_THE_WELL = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.BOTTOM_OF_THE_WELL
-    );
-    this.ICE_CAVERN = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.ICE_CAVERN
-    );
-    this.GANONS_CASTLE = new DungeonItemContainer(
-      this.emulator,
-      VANILLA_DUNGEON_ITEM_INDEXES.GANONS_CASTLE
-    );
+      this.emulator = emulator;
+      this.DEKU_TREE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.DEKU_TREE
+      );
+      this.DODONGOS_CAVERN = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.DODONGOS_CAVERN
+      );
+      this.JABJ_JABUS_BELLY = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.JABJ_JABUS_BELLY
+      );
+      this.FOREST_TEMPLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.FOREST_TEMPLE
+      );
+      this.FIRE_TEMPLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.FIRE_TEMPLE
+      );
+      this.WATER_TEMPLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.WATER_TEMPLE
+      );
+      this.SPIRIT_TEMPLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.SPIRIT_TEMPLE
+      );
+      this.SHADOW_TEMPLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.SHADOW_TEMPLE
+      );
+      this.BOTTOM_OF_THE_WELL = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.BOTTOM_OF_THE_WELL
+      );
+      this.ICE_CAVERN = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.ICE_CAVERN
+      );
+      this.GANONS_CASTLE = new DungeonItemContainer(
+          this.emulator,
+          VANILLA_DUNGEON_ITEM_INDEXES.GANONS_CASTLE
+      );
   }
 }
 
@@ -72,31 +72,31 @@ export class DungeonItemContainer implements IDungeonItemContainer {
   private index: number;
 
   constructor(emulator: IMemory, index: number) {
-    this.emulator = emulator;
-    this.index = index;
+      this.emulator = emulator;
+      this.index = index;
   }
 
   get bossKey(): boolean {
-    return this.emulator.rdramReadBit8(this.addr + this.index, 7);
+      return this.emulator.rdramReadBit8(this.addr + this.index, 7);
   }
 
   set bossKey(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.addr + this.index, 7, bool);
+      this.emulator.rdramWriteBit8(this.addr + this.index, 7, bool);
   }
 
   get compass(): boolean {
-    return this.emulator.rdramReadBit8(this.addr + this.index, 6);
+      return this.emulator.rdramReadBit8(this.addr + this.index, 6);
   }
 
   set compass(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.addr + this.index, 6, bool);
+      this.emulator.rdramWriteBit8(this.addr + this.index, 6, bool);
   }
 
   get map(): boolean {
-    return this.emulator.rdramReadBit8(this.addr + this.index, 5);
+      return this.emulator.rdramReadBit8(this.addr + this.index, 5);
   }
 
   set map(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.addr + this.index, 5, bool);
+      this.emulator.rdramWriteBit8(this.addr + this.index, 5, bool);
   }
 }

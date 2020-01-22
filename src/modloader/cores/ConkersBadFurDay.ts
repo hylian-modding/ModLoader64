@@ -31,18 +31,18 @@ export class ConkersBadFurDay implements ICore, API.IDK64Core {
   init(): void {}
 
   postinit(): void {
-    this.conker = new Conker(this.ModLoader.emulator);
-    this.runtime = new Runtime(this.ModLoader.emulator);
-    this.save = new SaveContext(this.ModLoader.emulator);
+      this.conker = new Conker(this.ModLoader.emulator);
+      this.runtime = new Runtime(this.ModLoader.emulator);
+      this.save = new SaveContext(this.ModLoader.emulator);
   }
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {}
 
   onTick(): void {
-    this.eventTicks.forEach((value: Function, key: string) => {
-      value();
-    });
+      this.eventTicks.forEach((value: Function, key: string) => {
+          value();
+      });
   }
 }
 

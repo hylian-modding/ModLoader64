@@ -11,37 +11,37 @@ export class PayloadManager implements IPayloadManager {
   logger: ILogger;
 
   constructor(emulator: IMemory, logger: ILogger) {
-    this.emulator = emulator;
-    this.registerPayloadType(new PayloadGameshark('.payload'));
-    this.logger = logger;
+      this.emulator = emulator;
+      this.registerPayloadType(new PayloadGameshark('.payload'));
+      this.logger = logger;
   }
 
   parseFile(file: string) {
-    let f: string = path.resolve(file);
-    let p = path.parse(f);
-    if (this.types.has(p.ext)) {
-      this.logger.info('Parsing payload: ' + path.parse(file).base + '.');
-      let buf: Buffer = fs.readFileSync(f);
-      let mem: Buffer = this.emulator.rdramReadBuffer(0, 16 * 1024 * 1024);
-      let r = this.types.get(p.ext)!.parse(f, buf, mem);
-      this.emulator.rdramWriteBuffer(0, mem);
-      return r;
-    }
-    return null;
+      let f: string = path.resolve(file);
+      let p = path.parse(f);
+      if (this.types.has(p.ext)) {
+          this.logger.info('Parsing payload: ' + path.parse(file).base + '.');
+          let buf: Buffer = fs.readFileSync(f);
+          let mem: Buffer = this.emulator.rdramReadBuffer(0, 16 * 1024 * 1024);
+          let r = this.types.get(p.ext)!.parse(f, buf, mem);
+          this.emulator.rdramWriteBuffer(0, mem);
+          return r;
+      }
+      return null;
   }
 
   registerPayloadType(type: PayloadType): void {
-    this.types.set(type.ext, type);
+      this.types.set(type.ext, type);
   }
 }
 
 class PayloadGameshark extends PayloadType {
-  constructor(ext: string) {
-    super(ext);
-  }
+    constructor(ext: string) {
+        super(ext);
+    }
 
-  parse(file: string, buf: Buffer, dest: Buffer) {
-    let gameshark = new GameShark();
-    gameshark.read(buf, dest);
-  }
+    parse(file: string, buf: Buffer, dest: Buffer) {
+        let gameshark = new GameShark();
+        gameshark.read(buf, dest);
+    }
 }

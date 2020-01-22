@@ -14,25 +14,25 @@ export class BootsEquipment extends JSONTemplate implements IBoots {
   private equipment_addr: number = this.instance + 0x009c;
   jsonFields: string[] = ['kokiriBoots', 'ironBoots', 'hoverBoots'];
   constructor(emulator: IMemory) {
-    super();
-    this.emulator = emulator;
+      super();
+      this.emulator = emulator;
   }
   get kokiriBoots() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.KOKIRI);
+      return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.KOKIRI);
   }
   set kokiriBoots(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.KOKIRI, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.KOKIRI, bool);
   }
   get ironBoots() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.IRON);
+      return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.IRON);
   }
   set ironBoots(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.IRON, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.IRON, bool);
   }
   get hoverBoots() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.HOVER);
+      return this.emulator.rdramReadBit8(this.equipment_addr, BootsBitMap.HOVER);
   }
   set hoverBoots(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.HOVER, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, BootsBitMap.HOVER, bool);
   }
 }

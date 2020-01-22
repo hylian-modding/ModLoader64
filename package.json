@@ -7,15 +7,16 @@
     "tsc": "tsc --listEmittedFiles",
     "modules": "npm run build && node ./build.js --step=pushModules",
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
-    "build_api": "tsc ./build.ts --esModuleInterop && node ./build.js --step=forceAPI",
-    "start": "npm run build && node ./build/src/index.js --dir=build",
+    "build_api": "tsc ./API/build.ts --esModuleInterop && cd ./API && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild && cd ./build && npm link",
+    "start": "node ./build/src/index.js --dir=build",
     "start_1": "node ./build/src/index.js --dir=build",
-    "start_2": "node ./build2/src/index.js --dir=build2",
-    "start_bundle": "npm run build && build\\libs\\node.exe ./build/src/index.js --dir=build",
-    "test": "npm run build && tsc ./test/TestMupenRam.ts && mocha ./test/TestMupenRam.js && tsc ./test/TestMupenRom.ts && mocha ./test/TestMupenRom.js",
-    "fix": "gts fix",
-    "dist": "npm run fix && npm run modules",
-	"postinstall": "npm install --save ./API/build"
+    "start_2": "node ./build.js --step=player2 && node ./build2/src/index.js --dir=build2",
+    "fix": "npx eslint src/**/*.ts --fix",
+    "dist": "npm run build_api && npm run fix && npm run modules",
+    "postinstall": " npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop"
+  },
+  "bin": {
+    "ModLoader64": "./bin/index.js"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -41,13 +42,17 @@
     "@types/fs-extra": "^8.0.0",
     "@types/ncp": "^2.0.1",
     "@types/node": "^12.0.10",
+    "@types/request": "^2.48.3",
     "@types/socket.io": "^2.1.2",
     "@types/uuid": "^3.4.5",
+    "@typescript-eslint/eslint-plugin": "^2.17.0",
+    "@typescript-eslint/parser": "^2.17.0",
     "copy-node-modules": "^1.1.1",
+    "eslint": "^6.8.0",
     "find-remove": "^1.2.2",
-    "gts": "^1.0.0",
+    "modloader64-platform-deps": "github:hylian-modding/ModLoader64-Platform-Deps",
     "recursive-readdir": "^2.2.2",
-    "typescript": "^3.5.2",
-    "@types/request": "^2.48.3"
+    "tar": "^5.0.5",
+    "typescript": "^3.5.2"
   }
 }

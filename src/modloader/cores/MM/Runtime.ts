@@ -25,24 +25,24 @@ export class Runtime extends API.BaseObj implements API.IRuntime {
   scene_flags: API.IBuffered;
 
   constructor(emu: IMemory) {
-    super(emu);
-    this.scene_flags = new SUB.SceneFlags(emu);
+      super(emu);
+      this.scene_flags = new SUB.SceneFlags(emu);
   }
 
   get_current_scene(): number {
-    return this.emulator.rdramRead16(this.cur_scene_addr);
+      return this.emulator.rdramRead16(this.cur_scene_addr);
   }
 
   get cutscene_ptr(): number {
-    return this.emulator.rdramRead32(this.cutscene_ptr_addr);
+      return this.emulator.rdramRead32(this.cutscene_ptr_addr);
   }
 
   set cutscene_ptr(val: number) {
-    this.emulator.rdramWrite32(this.cutscene_ptr_addr, val);
+      this.emulator.rdramWrite32(this.cutscene_ptr_addr, val);
   }
 
   goto_scene(scene: number) {
-    this.emulator.rdramWrite32(0x3ff398, scene);
-    this.emulator.rdramWrite8(0x3ff66a, 1);
+      this.emulator.rdramWrite32(0x3ff398, scene);
+      this.emulator.rdramWrite8(0x3ff66a, 1);
   }
 }

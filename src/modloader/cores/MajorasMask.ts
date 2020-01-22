@@ -1,8 +1,8 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import {
-  IModLoaderAPI,
-  ICore,
-  ModLoaderEvents,
+    IModLoaderAPI,
+    ICore,
+    ModLoaderEvents,
 } from 'modloader64_api/IModLoaderAPI';
 import * as API from 'modloader64_api/MM/Imports';
 import * as CORE from './MM/Imports';
@@ -22,34 +22,34 @@ export class MajorasMask implements ICore, API.IMMCore {
   payloads: string[] = new Array<string>();
 
   isPlaying(): boolean {
-    return !(this.save.get_checksum() === 0 || this.isTitleScreen());
+      return !(this.save.get_checksum() === 0 || this.isTitleScreen());
   }
 
   isTitleScreen(): boolean {
-    let value = this.runtime.get_current_scene();
-    return value === 0x8022 || value === 0x8024;
+      let value = this.runtime.get_current_scene();
+      return value === 0x8022 || value === 0x8024;
   }
 
   preinit(): void {}
 
   init(): void {
-    this.payloads.push(__dirname + '/MM/MajorasMask.payload');
+      this.payloads.push(__dirname + '/MM/MajorasMask.payload');
   }
 
   postinit(): void {
-    this.player = new CORE.Player(this.ModLoader.emulator);
-    this.runtime = new CORE.Runtime(this.ModLoader.emulator);
-    this.save = new CORE.SaveContext(this.ModLoader.emulator);
-    this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
-    this.eventTicks.set('tickingStuff', () => {
-      this.commandBuffer.onTick();
-    });
+      this.player = new CORE.Player(this.ModLoader.emulator);
+      this.runtime = new CORE.Runtime(this.ModLoader.emulator);
+      this.save = new CORE.SaveContext(this.ModLoader.emulator);
+      this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
+      this.eventTicks.set('tickingStuff', () => {
+          this.commandBuffer.onTick();
+      });
   }
 
   onTick(): void {
-    this.eventTicks.forEach((value: Function, key: string) => {
-      value();
-    });
+      this.eventTicks.forEach((value: Function, key: string) => {
+          value();
+      });
   }
 
   @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)
@@ -57,9 +57,9 @@ export class MajorasMask implements ICore, API.IMMCore {
 
   @EventHandler(EventsClient.ON_INJECT_FINISHED)
   onCore_InjectFinished(evt: any) {
-    for (let i = 0; i < this.payloads.length; i++) {
-      this.ModLoader.payloadManager.parseFile(this.payloads[i]);
-    }
+      for (let i = 0; i < this.payloads.length; i++) {
+          this.ModLoader.payloadManager.parseFile(this.payloads[i]);
+      }
   }
 }
 

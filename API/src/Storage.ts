@@ -6,20 +6,20 @@ export class StorageContainer {
   private pak: IPak;
 
   constructor(key: string) {
-    let file = path.resolve(path.join(process.cwd(), 'storage', key + '.pak'));
-    this.pak = new Pak(file);
+      let file = path.resolve(path.join(process.cwd(), 'storage', key + '.pak'));
+      this.pak = new Pak(file);
   }
 
   storeObject(obj: any, compressed = true) {
-    if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
-      fs.mkdirSync(path.parse(this.pak.fileName).dir);
-    }
-    this.pak.overwriteFileAtIndex(0, obj, compressed);
-    this.pak.update();
+      if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
+          fs.mkdirSync(path.parse(this.pak.fileName).dir);
+      }
+      this.pak.overwriteFileAtIndex(0, obj, compressed);
+      this.pak.update();
   }
 
   loadObject(): any {
-    return JSON.parse(this.pak.load(0));
+      return JSON.parse(this.pak.load(0));
   }
 }
 
@@ -27,21 +27,21 @@ class StorageKeyManager {
   private readonly MAX: number = 0xffffffff;
 
   getStorageKey(): string {
-    let b = true;
-    let v = '';
-    while (b) {
-      let possible = Math.floor(
-        Math.random() * (this.MAX - 0 + 1) + 0
-      ).toString(16);
-      let file = path.resolve(
-        path.join(process.cwd(), 'storage', possible + '.pak')
-      );
-      if (!fs.existsSync(file)) {
-        v = possible;
-        b = false;
+      let b = true;
+      let v = '';
+      while (b) {
+          let possible = Math.floor(
+              Math.random() * (this.MAX - 0 + 1) + 0
+          ).toString(16);
+          let file = path.resolve(
+              path.join(process.cwd(), 'storage', possible + '.pak')
+          );
+          if (!fs.existsSync(file)) {
+              v = possible;
+              b = false;
+          }
       }
-    }
-    return v;
+      return v;
   }
 }
 

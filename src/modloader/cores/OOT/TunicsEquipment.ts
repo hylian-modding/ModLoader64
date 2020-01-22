@@ -14,25 +14,25 @@ export class TunicsEquipment extends JSONTemplate implements ITunics {
   private equipment_addr: number = this.instance + 0x009c;
   jsonFields: string[] = ['kokiriTunic', 'goronTunic', 'goronTunic'];
   constructor(emulator: IMemory) {
-    super();
-    this.emulator = emulator;
+      super();
+      this.emulator = emulator;
   }
   get kokiriTunic() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.KOKIRI);
+      return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.KOKIRI);
   }
   set kokiriTunic(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.KOKIRI, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.KOKIRI, bool);
   }
   get goronTunic() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.GORON);
+      return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.GORON);
   }
   set goronTunic(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.GORON, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.GORON, bool);
   }
   get zoraTunic() {
-    return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.ZORA);
+      return this.emulator.rdramReadBit8(this.equipment_addr, TunicBitMap.ZORA);
   }
   set zoraTunic(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.ZORA, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, TunicBitMap.ZORA, bool);
   }
 }

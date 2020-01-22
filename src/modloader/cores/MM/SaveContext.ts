@@ -58,108 +58,108 @@ export class SaveContext extends API.BaseObj implements API.ISaveContext {
   skultulla_house: API.ISkultullaHouse;
 
   constructor(emu: IMemory) {
-    super(emu);
+      super(emu);
 
-    this.cycle_flags = new SUB.CycleFlags(emu);
-    this.event_flags = new SUB.EventFlags(emu);
-    this.game_flags = new SUB.GameFlags(emu);
-    this.owl_flags = new SUB.OwlFlags(emu);
+      this.cycle_flags = new SUB.CycleFlags(emu);
+      this.event_flags = new SUB.EventFlags(emu);
+      this.game_flags = new SUB.GameFlags(emu);
+      this.owl_flags = new SUB.OwlFlags(emu);
 
-    this.equip_slots = new SUB.EquipSlots(emu);
-    this.item_slots = new SUB.ItemSlots(emu);
-    this.mask_slots = new SUB.MaskSlots(emu);
+      this.equip_slots = new SUB.EquipSlots(emu);
+      this.item_slots = new SUB.ItemSlots(emu);
+      this.mask_slots = new SUB.MaskSlots(emu);
 
-    this.clock = new SUB.Clock(emu);
-    this.dungeon_fairies = new SUB.Dungeon(emu, 0x1ef744);
-    this.dungeon_items = new SUB.Dungeon(emu, 0x1ef73a);
-    this.dungeon_keys = new SUB.Dungeon(emu, 0x1ef730);
-    this.health = new SUB.Health(emu);
-    this.magic = new SUB.Magic(emu);
-    this.skultulla_house = new SUB.SkultullaHouse(emu);
+      this.clock = new SUB.Clock(emu);
+      this.dungeon_fairies = new SUB.Dungeon(emu, 0x1ef744);
+      this.dungeon_items = new SUB.Dungeon(emu, 0x1ef73a);
+      this.dungeon_keys = new SUB.Dungeon(emu, 0x1ef730);
+      this.health = new SUB.Health(emu);
+      this.magic = new SUB.Magic(emu);
+      this.skultulla_house = new SUB.SkultullaHouse(emu);
   }
 
   //Haven't looked and confirmed length of rdramRead for all
 
   get bank(): number {
-    return this.emulator.rdramRead16(this.bank_addr);
+      return this.emulator.rdramRead16(this.bank_addr);
   }
   set bank(val: number) {
-    this.emulator.rdramWrite16(this.bank_addr, val);
+      this.emulator.rdramWrite16(this.bank_addr, val);
   }
 
   get current_form(): number {
-    return this.emulator.rdramRead32(this.cur_form_addr);
+      return this.emulator.rdramRead32(this.cur_form_addr);
   }
   set current_form(value: number) {
-    this.emulator.rdramWrite32(this.cur_form_addr, value);
+      this.emulator.rdramWrite32(this.cur_form_addr, value);
   }
 
   get cutscene_number(): number {
-    return this.emulator.rdramRead16(this.cutscene_number);
+      return this.emulator.rdramRead16(this.cutscene_number);
   }
   set cutscene_number(value: number) {
-    this.emulator.rdramWrite16(this.cutscene_number_addr, value);
+      this.emulator.rdramWrite16(this.cutscene_number_addr, value);
   }
 
   get entrance_index(): number {
-    return this.emulator.rdramRead32(this.entrance_index_addr);
+      return this.emulator.rdramRead32(this.entrance_index_addr);
   }
   set entrance_index(value: number) {
-    this.emulator.rdramWrite32(this.entrance_index_addr, value);
+      this.emulator.rdramWrite32(this.entrance_index_addr, value);
   }
 
   get start_mask(): number {
-    return this.emulator.rdramRead32(this.start_mask_addr);
+      return this.emulator.rdramRead32(this.start_mask_addr);
   }
   set start_mask(value: number) {
-    this.emulator.rdramWrite32(this.start_mask_addr, value);
+      this.emulator.rdramWrite32(this.start_mask_addr, value);
   }
 
   get intro_flag(): number {
-    return this.emulator.rdramRead32(this.intro_flag_addr);
+      return this.emulator.rdramRead32(this.intro_flag_addr);
   }
   set intro_flag(value: number) {
-    this.emulator.rdramWrite32(this.intro_flag_addr, value);
+      this.emulator.rdramWrite32(this.intro_flag_addr, value);
   }
 
   get owl_id(): number {
-    return this.emulator.rdramRead32(this.owl_id_addr);
+      return this.emulator.rdramRead32(this.owl_id_addr);
   }
   set owl_id(value: number) {
-    this.emulator.rdramWrite32(this.owl_id_addr, value);
+      this.emulator.rdramWrite32(this.owl_id_addr, value);
   }
 
   get have_tatl(): number {
-    return this.emulator.rdramRead32(this.have_tatl_addr);
+      return this.emulator.rdramRead32(this.have_tatl_addr);
   }
   set have_tatl(value: number) {
-    this.emulator.rdramWrite32(this.have_tatl_addr, value);
+      this.emulator.rdramWrite32(this.have_tatl_addr, value);
   }
 
   get player_name(): number {
-    return this.emulator.rdramRead32(this.player_name_addr);
+      return this.emulator.rdramRead32(this.player_name_addr);
   }
   set player_name(value: number) {
-    this.emulator.rdramWrite32(this.player_name_addr, value);
+      this.emulator.rdramWrite32(this.player_name_addr, value);
   }
 
   get rupee_amount(): number {
-    return this.emulator.rdramRead32(this.rupee_amount_addr);
+      return this.emulator.rdramRead32(this.rupee_amount_addr);
   }
   set rupee_amount(value: number) {
-    this.emulator.rdramWrite32(this.rupee_amount_addr, value);
+      this.emulator.rdramWrite32(this.rupee_amount_addr, value);
   }
 
   get quest_status(): number {
-    let value = this.emulator.rdramRead32(this.quest_status_addr);
-    return value & 0x0fffffff;
+      let value = this.emulator.rdramRead32(this.quest_status_addr);
+      return value & 0x0fffffff;
   }
   set quest_status(val: number) {
-    val &= 0x0fffffff;
-    this.emulator.rdramWrite32(this.quest_status_addr, val);
+      val &= 0x0fffffff;
+      this.emulator.rdramWrite32(this.quest_status_addr, val);
   }
 
   get_checksum(): number {
-    return this.emulator.rdramRead16(this.checksum_addr);
+      return this.emulator.rdramRead16(this.checksum_addr);
   }
 }

@@ -6,19 +6,19 @@ export class EventBus extends EventEmitter2 {}
 const bus: EventBus = new EventBus();
 
 function EventHandler(key: string) {
-  return function(
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    if (target.ModLoader === undefined) {
-      target['ModLoader'] = {};
-    }
-    if (target.ModLoader.eventHandlers === undefined) {
-      target.ModLoader['eventHandlers'] = new Map<string, Function>();
-    }
-    target.ModLoader.eventHandlers.set(key, propertyKey);
-  };
+    return function(
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        if (target.ModLoader === undefined) {
+            target['ModLoader'] = {};
+        }
+        if (target.ModLoader.eventHandlers === undefined) {
+            target.ModLoader['eventHandlers'] = new Map<string, Function>();
+        }
+        target.ModLoader.eventHandlers.set(key, propertyKey);
+    };
 }
 
 export class EventServerJoined {
@@ -26,8 +26,8 @@ export class EventServerJoined {
   readonly lobby: string;
 
   constructor(player: INetworkPlayer, lobby: string) {
-    this.player = player;
-    this.lobby = lobby;
+      this.player = player;
+      this.lobby = lobby;
   }
 }
 
@@ -53,15 +53,15 @@ export enum EventsClient {
 }
 
 export function setupEventHandlers(instance: any) {
-  let p = Object.getPrototypeOf(instance);
-  if (p.hasOwnProperty('ModLoader')) {
-    if (p.ModLoader.hasOwnProperty('eventHandlers')) {
-      p.ModLoader.eventHandlers.forEach(function(value: string, key: string) {
-        let a = (instance as any)[value].bind(instance);
-        bus.addListener(key, a);
-      });
+    let p = Object.getPrototypeOf(instance);
+    if (p.hasOwnProperty('ModLoader')) {
+        if (p.ModLoader.hasOwnProperty('eventHandlers')) {
+            p.ModLoader.eventHandlers.forEach(function(value: string, key: string) {
+                let a = (instance as any)[value].bind(instance);
+                bus.addListener(key, a);
+            });
+        }
     }
-  }
 }
 
 export { bus, EventHandler };

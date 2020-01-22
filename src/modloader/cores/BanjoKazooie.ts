@@ -1,8 +1,8 @@
 import { EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import {
-  IModLoaderAPI,
-  ICore,
-  ModLoaderEvents,
+    IModLoaderAPI,
+    ICore,
+    ModLoaderEvents,
 } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import * as API from 'modloader64_api/BK/Imports';
@@ -21,51 +21,51 @@ export class BanjoKazooie implements ICore, API.IBKCore {
   version!: API.GameVersion;
 
   isPlaying(): boolean {
-    return !(
-      this.player.movement_state === 0 ||
+      return !(
+          this.player.movement_state === 0 ||
       this.runtime.get_current_profile() === API.ProfileType.Title
-    );
+      );
   }
 
   preinit(): void {
-    switch (this.rom_header.country_code) {
+      switch (this.rom_header.country_code) {
       case 'J':
-        this.version = API.GameVersion.JP_1_0;
-        CORE.VersionHandler.load_jp_1_0();
-        break;
+          this.version = API.GameVersion.JP_1_0;
+          CORE.VersionHandler.load_jp_1_0();
+          break;
       case 'P':
-        this.version = API.GameVersion.PAL_1_0;
-        CORE.VersionHandler.load_pal_1_0();
-        break;
+          this.version = API.GameVersion.PAL_1_0;
+          CORE.VersionHandler.load_pal_1_0();
+          break;
       case 'E':
-        if (this.rom_header.revision === 1) {
-          this.version = API.GameVersion.USA_1_1;
-          CORE.VersionHandler.load_usa_1_1();
-        } else {
+          if (this.rom_header.revision === 1) {
+              this.version = API.GameVersion.USA_1_1;
+              CORE.VersionHandler.load_usa_1_1();
+          } else {
+              this.version = API.GameVersion.USA_1_0;
+              CORE.VersionHandler.load_usa_1_0();
+          }
+          break;
+      default:
           this.version = API.GameVersion.USA_1_0;
           CORE.VersionHandler.load_usa_1_0();
-        }
-        break;
-      default:
-        this.version = API.GameVersion.USA_1_0;
-        CORE.VersionHandler.load_usa_1_0();
-        break;
-    }
+          break;
+      }
   }
 
   init(): void {}
 
   postinit(): void {
-    this.camera = new CORE.Camera(this.ModLoader.emulator);
-    this.player = new CORE.Player(this.ModLoader.emulator);
-    this.runtime = new CORE.Runtime(this.ModLoader.emulator);
-    this.save = new CORE.SaveContext(this.ModLoader.emulator);
+      this.camera = new CORE.Camera(this.ModLoader.emulator);
+      this.player = new CORE.Player(this.ModLoader.emulator);
+      this.runtime = new CORE.Runtime(this.ModLoader.emulator);
+      this.save = new CORE.SaveContext(this.ModLoader.emulator);
   }
 
   onTick(): void {
-    this.eventTicks.forEach((value: Function, key: string) => {
-      value();
-    });
+      this.eventTicks.forEach((value: Function, key: string) => {
+          value();
+      });
   }
 
   @EventHandler(ModLoaderEvents.ON_ROM_HEADER_PARSED)

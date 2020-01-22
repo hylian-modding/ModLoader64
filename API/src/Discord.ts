@@ -16,8 +16,8 @@ export class DiscordStatus implements IDiscordStatus {
   partyMax?: number | undefined;
 
   constructor(details: string, state: string) {
-    this.details = details;
-    this.state = state;
+      this.details = details;
+      this.state = state;
   }
 }
 
@@ -26,7 +26,7 @@ export class DiscordStatusEvent {
   canceled = false;
 
   constructor(status: IDiscordStatus) {
-    this.status = status;
+      this.status = status;
   }
 }
 

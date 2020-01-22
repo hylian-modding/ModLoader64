@@ -14,39 +14,39 @@ export class ShieldsEquipment extends JSONTemplate implements IShields {
   private equipment_addr: number = this.instance + 0x009c + 1;
   jsonFields: string[] = ['dekuShield', 'hylianShield', 'mirrorShield'];
   constructor(emulator: IMemory) {
-    super();
-    this.emulator = emulator;
+      super();
+      this.emulator = emulator;
   }
   set dekuShield(bool: boolean) {
-    this.emulator.rdramWriteBit8(this.equipment_addr, ShieldBitMap.DEKU, bool);
+      this.emulator.rdramWriteBit8(this.equipment_addr, ShieldBitMap.DEKU, bool);
   }
   get dekuShield(): boolean {
-    return this.emulator.rdramReadBit8(this.equipment_addr, ShieldBitMap.DEKU);
+      return this.emulator.rdramReadBit8(this.equipment_addr, ShieldBitMap.DEKU);
   }
   set hylianShield(bool: boolean) {
-    this.emulator.rdramWriteBit8(
-      this.equipment_addr,
-      ShieldBitMap.HYLIAN,
-      bool
-    );
+      this.emulator.rdramWriteBit8(
+          this.equipment_addr,
+          ShieldBitMap.HYLIAN,
+          bool
+      );
   }
   get hylianShield(): boolean {
-    return this.emulator.rdramReadBit8(
-      this.equipment_addr,
-      ShieldBitMap.HYLIAN
-    );
+      return this.emulator.rdramReadBit8(
+          this.equipment_addr,
+          ShieldBitMap.HYLIAN
+      );
   }
   set mirrorShield(bool: boolean) {
-    this.emulator.rdramWriteBit8(
-      this.equipment_addr,
-      ShieldBitMap.MIRROR,
-      bool
-    );
+      this.emulator.rdramWriteBit8(
+          this.equipment_addr,
+          ShieldBitMap.MIRROR,
+          bool
+      );
   }
   get mirrorShield(): boolean {
-    return this.emulator.rdramReadBit8(
-      this.equipment_addr,
-      ShieldBitMap.MIRROR
-    );
+      return this.emulator.rdramReadBit8(
+          this.equipment_addr,
+          ShieldBitMap.MIRROR
+      );
   }
 }

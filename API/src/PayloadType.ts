@@ -2,7 +2,7 @@ export abstract class PayloadType {
   ext: string;
 
   constructor(ext: string) {
-    this.ext = ext;
+      this.ext = ext;
   }
 
   abstract parse(file: string, buf: Buffer, dest: Buffer): any;
