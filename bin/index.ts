@@ -70,6 +70,8 @@ if (program.run) {
 
 if (program.dist){
     let original_dir: string = process.cwd();
+    const fsExtra = require('fs-extra');
+    fsExtra.emptyDirSync("./dist");
     if (!fs.existsSync("./dist")){
         fs.mkdirSync("./dist");
     }

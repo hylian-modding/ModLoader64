@@ -69,6 +69,8 @@ if (commander_1["default"].run) {
 }
 if (commander_1["default"].dist) {
     var original_dir = process.cwd();
+    var fsExtra = require('fs-extra');
+    fsExtra.emptyDirSync("./dist");
     if (!fs_1["default"].existsSync("./dist")) {
         fs_1["default"].mkdirSync("./dist");
     }
