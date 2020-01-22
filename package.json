@@ -13,7 +13,7 @@
     "start_2": "node ./build.js --step=player2 && node ./build2/src/index.js --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",
     "dist": "npm run build_api && npm run fix && npm run modules",
-    "postinstall": " npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop"
+    "postinstall": "patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop"
   },
   "bin": {
     "ModLoader64": "./bin/index.js"
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
     "@types/ncp": "^2.0.1",
-    "@types/node": "^12.0.10",
+    "@types/node": "^12.12.25",
     "@types/request": "^2.48.3",
     "@types/socket.io": "^2.1.2",
     "@types/uuid": "^3.4.5",
@@ -51,6 +51,7 @@
     "eslint": "^6.8.0",
     "find-remove": "^1.2.2",
     "modloader64-platform-deps": "github:hylian-modding/ModLoader64-Platform-Deps",
+    "patch-package": "^6.2.0",
     "recursive-readdir": "^2.2.2",
     "tar": "^5.0.5",
     "typescript": "^3.5.2"
