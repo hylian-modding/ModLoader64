@@ -20,6 +20,7 @@ program.option('-u, --update', 'update mode');
 program.option("-m, --mods <dir>", "change mod folder");
 program.option("-r, --roms <dir>", "change rom folder");
 program.option("-c, --cores <dir>", "change core folder");
+program.option("-o, --options <file>, change config file");
 program.parse(process.argv);
 
 if (program.mods){
@@ -32,6 +33,10 @@ if (program.roms){
 
 if (program.cores){
     global.ModLoader["OVERRIDE_CORES_FOLDER"] = program.cores;
+}
+
+if (program.options){
+    global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.options;
 }
 
 if (program.dir) {

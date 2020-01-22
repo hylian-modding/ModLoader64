@@ -9,6 +9,9 @@ class configuration implements IConfig {
 
   constructor(file: string) {
       this.file = file;
+      if (global.ModLoader.hasOwnProperty("OVERRIDE_CONFIG_FILE")){
+          this.file = global.ModLoader.OVERRIDE_CONFIG_FILE;
+      }
       if (fs.existsSync(file)) {
           this.data = JSON.parse(fs.readFileSync(file, 'utf8'));
       } else {
