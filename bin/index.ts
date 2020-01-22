@@ -57,6 +57,25 @@ if (program.build) {
     if (!fs.existsSync("./build/cores")){
         fs.mkdirSync("./build/cores");
     }
+    if (!fs.existsSync("./libs")){
+        fs.mkdirSync("./libs");
+    }
+    ncp("./cores", "./build/cores", function (err) {
+        if (err) {
+            return console.error(err);
+        }
+        ncp("./build/cores", "./libs", function (err) {
+            if (err) {
+                return console.error(err);
+            }
+            fs.readdirSync("./libs").forEach((file: string)=>{
+                let p: string = path.join("./libs", file);
+                if (fs.lstatSync(p).isDirectory()){
+                    child_process.execSync("npm link --local " + p);
+                }
+            });
+        });
+    });
 }
 
 if (program.run) {

@@ -58,6 +58,25 @@ if (commander_1["default"].build) {
     if (!fs_1["default"].existsSync("./build/cores")) {
         fs_1["default"].mkdirSync("./build/cores");
     }
+    if (!fs_1["default"].existsSync("./libs")) {
+        fs_1["default"].mkdirSync("./libs");
+    }
+    ncp_1.ncp("./cores", "./build/cores", function (err) {
+        if (err) {
+            return console.error(err);
+        }
+        ncp_1.ncp("./build/cores", "./libs", function (err) {
+            if (err) {
+                return console.error(err);
+            }
+            fs_1["default"].readdirSync("./libs").forEach(function (file) {
+                var p = path_1["default"].join("./libs", file);
+                if (fs_1["default"].lstatSync(p).isDirectory()) {
+                    child_process_1["default"].execSync("npm link --local " + p);
+                }
+            });
+        });
+    });
 }
 if (commander_1["default"].run) {
     console.log("Running mod. Please wait while we load the emulator...");
