@@ -100,13 +100,18 @@ if (program.dist){
         if (err) {
             return console.error(err);
         }
-        process.chdir(path.join(".", "dist"));
-        fs.readdirSync(".").forEach((file: string)=>{
-            let p: string = path.join(".", file);
-            if (fs.lstatSync(p).isDirectory()){
-                child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
-                console.log("Generated pak for " + file + ".");
+        ncp("./build/cores", "./dist", function (err) {
+            if (err) {
+                return console.error(err);
             }
+            process.chdir(path.join(".", "dist"));
+            fs.readdirSync(".").forEach((file: string)=>{
+                let p: string = path.join(".", file);
+                if (fs.lstatSync(p).isDirectory()){
+                    child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                    console.log("Generated pak for " + file + ".");
+                }
+            });
         });
     });
 }
