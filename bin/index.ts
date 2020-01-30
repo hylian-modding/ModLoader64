@@ -158,6 +158,7 @@ if (program.install !== undefined) {
         if (fs.lstatSync(p).isDirectory()) {
             process.chdir(p);
             child_process.execSync("modloader64 --init --build");
+            cores.push(path.resolve("./build/cores"));
             fs.readdirSync("./build/cores").forEach((file: string) => {
                 let b2: string = process.cwd();
                 let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
@@ -169,6 +170,12 @@ if (program.install !== undefined) {
         }
         process.chdir(b);
     });
-
     process.chdir(original_dir);
+    if (!fs.existsSync("./libs")) {
+        fs.mkdirSync("./libs");
+    }
+    for (let i = 0; i < cores.length; i++){
+        let c: string = cores[i];
+        fse.copySync(c, "./libs");
+    }
 }

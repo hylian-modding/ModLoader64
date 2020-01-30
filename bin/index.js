@@ -146,13 +146,14 @@ if (commander_1["default"].install !== undefined) {
     }
     process.chdir("./dependencies");
     child_process_1["default"].execSync("git clone " + commander_1["default"].install);
-    var cores = [];
+    var cores_1 = [];
     fs_1["default"].readdirSync(".").forEach(function (file) {
         var p = path_1["default"].join(".", file);
         var b = process.cwd();
         if (fs_1["default"].lstatSync(p).isDirectory()) {
             process.chdir(p);
             child_process_1["default"].execSync("modloader64 --init --build");
+            cores_1.push(path_1["default"].resolve("./build/cores"));
             fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
                 var b2 = process.cwd();
                 var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
@@ -165,4 +166,11 @@ if (commander_1["default"].install !== undefined) {
         process.chdir(b);
     });
     process.chdir(original_dir_1);
+    if (!fs_1["default"].existsSync("./libs")) {
+        fs_1["default"].mkdirSync("./libs");
+    }
+    for (var i = 0; i < cores_1.length; i++) {
+        var c = cores_1[i];
+        fs_extra_1["default"].copySync(c, "./libs");
+    }
 }
