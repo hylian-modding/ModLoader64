@@ -8,23 +8,27 @@ var commander_1 = __importDefault(require("commander"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 var child_process_1 = __importDefault(require("child_process"));
-var ncp_1 = require("ncp");
+var fs_extra_1 = __importDefault(require("fs-extra"));
 commander_1["default"].option('-init, --init', 'init new project');
 commander_1["default"].option('-b, --build', 'build mod');
 commander_1["default"].option('-r, --run', 'run mod');
 commander_1["default"].option('-d, --dist', 'pack mod');
 commander_1["default"].option("-p2, --runp2", "run p2");
 commander_1["default"].option("-u, --update", "update");
+commander_1["default"].option("-bv, --bumpversion", "bump version number");
+commander_1["default"].option("-i, --install <url>", "install dependency");
 commander_1["default"].parse(process.argv);
 if (commander_1["default"].init) {
     var original_dir = process.cwd();
     console.log("Generating mod scaffolding...");
     child_process_1["default"].execSync("npm init --yes");
-    fs_1["default"].mkdirSync("./src");
-    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-    fs_1["default"].mkdirSync("./src/" + meta.name);
-    process.chdir("./src/" + meta.name);
-    child_process_1["default"].execSync("npm init --yes");
+    if (!fs_1["default"].existsSync("./src")) {
+        fs_1["default"].mkdirSync("./src");
+        var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+        fs_1["default"].mkdirSync("./src/" + meta.name);
+        process.chdir("./src/" + meta.name);
+        child_process_1["default"].execSync("npm init --yes");
+    }
     process.chdir(original_dir);
     console.log("Linking ModLoader64 API to project...");
     console.log("This might take a moment. Please be patient.");
@@ -45,38 +49,28 @@ if (commander_1["default"].init) {
     fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
 }
 if (commander_1["default"].build) {
+    var original_dir = process.cwd();
     console.log("Building mod. Please wait...");
     if (!fs_1["default"].existsSync("./cores")) {
         fs_1["default"].mkdirSync("./cores");
     }
     child_process_1["default"].execSync("npx tsc");
-    ncp_1.ncp("./src", "./build/src", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-    });
+    fs_extra_1["default"].copySync("./src", "./build/src");
     if (!fs_1["default"].existsSync("./build/cores")) {
         fs_1["default"].mkdirSync("./build/cores");
     }
     if (!fs_1["default"].existsSync("./libs")) {
         fs_1["default"].mkdirSync("./libs");
     }
-    ncp_1.ncp("./cores", "./build/cores", function (err) {
-        if (err) {
-            return console.error(err);
+    fs_extra_1["default"].copySync("./cores", "./build/cores");
+    fs_extra_1["default"].copySync("./build/cores", "./libs");
+    fs_1["default"].readdirSync("./libs").forEach(function (file) {
+        var p = path_1["default"].join("./libs", file);
+        if (fs_1["default"].lstatSync(p).isDirectory()) {
+            child_process_1["default"].execSync("npm link --local " + p);
         }
-        ncp_1.ncp("./build/cores", "./libs", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            fs_1["default"].readdirSync("./libs").forEach(function (file) {
-                var p = path_1["default"].join("./libs", file);
-                if (fs_1["default"].lstatSync(p).isDirectory()) {
-                    child_process_1["default"].execSync("npm link --local " + p);
-                }
-            });
-        });
     });
+    process.chdir(original_dir);
 }
 if (commander_1["default"].run) {
     console.log("Running mod. Please wait while we load the emulator...");
@@ -86,6 +80,7 @@ if (commander_1["default"].run) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    process.chdir(original_dir);
 }
 if (commander_1["default"].dist) {
     var original_dir = process.cwd();
@@ -95,24 +90,17 @@ if (commander_1["default"].dist) {
         fs_1["default"].mkdirSync("./dist");
     }
     var f1_1 = path_1["default"].join(__dirname, "../");
-    ncp_1.ncp("./build/src", "./dist", function (err) {
-        if (err) {
-            return console.error(err);
+    fs_extra_1["default"].copySync("./build/src", "./dist");
+    fs_extra_1["default"].copySync("./build/cores", "./dist");
+    process.chdir(path_1["default"].join(".", "dist"));
+    fs_1["default"].readdirSync(".").forEach(function (file) {
+        var p = path_1["default"].join(".", file);
+        if (fs_1["default"].lstatSync(p).isDirectory()) {
+            child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+            console.log("Generated pak for " + file + ".");
         }
-        ncp_1.ncp("./build/cores", "./dist", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            process.chdir(path_1["default"].join(".", "dist"));
-            fs_1["default"].readdirSync(".").forEach(function (file) {
-                var p = path_1["default"].join(".", file);
-                if (fs_1["default"].lstatSync(p).isDirectory()) {
-                    child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
-                    console.log("Generated pak for " + file + ".");
-                }
-            });
-        });
     });
+    process.chdir(original_dir);
 }
 if (commander_1["default"].runp2) {
     console.log("Running mod. Please wait while we load the emulator...");
@@ -122,6 +110,10 @@ if (commander_1["default"].runp2) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    ml.on('error', function (err) {
+        console.log(err);
+    });
+    process.chdir(original_dir);
 }
 if (commander_1["default"].update) {
     var original_dir = process.cwd();
@@ -133,4 +125,44 @@ if (commander_1["default"].update) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    process.chdir(original_dir);
+}
+if (commander_1["default"].bumpversion) {
+    var original_dir = process.cwd();
+    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
+    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    var p = "./src/" + meta.name;
+    process.chdir(p);
+    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
+    meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    console.log("New version number: " + meta.version);
+    process.chdir(original_dir);
+}
+if (commander_1["default"].install !== undefined) {
+    console.log("Installing " + commander_1["default"].install + "...");
+    var original_dir_1 = process.cwd();
+    if (!fs_1["default"].existsSync("./dependencies")) {
+        fs_1["default"].mkdirSync("./dependencies");
+    }
+    process.chdir("./dependencies");
+    child_process_1["default"].execSync("git clone " + commander_1["default"].install);
+    var cores = [];
+    fs_1["default"].readdirSync(".").forEach(function (file) {
+        var p = path_1["default"].join(".", file);
+        var b = process.cwd();
+        if (fs_1["default"].lstatSync(p).isDirectory()) {
+            process.chdir(p);
+            child_process_1["default"].execSync("modloader64 --init --build");
+            fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
+                var b2 = process.cwd();
+                var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+                child_process_1["default"].execSync("npm link " + meta.name);
+                process.chdir(original_dir_1);
+                child_process_1["default"].execSync("npm link " + meta.name);
+                process.chdir(b2);
+            });
+        }
+        process.chdir(b);
+    });
+    process.chdir(original_dir_1);
 }

@@ -13,7 +13,8 @@
     "start_2": "node ./build.js --step=player2 && node ./build2/src/index.js --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",
     "dist": "npm run build_api && npm run fix && npm run modules",
-    "postinstall": "npx patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop && npm run build"
+    "postinstall": "npx patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop && npm run build",
+    "build_bin": "tsc ./bin/index.ts --esModuleInterop"
   },
   "bin": {
     "modloader64": "./bin/index.js"

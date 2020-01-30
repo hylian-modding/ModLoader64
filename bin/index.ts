@@ -4,7 +4,7 @@ import program from 'commander';
 import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
-import { ncp } from 'ncp';
+import fse from 'fs-extra';
 
 program.option('-init, --init', 'init new project');
 program.option('-b, --build', 'build mod');
@@ -12,17 +12,21 @@ program.option('-r, --run', 'run mod');
 program.option('-d, --dist', 'pack mod');
 program.option("-p2, --runp2", "run p2");
 program.option("-u, --update", "update");
+program.option("-bv, --bumpversion", "bump version number");
+program.option("-i, --install <url>", "install dependency");
 program.parse(process.argv);
 
 if (program.init) {
     let original_dir: string = process.cwd();
     console.log("Generating mod scaffolding...");
     child_process.execSync("npm init --yes");
-    fs.mkdirSync("./src");
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    fs.mkdirSync("./src/" + meta.name);
-    process.chdir("./src/" + meta.name);
-    child_process.execSync("npm init --yes");
+    if (!fs.existsSync("./src")) {
+        fs.mkdirSync("./src");
+        let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+        fs.mkdirSync("./src/" + meta.name);
+        process.chdir("./src/" + meta.name);
+        child_process.execSync("npm init --yes");
+    }
     process.chdir(original_dir);
     console.log("Linking ModLoader64 API to project...");
     console.log("This might take a moment. Please be patient.");
@@ -44,38 +48,28 @@ if (program.init) {
 }
 
 if (program.build) {
+    let original_dir: string = process.cwd();
     console.log("Building mod. Please wait...");
-    if (!fs.existsSync("./cores")){
+    if (!fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
     }
     child_process.execSync("npx tsc");
-    ncp("./src", "./build/src", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-    });
-    if (!fs.existsSync("./build/cores")){
+    fse.copySync("./src", "./build/src");
+    if (!fs.existsSync("./build/cores")) {
         fs.mkdirSync("./build/cores");
     }
-    if (!fs.existsSync("./libs")){
+    if (!fs.existsSync("./libs")) {
         fs.mkdirSync("./libs");
     }
-    ncp("./cores", "./build/cores", function (err) {
-        if (err) {
-            return console.error(err);
+    fse.copySync("./cores", "./build/cores");
+    fse.copySync("./build/cores", "./libs");
+    fs.readdirSync("./libs").forEach((file: string) => {
+        let p: string = path.join("./libs", file);
+        if (fs.lstatSync(p).isDirectory()) {
+            child_process.execSync("npm link --local " + p);
         }
-        ncp("./build/cores", "./libs", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            fs.readdirSync("./libs").forEach((file: string)=>{
-                let p: string = path.join("./libs", file);
-                if (fs.lstatSync(p).isDirectory()){
-                    child_process.execSync("npm link --local " + p);
-                }
-            });
-        });
     });
+    process.chdir(original_dir);
 }
 
 if (program.run) {
@@ -86,37 +80,31 @@ if (program.run) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    process.chdir(original_dir);
 }
 
-if (program.dist){
+if (program.dist) {
     let original_dir: string = process.cwd();
     const fsExtra = require('fs-extra');
     fsExtra.emptyDirSync("./dist");
-    if (!fs.existsSync("./dist")){
+    if (!fs.existsSync("./dist")) {
         fs.mkdirSync("./dist");
     }
     let f1: string = path.join(__dirname, "../");
-    ncp("./build/src", "./dist", function (err) {
-        if (err) {
-            return console.error(err);
+    fse.copySync("./build/src", "./dist");
+    fse.copySync("./build/cores", "./dist");
+    process.chdir(path.join(".", "dist"));
+    fs.readdirSync(".").forEach((file: string) => {
+        let p: string = path.join(".", file);
+        if (fs.lstatSync(p).isDirectory()) {
+            child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+            console.log("Generated pak for " + file + ".");
         }
-        ncp("./build/cores", "./dist", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            process.chdir(path.join(".", "dist"));
-            fs.readdirSync(".").forEach((file: string)=>{
-                let p: string = path.join(".", file);
-                if (fs.lstatSync(p).isDirectory()){
-                    child_process.execSync("node " + path.join(f1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
-                    console.log("Generated pak for " + file + ".");
-                }
-            });
-        });
     });
+    process.chdir(original_dir);
 }
 
-if (program.runp2){
+if (program.runp2) {
     console.log("Running mod. Please wait while we load the emulator...");
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
@@ -124,9 +112,13 @@ if (program.runp2){
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    ml.on('error', (err: Error) => {
+        console.log(err);
+    });
+    process.chdir(original_dir);
 }
 
-if (program.update){
+if (program.update) {
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
     console.log("Updating ModLoader64...");
@@ -136,4 +128,47 @@ if (program.update){
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    process.chdir(original_dir);
+}
+
+if (program.bumpversion) {
+    let original_dir: string = process.cwd();
+    child_process.execSync("npm version --no-git-tag-version patch");
+    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    let p: string = "./src/" + meta.name;
+    process.chdir(p);
+    child_process.execSync("npm version --no-git-tag-version patch");
+    meta = JSON.parse(fs.readFileSync("./package.json").toString());
+    console.log("New version number: " + meta.version);
+    process.chdir(original_dir);
+}
+
+if (program.install !== undefined) {
+    console.log("Installing " + program.install + "...");
+    let original_dir: string = process.cwd();
+    if (!fs.existsSync("./dependencies")) {
+        fs.mkdirSync("./dependencies");
+    }
+    process.chdir("./dependencies");
+    child_process.execSync("git clone " + program.install);
+    let cores: Array<string> = [];
+    fs.readdirSync(".").forEach((file: string) => {
+        let p: string = path.join(".", file);
+        let b: string = process.cwd();
+        if (fs.lstatSync(p).isDirectory()) {
+            process.chdir(p);
+            child_process.execSync("modloader64 --init --build");
+            fs.readdirSync("./build/cores").forEach((file: string) => {
+                let b2: string = process.cwd();
+                let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+                child_process.execSync("npm link " + meta.name);
+                process.chdir(original_dir);
+                child_process.execSync("npm link " + meta.name);
+                process.chdir(b2);
+            });
+        }
+        process.chdir(b);
+    });
+
+    process.chdir(original_dir);
 }
