@@ -78,7 +78,7 @@ if (commander_1["default"].run) {
     console.log("Running mod. Please wait while we load the emulator...");
     var original_dir = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir, "build", "src") + " --roms=" + path_1["default"].join(original_dir, "roms") + " --cores=" + path_1["default"].join(original_dir, "build/cores") + " --options=" + path_1["default"].join(original_dir, "modloader64-config.json"));
+    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir, "build", "src") + " --roms=" + path_1["default"].join(original_dir, "roms") + " --cores=" + path_1["default"].join(original_dir, "libs") + " --options=" + path_1["default"].join(original_dir, "modloader64-config.json"));
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -108,7 +108,7 @@ if (commander_1["default"].runp2) {
     console.log("Running mod. Please wait while we load the emulator...");
     var original_dir = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir, "build", "src") + " --roms=" + path_1["default"].join(original_dir, "roms") + " --cores=" + path_1["default"].join(original_dir, "build/cores"));
+    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir, "build", "src") + " --roms=" + path_1["default"].join(original_dir, "roms") + " --cores=" + path_1["default"].join(original_dir, "libs"));
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
