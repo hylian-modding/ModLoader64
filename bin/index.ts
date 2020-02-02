@@ -160,7 +160,7 @@ if (program.install !== undefined) {
         mod_meta["modloader64_deps"] = {};
     }
     process.chdir("./dependencies");
-    //child_process.execSync("git clone " + program.install);
+    child_process.execSync("git clone " + program.install);
     let cores: Array<string> = [];
     fs.readdirSync(".").forEach((file: string) => {
         let p: string = path.join(".", file);

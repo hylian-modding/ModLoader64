@@ -155,7 +155,7 @@ if (commander_1["default"].install !== undefined) {
         mod_meta_1["modloader64_deps"] = {};
     }
     process.chdir("./dependencies");
-    //child_process.execSync("git clone " + program.install);
+    child_process_1["default"].execSync("git clone " + commander_1["default"].install);
     var cores_1 = [];
     fs_1["default"].readdirSync(".").forEach(function (file) {
         var p = path_1["default"].join(".", file);
