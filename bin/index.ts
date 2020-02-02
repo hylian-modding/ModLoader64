@@ -28,23 +28,25 @@ if (program.init) {
         child_process.execSync("npm init --yes");
     }
     process.chdir(original_dir);
-    console.log("Linking ModLoader64 API to project...");
-    console.log("This might take a moment. Please be patient.");
-    let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
-    Object.keys(our_pkg.dependencies).forEach((key: string) => {
-        if (key.indexOf("modloader64") === -1) {
-            child_process.execSync("npm link " + key);
-        }
-    });
-    Object.keys(our_pkg.devDependencies).forEach((key: string) => {
-        if (key.indexOf("modloader64") === -1) {
-            child_process.execSync("npm link " + key);
-        }
-    });
-    child_process.execSync("npm link " + "modloader64_api");
-    console.log("Setting up TypeScript compiler...");
-    child_process.execSync("tsc --init");
-    fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+    if (!fs.existsSync("./node_modules")) {
+        console.log("Linking ModLoader64 API to project...");
+        console.log("This might take a moment. Please be patient.");
+        let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
+        Object.keys(our_pkg.dependencies).forEach((key: string) => {
+            if (key.indexOf("modloader64") === -1) {
+                child_process.execSync("npm link " + key);
+            }
+        });
+        Object.keys(our_pkg.devDependencies).forEach((key: string) => {
+            if (key.indexOf("modloader64") === -1) {
+                child_process.execSync("npm link " + key);
+            }
+        });
+        child_process.execSync("npm link " + "modloader64_api");
+        console.log("Setting up TypeScript compiler...");
+        child_process.execSync("tsc --init");
+        fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+    }
 }
 
 if (program.build) {
@@ -149,8 +151,16 @@ if (program.install !== undefined) {
     if (!fs.existsSync("./dependencies")) {
         fs.mkdirSync("./dependencies");
     }
+    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    if (!meta.hasOwnProperty("modloader64_deps")){
+        meta["modloader64_deps"] = {};
+    }
+    let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+    if (!mod_meta.hasOwnProperty("modloader64_deps")){
+        mod_meta["modloader64_deps"] = {};
+    }
     process.chdir("./dependencies");
-    child_process.execSync("git clone " + program.install);
+    //child_process.execSync("git clone " + program.install);
     let cores: Array<string> = [];
     fs.readdirSync(".").forEach((file: string) => {
         let p: string = path.join(".", file);
@@ -161,20 +171,28 @@ if (program.install !== undefined) {
             cores.push(path.resolve("./build/cores"));
             fs.readdirSync("./build/cores").forEach((file: string) => {
                 let b2: string = process.cwd();
-                let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-                child_process.execSync("npm link " + meta.name);
+                let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
+                child_process.execSync("npm link " + meta2.name);
                 process.chdir(original_dir);
-                child_process.execSync("npm link " + meta.name);
+                child_process.execSync("npm link " + meta2.name);
                 process.chdir(b2);
+                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")){
+                    meta["modloader64_deps"][meta2.name] = program.install;
+                }
+                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")){
+                    mod_meta["modloader64_deps"][meta2.name] = program.install;
+                }
             });
         }
         process.chdir(b);
     });
     process.chdir(original_dir);
+    fs.writeFileSync("./package.json", JSON.stringify(meta, null, 2));
+    fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
     if (!fs.existsSync("./libs")) {
         fs.mkdirSync("./libs");
     }
-    for (let i = 0; i < cores.length; i++){
+    for (let i = 0; i < cores.length; i++) {
         let c: string = cores[i];
         fse.copySync(c, "./libs");
     }

@@ -30,23 +30,25 @@ if (commander_1["default"].init) {
         child_process_1["default"].execSync("npm init --yes");
     }
     process.chdir(original_dir);
-    console.log("Linking ModLoader64 API to project...");
-    console.log("This might take a moment. Please be patient.");
-    var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
-    Object.keys(our_pkg.dependencies).forEach(function (key) {
-        if (key.indexOf("modloader64") === -1) {
-            child_process_1["default"].execSync("npm link " + key);
-        }
-    });
-    Object.keys(our_pkg.devDependencies).forEach(function (key) {
-        if (key.indexOf("modloader64") === -1) {
-            child_process_1["default"].execSync("npm link " + key);
-        }
-    });
-    child_process_1["default"].execSync("npm link " + "modloader64_api");
-    console.log("Setting up TypeScript compiler...");
-    child_process_1["default"].execSync("tsc --init");
-    fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+    if (!fs_1["default"].existsSync("./node_modules")) {
+        console.log("Linking ModLoader64 API to project...");
+        console.log("This might take a moment. Please be patient.");
+        var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
+        Object.keys(our_pkg.dependencies).forEach(function (key) {
+            if (key.indexOf("modloader64") === -1) {
+                child_process_1["default"].execSync("npm link " + key);
+            }
+        });
+        Object.keys(our_pkg.devDependencies).forEach(function (key) {
+            if (key.indexOf("modloader64") === -1) {
+                child_process_1["default"].execSync("npm link " + key);
+            }
+        });
+        child_process_1["default"].execSync("npm link " + "modloader64_api");
+        console.log("Setting up TypeScript compiler...");
+        child_process_1["default"].execSync("tsc --init");
+        fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+    }
 }
 if (commander_1["default"].build) {
     var original_dir = process.cwd();
@@ -144,8 +146,16 @@ if (commander_1["default"].install !== undefined) {
     if (!fs_1["default"].existsSync("./dependencies")) {
         fs_1["default"].mkdirSync("./dependencies");
     }
+    var meta_1 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    if (!meta_1.hasOwnProperty("modloader64_deps")) {
+        meta_1["modloader64_deps"] = {};
+    }
+    var mod_meta_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "src", meta_1.name, "package.json")).toString());
+    if (!mod_meta_1.hasOwnProperty("modloader64_deps")) {
+        mod_meta_1["modloader64_deps"] = {};
+    }
     process.chdir("./dependencies");
-    child_process_1["default"].execSync("git clone " + commander_1["default"].install);
+    //child_process.execSync("git clone " + program.install);
     var cores_1 = [];
     fs_1["default"].readdirSync(".").forEach(function (file) {
         var p = path_1["default"].join(".", file);
@@ -156,16 +166,24 @@ if (commander_1["default"].install !== undefined) {
             cores_1.push(path_1["default"].resolve("./build/cores"));
             fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
                 var b2 = process.cwd();
-                var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-                child_process_1["default"].execSync("npm link " + meta.name);
+                var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+                child_process_1["default"].execSync("npm link " + meta2.name);
                 process.chdir(original_dir_1);
-                child_process_1["default"].execSync("npm link " + meta.name);
+                child_process_1["default"].execSync("npm link " + meta2.name);
                 process.chdir(b2);
+                if (!meta_1["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                    meta_1["modloader64_deps"][meta2.name] = commander_1["default"].install;
+                }
+                if (!mod_meta_1["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                    mod_meta_1["modloader64_deps"][meta2.name] = commander_1["default"].install;
+                }
             });
         }
         process.chdir(b);
     });
     process.chdir(original_dir_1);
+    fs_1["default"].writeFileSync("./package.json", JSON.stringify(meta_1, null, 2));
+    fs_1["default"].writeFileSync(path_1["default"].join(".", "src", meta_1.name, "package.json"), JSON.stringify(mod_meta_1, null, 2));
     if (!fs_1["default"].existsSync("./libs")) {
         fs_1["default"].mkdirSync("./libs");
     }
