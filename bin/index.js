@@ -50,6 +50,17 @@ if (commander_1["default"].init) {
         fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
     }
 }
+if (commander_1["default"].bumpversion) {
+    var original_dir = process.cwd();
+    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
+    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    var p = "./src/" + meta.name;
+    process.chdir(p);
+    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
+    meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    console.log("New version number: " + meta.version);
+    process.chdir(original_dir);
+}
 if (commander_1["default"].build) {
     var original_dir = process.cwd();
     console.log("Building mod. Please wait...");
@@ -127,17 +138,6 @@ if (commander_1["default"].update) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
-    process.chdir(original_dir);
-}
-if (commander_1["default"].bumpversion) {
-    var original_dir = process.cwd();
-    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
-    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-    var p = "./src/" + meta.name;
-    process.chdir(p);
-    child_process_1["default"].execSync("npm version --no-git-tag-version patch");
-    meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-    console.log("New version number: " + meta.version);
     process.chdir(original_dir);
 }
 if (commander_1["default"].install !== undefined) {

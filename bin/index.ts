@@ -49,6 +49,18 @@ if (program.init) {
     }
 }
 
+if (program.bumpversion) {
+    let original_dir: string = process.cwd();
+    child_process.execSync("npm version --no-git-tag-version patch");
+    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    let p: string = "./src/" + meta.name;
+    process.chdir(p);
+    child_process.execSync("npm version --no-git-tag-version patch");
+    meta = JSON.parse(fs.readFileSync("./package.json").toString());
+    console.log("New version number: " + meta.version);
+    process.chdir(original_dir);
+}
+
 if (program.build) {
     let original_dir: string = process.cwd();
     console.log("Building mod. Please wait...");
@@ -130,18 +142,6 @@ if (program.update) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
-    process.chdir(original_dir);
-}
-
-if (program.bumpversion) {
-    let original_dir: string = process.cwd();
-    child_process.execSync("npm version --no-git-tag-version patch");
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    let p: string = "./src/" + meta.name;
-    process.chdir(p);
-    child_process.execSync("npm version --no-git-tag-version patch");
-    meta = JSON.parse(fs.readFileSync("./package.json").toString());
-    console.log("New version number: " + meta.version);
     process.chdir(original_dir);
 }
 
