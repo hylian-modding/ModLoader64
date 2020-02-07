@@ -14,7 +14,25 @@ program.option("-p2, --runp2", "run p2");
 program.option("-u, --update", "update");
 program.option("-bv, --bumpversion", "bump version number");
 program.option("-i, --install <url>", "install dependency");
+program.option("-sr, --setroms <path>", "set rom directory");
 program.parse(process.argv);
+
+interface SDK_Cat {
+    roms_dir: string;
+}
+
+interface ModLoader64_Cat {
+    SDK: SDK_Cat;
+}
+
+interface SDKCFG {
+    ModLoader64: ModLoader64_Cat;
+}
+
+let original_dir: string = process.cwd();
+process.chdir(path.join(__dirname, "../"));
+let sdk_cfg: SDKCFG = JSON.parse(fs.readFileSync("./SDK-config.json").toString());
+process.chdir(original_dir);
 
 if (program.init) {
     let original_dir: string = process.cwd();
@@ -47,6 +65,14 @@ if (program.init) {
         child_process.execSync("tsc --init");
         fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
     }
+}
+
+if (program.setroms !== undefined) {
+    sdk_cfg.ModLoader64.SDK.roms_dir = path.resolve(program.setroms);
+    let original_dir: string = process.cwd();
+    process.chdir(path.join(__dirname, "../"));
+    fs.writeFileSync("./SDK-config.json", JSON.stringify(sdk_cfg, null, 2));
+    process.chdir(original_dir);
 }
 
 if (program.bumpversion) {
@@ -90,7 +116,7 @@ if (program.run) {
     console.log("Running mod. Please wait while we load the emulator...");
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.join(original_dir, "roms") + " --cores=" + path.join(original_dir, "libs") + " --options=" + path.join(original_dir, "modloader64-config.json"));
+    let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --options=" + path.join(original_dir, "modloader64-config.json"));
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -121,8 +147,11 @@ if (program.dist) {
 if (program.runp2) {
     console.log("Running mod. Please wait while we load the emulator...");
     let original_dir: string = process.cwd();
+    let cfg: any = JSON.parse(fs.readFileSync(path.join(original_dir, "modloader64-config.json")).toString());
+    cfg["ModLoader64"]["isServer"] = false;
+    fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.join(original_dir, "roms") + " --cores=" + path.join(original_dir, "libs"));
+    let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --options=" + path.join(original_dir, "modloader64-p2-config.json"));
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -152,11 +181,11 @@ if (program.install !== undefined) {
         fs.mkdirSync("./dependencies");
     }
     let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    if (!meta.hasOwnProperty("modloader64_deps")){
+    if (!meta.hasOwnProperty("modloader64_deps")) {
         meta["modloader64_deps"] = {};
     }
     let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
-    if (!mod_meta.hasOwnProperty("modloader64_deps")){
+    if (!mod_meta.hasOwnProperty("modloader64_deps")) {
         mod_meta["modloader64_deps"] = {};
     }
     process.chdir("./dependencies");
@@ -176,10 +205,10 @@ if (program.install !== undefined) {
                 process.chdir(original_dir);
                 child_process.execSync("npm link " + meta2.name);
                 process.chdir(b2);
-                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")){
+                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
                     meta["modloader64_deps"][meta2.name] = program.install;
                 }
-                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")){
+                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
                     mod_meta["modloader64_deps"][meta2.name] = program.install;
                 }
             });
