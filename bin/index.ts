@@ -6,15 +6,15 @@ import fs from 'fs';
 import child_process from 'child_process';
 import fse from 'fs-extra';
 
-program.option('-init, --init', 'init new project');
+program.option('-n, --init', 'init new project');
 program.option('-b, --build', 'build mod');
 program.option('-r, --run', 'run mod');
 program.option('-d, --dist', 'pack mod');
-program.option("-p2, --runp2", "run p2");
+program.option("-2, --runp2", "run p2");
 program.option("-u, --update", "update");
-program.option("-bv, --bumpversion", "bump version number");
+program.option("-q, --bumpversion", "bump version number");
 program.option("-i, --install <url>", "install dependency");
-program.option("-sr, --setroms <path>", "set rom directory");
+program.option("-s, --setroms <path>", "set rom directory");
 program.parse(process.argv);
 
 interface SDK_Cat {
