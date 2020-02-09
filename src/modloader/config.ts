@@ -15,6 +15,7 @@ class configuration implements IConfig {
       if (fs.existsSync(this.file)) {
           this.data = JSON.parse(fs.readFileSync(this.file, 'utf8'));
       } else {
+          console.log(this.file);
           fs.writeFileSync(this.file, JSON.stringify(this.data, null, 2));
       }
   }

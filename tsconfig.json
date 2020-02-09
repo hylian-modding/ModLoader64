@@ -16,7 +16,7 @@
     "src/**/*.ts",
     "test/**/*.ts",
     "mods/**/*.ts",
-    "cores/**/*.ts"
+    "cores/**/*.ts", "bin/paker.ts"
   ],
   "exclude": [
     "node_modules",

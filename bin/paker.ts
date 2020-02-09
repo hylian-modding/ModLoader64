@@ -1,5 +1,6 @@
+#!/usr/bin/env node
+
 import program from 'commander';
-import fs from 'fs';
 import {Pak} from 'modloader64_api/PakFormat';
 import path from 'path';
 

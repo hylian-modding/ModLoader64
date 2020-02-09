@@ -1,11 +1,10 @@
-import { ncp } from 'ncp';
 import * as fs from 'fs-extra';
-import { execSync, fork } from 'child_process';
 import program from 'commander';
 import path from 'path';
 import findRemoveSync from 'find-remove';
 var recursive = require("recursive-readdir");
 import crypto from 'crypto';
+import child_process from 'child_process';
 
 var isWin = process.platform === "win32";
 
@@ -15,30 +14,30 @@ program.option('-s, --step <type>', 'build step');
 program.parse(process.argv);
 
 switch (program.step) {
-case "prebuild": {
-    prebuild();
-    break;
-}
-case "build": {
-    build();
-    break;
-}
-case "postbuild": {
-    postbuild();
-    break;
-}
-case "pushModules": {
-    pushModules();
-    break;
-}
-case "installEmulator": {
-    getEmulator();
-    break;
-}
-case "player2":{
-    player2();
-    break;
-}
+    case "prebuild": {
+        prebuild();
+        break;
+    }
+    case "build": {
+        build();
+        break;
+    }
+    case "postbuild": {
+        postbuild();
+        break;
+    }
+    case "pushModules": {
+        pushModules();
+        break;
+    }
+    case "installEmulator": {
+        getEmulator();
+        break;
+    }
+    case "player2": {
+        player2();
+        break;
+    }
 }
 
 function getEmulator() {
@@ -46,21 +45,38 @@ function getEmulator() {
     if (process.env.PROCESSOR_ARCHITECTURE === undefined) {
         platformkey = process.platform.trim() + 'x64';
     } else {
-        platformkey =process.platform.trim() + process.env.PROCESSOR_ARCHITECTURE;
+        platformkey = process.platform.trim() + process.env.PROCESSOR_ARCHITECTURE;
     }
-    if (!fs.existsSync("./Mupen64Plus")){
+    if (!fs.existsSync("./Mupen64Plus")) {
         fs.mkdirSync("./Mupen64Plus");
     }
-    if (platformkey.indexOf("win32") > -1){
+    if (platformkey.indexOf("win32") > -1) {
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.tar.gz", "./Mupen64Plus/emulator.tar.gz");
-    }else if (platformkey.indexOf("linux") > -1){
+    } else if (platformkey.indexOf("linux") > -1) {
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.tar.gz", "./Mupen64Plus/emulator.tar.gz");
     }
 }
 
 function pushModules() {
+    console.log("Cleaning...");
+    let original_dir: string = process.cwd();
+
+    if (fs.existsSync("./build")){
+        fs.removeSync("./build");
+    }
+    if (fs.existsSync("./build2")){
+        fs.removeSync("./build2");
+    }
+    if (fs.existsSync("./dist")){
+        fs.removeSync("./dist");
+    }
+    console.log("Building...");
+    child_process.execSync("npm run build_dist");
+    fs.removeSync("./build/roms");
+
     const srcDir = '.';
     const dstDir = './build';
+    console.log("Copying node_modules...");
     copyNodeModules(srcDir, dstDir, { devDependencies: false }, (err, results) => {
         if (err) {
             console.error(err);
@@ -69,38 +85,45 @@ function pushModules() {
         if (!fs.existsSync("./build/node_modules/modloader64_api")) {
             fs.mkdirSync("./build/node_modules/modloader64_api");
         }
-        ncp("./API/build", "./build/node_modules/modloader64_api", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            console.log('done!');
-        });
+
+        fs.copySync("./API/build", "./build/node_modules/modloader64_api");
 
         fs.mkdirSync("./dist");
-
-        ncp("./build", "./dist/windows", function (err) {
-            if (err) return console.error(err);
-        });
-
-        ncp("./build", "./dist/linux", function (err) {
-            if (err) return console.error(err);
-        });
-
-        ncp("./build", "./dist/mac", function (err) {
-            if (err) return console.error(err);
-        });
-
-        ncp("./build", "./dist/switch", function (err) {
-            if (err) return console.error(err);
-        });
-
-        console.log('done!');
+        console.log("Putting together platform specific files...");
+        fs.copySync("./build", "./dist/windows");
+        fs.copySync("./build", "./dist/linux");
+        //fs.copySync("./build", "./dist/mac");
+        //fs.copySync("./build", "./dist/switch");
+        console.log("Copying emulator files...");
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.tar.gz", "./dist/windows/emulator_windows.tar.gz");
+        process.chdir("./dist/windows");
+        child_process.execSync("npx tar -xzvf ./emulator_windows.tar.gz");
+        process.chdir(original_dir);
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.tar.gz", "./dist/linux/emulator_linux.tar.gz");
+        process.chdir("./dist/linux");
+        child_process.execSync("npx tar -xzvf ./emulator_linux.tar.gz");
+        process.chdir(original_dir);
+        if (fs.existsSync("./dist/windows/emulator_windows.tar.gz")){
+            fs.unlinkSync("./dist/windows/emulator_windows.tar.gz");
+        }
+        if (fs.existsSync("./dist/linux/emulator_linux.tar.gz")){
+            fs.unlinkSync("./dist/linux/emulator_linux.tar.gz");
+        }
+        process.chdir("./dist");
+        fs.renameSync("./windows", "./ModLoader");
+        child_process.execSync("paker --dir ./ModLoader --output ./");
+        fs.renameSync("./ModLoader.pak", "./Windows.pak");
+        fs.removeSync("./ModLoader");
+        fs.renameSync("./linux", "./ModLoader");
+        child_process.execSync("paker --dir ./ModLoader --output ./");
+        fs.renameSync("./ModLoader.pak", "./Linux.pak");
+        fs.removeSync("./ModLoader");
     });
 }
 
 function prebuild() {
 
-    if (fs.existsSync("./cores")){
+    if (fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
     }
 
@@ -127,43 +150,21 @@ function prebuild() {
     if (!fs.existsSync("./build/roms")) {
         fs.mkdirSync("./build/roms");
         if (fs.existsSync("./roms")) {
-            ncp("./roms", "./build/roms", function (err) {
-                if (err) {
-                    return console.error(err);
-                }
-                console.log('done!');
-            });
+            fs.copySync("./roms", "./build/roms");
         }
     }
 
     if (!fs.existsSync("./build/emulator")) {
-        if (fs.existsSync("./Mupen64Plus/emulator.tar.gz")){
+        if (fs.existsSync("./Mupen64Plus/emulator.tar.gz")) {
             fs.unlink("./Mupen64Plus/emulator.tar.gz");
         }
-        ncp("./Mupen64Plus", "./build", function (err) {
-            if (err) {
-                return console.error(err);
-            }
-            console.log('done!');
-        });
+        fs.copySync("./Mupen64Plus", "./build");
     }
 }
 
 function build() {
-    ncp("./src", "./build/src", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        findRemoveSync('./build', { extensions: ['.ts'] });
-        console.log('done!');
-    });
-
-    ncp("./mods", "./build/mods", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        console.log('done!');
-    });
+    fs.copySync("./src", "./build/src");
+    fs.copySync("./mods", "./build/mods");
 }
 
 function postbuild() {
@@ -184,17 +185,12 @@ function postbuild() {
     });
 }
 
-function player2(){
-    ncp("./build", "./build2", function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        if (fs.existsSync("./build2/ModLoader64-config.json")) {
-            let config = JSON.parse(fs.readFileSync("./build2/ModLoader64-config.json", 'utf8'));
-            config.ModLoader64.isServer = false;
-            config["NetworkEngine.Client"].nickname = "Test";
-            fs.writeFileSync("./build2/ModLoader64-config.json", JSON.stringify(config));
-        }
-        console.log('done!');
-    });
+function player2() {
+    fs.copySync("./build", "./build2");
+    if (fs.existsSync("./build2/ModLoader64-config.json")) {
+        let config = JSON.parse(fs.readFileSync("./build2/ModLoader64-config.json", 'utf8'));
+        config.ModLoader64.isServer = false;
+        config["NetworkEngine.Client"].nickname = "Test";
+        fs.writeFileSync("./build2/ModLoader64-config.json", JSON.stringify(config));
+    }
 }

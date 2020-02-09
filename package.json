@@ -5,19 +5,21 @@
   "main": "./src/index.js",
   "scripts": {
     "tsc": "tsc --listEmittedFiles",
-    "modules": "npm run build && node ./build.js --step=pushModules",
+    "modules": "node ./build.js --step=pushModules",
     "build": "tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
+    "build_dist": "tsc ./build.ts --esModuleInterop && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild",
     "build_api": "tsc ./API/build.ts --esModuleInterop && cd ./API && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild && cd ./build && npm link",
     "start": "node ./build/src/index.js --dir=build",
     "start_1": "node ./build/src/index.js --dir=build",
     "start_2": "node ./build.js --step=player2 && node ./build2/src/index.js --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",
     "dist": "npm run modules",
-    "postinstall": "tsc ./bin/postinstall.ts --esModuleInterop && npx patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop && npm run build && node ./bin/postinstall.js",
-    "build_bin": "tsc ./bin/index.ts --esModuleInterop && tsc ./bin/postinstall.ts --esModuleInterop"
+    "postinstall": "tsc ./bin/postinstall.ts --esModuleInterop && npx patch-package && npm run build_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && npx tar -xzvf ./Mupen64Plus/emulator.tar.gz -C ./Mupen64Plus && npm link modloader64_api && tsc ./bin/index.ts --esModuleInterop && npm run build && node ./bin/postinstall.js && tsc ./bin/paker.ts --esModuleInterop",
+    "build_bin": "tsc ./build.ts --esModuleInterop && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/postinstall.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop"
   },
   "bin": {
-    "modloader64": "./bin/index.js"
+    "modloader64": "./bin/index.js",
+    "paker": "./bin/paker.js"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -36,8 +38,7 @@
     "simple-node-logger": "^18.12.23",
     "commander": "^3.0.2",
     "download-file": "^0.1.5",
-    "request": "^2.88.0",
-    "ncp": "^2.0.0"
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
