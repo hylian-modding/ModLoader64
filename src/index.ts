@@ -36,7 +36,7 @@ if (program.cores){
 }
 
 if (program.config){
-    global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.options;
+    global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
 }
 
 if (program.dir) {

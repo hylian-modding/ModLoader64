@@ -105,6 +105,12 @@ if (commander_1["default"].run) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    ml.on('error', function (err) {
+        console.log(err);
+    });
+    ml.stderr.on('data', function (data) {
+        console.log(data);
+    });
     process.chdir(original_dir_5);
 }
 if (commander_1["default"].dist) {

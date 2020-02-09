@@ -120,6 +120,12 @@ if (program.run) {
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
+    ml.on('error', (err: Error) => {
+        console.log(err);
+    });
+    ml.stderr.on('data', (data)=>{
+        console.log(data);
+    });
     process.chdir(original_dir);
 }
 
