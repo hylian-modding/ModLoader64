@@ -123,7 +123,7 @@ function pushModules() {
 
 function prebuild() {
 
-    if (fs.existsSync("./cores")) {
+    if (!fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
     }
 
