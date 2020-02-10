@@ -127,7 +127,7 @@ if (commander_1["default"].dist) {
     fs_1["default"].readdirSync(".").forEach(function (file) {
         var p = path_1["default"].join(".", file);
         if (fs_1["default"].lstatSync(p).isDirectory()) {
-            child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/build/src/tools/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+            child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
             console.log("Generated pak for " + file + ".");
         }
     });
