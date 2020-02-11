@@ -21,6 +21,7 @@ program.option("-m, --mods <dir>", "change mod folder");
 program.option("-r, --roms <dir>", "change rom folder");
 program.option("-c, --cores <dir>", "change core folder");
 program.option("-o, --config <file>, change config file");
+program.option("-s, --startdir <dir>", "the start dir for sdk usage");
 program.parse(process.argv);
 
 if (program.mods){
@@ -41,6 +42,10 @@ if (program.config){
 
 if (program.dir) {
     process.chdir(path.resolve(path.join(process.cwd(), program.dir)));
+}
+
+if (program.startdir){
+    global.ModLoader["startdir"] = program.startdir;
 }
 
 if (fs.existsSync('./console.log')) {

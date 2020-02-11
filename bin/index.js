@@ -18,6 +18,7 @@ commander_1["default"].option("-u, --update", "update");
 commander_1["default"].option("-q, --bumpversion", "bump version number");
 commander_1["default"].option("-i, --install <url>", "install dependency");
 commander_1["default"].option("-s, --setroms <path>", "set rom directory");
+commander_1["default"].option("-c, --clean", "cleans build dirs");
 commander_1["default"].parse(process.argv);
 var original_dir = process.cwd();
 process.chdir(path_1["default"].join(__dirname, "../"));
@@ -73,6 +74,11 @@ if (commander_1["default"].bumpversion) {
     console.log("New version number: " + meta.version);
     process.chdir(original_dir_3);
 }
+if (commander_1["default"].clean) {
+    fs_extra_1["default"].removeSync("./build");
+    fs_extra_1["default"].removeSync("./build2");
+    fs_extra_1["default"].removeSync("./dist");
+}
 if (commander_1["default"].build) {
     var original_dir_4 = process.cwd();
     console.log("Building mod. Please wait...");
@@ -101,7 +107,7 @@ if (commander_1["default"].run) {
     console.log("Running mod. Please wait while we load the emulator...");
     var original_dir_5 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_5, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_5, "libs") + " --config=" + path_1["default"].join(original_dir_5, "modloader64-config.json"));
+    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_5, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_5, "libs") + " --config=" + path_1["default"].join(original_dir_5, "modloader64-config.json") + " --startdir " + original_dir_5);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -140,7 +146,7 @@ if (commander_1["default"].runp2) {
     cfg["ModLoader64"]["isServer"] = false;
     fs_1["default"].writeFileSync(path_1["default"].join(original_dir_7, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_7, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_7, "libs") + " --config=" + path_1["default"].join(original_dir_7, "modloader64-p2-config.json"));
+    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_7, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_7, "libs") + " --config=" + path_1["default"].join(original_dir_7, "modloader64-p2-config.json") + " --startdir " + original_dir_7);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });

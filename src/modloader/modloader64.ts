@@ -316,6 +316,7 @@ class ModLoader64 {
                   let evt: any = { rom: rom_data };
                   if (instance.data.isClient) {
                       bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+                      bus.emit("ON_ROM_PATCHED_POST", evt);
                   }
                   return evt.rom;
               }) as IMemory;

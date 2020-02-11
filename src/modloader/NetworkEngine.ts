@@ -561,9 +561,13 @@ namespace NetworkEngine {
                 );
                 bus.emit(EventsClient.CONFIGURE_LOBBY, ld);
                 if (inst.modLoaderconfig.patch !== '') {
+                    let mods: string = "./mods";
+                    if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")){
+                        mods = global.ModLoader.OVERRIDE_MODS_FOLDER;
+                    }
                     ld.data['patch'] = zlib.gzipSync(
                         fs.readFileSync(
-                            path.resolve(path.join('./mods', inst.modLoaderconfig.patch))
+                            path.resolve(path.join(mods, inst.modLoaderconfig.patch))
                         )
                     );
                 }

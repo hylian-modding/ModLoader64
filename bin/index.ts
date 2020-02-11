@@ -15,6 +15,8 @@ program.option("-u, --update", "update");
 program.option("-q, --bumpversion", "bump version number");
 program.option("-i, --install <url>", "install dependency");
 program.option("-s, --setroms <path>", "set rom directory");
+program.option("-c, --clean", "cleans build dirs");
+
 program.parse(process.argv);
 
 interface SDK_Cat {
@@ -87,6 +89,12 @@ if (program.bumpversion) {
     process.chdir(original_dir);
 }
 
+if (program.clean){
+    fse.removeSync("./build");
+    fse.removeSync("./build2");
+    fse.removeSync("./dist");
+}
+
 if (program.build) {
     let original_dir: string = process.cwd();
     console.log("Building mod. Please wait...");
@@ -116,7 +124,7 @@ if (program.run) {
     console.log("Running mod. Please wait while we load the emulator...");
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json"));
+    let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -157,7 +165,7 @@ if (program.runp2) {
     cfg["ModLoader64"]["isServer"] = false;
     fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json"));
+    let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
