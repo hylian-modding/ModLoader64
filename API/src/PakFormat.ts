@@ -4,6 +4,7 @@ import path from 'path';
 let fx = require('mkdir-recursive');
 import crypto from 'crypto';
 import os from 'os';
+import slash from 'slash';
 
 export interface IPakFileEntry {
   type: string;
@@ -214,7 +215,7 @@ export class PakFile implements IPakFile {
           type = 'DEFL';
       }
       let entry = new PakFileEntry(
-          filename,
+          slash(filename),
           type,
           data.byteLength,
           0xffffffff,
@@ -239,7 +240,7 @@ export class PakFile implements IPakFile {
           type = 'DEFL';
       }
       let entry = new PakFileEntry(
-          filename,
+          slash(filename),
           type,
           data.byteLength,
           0xffffffff,

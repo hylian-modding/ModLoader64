@@ -1,0 +1,24 @@
+{
+  "ModLoader64": {
+    "rom": "Legend of Zelda, The - Majora's Mask (USA).zip",
+    "patch": "",
+    "isServer": true,
+    "isClient": true,
+    "supportedConsoles": [
+      "N64"
+    ],
+    "selectedConsole": "N64",
+    "coreOverride": ""
+  },
+  "NetworkEngine.Server": {
+    "port": 8082,
+    "udpPort": 8082
+  },
+  "NetworkEngine.Client": {
+    "ip": "127.0.0.1",
+    "port": 8082,
+    "lobby": "selfish-quail-56",
+    "nickname": "Player",
+    "password": ""
+  }
+}

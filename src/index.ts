@@ -24,19 +24,19 @@ program.option("-o, --config <file>, change config file");
 program.option("-s, --startdir <dir>", "the start dir for sdk usage");
 program.parse(process.argv);
 
-if (program.mods){
+if (program.mods) {
     global.ModLoader["OVERRIDE_MODS_FOLDER"] = program.mods;
 }
 
-if (program.roms){
+if (program.roms) {
     global.ModLoader["OVERRIDE_ROMS_FOLDER"] = program.roms;
 }
 
-if (program.cores){
+if (program.cores) {
     global.ModLoader["OVERRIDE_CORES_FOLDER"] = program.cores;
 }
 
-if (program.config){
+if (program.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
 }
 
@@ -44,7 +44,7 @@ if (program.dir) {
     process.chdir(path.resolve(path.join(process.cwd(), program.dir)));
 }
 
-if (program.startdir){
+if (program.startdir) {
     global.ModLoader["startdir"] = program.startdir;
 }
 

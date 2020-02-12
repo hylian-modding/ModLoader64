@@ -25,324 +25,338 @@ import crypto from 'crypto';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { pakVerifier } from './pakVerifier';
 import { Pak } from 'modloader64_api/PakFormat';
+import zip from 'adm-zip';
+import moduleAlias from 'module-alias';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
 
 class ModLoader64 {
-  logger: ILogger;
-  config: IConfig = new configuration(
-      process.cwd() + '/ModLoader64-config.json'
-  );
-  data: IModLoaderConfig = this.config.registerConfigCategory(
-      'ModLoader64'
-  ) as IModLoaderConfig;
-  plugins: pluginLoader;
-  rom_folder = './roms';
-  mods_folder = './mods';
-  roms: string[];
-  Server: NetworkEngine.Server;
-  Client: NetworkEngine.Client;
-  rom_path!: string;
-  emulator!: IConsole;
-  tunnel!: IGUITunnel;
-  done = false;
+    logger: ILogger;
+    config: IConfig = new configuration(
+        process.cwd() + '/ModLoader64-config.json'
+    );
+    data: IModLoaderConfig = this.config.registerConfigCategory(
+        'ModLoader64'
+    ) as IModLoaderConfig;
+    plugins: pluginLoader;
+    rom_folder = './roms';
+    mods_folder = './mods';
+    roms: string[];
+    Server: NetworkEngine.Server;
+    Client: NetworkEngine.Client;
+    rom_path!: string;
+    emulator!: IConsole;
+    tunnel!: IGUITunnel;
+    done = false;
 
-  constructor(logger: any) {
-      if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")){
-          this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
-      }
-      if (global.ModLoader.hasOwnProperty("OVERRIDE_ROMS_FOLDER")){
-          this.rom_folder = global.ModLoader.OVERRIDE_ROMS_FOLDER;
-      }
-      if (!fs.existsSync(this.rom_folder)) {
-          fs.mkdirSync(this.rom_folder);
-      }
-      if (!fs.existsSync(this.mods_folder)) {
-          fs.mkdirSync(this.mods_folder);
-      }
-      this.roms = fs.readdirSync(this.rom_folder);
-      this.logger = logger as ILogger;
-      let mods_folder_array = [path.resolve(path.join(process.cwd(), 'mods'))];
-      if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")){
-          mods_folder_array.push(this.mods_folder);
-      }
-      this.plugins = new pluginLoader(
-          mods_folder_array,
-          this.config,
-          this.logger
-      );
-      this.Server = new NetworkEngine.Server(this.logger, this.config);
-      this.Client = new NetworkEngine.Client(this.logger, this.config);
+    constructor(logger: any) {
+        if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
+            this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
+        }
+        if (global.ModLoader.hasOwnProperty("OVERRIDE_ROMS_FOLDER")) {
+            this.rom_folder = global.ModLoader.OVERRIDE_ROMS_FOLDER;
+        }
+        if (!fs.existsSync(this.rom_folder)) {
+            fs.mkdirSync(this.rom_folder);
+        }
+        if (!fs.existsSync(this.mods_folder)) {
+            fs.mkdirSync(this.mods_folder);
+        }
+        this.roms = fs.readdirSync(this.rom_folder);
+        this.logger = logger as ILogger;
+        let mods_folder_array = [path.resolve(path.join(process.cwd(), 'mods'))];
+        if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
+            mods_folder_array.push(this.mods_folder);
+        }
+        this.plugins = new pluginLoader(
+            mods_folder_array,
+            this.config,
+            this.logger
+        );
+        this.Server = new NetworkEngine.Server(this.logger, this.config);
+        this.Client = new NetworkEngine.Client(this.logger, this.config);
 
-      if (process.platform === 'win32') {
-          let rl = require('readline').createInterface({
-              input: process.stdin,
-              output: process.stdout,
-          });
+        if (process.platform === 'win32') {
+            let rl = require('readline').createInterface({
+                input: process.stdin,
+                output: process.stdout,
+            });
 
-          rl.on('SIGINT', function() {
-              // @ts-ignore
-              process.emit('SIGINT');
-          });
+            rl.on('SIGINT', function () {
+                // @ts-ignore
+                process.emit('SIGINT');
+            });
 
-          if (fs.existsSync('./storage')) {
-              fs.readdirSync('./storage').forEach((key: string) => {
-                  let file: string = path.join('./storage', key);
-                  if (fs.existsSync(file)) {
-                      let seconds =
-              (new Date().getTime() -
-                new Date(fs.statSync(file).mtime).getTime()) /
-              1000;
-                      if (seconds > 2592000) {
-                          fs.unlinkSync(file);
-                      }
-                  }
-              });
-          }
-      }
+            if (fs.existsSync('./storage')) {
+                fs.readdirSync('./storage').forEach((key: string) => {
+                    let file: string = path.join('./storage', key);
+                    if (fs.existsSync(file)) {
+                        let seconds =
+                            (new Date().getTime() -
+                                new Date(fs.statSync(file).mtime).getTime()) /
+                            1000;
+                        if (seconds > 2592000) {
+                            fs.unlinkSync(file);
+                        }
+                    }
+                });
+            }
+        }
 
-      process.on('SIGINT', function() {
-      //graceful shutdown
-          internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-          process.exit(0);
-      });
+        process.on('SIGINT', function () {
+            //graceful shutdown
+            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
+            process.exit(0);
+        });
 
-      process.on('message', (msg: string) => {
-          let packet: GUITunnelPacket = JSON.parse(msg) as GUITunnelPacket;
-          bus.emit(packet.id, packet);
-      });
-  }
+        process.on('message', (msg: string) => {
+            let packet: GUITunnelPacket = JSON.parse(msg) as GUITunnelPacket;
+            bus.emit(packet.id, packet);
+        });
+    }
 
-  start() {
-      this.tunnel = new GUITunnel(process, 'internal_event_bus', this);
-      let ofn = internal_event_bus.emit.bind(internal_event_bus);
-      ((inst: ModLoader64) => {
-          internal_event_bus.emit = function(
-              event: string | string[],
-              ...values: any[]
-          ): boolean {
-              inst.tunnel.send(event as string, values);
-              return ofn(event, values);
-          };
-      })(this);
-      internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
-          this.emulator.stopEmulator();
-      });
-      this.preinit();
-  }
+    start() {
+        this.tunnel = new GUITunnel(process, 'internal_event_bus', this);
+        let ofn = internal_event_bus.emit.bind(internal_event_bus);
+        ((inst: ModLoader64) => {
+            internal_event_bus.emit = function (
+                event: string | string[],
+                ...values: any[]
+            ): boolean {
+                inst.tunnel.send(event as string, values);
+                return ofn(event, values);
+            };
+        })(this);
+        internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
+            this.emulator.stopEmulator();
+        });
+        this.preinit();
+    }
 
-  private preinit() {
-      // Set up config.
-      this.config.setData(
-          'ModLoader64',
-          'rom',
-          'Legend of Zelda, The - Ocarina of Time (U) (V1.0) [!].z64'
-      );
-      this.config.setData('ModLoader64', 'patch', '');
-      this.config.setData('ModLoader64', 'isServer', true);
-      this.config.setData('ModLoader64', 'isClient', true);
-      this.config.setData(
-          'ModLoader64',
-          'supportedConsoles',
-          SUPPORTED_CONSOLES,
-          true
-      );
-      this.config.setData('ModLoader64', 'selectedConsole', 'N64');
-      this.config.setData('ModLoader64', 'coreOverride', '');
+    private preinit() {
+        // Set up config.
+        this.config.setData(
+            'ModLoader64',
+            'rom',
+            'Legend of Zelda, The - Ocarina of Time (U) (V1.0) [!].z64'
+        );
+        this.config.setData('ModLoader64', 'patch', '');
+        this.config.setData('ModLoader64', 'isServer', true);
+        this.config.setData('ModLoader64', 'isClient', true);
+        this.config.setData(
+            'ModLoader64',
+            'supportedConsoles',
+            SUPPORTED_CONSOLES,
+            true
+        );
+        this.config.setData('ModLoader64', 'selectedConsole', 'N64');
+        this.config.setData('ModLoader64', 'coreOverride', '');
 
-      this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
+        this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
 
-      let auto_wire_cores: Function = (p: string) => {
-          fs.readdirSync(p).forEach(file => {
-              let f = path.join(p, file);
-              if (!fs.lstatSync(f).isDirectory()) {
-                  let parse = path.parse(file);
-                  if (parse.ext === '.js') {
-                      let p = require(f)[parse.name];
-                      this.plugins.registerCorePlugin(parse.name, new p() as ICore);
-                      this.logger.info('Auto-wiring core: ' + parse.name);
-                  }
-              }
-          });
-      };
+        if (path.parse(this.rom_path).ext === ".zip") {
+            // Some dumbass tried to load a zip file. Babysit it.
+            let temp: string = fs.mkdtempSync("ModLoader64_temp_");
+            let z: zip = new zip(this.rom_path);
+            z.extractAllTo(temp, true);
+            fs.readdirSync(temp).forEach((file: string) => {
+                let p = path.parse(file);
+                this.rom_path = path.resolve(path.join(temp, p.base));
+            });
+        }
 
-      this.logger.info('Loading internal cores...');
-      auto_wire_cores(path.resolve(path.join(__dirname, '/cores')));
+        let auto_wire_cores: Function = (p: string) => {
+            fs.readdirSync(p).forEach(file => {
+                let f = path.join(p, file);
+                if (!fs.lstatSync(f).isDirectory()) {
+                    let parse = path.parse(file);
+                    if (parse.ext === '.js') {
+                        let p = require(path.resolve(f))[parse.name];
+                        this.plugins.registerCorePlugin(parse.name, new p() as ICore);
+                        this.logger.info('Auto-wiring core: ' + parse.name);
+                    }
+                }
+            });
+        };
 
-      let cores_folder: string = "./cores";
-      if (global.ModLoader.hasOwnProperty("OVERRIDE_CORES_FOLDER")){
-          cores_folder = global.ModLoader.OVERRIDE_CORES_FOLDER;
-      }
+        this.logger.info('Loading internal cores...');
+        auto_wire_cores(path.resolve(path.join(__dirname, '/cores')));
 
-      if (!fs.existsSync(cores_folder)) {
-          fs.mkdirSync(cores_folder);
-      }
-      module.paths.push(cores_folder);
+        let cores_folder: string = "./cores";
+        if (global.ModLoader.hasOwnProperty("OVERRIDE_CORES_FOLDER")) {
+            cores_folder = global.ModLoader.OVERRIDE_CORES_FOLDER;
+        }
 
-      this.logger.info('Loading external cores...');
-      let ext_core_path: string = path.resolve(path.join(cores_folder));
-      fs.readdirSync(ext_core_path).forEach(file => {
-          let f = path.join(ext_core_path, file);
-          if (!fs.lstatSync(f).isDirectory()) {
-              let parse = path.parse(file);
-              if (parse.ext === '.pak') {
-                  let pak: Pak = new Pak(f);
-                  let v: pakVerifier = new pakVerifier(this.logger);
-                  if (v.verifyPak(pak, f)) {
-                      let dir: string = v.extractPakToTemp(pak, f);
-                      module.paths.push(path.join(dir, '../'));
-                      auto_wire_cores(dir);
-                  }
-              }
-          } else {
-              auto_wire_cores(f);
-          }
-      });
+        if (!fs.existsSync(cores_folder)) {
+            fs.mkdirSync(cores_folder);
+        }
+        moduleAlias.addPath(path.resolve(cores_folder));
 
-      if (this.data.isServer) {
-          switch (this.data.selectedConsole) {
-          case 'N64': {
-              this.emulator = new FakeMupen(this.rom_path);
-              break;
-          }
-          }
-      }
-      if (this.data.isClient) {
-          switch (this.data.selectedConsole) {
-          case 'N64': {
-              this.emulator = new N64(this.rom_path, this.logger);
-              break;
-          }
-          }
-      }
-      internal_event_bus.emit('preinit_done', {});
-      this.init();
-  }
+        this.logger.info('Loading external cores...');
+        let ext_core_path: string = path.resolve(path.join(cores_folder));
+        fs.readdirSync(ext_core_path).forEach(file => {
+            let f = path.join(ext_core_path, file);
+            if (!fs.lstatSync(f).isDirectory()) {
+                let parse = path.parse(file);
+                if (parse.ext === '.pak') {
+                    let pak: Pak = new Pak(f);
+                    let v: pakVerifier = new pakVerifier(this.logger);
+                    if (v.verifyPak(pak, f)) {
+                        let dir: string = v.extractPakToTemp(pak, f);
+                        let d: string = path.resolve(dir, '../');
+                        moduleAlias.addPath(d);
+                        auto_wire_cores(dir);
+                    }
+                }
+            } else {
+                auto_wire_cores(f);
+            }
+        });
 
-  private init() {
-      let loaded_rom_header: IRomHeader;
-      if (fs.existsSync(this.rom_path)) {
-          this.logger.info('Parsing rom header...');
-          loaded_rom_header = this.emulator.getRomHeader();
-          let core_match: any = null;
-          let core_key = '';
-          Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-              if (loaded_rom_header.name === this.plugins.core_plugins[key].header) {
-                  core_match = this.plugins.core_plugins[key];
-                  core_key = key;
-              }
-          });
-          if (this.data.coreOverride !== '') {
-              core_key = this.data.coreOverride;
-              core_match = this.plugins.core_plugins[core_key];
-          }
-          if (core_match !== null) {
-              this.logger.info('Auto-selected core: ' + core_key);
-              this.plugins.selected_core = core_key;
-          } else {
-              this.logger.error(
-                  'Failed to find a compatible core for the selected rom!'
-              );
-              this.logger.info('Setting core to DummyCore.');
-              this.plugins.selected_core = 'DummyCore';
-          }
-          // Load the plugins
-          this.plugins.loadPluginsConstruct(loaded_rom_header);
-          bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
-          bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
-      }
-      this.plugins.loadPluginsPreInit(this.emulator);
-      internal_event_bus.emit('onPreInitDone', {});
-      // Set up networking.
-      internal_event_bus.on('onNetworkConnect', (evt: any) => {
-          this.postinit(evt);
-      });
-      if (this.data.isServer) {
-          this.Server.setup();
-      }
-      if (this.data.isClient) {
-          this.Client.setup();
-      }
-      internal_event_bus.emit('onInitDone', {});
-  }
+        if (this.data.isServer) {
+            switch (this.data.selectedConsole) {
+            case 'N64': {
+                this.emulator = new FakeMupen(this.rom_path);
+                break;
+            }
+            }
+        }
+        if (this.data.isClient) {
+            switch (this.data.selectedConsole) {
+            case 'N64': {
+                this.emulator = new N64(this.rom_path, this.logger);
+                break;
+            }
+            }
+        }
+        internal_event_bus.emit('preinit_done', {});
+        this.init();
+    }
 
-  private postinit(result: any) {
-      if (this.done) {
-          return;
-      }
-      if (fs.existsSync(this.rom_path) || this.data.isServer) {
-          this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
-          this.logger.info('Setting up Mupen...');
-          let instance = this;
-          let mupen: IMemory;
-          let load_mupen = new Promise(function(resolve, reject) {
-              if (!fs.existsSync('./saves')) {
-                  fs.mkdirSync('./saves');
-              }
-              if (
-                  !fs.existsSync(path.join('./saves', instance.Client.config.lobby))
-              ) {
-                  fs.mkdirSync(path.join('./saves', instance.Client.config.lobby));
-              }
-              instance.emulator.setSaveDir(
-                  path.resolve(path.join('./saves', instance.Client.config.lobby)) + '/'
-              );
-              mupen = instance.emulator.startEmulator(() => {
-                  let p: Buffer = result[0].patch as Buffer;
-                  let rom_data: Buffer = instance.emulator.getLoadedRom();
-                  if (p.byteLength > 1 && rom_data.byteLength > 1) {
-                      let BPS = require('./BPS');
-                      let _BPS = new BPS();
-                      try {
-                          let hash = crypto
-                              .createHash('md5')
-                              .update(rom_data)
-                              .digest('hex');
-                          instance.logger.info('Patching rom...');
-                          rom_data = _BPS.tryPatch(rom_data, p);
-                          let newHash = crypto
-                              .createHash('md5')
-                              .update(rom_data)
-                              .digest('hex');
-                          instance.logger.info(hash);
-                          instance.logger.info(newHash);
-                      } catch (err) {
-                          if (err) {
-                              process.exit(ModLoaderErrorCodes.BPS_FAILED);
-                          }
-                      }
-                  }
-                  let evt: any = { rom: rom_data };
-                  if (instance.data.isClient) {
-                      bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
-                      bus.emit("ON_ROM_PATCHED_POST", evt);
-                  }
-                  return evt.rom;
-              }) as IMemory;
-              while (!instance.emulator.isEmulatorReady()) {}
-              internal_event_bus.emit('emulator_started', {});
-              resolve();
-          });
-          load_mupen.then(function() {
-              instance.logger.info('Finishing plugin init...');
-              instance.plugins.loadPluginsPostinit(
-                  mupen,
-                  instance.emulator,
-                  instance.data
-              );
-              internal_event_bus.emit('onPostInitDone', {});
-              instance.done = true;
-              // Detect if the user closed Mupen.
-              setInterval(() => {
-                  if (!instance.emulator.isEmulatorReady()) {
-                      internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-                      process.exit(ModLoaderErrorCodes.NORMAL_EXIT);
-                  }
-              }, 1000);
-          });
-      }
-  }
+    private init() {
+        let loaded_rom_header: IRomHeader;
+        if (fs.existsSync(this.rom_path)) {
+            this.logger.info('Parsing rom header...');
+            loaded_rom_header = this.emulator.getRomHeader();
+            let core_match: any = null;
+            let core_key = '';
+            Object.keys(this.plugins.core_plugins).forEach((key: string) => {
+                if (loaded_rom_header.name === this.plugins.core_plugins[key].header) {
+                    core_match = this.plugins.core_plugins[key];
+                    core_key = key;
+                }
+            });
+            if (this.data.coreOverride !== '') {
+                core_key = this.data.coreOverride;
+                core_match = this.plugins.core_plugins[core_key];
+            }
+            if (core_match !== null) {
+                this.logger.info('Auto-selected core: ' + core_key);
+                this.plugins.selected_core = core_key;
+            } else {
+                this.logger.error(
+                    'Failed to find a compatible core for the selected rom!'
+                );
+                this.logger.info('Setting core to DummyCore.');
+                this.plugins.selected_core = 'DummyCore';
+            }
+            // Load the plugins
+            this.plugins.loadPluginsConstruct(loaded_rom_header);
+            bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
+            bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
+        }
+        this.plugins.loadPluginsPreInit(this.emulator);
+        internal_event_bus.emit('onPreInitDone', {});
+        // Set up networking.
+        internal_event_bus.on('onNetworkConnect', (evt: any) => {
+            this.postinit(evt);
+        });
+        if (this.data.isServer) {
+            this.Server.setup();
+        }
+        if (this.data.isClient) {
+            this.Client.setup();
+        }
+        internal_event_bus.emit('onInitDone', {});
+    }
+
+    private postinit(result: any) {
+        if (this.done) {
+            return;
+        }
+        if (fs.existsSync(this.rom_path) || this.data.isServer) {
+            this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
+            this.logger.info('Setting up Mupen...');
+            let instance = this;
+            let mupen: IMemory;
+            let load_mupen = new Promise(function (resolve, reject) {
+                if (!fs.existsSync('./saves')) {
+                    fs.mkdirSync('./saves');
+                }
+                if (
+                    !fs.existsSync(path.join('./saves', instance.Client.config.lobby))
+                ) {
+                    fs.mkdirSync(path.join('./saves', instance.Client.config.lobby));
+                }
+                instance.emulator.setSaveDir(
+                    path.resolve(path.join('./saves', instance.Client.config.lobby)) + '/'
+                );
+                mupen = instance.emulator.startEmulator(() => {
+                    let p: Buffer = result[0].patch as Buffer;
+                    let rom_data: Buffer = instance.emulator.getLoadedRom();
+                    if (p.byteLength > 1 && rom_data.byteLength > 1) {
+                        let BPS = require('./BPS');
+                        let _BPS = new BPS();
+                        try {
+                            let hash = crypto
+                                .createHash('md5')
+                                .update(rom_data)
+                                .digest('hex');
+                            instance.logger.info('Patching rom...');
+                            rom_data = _BPS.tryPatch(rom_data, p);
+                            let newHash = crypto
+                                .createHash('md5')
+                                .update(rom_data)
+                                .digest('hex');
+                            instance.logger.info(hash);
+                            instance.logger.info(newHash);
+                        } catch (err) {
+                            if (err) {
+                                process.exit(ModLoaderErrorCodes.BPS_FAILED);
+                            }
+                        }
+                    }
+                    let evt: any = { rom: rom_data };
+                    if (instance.data.isClient) {
+                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+                        bus.emit("ON_ROM_PATCHED_POST", evt);
+                    }
+                    return evt.rom;
+                }) as IMemory;
+                while (!instance.emulator.isEmulatorReady()) { }
+                internal_event_bus.emit('emulator_started', {});
+                resolve();
+            });
+            load_mupen.then(function () {
+                instance.logger.info('Finishing plugin init...');
+                instance.plugins.loadPluginsPostinit(
+                    mupen,
+                    instance.emulator,
+                    instance.data
+                );
+                internal_event_bus.emit('onPostInitDone', {});
+                instance.done = true;
+                // Detect if the user closed Mupen.
+                setInterval(() => {
+                    if (!instance.emulator.isEmulatorReady()) {
+                        internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
+                        process.exit(ModLoaderErrorCodes.NORMAL_EXIT);
+                    }
+                }, 1000);
+            });
+        }
+    }
 }
 
 export default ModLoader64;
