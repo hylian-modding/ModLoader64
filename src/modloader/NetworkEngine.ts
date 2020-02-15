@@ -486,6 +486,9 @@ namespace NetworkEngine {
         config.setData('NetworkEngine.Client', 'nickname', 'Player');
         config.setData('NetworkEngine.Client', 'password', '');
         this.masterConfig = config;
+        if (this.config.nickname.indexOf("\n")){
+            this.config.nickname = this.config.nickname.replace("\n", "");
+        }
         this.modLoaderconfig = this.masterConfig.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
