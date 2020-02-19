@@ -203,15 +203,17 @@ function updateCores() {
     process.chdir(deps_dir);
     let cores: Array<string> = [];
     fs.readdirSync("./").forEach((file: string) => {
-        let f: string = path.join(process.cwd(), file);
+        let f: string = path.join("./", file);
         if (fs.lstatSync(f).isDirectory()) {
-            cores.push(path.resolve("./build/cores"));
             let b2: string = process.cwd();
+            process.chdir(path.join("./", f));
+            cores.push(path.resolve("./build/cores"));
             child_process.execSync("git reset --hard origin/master");
             child_process.execSync("git pull");
+            console.log(process.cwd());
             let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
             console.log("Updating " + meta2.name);
-            child_process.execSync("npm install " + meta2.name);
+            child_process.execSync("npm install");
             child_process.execSync("modloader64 -nbd");
             process.chdir(b2);
         }
@@ -237,12 +239,16 @@ if (program.update) {
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
     console.log("Updating ModLoader64...");
-    child_process.execSync("git reset --hard origin/master");
-    child_process.execSync("git pull");
-    let ml = child_process.exec("npm install");
-    ml.stdout.on('data', function (data) {
-        console.log(data);
-    });
+    //child_process.execSync("git reset --hard origin/master");
+    //child_process.execSync("git pull");
+    /*     let ml = child_process.exec("npm install");
+        ml.stdout.on('data', function (data) {
+            console.log(data);
+        });
+        ml.on('exit', () => {
+            process.chdir(original_dir);
+            updateCores();
+        }); */
     process.chdir(original_dir);
     updateCores();
 }
@@ -294,8 +300,8 @@ function install() {
                     }
                     if (tsconfig !== undefined) {
                         tsconfig["compilerOptions"]["paths"] = {};
-                        tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join(deps_dir, meta2.name) + "/*"];
-                        fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
+                        tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
+                        saveTSConfig();
                     }
                 });
             }
@@ -312,7 +318,13 @@ function install() {
             fs.readdirSync(c).forEach((dir: string) => {
                 let f: string = path.join(c, dir);
                 if (fs.lstatSync(f).isDirectory()) {
-                    fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)));
+                    try {
+                        fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)));
+                    } catch (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    }
                 }
             });
         }

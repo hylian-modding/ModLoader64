@@ -217,15 +217,17 @@ function updateCores() {
     process.chdir(deps_dir);
     var cores = [];
     fs_1["default"].readdirSync("./").forEach(function (file) {
-        var f = path_1["default"].join(process.cwd(), file);
+        var f = path_1["default"].join("./", file);
         if (fs_1["default"].lstatSync(f).isDirectory()) {
-            cores.push(path_1["default"].resolve("./build/cores"));
             var b2 = process.cwd();
+            process.chdir(path_1["default"].join("./", f));
+            cores.push(path_1["default"].resolve("./build/cores"));
             child_process_1["default"].execSync("git reset --hard origin/master");
             child_process_1["default"].execSync("git pull");
+            console.log(process.cwd());
             var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
             console.log("Updating " + meta2.name);
-            child_process_1["default"].execSync("npm install " + meta2.name);
+            child_process_1["default"].execSync("npm install");
             child_process_1["default"].execSync("modloader64 -nbd");
             process.chdir(b2);
         }
@@ -249,12 +251,16 @@ if (commander_1["default"].update) {
     var original_dir_8 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
     console.log("Updating ModLoader64...");
-    child_process_1["default"].execSync("git reset --hard origin/master");
-    child_process_1["default"].execSync("git pull");
-    var ml = child_process_1["default"].exec("npm install");
-    ml.stdout.on('data', function (data) {
-        console.log(data);
-    });
+    //child_process.execSync("git reset --hard origin/master");
+    //child_process.execSync("git pull");
+    /*     let ml = child_process.exec("npm install");
+        ml.stdout.on('data', function (data) {
+            console.log(data);
+        });
+        ml.on('exit', () => {
+            process.chdir(original_dir);
+            updateCores();
+        }); */
     process.chdir(original_dir_8);
     updateCores();
 }
@@ -312,8 +318,8 @@ function install() {
                                 }
                                 if (tsconfig !== undefined) {
                                     tsconfig["compilerOptions"]["paths"] = {};
-                                    tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1["default"].join(deps_dir, meta2.name) + "/*"];
-                                    fs_1["default"].writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
+                                    tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1["default"].join("./libs", meta2.name) + "/*"];
+                                    saveTSConfig();
                                 }
                             });
                         }
@@ -330,7 +336,14 @@ function install() {
                         fs_1["default"].readdirSync(c).forEach(function (dir) {
                             var f = path_1["default"].join(c, dir);
                             if (fs_1["default"].lstatSync(f).isDirectory()) {
-                                fs_extra_1["default"].symlinkSync(f, path_1["default"].resolve(path_1["default"].join("./libs", path_1["default"].parse(f).name)));
+                                try {
+                                    fs_extra_1["default"].symlinkSync(f, path_1["default"].resolve(path_1["default"].join("./libs", path_1["default"].parse(f).name)));
+                                }
+                                catch (err) {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                }
                             }
                         });
                     };
