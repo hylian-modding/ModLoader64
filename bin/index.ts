@@ -70,6 +70,7 @@ if (program.init) {
     }
     process.chdir(original_dir);
     if (!fs.existsSync("./node_modules")) {
+        child_process.execSync("npm install");
         console.log("Linking ModLoader64 API to project...");
         console.log("This might take a moment. Please be patient.");
         let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
@@ -88,7 +89,6 @@ if (program.init) {
         child_process.execSync("tsc --init");
         fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
     }
-    child_process.execSync("npm install");
 }
 
 if (program.setroms !== undefined) {

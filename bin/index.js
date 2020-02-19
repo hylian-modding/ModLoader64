@@ -92,6 +92,7 @@ if (commander_1["default"].init) {
     }
     process.chdir(original_dir_1);
     if (!fs_1["default"].existsSync("./node_modules")) {
+        child_process_1["default"].execSync("npm install");
         console.log("Linking ModLoader64 API to project...");
         console.log("This might take a moment. Please be patient.");
         var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
@@ -110,7 +111,6 @@ if (commander_1["default"].init) {
         child_process_1["default"].execSync("tsc --init");
         fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
     }
-    child_process_1["default"].execSync("npm install");
 }
 if (commander_1["default"].setroms !== undefined) {
     sdk_cfg.ModLoader64.SDK.roms_dir = path_1["default"].resolve(commander_1["default"].setroms);
