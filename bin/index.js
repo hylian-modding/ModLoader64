@@ -251,16 +251,16 @@ if (commander_1["default"].update) {
     var original_dir_8 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
     console.log("Updating ModLoader64...");
-    //child_process.execSync("git reset --hard origin/master");
-    //child_process.execSync("git pull");
-    /*     let ml = child_process.exec("npm install");
-        ml.stdout.on('data', function (data) {
-            console.log(data);
-        });
-        ml.on('exit', () => {
-            process.chdir(original_dir);
-            updateCores();
-        }); */
+    child_process_1["default"].execSync("git reset --hard origin/master");
+    child_process_1["default"].execSync("git pull");
+    var ml = child_process_1["default"].exec("npm install");
+    ml.stdout.on('data', function (data) {
+        console.log(data);
+    });
+    ml.on('exit', function () {
+        process.chdir(original_dir_8);
+        updateCores();
+    });
     process.chdir(original_dir_8);
     updateCores();
 }
