@@ -235,37 +235,36 @@ class ModLoader64 {
     }
 
     private init() {
-        let loaded_rom_header: IRomHeader;
+        let loaded_rom_header: IRomHeader = this.emulator.getRomHeader();
+        let core_match: any = null;
+        let core_key = '';
+        if (this.data.coreOverride !== '') {
+            core_key = this.data.coreOverride;
+            core_match = this.plugins.core_plugins[core_key];
+        }
         if (fs.existsSync(this.rom_path)) {
             this.logger.info('Parsing rom header...');
-            loaded_rom_header = this.emulator.getRomHeader();
-            let core_match: any = null;
-            let core_key = '';
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
                 if (loaded_rom_header.name === this.plugins.core_plugins[key].header) {
                     core_match = this.plugins.core_plugins[key];
                     core_key = key;
                 }
             });
-            if (this.data.coreOverride !== '') {
-                core_key = this.data.coreOverride;
-                core_match = this.plugins.core_plugins[core_key];
-            }
-            if (core_match !== null) {
-                this.logger.info('Auto-selected core: ' + core_key);
-                this.plugins.selected_core = core_key;
-            } else {
-                this.logger.error(
-                    'Failed to find a compatible core for the selected rom!'
-                );
-                this.logger.info('Setting core to DummyCore.');
-                this.plugins.selected_core = 'DummyCore';
-            }
-            // Load the plugins
-            this.plugins.loadPluginsConstruct(loaded_rom_header);
-            bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
-            bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
         }
+        if (core_match !== null) {
+            this.logger.info('Auto-selected core: ' + core_key);
+            this.plugins.selected_core = core_key;
+        } else {
+            this.logger.error(
+                'Failed to find a compatible core for the selected rom!'
+            );
+            this.logger.info('Setting core to DummyCore.');
+            this.plugins.selected_core = 'DummyCore';
+        }
+        // Load the plugins
+        this.plugins.loadPluginsConstruct(loaded_rom_header);
+        bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
+        bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
         this.plugins.loadPluginsPreInit(this.emulator);
         internal_event_bus.emit('onPreInitDone', {});
         // Set up networking.

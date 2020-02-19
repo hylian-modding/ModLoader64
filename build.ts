@@ -109,6 +109,7 @@ function pushModules() {
         if (fs.existsSync("./dist/linux/emulator_linux.tar.gz")){
             fs.unlinkSync("./dist/linux/emulator_linux.tar.gz");
         }
+        console.log("Building paks...");
         process.chdir("./dist");
         fs.renameSync("./windows", "./ModLoader");
         child_process.execSync("paker --dir ./ModLoader --output ./");
@@ -118,6 +119,14 @@ function pushModules() {
         child_process.execSync("paker --dir ./ModLoader --output ./");
         fs.renameSync("./ModLoader.pak", "./Linux.pak");
         fs.removeSync("./ModLoader");
+        process.chdir(original_dir);
+        console.log("Building dedi tarball...");
+        fs.copySync("./build", "./dist/dedi");
+        process.chdir("./dist/dedi");
+        child_process.execSync("tar -zcvf ./ModLoader64.tar.gz .");
+        process.chdir(original_dir);
+        fs.copyFileSync("./dist/dedi/ModLoader64.tar.gz", "./dist/ModLoader64.tar.gz");
+        fs.removeSync("./dist/dedi");
     });
 }
 

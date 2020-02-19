@@ -151,8 +151,6 @@ export class Link extends JSONTemplate implements ILink {
           return LinkState.DYING;
       case 0x04000000:
           return LinkState.TAKING_DAMAGE;
-      case 0x00040000:
-          return LinkState.FALLING;
       case 0x00080000:
           return LinkState.FALLING;
       case 0x00068000:

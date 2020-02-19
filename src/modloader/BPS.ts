@@ -46,6 +46,7 @@ class BPS {
         function decode() {
             let ret = 0;
             let sh = 0;
+            // eslint-disable-next-line no-constant-condition
             while (true) {
                 let next = u8();
                 ret += (next ^ 0x80) << sh;

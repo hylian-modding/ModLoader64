@@ -4,6 +4,7 @@ import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
 import { fork } from 'child_process';
+import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
 //require('source-map-support').install();
 
@@ -22,6 +23,7 @@ program.option("-r, --roms <dir>", "change rom folder");
 program.option("-c, --cores <dir>", "change core folder");
 program.option("-o, --config <file>, change config file");
 program.option("-s, --startdir <dir>", "the start dir for sdk usage");
+program.option("-l, --logginglevel <level>", "the logging level");
 program.parse(process.argv);
 
 if (program.mods) {
@@ -59,13 +61,17 @@ console.log = (message?: any, ...optionalParams: any[]) => {
 };
 
 if (fs.existsSync('../README.md')) {
-    logger.setLevel('all');
+    logger.setLevel('all' as ILoggerLevels);
+}
+
+if (program.logginglevel !== undefined){
+    logger.setLevel(program.logginglevel);
 }
 
 logger.info(projectID);
-logger.info('Authors: ', authors);
+logger.info('Authors: ', authors.toString());
 if (testers.length > 0) {
-    logger.info('Testers: ', testers);
+    logger.info('Testers: ', testers.toString());
 }
 logger.info('Version: ', version);
 

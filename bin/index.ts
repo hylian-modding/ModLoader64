@@ -5,6 +5,15 @@ import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
 import fse from 'fs-extra';
+const isElevated = require('is-elevated');
+const stripJsonComments = require('strip-json-comments');
+
+let platformkey = '';
+if (process.env.PROCESSOR_ARCHITECTURE === undefined) {
+    platformkey = process.platform.trim() + 'x64';
+} else {
+    platformkey = process.platform.trim() + process.env.PROCESSOR_ARCHITECTURE;
+}
 
 program.option('-n, --init', 'init new project');
 program.option('-b, --build', 'build mod');
@@ -16,6 +25,8 @@ program.option("-q, --bumpversion", "bump version number");
 program.option("-i, --install <url>", "install dependency");
 program.option("-s, --setroms <path>", "set rom directory");
 program.option("-c, --clean", "cleans build dirs");
+program.option("-a, --modulealias <alias>", "alias a module path");
+program.option("-p, --modulealiaspath <path>", "alias a module path");
 
 program.parse(process.argv);
 
@@ -35,6 +46,16 @@ let original_dir: string = process.cwd();
 process.chdir(path.join(__dirname, "../"));
 let sdk_cfg: SDKCFG = JSON.parse(fs.readFileSync("./SDK-config.json").toString());
 process.chdir(original_dir);
+
+let tsconfig_path: string = path.resolve(path.join("./", "tsconfig.json"));
+let tsconfig!: any;
+if (fs.existsSync(tsconfig_path)) {
+    tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
+}
+
+function saveTSConfig() {
+    fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
+}
 
 if (program.init) {
     let original_dir: string = process.cwd();
@@ -67,6 +88,7 @@ if (program.init) {
         child_process.execSync("tsc --init");
         fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
     }
+    child_process.execSync("npm install");
 }
 
 if (program.setroms !== undefined) {
@@ -89,7 +111,7 @@ if (program.bumpversion) {
     process.chdir(original_dir);
 }
 
-if (program.clean){
+if (program.clean) {
     fse.removeSync("./build");
     fse.removeSync("./build2");
     fse.removeSync("./dist");
@@ -131,7 +153,7 @@ if (program.run) {
     ml.on('error', (err: Error) => {
         console.log(err);
     });
-    ml.stderr.on('data', (data)=>{
+    ml.stderr.on('data', (data) => {
         console.log(data);
     });
     process.chdir(original_dir);
@@ -175,6 +197,42 @@ if (program.runp2) {
     process.chdir(original_dir);
 }
 
+function updateCores() {
+    let original_dir: string = process.cwd();
+    let deps_dir: string = path.join("./", "external_cores");
+    process.chdir(deps_dir);
+    let cores: Array<string> = [];
+    fs.readdirSync("./").forEach((file: string) => {
+        let f: string = path.join(process.cwd(), file);
+        if (fs.lstatSync(f).isDirectory()) {
+            cores.push(path.resolve("./build/cores"));
+            let b2: string = process.cwd();
+            child_process.execSync("git reset --hard origin/master");
+            child_process.execSync("git pull");
+            let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
+            console.log("Updating " + meta2.name);
+            child_process.execSync("npm install " + meta2.name);
+            child_process.execSync("modloader64 -nbd");
+            process.chdir(b2);
+        }
+    });
+    process.chdir(original_dir);
+}
+
+function installCores() {
+    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    if (!meta.hasOwnProperty("modloader64_deps")) {
+        meta["modloader64_deps"] = {};
+    }
+    let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+    if (!mod_meta.hasOwnProperty("modloader64_deps")) {
+        mod_meta["modloader64_deps"] = {};
+    }
+    Object.keys(mod_meta["modloader64_deps"]).forEach((key: string) => {
+        child_process.execSync("modloader64 -i " + mod_meta["modloader64_deps"][key]);
+    });
+}
+
 if (program.update) {
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
@@ -186,57 +244,114 @@ if (program.update) {
         console.log(data);
     });
     process.chdir(original_dir);
+    updateCores();
 }
 
-if (program.install !== undefined) {
-    console.log("Installing " + program.install + "...");
-    let original_dir: string = process.cwd();
-    if (!fs.existsSync("./dependencies")) {
-        fs.mkdirSync("./dependencies");
-    }
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    if (!meta.hasOwnProperty("modloader64_deps")) {
-        meta["modloader64_deps"] = {};
-    }
-    let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
-    if (!mod_meta.hasOwnProperty("modloader64_deps")) {
-        mod_meta["modloader64_deps"] = {};
-    }
-    process.chdir("./dependencies");
-    child_process.execSync("git clone " + program.install);
-    let cores: Array<string> = [];
-    fs.readdirSync(".").forEach((file: string) => {
-        let p: string = path.join(".", file);
-        let b: string = process.cwd();
-        if (fs.lstatSync(p).isDirectory()) {
-            process.chdir(p);
-            child_process.execSync("modloader64 --init --build");
-            cores.push(path.resolve("./build/cores"));
-            fs.readdirSync("./build/cores").forEach((file: string) => {
-                let b2: string = process.cwd();
-                let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
-                child_process.execSync("npm link " + meta2.name);
-                process.chdir(original_dir);
-                child_process.execSync("npm link " + meta2.name);
-                process.chdir(b2);
-                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                    meta["modloader64_deps"][meta2.name] = program.install;
-                }
-                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                    mod_meta["modloader64_deps"][meta2.name] = program.install;
+function install() {
+    (async () => {
+        let elv: boolean = await isElevated();
+        if (!elv && platformkey.indexOf("win32") > -1) {
+            console.log("Install must be run as administrator on Windows!");
+            return;
+        }
+        console.log("Installing " + program.install + "...");
+        let original_dir: string = process.cwd();
+        let deps_dir: string = path.join("./", "external_cores");
+        if (!fs.existsSync(deps_dir)) {
+            fs.mkdirSync(deps_dir);
+        }
+        let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+        if (!meta.hasOwnProperty("modloader64_deps")) {
+            meta["modloader64_deps"] = {};
+        }
+        let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+        if (!mod_meta.hasOwnProperty("modloader64_deps")) {
+            mod_meta["modloader64_deps"] = {};
+        }
+        process.chdir(deps_dir);
+        try {
+            child_process.execSync("git clone " + program.install);
+        } catch (err) {
+            if (err) {
+                console.log("This core is already installed!");
+            }
+        }
+        let cores: Array<string> = [];
+        fs.readdirSync(".").forEach((file: string) => {
+            let p: string = path.join(".", file);
+            let b: string = process.cwd();
+            if (fs.lstatSync(p).isDirectory()) {
+                process.chdir(p);
+                child_process.execSync("modloader64 --init --build");
+                cores.push(path.resolve("./build/cores"));
+                fs.readdirSync("./build/cores").forEach((file: string) => {
+                    let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
+                    if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                        meta["modloader64_deps"][meta2.name] = program.install;
+                    }
+                    if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                        mod_meta["modloader64_deps"][meta2.name] = program.install;
+                    }
+                    if (tsconfig !== undefined) {
+                        tsconfig["compilerOptions"]["paths"] = {};
+                        tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join(deps_dir, meta2.name) + "/*"];
+                        fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
+                    }
+                });
+            }
+            process.chdir(b);
+        });
+        process.chdir(original_dir);
+        fs.writeFileSync("./package.json", JSON.stringify(meta, null, 2));
+        fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
+        if (!fs.existsSync("./libs")) {
+            fs.mkdirSync("./libs");
+        }
+        for (let i = 0; i < cores.length; i++) {
+            let c: string = cores[i];
+            fs.readdirSync(c).forEach((dir: string) => {
+                let f: string = path.join(c, dir);
+                if (fs.lstatSync(f).isDirectory()) {
+                    fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)));
                 }
             });
         }
-        process.chdir(b);
-    });
-    process.chdir(original_dir);
-    fs.writeFileSync("./package.json", JSON.stringify(meta, null, 2));
-    fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
-    if (!fs.existsSync("./libs")) {
-        fs.mkdirSync("./libs");
-    }
-    for (let i = 0; i < cores.length; i++) {
-        let c: string = cores[i];
-        fse.copySync(c, "./libs");
-    }
+    })();
+}
+
+if (program.install !== undefined) {
+    install();
+}
+
+if (program.modulealiaspath !== undefined) {
+    (async () => {
+        let elv: boolean = await isElevated();
+        if (!elv && platformkey.indexOf("win32") > -1) {
+            console.log("Alias must be run as administrator on Windows!");
+            return;
+        }
+        if (!fs.existsSync("./libs")) {
+            fs.mkdirSync("./libs");
+        }
+        let p: string = path.resolve(program.modulealiaspath);
+        let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
+        if (fs.lstatSync(p).isDirectory()) {
+            fse.symlinkSync(p, p2);
+        }
+        console.log("Created alias for " + program.modulealiaspath + " -> " + program.modulealias);
+        if (program.modulealias !== undefined) {
+            let p: string = path.resolve(program.modulealiaspath);
+            let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
+            let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+            let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+            if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
+                mod_meta["modloader64_aliases"] = {};
+            }
+            mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+            fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
+            // TSConfig.
+            tsconfig["compilerOptions"]["paths"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+            saveTSConfig();
+        }
+    })();
 }
