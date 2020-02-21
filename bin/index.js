@@ -66,6 +66,8 @@ commander_1["default"].option("-s, --setroms <path>", "set rom directory");
 commander_1["default"].option("-c, --clean", "cleans build dirs");
 commander_1["default"].option("-a, --modulealias <alias>", "alias a module path");
 commander_1["default"].option("-p, --modulealiaspath <path>", "alias a module path");
+commander_1["default"].option("-z, --rebuildsdk", "rebuild sdk");
+commander_1["default"].option("-t, --template <template>", "make project from template");
 commander_1["default"].parse(process.argv);
 var original_dir = process.cwd();
 process.chdir(path_1["default"].join(__dirname, "../"));
@@ -79,8 +81,15 @@ if (fs_1["default"].existsSync(tsconfig_path)) {
 function saveTSConfig() {
     fs_1["default"].writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
 }
-if (commander_1["default"].init) {
+if (commander_1["default"].rebuildsdk) {
+    console.log("Rebuilding SDK...");
     var original_dir_1 = process.cwd();
+    process.chdir(path_1["default"].join(__dirname, "../"));
+    child_process_1["default"].execSync("npm install");
+    process.chdir(original_dir_1);
+}
+if (commander_1["default"].init) {
+    var original_dir_2 = process.cwd();
     console.log("Generating mod scaffolding...");
     child_process_1["default"].execSync("npm init --yes");
     if (!fs_1["default"].existsSync("./src")) {
@@ -90,8 +99,24 @@ if (commander_1["default"].init) {
         process.chdir("./src/" + meta.name);
         child_process_1["default"].execSync("npm init --yes");
     }
-    process.chdir(original_dir_1);
+    process.chdir(original_dir_2);
     if (!fs_1["default"].existsSync("./node_modules")) {
+        var mod_pkg_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
+        if (mod_pkg_1.hasOwnProperty("dependencies")) {
+            Object.keys(mod_pkg_1.dependencies).forEach(function (key) {
+                if (key.indexOf("modloader64") > -1) {
+                    delete mod_pkg_1.dependencies[key];
+                }
+            });
+        }
+        if (mod_pkg_1.hasOwnProperty("devDependencies")) {
+            Object.keys(mod_pkg_1.devDependencies).forEach(function (key) {
+                if (key.indexOf("modloader64") > -1) {
+                    delete mod_pkg_1.dependencies[key];
+                }
+            });
+        }
+        fs_1["default"].writeFileSync(path_1["default"].join(".", "package.json"), JSON.stringify(mod_pkg_1, null, 2));
         child_process_1["default"].execSync("npm install");
         console.log("Linking ModLoader64 API to project...");
         console.log("This might take a moment. Please be patient.");
@@ -114,13 +139,13 @@ if (commander_1["default"].init) {
 }
 if (commander_1["default"].setroms !== undefined) {
     sdk_cfg.ModLoader64.SDK.roms_dir = path_1["default"].resolve(commander_1["default"].setroms);
-    var original_dir_2 = process.cwd();
+    var original_dir_3 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
     fs_1["default"].writeFileSync("./SDK-config.json", JSON.stringify(sdk_cfg, null, 2));
-    process.chdir(original_dir_2);
+    process.chdir(original_dir_3);
 }
 if (commander_1["default"].bumpversion) {
-    var original_dir_3 = process.cwd();
+    var original_dir_4 = process.cwd();
     child_process_1["default"].execSync("npm version --no-git-tag-version patch");
     var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
     var p = "./src/" + meta.name;
@@ -128,7 +153,7 @@ if (commander_1["default"].bumpversion) {
     child_process_1["default"].execSync("npm version --no-git-tag-version patch");
     meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
     console.log("New version number: " + meta.version);
-    process.chdir(original_dir_3);
+    process.chdir(original_dir_4);
 }
 if (commander_1["default"].clean) {
     fs_extra_1["default"].removeSync("./build");
@@ -136,7 +161,7 @@ if (commander_1["default"].clean) {
     fs_extra_1["default"].removeSync("./dist");
 }
 if (commander_1["default"].build) {
-    var original_dir_4 = process.cwd();
+    var original_dir_5 = process.cwd();
     console.log("Building mod. Please wait...");
     if (!fs_1["default"].existsSync("./cores")) {
         fs_1["default"].mkdirSync("./cores");
@@ -157,13 +182,13 @@ if (commander_1["default"].build) {
             child_process_1["default"].execSync("npm link --local " + p);
         }
     });
-    process.chdir(original_dir_4);
+    process.chdir(original_dir_5);
 }
 if (commander_1["default"].run) {
     console.log("Running mod. Please wait while we load the emulator...");
-    var original_dir_5 = process.cwd();
+    var original_dir_6 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_5, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_5, "libs") + " --config=" + path_1["default"].join(original_dir_5, "modloader64-config.json") + " --startdir " + original_dir_5);
+    var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_6, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_6, "libs") + " --config=" + path_1["default"].join(original_dir_6, "modloader64-config.json") + " --startdir " + original_dir_6);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
@@ -173,10 +198,10 @@ if (commander_1["default"].run) {
     ml.stderr.on('data', function (data) {
         console.log(data);
     });
-    process.chdir(original_dir_5);
+    process.chdir(original_dir_6);
 }
 if (commander_1["default"].dist) {
-    var original_dir_6 = process.cwd();
+    var original_dir_7 = process.cwd();
     var fsExtra = require('fs-extra');
     fsExtra.emptyDirSync("./dist");
     if (!fs_1["default"].existsSync("./dist")) {
@@ -193,23 +218,23 @@ if (commander_1["default"].dist) {
             console.log("Generated pak for " + file + ".");
         }
     });
-    process.chdir(original_dir_6);
+    process.chdir(original_dir_7);
 }
 if (commander_1["default"].runp2) {
     console.log("Running mod. Please wait while we load the emulator...");
-    var original_dir_7 = process.cwd();
-    var cfg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(original_dir_7, "modloader64-config.json")).toString());
+    var original_dir_8 = process.cwd();
+    var cfg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(original_dir_8, "modloader64-config.json")).toString());
     cfg["ModLoader64"]["isServer"] = false;
-    fs_1["default"].writeFileSync(path_1["default"].join(original_dir_7, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
+    fs_1["default"].writeFileSync(path_1["default"].join(original_dir_8, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path_1["default"].join(__dirname, "../"));
-    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_7, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_7, "libs") + " --config=" + path_1["default"].join(original_dir_7, "modloader64-p2-config.json") + " --startdir " + original_dir_7);
+    var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_8, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_8, "libs") + " --config=" + path_1["default"].join(original_dir_8, "modloader64-p2-config.json") + " --startdir " + original_dir_8);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
     ml.on('error', function (err) {
         console.log(err);
     });
-    process.chdir(original_dir_7);
+    process.chdir(original_dir_8);
 }
 function updateCores() {
     var original_dir = process.cwd();
@@ -248,7 +273,7 @@ function installCores() {
     });
 }
 if (commander_1["default"].update) {
-    var original_dir_8 = process.cwd();
+    var original_dir_9 = process.cwd();
     process.chdir(path_1["default"].join(__dirname, "../"));
     console.log("Updating ModLoader64...");
     child_process_1["default"].execSync("git reset --hard origin/master");
@@ -258,10 +283,10 @@ if (commander_1["default"].update) {
         console.log(data);
     });
     ml.on('exit', function () {
-        process.chdir(original_dir_8);
+        process.chdir(original_dir_9);
         updateCores();
     });
-    process.chdir(original_dir_8);
+    process.chdir(original_dir_9);
     updateCores();
 }
 function install() {
@@ -397,4 +422,19 @@ if (commander_1["default"].modulealiaspath !== undefined) {
             }
         });
     }); })();
+}
+if (commander_1["default"].template !== undefined) {
+    if (fs_extra_1["default"].existsSync("./external_cores/" + commander_1["default"].template)) {
+        var t_path = path_1["default"].join("./", "external_cores", commander_1["default"].template);
+        var meta = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(t_path, "package.json")).toString());
+        var m_path = path_1["default"].join(t_path, "src", meta.name);
+        var meta2 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
+        fs_extra_1["default"].copySync(m_path, path_1["default"].join(".", "src", meta2.name), {});
+        var meta3 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "src", meta2.name, "package.json")).toString());
+        meta3.name = meta2.name;
+        fs_extra_1["default"].writeFileSync(path_1["default"].join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
+    }
+    else {
+        console.log("Install the template first.");
+    }
 }

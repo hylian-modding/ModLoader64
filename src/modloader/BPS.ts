@@ -6,6 +6,7 @@ smc support by randomdude999 (https://smwc.me/u/32552) */
 
 import fs from 'fs';
 import path from 'path';
+import {RomPatchType} from 'modloader64_api/Patchers/PatchManager';
 
 class BPS {
     constructor() {}
@@ -163,4 +164,12 @@ class BPS {
     }
 }
 
-module.exports = BPS;
+export class BPSFormat implements RomPatchType{
+
+    patch(rom: Buffer, patch: Buffer): Buffer {
+        let bps: BPS = new BPS();
+        return bps.tryPatch(rom, patch);
+    }
+}
+
+module.exports = BPSFormat;

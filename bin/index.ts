@@ -27,6 +27,8 @@ program.option("-s, --setroms <path>", "set rom directory");
 program.option("-c, --clean", "cleans build dirs");
 program.option("-a, --modulealias <alias>", "alias a module path");
 program.option("-p, --modulealiaspath <path>", "alias a module path");
+program.option("-z, --rebuildsdk", "rebuild sdk");
+program.option("-t, --template <template>", "make project from template");
 
 program.parse(process.argv);
 
@@ -57,6 +59,14 @@ function saveTSConfig() {
     fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
 }
 
+if (program.rebuildsdk) {
+    console.log("Rebuilding SDK...");
+    let original_dir: string = process.cwd();
+    process.chdir(path.join(__dirname, "../"));
+    child_process.execSync("npm install");
+    process.chdir(original_dir);
+}
+
 if (program.init) {
     let original_dir: string = process.cwd();
     console.log("Generating mod scaffolding...");
@@ -70,6 +80,22 @@ if (program.init) {
     }
     process.chdir(original_dir);
     if (!fs.existsSync("./node_modules")) {
+        let mod_pkg: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
+        if (mod_pkg.hasOwnProperty("dependencies")) {
+            Object.keys(mod_pkg.dependencies).forEach((key: string) => {
+                if (key.indexOf("modloader64") > -1) {
+                    delete mod_pkg.dependencies[key];
+                }
+            });
+        }
+        if (mod_pkg.hasOwnProperty("devDependencies")) {
+            Object.keys(mod_pkg.devDependencies).forEach((key: string) => {
+                if (key.indexOf("modloader64") > -1) {
+                    delete mod_pkg.dependencies[key];
+                }
+            });
+        }
+        fs.writeFileSync(path.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
         child_process.execSync("npm install");
         console.log("Linking ModLoader64 API to project...");
         console.log("This might take a moment. Please be patient.");
@@ -366,4 +392,19 @@ if (program.modulealiaspath !== undefined) {
             saveTSConfig();
         }
     })();
+}
+
+if (program.template !== undefined){
+    if (fse.existsSync("./external_cores/" + program.template)){
+        let t_path: string = path.join("./", "external_cores", program.template);
+        let meta: any = JSON.parse(fs.readFileSync(path.join(t_path, "package.json")).toString());
+        let m_path: string = path.join(t_path, "src", meta.name);
+        let meta2: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
+        fse.copySync(m_path, path.join(".", "src", meta2.name), {});
+        let meta3: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta2.name, "package.json")).toString());
+        meta3.name = meta2.name;
+        fse.writeFileSync(path.join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
+    }else{
+        console.log("Install the template first.");
+    }
 }

@@ -17,7 +17,7 @@ import { Position, Rotation } from './Actor';
 
 export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
-  private instance = 0x1daa30;
+  private instance = global.ModLoader["link_instance"];
   private state_addr: number = this.instance + 0x066c;
   private state2_addr: number = this.instance + 0x0670;
   private tunic_addr: number = this.instance + 0x013c;

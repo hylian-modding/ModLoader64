@@ -95,12 +95,8 @@ class pluginLoader {
             }
             // Unpak first.
             dir = v.extractPakToTemp(pakFile, dir);
-        } else if (parse.base.indexOf('.disabled') > -1) {
-            return;
-        } else if (parse.ext === '.bps') {
-            return;
         }
-        if (!fs.lstatSync(path.resolve(dir)).isDirectory) {
+        if (!fs.lstatSync(path.resolve(dir)).isDirectory()) {
             return;
         }
         let pkg_file: string = path.resolve(path.join(dir, 'package.json'));
@@ -123,6 +119,10 @@ class pluginLoader {
         this.logger.info('version: ' + pkg.version);
         this.logger.info('author: ' + pkg.author);
         this.logger.info('additional credits: ' + pkg.credits);
+
+        if (pkg.main === undefined || pkg.main === ""){
+            return;
+        }
 
         let file: string = path.resolve(path.join(dir, pkg.main));
 

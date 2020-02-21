@@ -6,7 +6,7 @@ import fs from 'fs';
 import { fork } from 'child_process';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
-//require('source-map-support').install();
+require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];

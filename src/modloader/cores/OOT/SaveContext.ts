@@ -227,6 +227,9 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   get age(): Age {
       return this.emulator.rdramRead32(this.age_addr);
   }
+  set age(age: Age){
+      this.emulator.rdramWrite32(this.age_addr, age);
+  }
   get magic_beans_purchased(): number {
       return this.emulator.rdramRead8(this.magic_beans_addr);
   }

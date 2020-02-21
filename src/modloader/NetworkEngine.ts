@@ -573,6 +573,7 @@ namespace NetworkEngine {
                             path.resolve(path.join(mods, inst.modLoaderconfig.patch))
                         )
                     );
+                    ld.data['patch_name'] = inst.modLoaderconfig.patch;
                 }
                 inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
                 bus.emit(EventsClient.ON_SERVER_CONNECTION, {});
@@ -604,6 +605,7 @@ namespace NetworkEngine {
                 internal_event_bus.emit('onNetworkConnect', {
                     me: inst.me,
                     patch: p,
+                    patch_name: ld.data.patch_name
                 });
                 bus.emit(EventsClient.ON_LOBBY_JOIN, ld);
                 inst.isConnectionReady = true;

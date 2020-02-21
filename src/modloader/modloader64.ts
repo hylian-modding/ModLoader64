@@ -27,6 +27,8 @@ import { pakVerifier } from './pakVerifier';
 import { Pak } from 'modloader64_api/PakFormat';
 import zip from 'adm-zip';
 import moduleAlias from 'module-alias';
+import { RomPatchType, registerPatchType, PatchTypes } from 'modloader64_api/Patchers/PatchManager';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -197,17 +199,15 @@ class ModLoader64 {
         let ext_core_path: string = path.resolve(path.join(cores_folder));
         fs.readdirSync(ext_core_path).forEach(file => {
             let f = path.join(ext_core_path, file);
-            if (!fs.lstatSync(f).isDirectory()) {
+            if (path.parse(f).ext === ".pak") {
                 let parse = path.parse(file);
-                if (parse.ext === '.pak') {
-                    let pak: Pak = new Pak(f);
-                    let v: pakVerifier = new pakVerifier(this.logger);
-                    if (v.verifyPak(pak, f)) {
-                        let dir: string = v.extractPakToTemp(pak, f);
-                        let d: string = path.resolve(dir, '../');
-                        moduleAlias.addPath(d);
-                        auto_wire_cores(dir);
-                    }
+                let pak: Pak = new Pak(f);
+                let v: pakVerifier = new pakVerifier(this.logger);
+                if (v.verifyPak(pak, f)) {
+                    let dir: string = v.extractPakToTemp(pak, f);
+                    let d: string = path.resolve(dir, '../');
+                    moduleAlias.addPath(d);
+                    auto_wire_cores(dir);
                 }
             } else {
                 auto_wire_cores(f);
@@ -216,18 +216,18 @@ class ModLoader64 {
 
         if (this.data.isServer) {
             switch (this.data.selectedConsole) {
-            case 'N64': {
-                this.emulator = new FakeMupen(this.rom_path);
-                break;
-            }
+                case 'N64': {
+                    this.emulator = new FakeMupen(this.rom_path);
+                    break;
+                }
             }
         }
         if (this.data.isClient) {
             switch (this.data.selectedConsole) {
-            case 'N64': {
-                this.emulator = new N64(this.rom_path, this.logger);
-                break;
-            }
+                case 'N64': {
+                    this.emulator = new N64(this.rom_path, this.logger);
+                    break;
+                }
             }
         }
         internal_event_bus.emit('preinit_done', {});
@@ -264,6 +264,9 @@ class ModLoader64 {
         // Load the plugins
         this.plugins.loadPluginsConstruct(loaded_rom_header);
         bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
+        let evt: any = {rom: this.emulator.getLoadedRom()};
+        bus.emit(ModLoaderEvents.ON_PRE_ROM_LOAD, evt);
+        (this.emulator.getMemoryAccess() as unknown as IRomMemory).romWriteBuffer(0x0, evt.rom);
         bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
         this.plugins.loadPluginsPreInit(this.emulator);
         internal_event_bus.emit('onPreInitDone', {});
@@ -306,22 +309,20 @@ class ModLoader64 {
                     let rom_data: Buffer = instance.emulator.getLoadedRom();
                     if (p.byteLength > 1 && rom_data.byteLength > 1) {
                         let BPS = require('./BPS');
-                        let _BPS = new BPS();
+                        registerPatchType(".bps", new BPS() as RomPatchType);
                         try {
-                            let hash = crypto
-                                .createHash('md5')
-                                .update(rom_data)
-                                .digest('hex');
+                            let hash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info('Patching rom...');
-                            rom_data = _BPS.tryPatch(rom_data, p);
-                            let newHash = crypto
-                                .createHash('md5')
-                                .update(rom_data)
-                                .digest('hex');
+                            let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data, p);
+                            if (nbuf !== undefined) {
+                                rom_data = nbuf;
+                            }
+                            let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info(hash);
                             instance.logger.info(newHash);
                         } catch (err) {
                             if (err) {
+                                console.log(err);
                                 process.exit(ModLoaderErrorCodes.BPS_FAILED);
                             }
                         }

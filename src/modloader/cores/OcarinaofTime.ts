@@ -60,6 +60,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
           global.ModLoader['save_context'] = 0x15e660;
           global.ModLoader['global_context_pointer'] = 0x157da0;
           global.ModLoader['overlay_table'] = 0x1159b0;
+          global.ModLoader['link_instance'] = 0x2245B0;
           break;
       default:
           global.ModLoader['save_context'] = 0x11a5d0;
