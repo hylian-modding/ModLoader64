@@ -55,6 +55,18 @@ if (fs.existsSync(tsconfig_path)) {
     tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
 }
 
+const MOD_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
+const CORE_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
+
+
+// I'm legit just wrapping curl right here... its built into win10 these days should be ok.
+function getFileContents(url: string){
+    return child_process.execFileSync('curl', ['--silent', '-L', url], {encoding: 'utf8'});
+}
+function getBinaryContents(url: string){
+    return child_process.execFileSync('curl', ['-O', '--silent', '-L', url], {encoding: 'utf8'});
+}
+
 function saveTSConfig() {
     fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
 }
@@ -279,14 +291,14 @@ if (program.update) {
     updateCores();
 }
 
-function install() {
+function install(url: string) {
     (async () => {
         let elv: boolean = await isElevated();
         if (!elv && platformkey.indexOf("win32") > -1) {
             console.log("Install must be run as administrator on Windows!");
             return;
         }
-        console.log("Installing " + program.install + "...");
+        console.log("Installing " + url + "...");
         let original_dir: string = process.cwd();
         let deps_dir: string = path.join("./", "external_cores");
         if (!fs.existsSync(deps_dir)) {
@@ -302,7 +314,7 @@ function install() {
         }
         process.chdir(deps_dir);
         try {
-            child_process.execSync("git clone " + program.install);
+            child_process.execSync("git clone " + url);
         } catch (err) {
             if (err) {
                 console.log("This core is already installed!");
@@ -319,10 +331,10 @@ function install() {
                 fs.readdirSync("./build/cores").forEach((file: string) => {
                     let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
                     if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                        meta["modloader64_deps"][meta2.name] = program.install;
+                        meta["modloader64_deps"][meta2.name] = url;
                     }
                     if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                        mod_meta["modloader64_deps"][meta2.name] = program.install;
+                        mod_meta["modloader64_deps"][meta2.name] = url;
                     }
                     if (tsconfig !== undefined) {
                         tsconfig["compilerOptions"]["paths"] = {};
@@ -358,7 +370,23 @@ function install() {
 }
 
 if (program.install !== undefined) {
-    install();
+    if (program.install.indexOf("https://") > -1){
+        install(program.install);
+    }else{
+        console.log("Searching the nexus...");
+        let core_repo: any = JSON.parse(getFileContents(CORE_REPO_URL));
+        let mod_repo: any = JSON.parse(getFileContents(MOD_REPO_URL));
+        if (Object.keys(core_repo).indexOf(program.install) > -1){
+            console.log("Found " + program.install + " in cores repo.");
+            install(core_repo[program.install].git);
+        }else if (Object.keys(mod_repo).indexOf(program.install) > -1){
+            console.log("Found " + program.install + " in mods repo.");
+            console.log("Installing pak file...");
+            let update: any = JSON.parse(getFileContents(mod_repo[program.install].url));
+            let pak: any = getBinaryContents(update.url);
+            fs.writeFileSync("./test.pak", pak);
+        }
+    }
 }
 
 if (program.modulealiaspath !== undefined) {

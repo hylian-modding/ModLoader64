@@ -78,6 +78,14 @@ var tsconfig;
 if (fs_1["default"].existsSync(tsconfig_path)) {
     tsconfig = JSON.parse(stripJsonComments(fs_1["default"].readFileSync(tsconfig_path).toString()));
 }
+var MOD_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
+var CORE_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
+function getFileContents(url) {
+    return child_process_1["default"].execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
+}
+function getBinaryContents(url) {
+    return child_process_1["default"].execFileSync('curl', ['-O', '--silent', '-L', url], { encoding: 'utf8' });
+}
 function saveTSConfig() {
     fs_1["default"].writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
 }
@@ -289,7 +297,7 @@ if (commander_1["default"].update) {
     process.chdir(original_dir_9);
     updateCores();
 }
-function install() {
+function install(url) {
     var _this = this;
     (function () { return __awaiter(_this, void 0, void 0, function () {
         var elv, original_dir, deps_dir, meta, mod_meta, cores, _loop_1, i;
@@ -302,7 +310,7 @@ function install() {
                         console.log("Install must be run as administrator on Windows!");
                         return [2 /*return*/];
                     }
-                    console.log("Installing " + commander_1["default"].install + "...");
+                    console.log("Installing " + url + "...");
                     original_dir = process.cwd();
                     deps_dir = path_1["default"].join("./", "external_cores");
                     if (!fs_1["default"].existsSync(deps_dir)) {
@@ -318,7 +326,7 @@ function install() {
                     }
                     process.chdir(deps_dir);
                     try {
-                        child_process_1["default"].execSync("git clone " + commander_1["default"].install);
+                        child_process_1["default"].execSync("git clone " + url);
                     }
                     catch (err) {
                         if (err) {
@@ -336,10 +344,10 @@ function install() {
                             fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
                                 var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
                                 if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                                    meta["modloader64_deps"][meta2.name] = commander_1["default"].install;
+                                    meta["modloader64_deps"][meta2.name] = url;
                                 }
                                 if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                                    mod_meta["modloader64_deps"][meta2.name] = commander_1["default"].install;
+                                    mod_meta["modloader64_deps"][meta2.name] = url;
                                 }
                                 if (tsconfig !== undefined) {
                                     tsconfig["compilerOptions"]["paths"] = {};
@@ -381,7 +389,25 @@ function install() {
     }); })();
 }
 if (commander_1["default"].install !== undefined) {
-    install();
+    if (commander_1["default"].install.indexOf("https://") > -1) {
+        install(commander_1["default"].install);
+    }
+    else {
+        console.log("Searching the nexus...");
+        var core_repo = JSON.parse(getFileContents(CORE_REPO_URL));
+        var mod_repo = JSON.parse(getFileContents(MOD_REPO_URL));
+        if (Object.keys(core_repo).indexOf(commander_1["default"].install) > -1) {
+            console.log("Found " + commander_1["default"].install + " in cores repo.");
+            install(core_repo[commander_1["default"].install].git);
+        }
+        else if (Object.keys(mod_repo).indexOf(commander_1["default"].install) > -1) {
+            console.log("Found " + commander_1["default"].install + " in mods repo.");
+            console.log("Installing pak file...");
+            var update = JSON.parse(getFileContents(mod_repo[commander_1["default"].install].url));
+            var pak = getBinaryContents(update.url);
+            fs_1["default"].writeFileSync("./test.pak", pak);
+        }
+    }
 }
 if (commander_1["default"].modulealiaspath !== undefined) {
     (function () { return __awaiter(void 0, void 0, void 0, function () {
