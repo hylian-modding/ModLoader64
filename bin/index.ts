@@ -295,8 +295,6 @@ if (program.update) {
         process.chdir(original_dir);
         updateCores();
     });
-    process.chdir(original_dir);
-    updateCores();
 }
 
 function install(url: string) {

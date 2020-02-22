@@ -303,8 +303,6 @@ if (commander_1["default"].update) {
         process.chdir(original_dir_9);
         updateCores();
     });
-    process.chdir(original_dir_9);
-    updateCores();
 }
 function install(url) {
     var _this = this;
