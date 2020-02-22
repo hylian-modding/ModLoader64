@@ -38,6 +38,7 @@ import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
 import { pakVerifier } from './pakVerifier';
+import moduleAlias from 'module-alias';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -147,6 +148,7 @@ class pluginLoader {
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
         }
+        moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), dir);
         internal_event_bus.emit('PLUGIN_LOADED', pkg);
     }
 

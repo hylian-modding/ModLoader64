@@ -60,11 +60,11 @@ const CORE_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/rep
 
 
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
-function getFileContents(url: string){
-    return child_process.execFileSync('curl', ['--silent', '-L', url], {encoding: 'utf8'});
+function getFileContents(url: string) {
+    return child_process.execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
 }
-function getBinaryContents(url: string){
-    return child_process.execFileSync('curl', ['-O', '--silent', '-L', url], {encoding: 'utf8'});
+function getBinaryContents(url: string) {
+    return child_process.execFileSync('curl', ['-O', '--silent', '-L', url], { encoding: 'utf8' });
 }
 
 function saveTSConfig() {
@@ -83,9 +83,9 @@ if (program.init) {
     let original_dir: string = process.cwd();
     console.log("Generating mod scaffolding...");
     child_process.execSync("npm init --yes");
+    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
     if (!fs.existsSync("./src")) {
         fs.mkdirSync("./src");
-        let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
         fs.mkdirSync("./src/" + meta.name);
         process.chdir("./src/" + meta.name);
         child_process.execSync("npm init --yes");
@@ -95,16 +95,12 @@ if (program.init) {
         let mod_pkg: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
         if (mod_pkg.hasOwnProperty("dependencies")) {
             Object.keys(mod_pkg.dependencies).forEach((key: string) => {
-                if (key.indexOf("modloader64") > -1) {
-                    delete mod_pkg.dependencies[key];
-                }
+                delete mod_pkg.dependencies[key];
             });
         }
         if (mod_pkg.hasOwnProperty("devDependencies")) {
             Object.keys(mod_pkg.devDependencies).forEach((key: string) => {
-                if (key.indexOf("modloader64") > -1) {
-                    delete mod_pkg.dependencies[key];
-                }
+                delete mod_pkg.dependencies[key];
             });
         }
         fs.writeFileSync(path.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
@@ -126,6 +122,13 @@ if (program.init) {
         console.log("Setting up TypeScript compiler...");
         child_process.execSync("tsc --init");
         fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+        if (fs.existsSync(tsconfig_path)) {
+            tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
+        }
+        tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
+        saveTSConfig();
+        console.log("Installing any required cores...");
+        installCores();
     }
 }
 
@@ -260,11 +263,16 @@ function updateCores() {
 }
 
 function installCores() {
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    let m_path: string = "./package.json";
+    let meta: any = JSON.parse(fs.readFileSync(m_path).toString());
     if (!meta.hasOwnProperty("modloader64_deps")) {
         meta["modloader64_deps"] = {};
     }
-    let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+    let mm_path: string = path.join(".", "src", meta.name, "package.json");
+    if (!fs.existsSync(mm_path)) {
+        mm_path = path.join(".", "cores", meta.name, "package.json");
+    }
+    let mod_meta: any = JSON.parse(fs.readFileSync(mm_path).toString());
     if (!mod_meta.hasOwnProperty("modloader64_deps")) {
         mod_meta["modloader64_deps"] = {};
     }
@@ -312,7 +320,8 @@ function install(url: string) {
         if (!mod_meta.hasOwnProperty("modloader64_deps")) {
             mod_meta["modloader64_deps"] = {};
         }
-        process.chdir(deps_dir);
+        let temp: string = fse.mkdtempSync("ModLoader64SDK_");
+        process.chdir(temp);
         try {
             child_process.execSync("git clone " + url);
         } catch (err) {
@@ -320,31 +329,37 @@ function install(url: string) {
                 console.log("This core is already installed!");
             }
         }
-        let cores: Array<string> = [];
-        fs.readdirSync(".").forEach((file: string) => {
+        let gitdir: string = "";
+        fse.readdirSync(".").forEach((file: string) => {
             let p: string = path.join(".", file);
-            let b: string = process.cwd();
             if (fs.lstatSync(p).isDirectory()) {
-                process.chdir(p);
-                child_process.execSync("modloader64 --init --build");
-                cores.push(path.resolve("./build/cores"));
-                fs.readdirSync("./build/cores").forEach((file: string) => {
-                    let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
-                    if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                        meta["modloader64_deps"][meta2.name] = url;
-                    }
-                    if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                        mod_meta["modloader64_deps"][meta2.name] = url;
-                    }
-                    if (tsconfig !== undefined) {
-                        tsconfig["compilerOptions"]["paths"] = {};
-                        tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
-                        saveTSConfig();
-                    }
-                });
+                gitdir = path.resolve(p);
             }
-            process.chdir(b);
         });
+        process.chdir(original_dir);
+        let target: string = path.join(deps_dir, path.parse(gitdir).name);
+        fse.moveSync(gitdir, target);
+        fse.removeSync(temp);
+        let cores: Array<string> = [];
+        if (fs.lstatSync(target).isDirectory()) {
+            process.chdir(target);
+            child_process.execSync("modloader64 --init --build");
+            cores.push(path.resolve("./build/cores"));
+            fs.readdirSync("./build/cores").forEach((file: string) => {
+                let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
+                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                    meta["modloader64_deps"][meta2.name] = url;
+                }
+                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                    mod_meta["modloader64_deps"][meta2.name] = url;
+                }
+                if (tsconfig !== undefined) {
+                    tsconfig["compilerOptions"]["paths"] = {};
+                    tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
+                    saveTSConfig();
+                }
+            });
+        }
         process.chdir(original_dir);
         fs.writeFileSync("./package.json", JSON.stringify(meta, null, 2));
         fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
@@ -360,7 +375,7 @@ function install(url: string) {
                         fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)));
                     } catch (err) {
                         if (err) {
-                            console.log(err);
+                            //console.log(err);
                         }
                     }
                 }
@@ -370,21 +385,20 @@ function install(url: string) {
 }
 
 if (program.install !== undefined) {
-    if (program.install.indexOf("https://") > -1){
+    if (program.install.indexOf("https://") > -1) {
         install(program.install);
-    }else{
+    } else {
         console.log("Searching the nexus...");
         let core_repo: any = JSON.parse(getFileContents(CORE_REPO_URL));
         let mod_repo: any = JSON.parse(getFileContents(MOD_REPO_URL));
-        if (Object.keys(core_repo).indexOf(program.install) > -1){
+        if (Object.keys(core_repo).indexOf(program.install) > -1) {
             console.log("Found " + program.install + " in cores repo.");
             install(core_repo[program.install].git);
-        }else if (Object.keys(mod_repo).indexOf(program.install) > -1){
+        } else if (Object.keys(mod_repo).indexOf(program.install) > -1) {
             console.log("Found " + program.install + " in mods repo.");
             console.log("Installing pak file...");
             let update: any = JSON.parse(getFileContents(mod_repo[program.install].url));
-            let pak: any = getBinaryContents(update.url);
-            fs.writeFileSync("./test.pak", pak);
+            getBinaryContents(update.url);
         }
     }
 }
@@ -422,8 +436,8 @@ if (program.modulealiaspath !== undefined) {
     })();
 }
 
-if (program.template !== undefined){
-    if (fse.existsSync("./external_cores/" + program.template)){
+if (program.template !== undefined) {
+    if (fse.existsSync("./external_cores/" + program.template)) {
         let t_path: string = path.join("./", "external_cores", program.template);
         let meta: any = JSON.parse(fs.readFileSync(path.join(t_path, "package.json")).toString());
         let m_path: string = path.join(t_path, "src", meta.name);
@@ -432,7 +446,7 @@ if (program.template !== undefined){
         let meta3: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta2.name, "package.json")).toString());
         meta3.name = meta2.name;
         fse.writeFileSync(path.join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
-    }else{
+    } else {
         console.log("Install the template first.");
     }
 }

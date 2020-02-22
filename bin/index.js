@@ -80,6 +80,7 @@ if (fs_1["default"].existsSync(tsconfig_path)) {
 }
 var MOD_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
 var CORE_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
+// I'm legit just wrapping curl right here... its built into win10 these days should be ok.
 function getFileContents(url) {
     return child_process_1["default"].execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
 }
@@ -100,9 +101,9 @@ if (commander_1["default"].init) {
     var original_dir_2 = process.cwd();
     console.log("Generating mod scaffolding...");
     child_process_1["default"].execSync("npm init --yes");
+    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
     if (!fs_1["default"].existsSync("./src")) {
         fs_1["default"].mkdirSync("./src");
-        var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
         fs_1["default"].mkdirSync("./src/" + meta.name);
         process.chdir("./src/" + meta.name);
         child_process_1["default"].execSync("npm init --yes");
@@ -112,16 +113,12 @@ if (commander_1["default"].init) {
         var mod_pkg_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
         if (mod_pkg_1.hasOwnProperty("dependencies")) {
             Object.keys(mod_pkg_1.dependencies).forEach(function (key) {
-                if (key.indexOf("modloader64") > -1) {
-                    delete mod_pkg_1.dependencies[key];
-                }
+                delete mod_pkg_1.dependencies[key];
             });
         }
         if (mod_pkg_1.hasOwnProperty("devDependencies")) {
             Object.keys(mod_pkg_1.devDependencies).forEach(function (key) {
-                if (key.indexOf("modloader64") > -1) {
-                    delete mod_pkg_1.dependencies[key];
-                }
+                delete mod_pkg_1.dependencies[key];
             });
         }
         fs_1["default"].writeFileSync(path_1["default"].join(".", "package.json"), JSON.stringify(mod_pkg_1, null, 2));
@@ -143,6 +140,13 @@ if (commander_1["default"].init) {
         console.log("Setting up TypeScript compiler...");
         child_process_1["default"].execSync("tsc --init");
         fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+        if (fs_1["default"].existsSync(tsconfig_path)) {
+            tsconfig = JSON.parse(stripJsonComments(fs_1["default"].readFileSync(tsconfig_path).toString()));
+        }
+        tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
+        saveTSConfig();
+        console.log("Installing any required cores...");
+        installCores();
     }
 }
 if (commander_1["default"].setroms !== undefined) {
@@ -268,11 +272,16 @@ function updateCores() {
     process.chdir(original_dir);
 }
 function installCores() {
-    var meta = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+    var m_path = "./package.json";
+    var meta = JSON.parse(fs_1["default"].readFileSync(m_path).toString());
     if (!meta.hasOwnProperty("modloader64_deps")) {
         meta["modloader64_deps"] = {};
     }
-    var mod_meta = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "src", meta.name, "package.json")).toString());
+    var mm_path = path_1["default"].join(".", "src", meta.name, "package.json");
+    if (!fs_1["default"].existsSync(mm_path)) {
+        mm_path = path_1["default"].join(".", "cores", meta.name, "package.json");
+    }
+    var mod_meta = JSON.parse(fs_1["default"].readFileSync(mm_path).toString());
     if (!mod_meta.hasOwnProperty("modloader64_deps")) {
         mod_meta["modloader64_deps"] = {};
     }
@@ -300,7 +309,7 @@ if (commander_1["default"].update) {
 function install(url) {
     var _this = this;
     (function () { return __awaiter(_this, void 0, void 0, function () {
-        var elv, original_dir, deps_dir, meta, mod_meta, cores, _loop_1, i;
+        var elv, original_dir, deps_dir, meta, mod_meta, temp, gitdir, target, cores, _loop_1, i;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, isElevated()];
@@ -324,7 +333,8 @@ function install(url) {
                     if (!mod_meta.hasOwnProperty("modloader64_deps")) {
                         mod_meta["modloader64_deps"] = {};
                     }
-                    process.chdir(deps_dir);
+                    temp = fs_extra_1["default"].mkdtempSync("ModLoader64SDK_");
+                    process.chdir(temp);
                     try {
                         child_process_1["default"].execSync("git clone " + url);
                     }
@@ -333,31 +343,37 @@ function install(url) {
                             console.log("This core is already installed!");
                         }
                     }
-                    cores = [];
-                    fs_1["default"].readdirSync(".").forEach(function (file) {
+                    gitdir = "";
+                    fs_extra_1["default"].readdirSync(".").forEach(function (file) {
                         var p = path_1["default"].join(".", file);
-                        var b = process.cwd();
                         if (fs_1["default"].lstatSync(p).isDirectory()) {
-                            process.chdir(p);
-                            child_process_1["default"].execSync("modloader64 --init --build");
-                            cores.push(path_1["default"].resolve("./build/cores"));
-                            fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
-                                var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-                                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                                    meta["modloader64_deps"][meta2.name] = url;
-                                }
-                                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
-                                    mod_meta["modloader64_deps"][meta2.name] = url;
-                                }
-                                if (tsconfig !== undefined) {
-                                    tsconfig["compilerOptions"]["paths"] = {};
-                                    tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1["default"].join("./libs", meta2.name) + "/*"];
-                                    saveTSConfig();
-                                }
-                            });
+                            gitdir = path_1["default"].resolve(p);
                         }
-                        process.chdir(b);
                     });
+                    process.chdir(original_dir);
+                    target = path_1["default"].join(deps_dir, path_1["default"].parse(gitdir).name);
+                    fs_extra_1["default"].moveSync(gitdir, target);
+                    fs_extra_1["default"].removeSync(temp);
+                    cores = [];
+                    if (fs_1["default"].lstatSync(target).isDirectory()) {
+                        process.chdir(target);
+                        child_process_1["default"].execSync("modloader64 --init --build");
+                        cores.push(path_1["default"].resolve("./build/cores"));
+                        fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
+                            var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+                            if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                                meta["modloader64_deps"][meta2.name] = url;
+                            }
+                            if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                                mod_meta["modloader64_deps"][meta2.name] = url;
+                            }
+                            if (tsconfig !== undefined) {
+                                tsconfig["compilerOptions"]["paths"] = {};
+                                tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1["default"].join("./libs", meta2.name) + "/*"];
+                                saveTSConfig();
+                            }
+                        });
+                    }
                     process.chdir(original_dir);
                     fs_1["default"].writeFileSync("./package.json", JSON.stringify(meta, null, 2));
                     fs_1["default"].writeFileSync(path_1["default"].join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
@@ -374,7 +390,7 @@ function install(url) {
                                 }
                                 catch (err) {
                                     if (err) {
-                                        console.log(err);
+                                        //console.log(err);
                                     }
                                 }
                             }
@@ -404,8 +420,7 @@ if (commander_1["default"].install !== undefined) {
             console.log("Found " + commander_1["default"].install + " in mods repo.");
             console.log("Installing pak file...");
             var update = JSON.parse(getFileContents(mod_repo[commander_1["default"].install].url));
-            var pak = getBinaryContents(update.url);
-            fs_1["default"].writeFileSync("./test.pak", pak);
+            getBinaryContents(update.url);
         }
     }
 }
