@@ -262,8 +262,18 @@ function updateCores() {
             child_process_1["default"].execSync("git reset --hard origin/master");
             child_process_1["default"].execSync("git pull");
             console.log(process.cwd());
-            var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-            console.log("Updating " + meta2.name);
+            var meta2_1 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
+            console.log("Updating " + meta2_1.name);
+            if (meta2_1.hasOwnProperty("dependencies")) {
+                Object.keys(meta2_1.dependencies).forEach(function (key) {
+                    delete meta2_1.dependencies[key];
+                });
+            }
+            if (meta2_1.hasOwnProperty("devDependencies")) {
+                Object.keys(meta2_1.devDependencies).forEach(function (key) {
+                    delete meta2_1.dependencies[key];
+                });
+            }
             child_process_1["default"].execSync("npm install");
             child_process_1["default"].execSync("modloader64 -nbd");
             process.chdir(b2);

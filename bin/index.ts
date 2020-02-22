@@ -254,6 +254,16 @@ function updateCores() {
             console.log(process.cwd());
             let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
             console.log("Updating " + meta2.name);
+            if (meta2.hasOwnProperty("dependencies")) {
+                Object.keys(meta2.dependencies).forEach((key: string) => {
+                    delete meta2.dependencies[key];
+                });
+            }
+            if (meta2.hasOwnProperty("devDependencies")) {
+                Object.keys(meta2.devDependencies).forEach((key: string) => {
+                    delete meta2.dependencies[key];
+                });
+            }
             child_process.execSync("npm install");
             child_process.execSync("modloader64 -nbd");
             process.chdir(b2);
