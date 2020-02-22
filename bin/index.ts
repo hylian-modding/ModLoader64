@@ -264,6 +264,7 @@ function updateCores() {
                     delete meta2.dependencies[key];
                 });
             }
+            fse.writeFileSync("./package.json", JSON.stringify(meta2, null, 2));
             child_process.execSync("npm install");
             child_process.execSync("modloader64 -nbd");
             process.chdir(b2);

@@ -274,6 +274,7 @@ function updateCores() {
                     delete meta2_1.dependencies[key];
                 });
             }
+            fs_extra_1["default"].writeFileSync("./package.json", JSON.stringify(meta2_1, null, 2));
             child_process_1["default"].execSync("npm install");
             child_process_1["default"].execSync("modloader64 -nbd");
             process.chdir(b2);
