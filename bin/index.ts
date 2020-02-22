@@ -265,6 +265,7 @@ function updateCores() {
                 });
             }
             fse.writeFileSync("./package.json", JSON.stringify(meta2, null, 2));
+            fse.removeSync("./node_modules");
             child_process.execSync("npm install");
             child_process.execSync("modloader64 -nbd");
             process.chdir(b2);
@@ -298,6 +299,7 @@ if (program.update) {
     console.log("Updating ModLoader64...");
     child_process.execSync("git reset --hard origin/master");
     child_process.execSync("git pull");
+    fse.removeSync("./node_modules");
     let ml = child_process.exec("npm install");
     ml.stdout.on('data', function (data) {
         console.log(data);

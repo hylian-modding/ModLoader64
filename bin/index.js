@@ -275,6 +275,7 @@ function updateCores() {
                 });
             }
             fs_extra_1["default"].writeFileSync("./package.json", JSON.stringify(meta2_1, null, 2));
+            fs_extra_1["default"].removeSync("./node_modules");
             child_process_1["default"].execSync("npm install");
             child_process_1["default"].execSync("modloader64 -nbd");
             process.chdir(b2);
@@ -306,6 +307,7 @@ if (commander_1["default"].update) {
     console.log("Updating ModLoader64...");
     child_process_1["default"].execSync("git reset --hard origin/master");
     child_process_1["default"].execSync("git pull");
+    fs_extra_1["default"].removeSync("./node_modules");
     var ml = child_process_1["default"].exec("npm install");
     ml.stdout.on('data', function (data) {
         console.log(data);
