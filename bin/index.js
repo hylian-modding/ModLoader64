@@ -251,6 +251,9 @@ if (commander_1["default"].runp2) {
 function updateCores() {
     var original_dir = process.cwd();
     var deps_dir = path_1["default"].join("./", "external_cores");
+    if (!fs_extra_1["default"].existsSync(deps_dir)) {
+        return;
+    }
     process.chdir(deps_dir);
     var cores = [];
     fs_1["default"].readdirSync("./").forEach(function (file) {

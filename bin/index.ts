@@ -241,6 +241,9 @@ if (program.runp2) {
 function updateCores() {
     let original_dir: string = process.cwd();
     let deps_dir: string = path.join("./", "external_cores");
+    if (!fse.existsSync(deps_dir)){
+        return;
+    }
     process.chdir(deps_dir);
     let cores: Array<string> = [];
     fs.readdirSync("./").forEach((file: string) => {
