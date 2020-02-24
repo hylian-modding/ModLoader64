@@ -14,12 +14,13 @@ import { ActorCategory } from 'modloader64_api/OOT/ActorCategory';
 import { IRotation } from 'modloader64_api/OOT/IRotation';
 import { IPosition } from 'modloader64_api/OOT/IPosition';
 import { Position, Rotation } from './Actor';
+import { OOT_Offsets } from '../OcarinaofTime';
 
 export class Link extends JSONTemplate implements ILink {
   private emulator: IMemory;
   private instance = global.ModLoader["link_instance"];
-  private state_addr: number = this.instance + 0x066c;
-  private state2_addr: number = this.instance + 0x0670;
+  private state_addr: number = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).state;
+  private state2_addr: number = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).state2;
   private tunic_addr: number = this.instance + 0x013c;
   private shield_addr: number = this.instance + 0x013e;
   private boots_addr: number = this.instance + 0x013f;
@@ -32,6 +33,7 @@ export class Link extends JSONTemplate implements ILink {
     This helps prevent jittering.*/
   private sound_addr: number = 0x600000 + 0x88;
   private anim_data_addr = 0x600000;
+  private anim_raw_data_addr = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).raw_anim;
 
   rotation: IRotation;
   position: IPosition;
@@ -234,6 +236,9 @@ export class Link extends JSONTemplate implements ILink {
   }
   get anim_data(): Buffer {
       return this.emulator.rdramReadBuffer(this.anim_data_addr, 0x86);
+  }
+  set anim_data(buf: Buffer){
+      this.emulator.rdramWriteBuffer(this.anim_raw_data_addr, buf);
   }
   get current_sound_id(): number {
       return this.emulator.rdramRead16(this.sound_addr);

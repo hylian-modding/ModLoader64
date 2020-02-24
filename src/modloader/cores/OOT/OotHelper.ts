@@ -6,6 +6,7 @@ import {
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import IMemory from 'modloader64_api/IMemory';
+import { OOT_Offsets } from '../OcarinaofTime';
 
 export class OotHelper extends JSONTemplate implements IOotHelper {
   private save: ISaveContext;
@@ -35,11 +36,11 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
       return (r & 0x000000ff) === 1;
   }
   isPaused(): boolean {
-      return this.emu.rdramRead16(0x1c6fa0) !== 0x3;
+      return this.emu.rdramRead16((global.ModLoader["offsets"]["link"] as OOT_Offsets).paused) !== 0x3;
   }
   isInterfaceShown(): boolean {
       return (
-          this.emu.rdramRead8(global.ModLoader.save_context + 0xbe613) === 0xff
+          this.emu.rdramRead8(global.ModLoader['gui_isShown']) === 0xff
       );
   }
 

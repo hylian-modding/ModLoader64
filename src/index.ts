@@ -54,11 +54,26 @@ if (fs.existsSync('./console.log')) {
     fs.unlinkSync('./console.log');
 }
 
-const logger = require('simple-node-logger').createSimpleLogger('console.log');
+/* const logger = require('simple-node-logger').createSimpleLogger('console.log');
 
 console.log = (message?: any, ...optionalParams: any[]) => {
     logger.debug(message);
-};
+}; */
+
+class dumb_logger{
+    setLevel(level: string){
+    }
+
+    info(...msg: any){
+        console.log(msg);
+    }
+
+    error(...msg: any){
+        console.log(msg);
+    }
+}
+
+const logger = new dumb_logger();
 
 if (fs.existsSync('../README.md')) {
     logger.setLevel('all' as ILoggerLevels);
