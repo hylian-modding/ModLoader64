@@ -216,18 +216,18 @@ class ModLoader64 {
 
         if (this.data.isServer) {
             switch (this.data.selectedConsole) {
-                case 'N64': {
-                    this.emulator = new FakeMupen(this.rom_path);
-                    break;
-                }
+            case 'N64': {
+                this.emulator = new FakeMupen(this.rom_path);
+                break;
+            }
             }
         }
         if (this.data.isClient) {
             switch (this.data.selectedConsole) {
-                case 'N64': {
-                    this.emulator = new N64(this.rom_path, this.logger);
-                    break;
-                }
+            case 'N64': {
+                this.emulator = new N64(this.rom_path, this.logger);
+                break;
+            }
             }
         }
         internal_event_bus.emit('preinit_done', {});

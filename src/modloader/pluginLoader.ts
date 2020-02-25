@@ -128,6 +128,7 @@ class pluginLoader {
 
         let file: string = path.resolve(path.join(dir, pkg.main));
 
+        moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), dir);
         parse = path.parse(file);
         if (parse.ext.indexOf('js') > -1) {
             let p = require(file);
@@ -149,7 +150,6 @@ class pluginLoader {
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
         }
-        moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), dir);
         internal_event_bus.emit('PLUGIN_LOADED', pkg);
     }
 
@@ -316,49 +316,49 @@ class pluginLoader {
 
         emulator.rdramReadV3 = (addr: number)=>{
             return new Vector3(emulator.rdramReadF32(addr),
-                            emulator.rdramReadF32(addr + 4),
-                            emulator.rdramReadF32(addr + 8)
+                emulator.rdramReadF32(addr + 4),
+                emulator.rdramReadF32(addr + 8)
             );
-        }
+        };
         emulator.rdramReadV3i = (addr: number)=>{
             return new Vector3(emulator.rdramRead32(addr),
-                            emulator.rdramRead32(addr + 4),
-                            emulator.rdramRead32(addr + 8)
+                emulator.rdramRead32(addr + 4),
+                emulator.rdramRead32(addr + 8)
             );
-        }
+        };
         emulator.rdramReadV3i16 = (addr: number)=>{
             return new Vector3(emulator.rdramRead16(addr),
-                            emulator.rdramRead16(addr + 2),
-                            emulator.rdramRead16(addr + 4)
+                emulator.rdramRead16(addr + 2),
+                emulator.rdramRead16(addr + 4)
             );
-        }
+        };
         emulator.rdramReadV3i8 = (addr: number)=>{
             return new Vector3(emulator.rdramRead8(addr),
-                            emulator.rdramRead8(addr + 1),
-                            emulator.rdramRead8(addr + 2)
+                emulator.rdramRead8(addr + 1),
+                emulator.rdramRead8(addr + 2)
             );
-        }
+        };
 
         emulator.rdramWriteV3 = (addr: number, rhs: Vector3)=>{
             emulator.rdramWriteF32(addr, rhs.x);
             emulator.rdramWriteF32(addr + 4, rhs.y);
             emulator.rdramWriteF32(addr + 8, rhs.z);
-        }
+        };
         emulator.rdramWriteV3i = (addr: number, rhs: Vector3)=>{
             emulator.rdramWrite32(addr, rhs.x);
             emulator.rdramWrite32(addr + 4, rhs.y);
             emulator.rdramWrite32(addr + 8, rhs.z);
-        }
+        };
         emulator.rdramWriteV3i16 = (addr: number, rhs: Vector3)=>{
             emulator.rdramWrite16(addr, rhs.x);
             emulator.rdramWrite16(addr + 2, rhs.y);
             emulator.rdramWrite16(addr + 4, rhs.z);
-        }
+        };
         emulator.rdramWriteV3i8 = (addr: number, rhs: Vector3)=>{
             emulator.rdramWrite8(addr, rhs.x);
             emulator.rdramWrite8(addr + 1, rhs.y);
             emulator.rdramWrite8(addr + 2, rhs.z);
-        }
+        };
 
         let emu: IMemory = Object.freeze(emulator);
         this.loaded_core.ModLoader.emulator = emu;

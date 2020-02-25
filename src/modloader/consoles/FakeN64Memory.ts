@@ -1,6 +1,36 @@
 import IMemory from 'modloader64_api/IMemory';
+import Vector3 from 'modloader64_api/Math/Vector3';
 
 export class FakeN64Memory implements IMemory {
+
+    rdramReadV3(addr: number): Vector3 {
+        return new Vector3();
+    }
+    
+    rdramWriteV3(addr: number, rhs: Vector3): void {
+    }
+
+    rdramReadV3i(addr: number): Vector3 {
+        return new Vector3();
+    }
+
+    rdramWriteV3i(addr: number, rhs: Vector3): void {
+    }
+
+    rdramReadV3i16(addr: number): Vector3 {
+        return new Vector3();
+    }
+
+    rdramWriteV3i16(addr: number, rhs: Vector3): void {
+    }
+
+    rdramReadV3i8(addr: number): Vector3 {
+        return new Vector3();
+    }
+
+    rdramWriteV3i8(addr: number, rhs: Vector3): void {
+    }
+
     rdramReadBitsBuffer(addr: number, bytes: number): Buffer {
         return Buffer.alloc(1);
     }
