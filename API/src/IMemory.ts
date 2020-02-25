@@ -1,4 +1,4 @@
-import Vector3 from './Math/Vector3'
+import Vector3 from './math/Vector3';
 
 interface IMemory {
   //--------------------
