@@ -368,30 +368,5 @@ export class ActorBase extends JSONTemplate implements IActor {
         this.emulator.rdramWritePtrF32(this.instance + addr, offset, value);
     }
 
-    rdramReadV3(addr: number): Vector3 {
-        return this.emulator.rdramReadV3(this.instance + addr);
-    }
-    rdramWriteV3(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3(this.instance + addr, rhs);
-    }
-    rdramReadV3i(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i(this.instance + addr);
-    }
-    rdramWriteV3i(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i(this.instance + addr, rhs);
-    }
-    rdramReadV3i16(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i8(this.instance + addr);
-    }
-    rdramWriteV3i16(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i16(this.instance + addr, rhs);
-    }
-    rdramReadV3i8(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i8(this.instance + addr);
-    }
-    rdramWriteV3i8(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i8(this.instance + addr, rhs);
-    }
-
     memoryDebugLogger(bool: boolean): void { }
 }

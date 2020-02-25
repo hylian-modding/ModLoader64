@@ -5,6 +5,7 @@ import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
 import { IPayloadManager } from './PayloadType';
+import { IMath } from './math/IMath';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -44,6 +45,7 @@ export interface IModLoaderAPI {
   savestates: ISaveState;
   gui: IGUIAPI;
   payloadManager: IPayloadManager;
+  math: IMath;
 }
 
 export interface IPlugin {

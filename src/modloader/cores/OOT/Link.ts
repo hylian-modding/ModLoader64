@@ -254,31 +254,6 @@ export class Link extends JSONTemplate implements ILink {
         return this.emulator.rdramRead16(this.instance + 0x1f4);
     }
 
-    rdramReadV3(addr: number): Vector3 {
-        return this.emulator.rdramReadV3(addr);
-    }
-    rdramWriteV3(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3(addr, rhs);
-    }
-    rdramReadV3i(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i(addr);
-    }
-    rdramWriteV3i(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i(addr, rhs);
-    }
-    rdramReadV3i16(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i8(addr);
-    }
-    rdramWriteV3i16(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i16(addr, rhs);
-    }
-    rdramReadV3i8(addr: number): Vector3 {
-        return this.emulator.rdramReadV3i8(addr);
-    }
-    rdramWriteV3i8(addr: number, rhs: Vector3): void {
-        this.emulator.rdramWriteV3i8(addr, rhs);
-    }
-
     // Give ILink a complete IMemory implementation for shortcuts.
     rdramRead8(addr: number): number {
         return this.emulator.rdramRead8(this.instance + addr);

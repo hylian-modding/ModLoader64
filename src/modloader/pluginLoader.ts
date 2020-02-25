@@ -40,6 +40,8 @@ import { PayloadManager } from './PayloadManager';
 import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
 import Vector3 from 'modloader64_api/math/Vector3';
+import { IMath } from 'modloader64_api/math/IMath';
+import { Math } from './Math';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -122,7 +124,7 @@ class pluginLoader {
         this.logger.info('author: ' + pkg.author);
         this.logger.info('additional credits: ' + pkg.credits);
 
-        if (pkg.main === undefined || pkg.main === ""){
+        if (pkg.main === undefined || pkg.main === "") {
             return;
         }
 
@@ -225,7 +227,7 @@ class pluginLoader {
             this.loaded_core.ModLoader.lobbyManager = lma;
             this.loaded_core.preinit();
         } catch (err) {
-            if (err){
+            if (err) {
                 console.log(err);
                 this.logger.error("Failed to configure core?");
                 this.logger.error(this.selected_core);
@@ -314,63 +316,20 @@ class pluginLoader {
             'ModLoader64'
         ) as IModLoaderConfig;
 
-        emulator.rdramReadV3 = (addr: number)=>{
-            return new Vector3(emulator.rdramReadF32(addr),
-                emulator.rdramReadF32(addr + 4),
-                emulator.rdramReadF32(addr + 8)
-            );
-        };
-        emulator.rdramReadV3i = (addr: number)=>{
-            return new Vector3(emulator.rdramRead32(addr),
-                emulator.rdramRead32(addr + 4),
-                emulator.rdramRead32(addr + 8)
-            );
-        };
-        emulator.rdramReadV3i16 = (addr: number)=>{
-            return new Vector3(emulator.rdramRead16(addr),
-                emulator.rdramRead16(addr + 2),
-                emulator.rdramRead16(addr + 4)
-            );
-        };
-        emulator.rdramReadV3i8 = (addr: number)=>{
-            return new Vector3(emulator.rdramRead8(addr),
-                emulator.rdramRead8(addr + 1),
-                emulator.rdramRead8(addr + 2)
-            );
-        };
-
-        emulator.rdramWriteV3 = (addr: number, rhs: Vector3)=>{
-            emulator.rdramWriteF32(addr, rhs.x);
-            emulator.rdramWriteF32(addr + 4, rhs.y);
-            emulator.rdramWriteF32(addr + 8, rhs.z);
-        };
-        emulator.rdramWriteV3i = (addr: number, rhs: Vector3)=>{
-            emulator.rdramWrite32(addr, rhs.x);
-            emulator.rdramWrite32(addr + 4, rhs.y);
-            emulator.rdramWrite32(addr + 8, rhs.z);
-        };
-        emulator.rdramWriteV3i16 = (addr: number, rhs: Vector3)=>{
-            emulator.rdramWrite16(addr, rhs.x);
-            emulator.rdramWrite16(addr + 2, rhs.y);
-            emulator.rdramWrite16(addr + 4, rhs.z);
-        };
-        emulator.rdramWriteV3i8 = (addr: number, rhs: Vector3)=>{
-            emulator.rdramWrite8(addr, rhs.x);
-            emulator.rdramWrite8(addr + 1, rhs.y);
-            emulator.rdramWrite8(addr + 2, rhs.z);
-        };
-
         let emu: IMemory = Object.freeze(emulator);
+        let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
         this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
         this.loaded_core.ModLoader.gui = Object.freeze(
             new GUIAPI('core', this.loaded_core)
         );
         this.loaded_core.ModLoader.payloadManager = this.payloadManager;
+        this.loaded_core.ModLoader.math = math;
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;
             plugin.ModLoader.payloadManager = this.payloadManager;
+            plugin.ModLoader.math = math;
             plugin.ModLoader.gui = Object.freeze(
                 new GUIAPI(plugin.pluginName as string, plugin)
             );
