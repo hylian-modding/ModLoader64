@@ -12,7 +12,7 @@ import {
     ROTATION_OFFSET,
     ROTATION_SIZE,
 } from './ActorOffsets';
-import Vector3 from 'modloader64_api/Math/Vector3';
+import Vector3 from 'modloader64_api/math/Vector3';
 
 export class Position extends JSONTemplate implements IPosition {
     private readonly parent: IMemory;
