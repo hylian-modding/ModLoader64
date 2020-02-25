@@ -15,7 +15,7 @@ import { IRotation } from 'modloader64_api/OOT/IRotation';
 import { IPosition } from 'modloader64_api/OOT/IPosition';
 import { Position, Rotation } from './Actor';
 import { OOT_Offsets } from '../OcarinaofTime';
-import Vector3 from 'modloader64_api/Math/Vector3';
+import Vector3 from 'modloader64_api/math/Vector3';
 
 export class Link extends JSONTemplate implements ILink {
     private emulator: IMemory;

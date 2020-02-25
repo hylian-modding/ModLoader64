@@ -1,5 +1,5 @@
 import IMemory from 'modloader64_api/IMemory';
-import Vector3 from 'modloader64_api/Math/Vector3';
+import Vector3 from 'modloader64_api/math/Vector3';
 
 export class FakeN64Memory implements IMemory {
 
