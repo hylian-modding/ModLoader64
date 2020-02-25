@@ -1,3 +1,5 @@
+import Vector3 from './Math/Vector3'
+
 interface IMemory {
   //--------------------
   // Normal ram functions
@@ -105,6 +107,22 @@ interface IMemory {
   rdramWritePtrF32(addr: number, offset: number, value: number): void;
 
   memoryDebugLogger(bool: boolean): void;
+
+  //--------------------
+  // Vector3 functions
+  //--------------------
+
+  rdramReadV3(addr: number): Vector3;
+  rdramWriteV3(addr: number, rhs: Vector3): void;
+
+  rdramReadV3i(addr: number): Vector3;
+  rdramWriteV3i(addr: number, rhs: Vector3): void;
+
+  rdramReadV3i16(addr: number): Vector3;
+  rdramWriteV3i16(addr: number, rhs: Vector3): void;
+
+  rdramReadV3i8(addr: number): Vector3;
+  rdramWriteV3i8(addr: number, rhs: Vector3): void;
 }
 
 export default IMemory;
