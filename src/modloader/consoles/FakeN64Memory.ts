@@ -1,7 +1,29 @@
 import IMemory from 'modloader64_api/IMemory';
 import Vector3 from 'modloader64_api/math/Vector3';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
-export class FakeN64Memory implements IMemory {
+export class FakeN64Memory implements IMemory, IRomMemory {
+
+    romRead8(addr: number): number {
+        return -1;
+    }
+    romWrite8(addr: number, value: number): void {
+    }
+    romRead16(addr: number): number {
+        return -1;
+    }
+    romWrite16(addr: number, value: number): void {
+    }
+    romRead32(addr: number): number {
+        return -1;
+    }
+    romWrite32(addr: number, value: number): void {
+    }
+    romReadBuffer(addr: number, size: number): Buffer {
+        return Buffer.alloc(size);
+    }
+    romWriteBuffer(addr: number, buf: Buffer): void {
+    }
 
     rdramReadBitsBuffer(addr: number, bytes: number): Buffer {
         return Buffer.alloc(1);

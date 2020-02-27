@@ -129,7 +129,7 @@ class pluginLoader {
 
         let file: string = path.resolve(path.join(dir, pkg.main));
 
-        moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), dir);
+        moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
         parse = path.parse(file);
         if (parse.ext.indexOf('js') > -1) {
             let p = require(file);
