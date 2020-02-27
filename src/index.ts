@@ -6,7 +6,7 @@ import fs from 'fs';
 import { fork } from 'child_process';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
-require('source-map-support').install();
+//require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
@@ -48,17 +48,19 @@ if (program.dir) {
 
 if (program.startdir) {
     global.ModLoader["startdir"] = program.startdir;
+}else{
+    global.ModLoader['startdir'] = process.cwd();
 }
 
 if (fs.existsSync('./console.log')) {
     fs.unlinkSync('./console.log');
 }
 
-/* const logger = require('simple-node-logger').createSimpleLogger('console.log');
+const logger = require('simple-node-logger').createSimpleLogger('console.log');
 
 console.log = (message?: any, ...optionalParams: any[]) => {
     logger.debug(message);
-}; */
+};
 
 class dumb_logger{
     setLevel(level: string){
@@ -73,7 +75,7 @@ class dumb_logger{
     }
 }
 
-const logger = new dumb_logger();
+//const logger = new dumb_logger();
 
 if (fs.existsSync('../README.md')) {
     logger.setLevel('all' as ILoggerLevels);

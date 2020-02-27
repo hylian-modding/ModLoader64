@@ -39,7 +39,6 @@ import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
 import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
-import Vector3 from 'modloader64_api/math/Vector3';
 import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
 
@@ -142,13 +141,18 @@ class pluginLoader {
                 value: parse.name,
                 writable: false,
             });
+            console.log("Scanning " + pkg.name + " for event handlers...");
             setupEventHandlers(plugin);
+            console.log("Scanning " + pkg.name + " for network handlers...");
             setupNetworkHandlers(plugin);
+            console.log("Scanning " + pkg.name + " for core handlers...");
             setupCoreInject(plugin, this.loaded_core);
+            console.log("Injecting metadata into " + pkg.name + ".");
             Object.defineProperty(plugin, 'metadata', {
                 value: pkg,
                 writable: false,
             });
+            console.log("Registered plugin " + pkg.name + ".");
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
         }

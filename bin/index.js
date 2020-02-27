@@ -178,7 +178,14 @@ if (commander_1["default"].build) {
     if (!fs_1["default"].existsSync("./cores")) {
         fs_1["default"].mkdirSync("./cores");
     }
-    child_process_1["default"].execSync("npx tsc");
+    try {
+        child_process_1["default"].execSync("npx tsc");
+    }
+    catch (err) {
+        if (err) {
+            child_process_1["default"].execSync("tsc");
+        }
+    }
     fs_extra_1["default"].copySync("./src", "./build/src");
     if (!fs_1["default"].existsSync("./build/cores")) {
         fs_1["default"].mkdirSync("./build/cores");
@@ -240,6 +247,7 @@ if (commander_1["default"].runp2) {
     fs_1["default"].writeFileSync(path_1["default"].join(original_dir_8, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path_1["default"].join(__dirname, "../"));
     var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_8, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_8, "libs") + " --config=" + path_1["default"].join(original_dir_8, "modloader64-p2-config.json") + " --startdir " + original_dir_8);
+    console.log("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_8, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_8, "libs") + " --config=" + path_1["default"].join(original_dir_8, "modloader64-p2-config.json") + " --startdir " + original_dir_8);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });

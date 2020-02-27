@@ -559,7 +559,7 @@ namespace NetworkEngine {
             inst.socket.on('versionGood', (data: any) => {
                 inst.logger.info('Version good! ' + JSON.stringify(data.server));
                 let ld = new LobbyData(
-                    inst.config.lobby,
+                    inst.config.lobby.toLowerCase(),
                     crypto
                         .createHash('md5')
                         .update(Buffer.from(inst.config.password))

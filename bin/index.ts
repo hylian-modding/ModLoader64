@@ -164,7 +164,13 @@ if (program.build) {
     if (!fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
     }
-    child_process.execSync("npx tsc");
+    try{
+        child_process.execSync("npx tsc");
+    }catch(err){
+        if (err){
+            child_process.execSync("tsc");
+        }
+    }
     fse.copySync("./src", "./build/src");
     if (!fs.existsSync("./build/cores")) {
         fs.mkdirSync("./build/cores");
@@ -229,6 +235,7 @@ if (program.runp2) {
     fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path.join(__dirname, "../"));
     let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+    console.log("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
     ml.stdout.on('data', function (data) {
         console.log(data);
     });
