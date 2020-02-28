@@ -1,3 +1,5 @@
+import IMemory from "./IMemory";
+
 export interface Code {
   type: string;
   addr: number;
@@ -5,7 +7,7 @@ export interface Code {
 }
 
 export class GameShark {
-    private read_gs(data: Buffer, dest: Buffer) {
+    private read_gs(data: Buffer, dest: IMemory) {
         let original: string = data.toString();
         let lines = original.split(/\r?\n/);
         let commands = {
@@ -23,14 +25,14 @@ export class GameShark {
         }
         for (let i = 0; i < commands.codes.length; i++) {
             if (commands.codes[i].type === '80') {
-                dest.writeUInt8(commands.codes[i].payload, commands.codes[i].addr);
+                dest.rdramWrite8(commands.codes[i].addr, commands.codes[i].payload);
             } else if (commands.codes[i].type === '81') {
-                dest.writeUInt16BE(commands.codes[i].payload, commands.codes[i].addr);
+                dest.rdramWrite16(commands.codes[i].addr, commands.codes[i].payload);
             }
         }
     }
 
-    read(data: Buffer, dest: Buffer): void {
+    read(data: Buffer, dest: IMemory): void {
         this.read_gs(data, dest);
     }
 }

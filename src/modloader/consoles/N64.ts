@@ -32,10 +32,6 @@ class N64 implements IConsole {
       mp1.patch();
       mp2.patch();
 
-      this.mupen.setConfigDir(process.cwd() + '/emulator/');
-      this.mupen.setDataDir(process.cwd() + '/emulator/');
-      this.mupen.setPluginDir(process.cwd() + '/emulator/');
-
       let code = this.mupen.initialize();
       if (code > 0) {
           this.logger.error('MUPEN INITIALIZE RETURNED ' + code.toString() + '.');

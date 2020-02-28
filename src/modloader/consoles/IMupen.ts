@@ -4,11 +4,6 @@ import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 
 interface IMupen extends IMemory, IRomMemory, IUtils, ISaveState {
-  setConfigDir(path: string): void;
-
-  setDataDir(path: string): void;
-
-  setPluginDir(path: string): void;
 
   runEmulator(bool: boolean): number;
 

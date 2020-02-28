@@ -22,9 +22,7 @@ export class PayloadManager implements IPayloadManager {
       if (this.types.has(p.ext)) {
           this.logger.info('Parsing payload: ' + path.parse(file).base + '.');
           let buf: Buffer = fs.readFileSync(f);
-          let mem: Buffer = this.emulator.rdramReadBuffer(0, 16 * 1024 * 1024);
-          let r = this.types.get(p.ext)!.parse(f, buf, mem);
-          this.emulator.rdramWriteBuffer(0, mem);
+          let r = this.types.get(p.ext)!.parse(f, buf, this.emulator);
           return r;
       }
       return null;
@@ -40,7 +38,7 @@ class PayloadGameshark extends PayloadType {
         super(ext);
     }
 
-    parse(file: string, buf: Buffer, dest: Buffer) {
+    parse(file: string, buf: Buffer, dest: IMemory) {
         let gameshark = new GameShark();
         gameshark.read(buf, dest);
     }

@@ -23,6 +23,7 @@ import { DungeonItemManager } from './OOT/DungeonItemManager';
 import { PayloadType } from 'modloader64_api/PayloadType';
 import fs from 'fs';
 import path from 'path';
+import IMemory from 'modloader64_api/IMemory';
 
 enum ROM_VERSIONS {
   N0 = 0x00,
@@ -224,14 +225,14 @@ export class OverlayPayload extends PayloadType {
         super(ext);
     }
 
-    parse(file: string, buf: Buffer, dest: Buffer) {
+    parse(file: string, buf: Buffer, dest: IMemory) {
         console.log('Trying to allocate actor...');
         let overlay_start: number = global.ModLoader['overlay_table'];
         let size = 0x01d6;
         let empty_slots: number[] = new Array<number>();
         for (let i = 0; i < size; i++) {
             let entry_start: number = overlay_start + i * 0x20;
-            let _i: number = dest.readUInt32BE(entry_start + 0x14);
+            let _i: number = dest.rdramRead32(entry_start + 0x14);
             let total = 0;
             total += _i;
             if (total === 0) {
@@ -261,9 +262,9 @@ export class OverlayPayload extends PayloadType {
         console.log(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
-        dest.writeUInt32BE(0x80000000 + addr, slot * 0x20 + overlay_start + 0x14);
+        dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, 0x80000000 + addr);
         buf.writeUInt8(slot, offset + 0x1);
-        buf.copy(dest, parseInt(meta.addr));
+        dest.rdramWriteBuffer(parseInt(meta.addr), buf);
         return slot;
     }
 }

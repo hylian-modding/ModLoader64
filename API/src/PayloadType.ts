@@ -1,3 +1,5 @@
+import IMemory from "./IMemory";
+
 export abstract class PayloadType {
   ext: string;
 
@@ -5,7 +7,7 @@ export abstract class PayloadType {
       this.ext = ext;
   }
 
-  abstract parse(file: string, buf: Buffer, dest: Buffer): any;
+  abstract parse(file: string, buf: Buffer, dest: IMemory): any;
 }
 
 export interface IPayloadManager {

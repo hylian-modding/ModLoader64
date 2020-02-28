@@ -81,7 +81,7 @@ class LobbyJoin {
 
 class FakeNetworkPlayer implements INetworkPlayer {
   nickname: string;
-  uuid: string;
+  uuid!: string;
 
   constructor() {
       this.nickname = 'FakeNetworkPlayer';
