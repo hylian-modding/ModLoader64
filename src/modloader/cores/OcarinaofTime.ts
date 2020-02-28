@@ -69,7 +69,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
       case ROM_VERSIONS.DEBUG:
           global.ModLoader['save_context'] = 0x15e660;
           global.ModLoader['global_context_pointer'] = 0x157da0;
-          global.ModLoader['overlay_table'] = 0x1159b0;
+          global.ModLoader['overlay_table'] = 0x1162A0;
           global.ModLoader['link_instance'] = 0x2245B0;
           global.ModLoader['gui_isShown'] = 0x1C4357;
           offsets.state = 0x067C;
