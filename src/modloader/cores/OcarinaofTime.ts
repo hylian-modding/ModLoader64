@@ -1,6 +1,6 @@
 import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { GameShark } from 'modloader64_api/GameShark';
-import { ICore, IModLoaderAPI } from 'modloader64_api/IModLoaderAPI';
+import { ICore, IModLoaderAPI, ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
     IGlobalContext,
@@ -183,7 +183,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
           this.actorManager.onTick();
       });
       this.ModLoader.payloadManager.registerPayloadType(
-          new OverlayPayload('.ovl')
+          new OverlayPayload('.ovl', this.ModLoader.logger.getLogger("OverlayPayload"))
       );
   }
 
@@ -221,12 +221,16 @@ interface ovl_meta {
 }
 
 export class OverlayPayload extends PayloadType {
-    constructor(ext: string) {
+
+    logger: ILogger;
+
+    constructor(ext: string, logger: ILogger) {
         super(ext);
+        this.logger = logger;
     }
 
     parse(file: string, buf: Buffer, dest: IMemory) {
-        console.log('Trying to allocate actor...');
+        this.logger.debug('Trying to allocate actor...');
         let overlay_start: number = global.ModLoader['overlay_table'];
         let size = 0x01d6;
         let empty_slots: number[] = new Array<number>();
@@ -239,7 +243,7 @@ export class OverlayPayload extends PayloadType {
                 empty_slots.push(i);
             }
         }
-        console.log(empty_slots.length + ' empty actor slots found.');
+        this.logger.debug(empty_slots.length + ' empty actor slots found.');
         let finder: find_init = new find_init();
         let meta: ovl_meta = JSON.parse(
             fs
@@ -250,7 +254,7 @@ export class OverlayPayload extends PayloadType {
         );
         let offset: number = finder.find(buf, meta.init);
         if (offset === -1) {
-            console.log(
+            this.logger.debug(
                 'Failed to find spawn parameters for actor ' +
           path.parse(file).base +
           '.'
@@ -259,7 +263,7 @@ export class OverlayPayload extends PayloadType {
         }
         let addr: number = parseInt(meta.addr) + offset;
         let slot: number = empty_slots.shift() as number;
-        console.log(
+        this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
         dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, 0x80000000 + addr);

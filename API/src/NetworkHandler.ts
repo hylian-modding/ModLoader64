@@ -14,6 +14,7 @@ export const NetworkSendBusServer: NetworkEventBus = new NetworkEventBus();
 
 export function NetworkHandler(key: string) {
     return function(
+        this: any,
         target: any,
         propertyKey: string,
         descriptor: PropertyDescriptor
@@ -27,7 +28,7 @@ export function NetworkHandler(key: string) {
         if (target.ModLoader.NetworkHandler.PacketHandlers === undefined) {
             target.ModLoader.NetworkHandler['PacketHandlers'] = new Map<
         string,
-        Function
+        string
       >();
         }
         target.ModLoader.NetworkHandler.PacketHandlers.set(key, propertyKey);
@@ -49,7 +50,7 @@ export function NetworkChannelHandler(key: string) {
         if (target.ModLoader.NetworkHandler.ChannelHandlers === undefined) {
             target.ModLoader.NetworkHandler['ChannelHandlers'] = new Map<
         string,
-        Function
+        string
       >();
         }
         target.ModLoader.NetworkHandler.ChannelHandlers.set(key, propertyKey);
@@ -71,7 +72,7 @@ export function ServerNetworkHandler(key: string) {
         if (target.ModLoader.ServerNetworkHandler.PacketHandlers === undefined) {
             target.ModLoader.ServerNetworkHandler['PacketHandlers'] = new Map<
         string,
-        Function
+        string
       >();
         }
         target.ModLoader.ServerNetworkHandler.PacketHandlers.set(key, propertyKey);
@@ -93,7 +94,7 @@ export function ServerNetworkChannelHandler(key: string) {
         if (target.ModLoader.ServerNetworkHandler.ChannelHandlers === undefined) {
             target.ModLoader.ServerNetworkHandler['ChannelHandlers'] = new Map<
         string,
-        Function
+        string
       >();
         }
         target.ModLoader.ServerNetworkHandler.ChannelHandlers.set(key, propertyKey);
@@ -174,6 +175,9 @@ export interface ILobbyManager {
 export function setupNetworkHandlers(instance: any) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
+        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")){
+            return;
+        }
         if (p.ModLoader.hasOwnProperty('NetworkHandler')) {
             // Setup packet decorator handlers
             if (

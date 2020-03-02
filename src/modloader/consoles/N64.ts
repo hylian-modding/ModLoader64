@@ -11,6 +11,7 @@ import {
 } from '../../monkeypatches/Mupen';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
+import path from 'path';
 
 class N64 implements IConsole {
   mupen: IMupen;
@@ -19,9 +20,7 @@ class N64 implements IConsole {
 
   constructor(rom: string, logger: ILogger) {
       this.logger = logger;
-      this.mupen = require(process.cwd() +
-      '/emulator/mupen64plus.node') as IMupen;
-
+      this.mupen = require('@emulator/mupen64plus.node') as IMupen;
       let mp1: MonkeyPatch_rdramReadBits8 = new MonkeyPatch_rdramReadBits8(
           this.mupen
       );

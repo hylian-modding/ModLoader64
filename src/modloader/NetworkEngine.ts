@@ -146,6 +146,7 @@ namespace NetworkEngine {
     udpServer: Socket = dgram.createSocket('udp4');
     udpPort = -1;
     plugins: any = {};
+    core: string = "";
 
     constructor(logger: ILogger, config: IConfig) {
         this.logger = logger;
@@ -161,6 +162,9 @@ namespace NetworkEngine {
         internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
             let p: any = args[0];
             this.plugins[p.name] = p.version;
+        });
+        internal_event_bus.on('CORE_LOADED', (args: any[])=>{
+            this.core = args[0];
         });
 
         NetworkingEventBus.on('getLobbyStorage', (evt: getLobbyStorage_event) => {
@@ -298,20 +302,25 @@ namespace NetworkEngine {
                             }
                         }
                     });
+                    if (inst.core !== packet.core){
+                        mismatch = true;
+                    }
                     if (global.ModLoader.version === packet.ml && mismatch === false) {
                         inst.sendToTarget(socket.id, 'versionGood', {
                             client: packet.ml,
                             server: new VersionPacket(
                                 global.ModLoader.version,
-                                inst.plugins
+                                inst.plugins,
+                                inst.core
                             ),
                         });
                     } else {
                         inst.sendToTarget(socket.id, 'versionBad', {
-                            client: packet.ml,
+                            client: {ml: packet.ml, plugins: packet.plugins, core: packet.core},
                             server: new VersionPacket(
                                 global.ModLoader.version,
-                                inst.plugins
+                                inst.plugins,
+                                inst.core
                             ),
                         });
                         setTimeout(function() {
@@ -446,10 +455,12 @@ namespace NetworkEngine {
   class VersionPacket {
     ml: string;
     plugins: any;
+    core: string;
 
-    constructor(ml: string, plugins: any) {
+    constructor(ml: string, plugins: any, core: string) {
         this.ml = ml;
         this.plugins = plugins;
+        this.core = core;
     }
   }
 
@@ -468,6 +479,7 @@ namespace NetworkEngine {
     udpTestHandle!: any;
     packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
     plugins: any = {};
+    core: string = "";
     isConnectionReady = false;
     lastPacketBuffer: IPacketHeader[] = new Array<IPacketHeader>();
 
@@ -498,6 +510,9 @@ namespace NetworkEngine {
         internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
             let p: any = args[0];
             this.plugins[p.name] = p.version;
+        });
+        internal_event_bus.on('CORE_LOADED', (args: any[])=>{
+            this.core = args[0];
         });
         internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
             fs.writeFileSync(
@@ -553,7 +568,7 @@ namespace NetworkEngine {
                 inst.me = new NetworkPlayer(inst.config.nickname, data.uuid);
                 inst.socket.emit(
                     'version',
-                    new VersionPacket(global.ModLoader.version, inst.plugins)
+                    new VersionPacket(global.ModLoader.version, inst.plugins, inst.core)
                 );
             });
             inst.socket.on('versionGood', (data: any) => {

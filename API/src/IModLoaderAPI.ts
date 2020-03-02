@@ -22,6 +22,7 @@ export interface ILogger {
   error(...msg: string[]): void;
   debug(...msg: string[]): void;
   setLevel(level: ILoggerLevels): void;
+  getLogger(id: string): ILogger;
 }
 
 export interface IConfig {
@@ -73,5 +74,8 @@ export enum ModLoaderEvents {
   ON_ROM_PATCHED = 'ON_ROM_PATCHED',
   ON_ROM_HEADER_PARSED = 'ON_ROM_HEADER_PARSED',
   ON_CRASH = 'ON_MODLOADER_CRASH',
-  ON_PRE_ROM_LOAD = "ON_PRE_ROM_LOAD"
+  ON_PRE_ROM_LOAD = "ON_PRE_ROM_LOAD",
+  ON_SOFT_RESET_PRE = "ON_SOFT_RESET_PRE",
+  ON_SOFT_RESET_POST = "ON_SOFT_RESET_POST",
+  ON_ROM_PATCHED_POST = "ON_ROM_PATCHED_POST"
 }

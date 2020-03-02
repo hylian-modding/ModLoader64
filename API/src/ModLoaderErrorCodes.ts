@@ -1,5 +1,6 @@
 export const enum ModLoaderErrorCodes {
   NORMAL_EXIT,
+  UNKNOWN,
   NO_ROM,
   BPS_FAILED,
   BAD_VERSION,

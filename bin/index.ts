@@ -310,6 +310,9 @@ if (program.update) {
     child_process.execSync("git reset --hard origin/master");
     child_process.execSync("git pull");
     fse.removeSync("./node_modules");
+    if (fse.existsSync("./build/emulator")){
+        fse.removeSync("./build/emulator");
+    }
     let ml = child_process.exec("npm install");
     ml.stdout.on('data', function (data) {
         console.log(data);

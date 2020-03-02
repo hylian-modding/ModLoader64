@@ -4,6 +4,7 @@ import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
 import { fork } from 'child_process';
+import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
 //require('source-map-support').install();
@@ -56,10 +57,19 @@ if (fs.existsSync('./console.log')) {
     fs.unlinkSync('./console.log');
 }
 
-const logger = require('simple-node-logger').createSimpleLogger('console.log');
+const logger = getLogger("Core");
+
+const logConfig: any = {
+    appenders: { ML64Core_stdout: { type: 'stdout'}, ML64Core_file: { type: 'file', filename: 'console.log'}},
+    categories: { default: { appenders: ['ML64Core_stdout', 'ML64Core_file'], level: 'all' } }
+};
+
+configure(logConfig);
+
+const logger_ovl = getLogger("STOP_USING_CONSOLE_LOG_YOU_PLEBS");
 
 console.log = (message?: any, ...optionalParams: any[]) => {
-    logger.debug(message);
+    logger_ovl.debug(message);
 };
 
 class dumb_logger{
@@ -75,14 +85,12 @@ class dumb_logger{
     }
 }
 
-//const logger = new dumb_logger();
-
 if (fs.existsSync('../README.md')) {
-    logger.setLevel('all' as ILoggerLevels);
+    logger.level = ('all' as ILoggerLevels);
 }
 
 if (program.logginglevel !== undefined){
-    logger.setLevel(program.logginglevel);
+    logger.level = (program.logginglevel);
 }
 
 logger.info(projectID);
@@ -93,6 +101,32 @@ if (testers.length > 0) {
 logger.info('Version: ', version);
 
 logger.info('Setting running directory: ' + process.cwd());
+
+class logwrapper implements ILogger{
+
+    private logger: any;
+
+    constructor(logger: any){
+        this.logger = logger;
+    }
+
+    info(...msg: string[]): void {
+        this.logger.info(msg.toString());
+    }    
+    error(...msg: string[]): void {
+        this.logger.error(msg.toString());
+    }
+    debug(...msg: string[]): void {
+        this.logger.debug(msg.toString());
+    }
+    setLevel(level: ILoggerLevels): void {
+        this.logger.level = level;
+    }
+    getLogger(id: string): ILogger {
+        let wrap: logwrapper = new logwrapper(getLogger(id));
+        return wrap;
+    }
+}
 
 // Monkey patches
 let stringify = new MonkeyPatch_Stringify();
@@ -109,6 +143,6 @@ if (program.update) {
         });
     });
 } else {
-    const instance = new modloader64(logger);
+    const instance = new modloader64(new logwrapper(logger));
     instance.start();
 }

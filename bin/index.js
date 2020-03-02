@@ -319,6 +319,9 @@ if (commander_1["default"].update) {
     child_process_1["default"].execSync("git reset --hard origin/master");
     child_process_1["default"].execSync("git pull");
     fs_extra_1["default"].removeSync("./node_modules");
+    if (fs_extra_1["default"].existsSync("./build/emulator")) {
+        fs_extra_1["default"].removeSync("./build/emulator");
+    }
     var ml = child_process_1["default"].exec("npm install");
     ml.stdout.on('data', function (data) {
         console.log(data);

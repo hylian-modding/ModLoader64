@@ -74,10 +74,10 @@ class ModLoader64 {
         this.plugins = new pluginLoader(
             mods_folder_array,
             this.config,
-            this.logger
+            this.logger.getLogger("PluginLoader")
         );
-        this.Server = new NetworkEngine.Server(this.logger, this.config);
-        this.Client = new NetworkEngine.Client(this.logger, this.config);
+        this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
+        this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config);
 
         if (process.platform === 'win32') {
             let rl = require('readline').createInterface({
@@ -114,7 +114,7 @@ class ModLoader64 {
 
         process.on('message', (msg: string) => {
             let packet: GUITunnelPacket = JSON.parse(msg) as GUITunnelPacket;
-            bus.emit(packet.id, packet);
+            bus.emit(packet.event, packet);
         });
     }
 
@@ -199,38 +199,47 @@ class ModLoader64 {
         let ext_core_path: string = path.resolve(path.join(cores_folder));
         fs.readdirSync(ext_core_path).forEach(file => {
             let f = path.join(ext_core_path, file);
-            if (path.parse(f).ext === ".pak") {
-                let parse = path.parse(file);
-                let pak: Pak = new Pak(f);
-                let v: pakVerifier = new pakVerifier(this.logger);
-                if (v.verifyPak(pak, f)) {
-                    let dir: string = v.extractPakToTemp(pak, f);
-                    let d: string = path.resolve(dir, '../');
-                    moduleAlias.addPath(d);
-                    auto_wire_cores(dir);
+            if (f.indexOf(".disabled") === -1) {
+                if (path.parse(f).ext === ".pak") {
+                    let parse = path.parse(file);
+                    let pak: Pak = new Pak(f);
+                    let v: pakVerifier = new pakVerifier(this.logger);
+                    if (v.verifyPak(pak, f)) {
+                        let dir: string = v.extractPakToTemp(pak, f);
+                        let d: string = path.resolve(dir, '../');
+                        moduleAlias.addPath(d);
+                        auto_wire_cores(dir);
+                    }
+                } else {
+                    auto_wire_cores(f);
                 }
-            } else {
-                auto_wire_cores(f);
             }
         });
-
-        if (this.data.isServer) {
-            switch (this.data.selectedConsole) {
-            case 'N64': {
+        switch (this.data.selectedConsole) {
+        case 'N64': {
+            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+            if (this.data.isServer) {
                 this.emulator = new FakeMupen(this.rom_path);
-                break;
             }
-            }
-        }
-        if (this.data.isClient) {
-            switch (this.data.selectedConsole) {
-            case 'N64': {
+            if (this.data.isClient){
                 this.emulator = new N64(this.rom_path, this.logger);
-                break;
             }
-            }
+            break;
+        }
         }
         internal_event_bus.emit('preinit_done', {});
+        bus.on('SOFT_RESET_PRESSED', ()=>{
+            this.logger.info("Soft reset detected. Sending alert to plugins.");
+            bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+            this.logger.info("Letting the reset go through...");
+            this.emulator.softReset();
+            while (!this.emulator.isEmulatorReady()) { }
+            this.logger.info("Reinvoking the payload injector...");
+            this.plugins.reinject(()=>{
+                this.logger.info("Soft reset complete. Sending alert to plugins.");
+                bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
+            });
+        });
         this.init();
     }
 
@@ -264,7 +273,7 @@ class ModLoader64 {
         // Load the plugins
         this.plugins.loadPluginsConstruct(loaded_rom_header);
         bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
-        let evt: any = {rom: this.emulator.getLoadedRom()};
+        let evt: any = { rom: this.emulator.getLoadedRom() };
         bus.emit(ModLoaderEvents.ON_PRE_ROM_LOAD, evt);
         (this.emulator.getMemoryAccess() as unknown as IRomMemory).romWriteBuffer(0x0, evt.rom);
         bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
@@ -322,7 +331,7 @@ class ModLoader64 {
                             instance.logger.info(newHash);
                         } catch (err) {
                             if (err) {
-                                console.log(err);
+                                instance.logger.error(err);
                                 process.exit(ModLoaderErrorCodes.BPS_FAILED);
                             }
                         }
@@ -330,7 +339,7 @@ class ModLoader64 {
                     let evt: any = { rom: rom_data };
                     if (instance.data.isClient) {
                         bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
-                        bus.emit("ON_ROM_PATCHED_POST", evt);
+                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
                     }
                     return evt.rom;
                 }) as IMemory;

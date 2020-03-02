@@ -14,6 +14,7 @@ import {
     EventsClient,
     EventsServer,
     setupEventHandlers,
+    markPrototypeProcessed,
 } from 'modloader64_api/EventHandler';
 import {
     INetworkPlayer,
@@ -41,6 +42,7 @@ import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
 import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
+import {setupMLInjects} from 'modloader64_api/ModLoaderAPIInjector';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -61,6 +63,7 @@ class pluginLoader {
     crashCheck!: any;
     lastCrashCheckFrame = -1;
     payloadManager!: PayloadManager;
+    injector!: Function;
 
     constructor(dirs: string[], config: IConfig, logger: ILogger) {
         this.plugin_directories = dirs;
@@ -135,24 +138,28 @@ class pluginLoader {
             let p = require(file);
             let plugin: IPlugin = new p() as IPlugin;
             plugin['ModLoader'] = {} as IModLoaderAPI;
-            plugin['ModLoader']['logger'] = this.logger;
+            plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
             Object.defineProperty(plugin, 'pluginName', {
                 value: parse.name,
                 writable: false,
             });
-            console.log("Scanning " + pkg.name + " for event handlers...");
             setupEventHandlers(plugin);
-            console.log("Scanning " + pkg.name + " for network handlers...");
             setupNetworkHandlers(plugin);
-            console.log("Scanning " + pkg.name + " for core handlers...");
             setupCoreInject(plugin, this.loaded_core);
-            console.log("Injecting metadata into " + pkg.name + ".");
+            markPrototypeProcessed(plugin);
+            Object.keys(plugin).forEach((key: string)=>{
+                setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                setupCoreInject((plugin as any)[key], this.loaded_core);
+                setupEventHandlers((plugin as any)[key]);
+                setupNetworkHandlers((plugin as any)[key]);
+                markPrototypeProcessed((plugin as any)[key]);
+            });
             Object.defineProperty(plugin, 'metadata', {
                 value: pkg,
                 writable: false,
             });
-            console.log("Registered plugin " + pkg.name + ".");
+            this.logger.info("Registered plugin " + pkg.name + ".");
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
         }
@@ -168,7 +175,7 @@ class pluginLoader {
         let core = this.core_plugins[this.selected_core];
         Object.freeze(this.logger);
         core['ModLoader'] = {};
-        core['ModLoader']['logger'] = this.logger;
+        core['ModLoader']['logger'] = this.logger.getLogger(this.selected_core);
         core['ModLoader']['config'] = this.config;
         this.loaded_core = core;
 
@@ -179,6 +186,17 @@ class pluginLoader {
 
         setupEventHandlers(this.loaded_core);
         setupNetworkHandlers(this.loaded_core);
+        markPrototypeProcessed(this.loaded_core);
+
+        Object.keys(this.loaded_core).forEach((key: string)=>{
+            setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
+            setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
+            setupEventHandlers((this.loaded_core as any)[key]);
+            setupNetworkHandlers((this.loaded_core as any)[key]);
+            markPrototypeProcessed((this.loaded_core as any)[key]);
+        });
+
+        internal_event_bus.emit("CORE_LOADED", this.selected_core);
 
         // Start external plugins.
         this.plugin_directories.forEach((dir: string) => {
@@ -232,7 +250,7 @@ class pluginLoader {
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
-                console.log(err);
+                this.logger.error(err);
                 this.logger.error("Failed to configure core?");
                 this.logger.error(this.selected_core);
                 this.logger.error(this.loaded_core.constructor.name);
@@ -346,7 +364,7 @@ class pluginLoader {
                 bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
             }
         });
-        this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+        this.injector = () => {
             iconsole.finishInjects();
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
@@ -370,11 +388,19 @@ class pluginLoader {
             });
             bus.emit(EventsClient.ON_INJECT_FINISHED, {});
             iconsole.finishInjects();
-        }, 20);
+        };
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(this.injector, 20);
         if (config.isClient) {
             setInterval(this.onTickHandle, 0);
             setInterval(this.crashCheck, 10 * 1000);
         }
+    }
+
+    reinject(callback: Function){
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(()=>{
+            this.injector();
+            callback();
+        }, 20);
     }
 }
 

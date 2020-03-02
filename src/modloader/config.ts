@@ -12,7 +12,6 @@ class configuration implements IConfig {
       if (global.ModLoader.hasOwnProperty("OVERRIDE_CONFIG_FILE")){
           this.file = global.ModLoader.OVERRIDE_CONFIG_FILE;
       }
-      console.log(this.file);
       if (fs.existsSync(this.file)) {
           this.data = JSON.parse(fs.readFileSync(this.file, 'utf8'));
       } else {

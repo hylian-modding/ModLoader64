@@ -15,9 +15,9 @@ function EventHandler(key: string) {
             target['ModLoader'] = {};
         }
         if (target.ModLoader.eventHandlers === undefined) {
-            target.ModLoader['eventHandlers'] = new Map<string, Function>();
+            target.ModLoader['eventHandlers'] = new Map<string, string>();
         }
-        target.ModLoader.eventHandlers.set(key, ()=>{return propertyKey;});
+        target.ModLoader.eventHandlers.set(key, propertyKey);
     };
 }
 
@@ -55,13 +55,24 @@ export enum EventsClient {
 export function setupEventHandlers(instance: any) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
+        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")){
+            return;
+        }
         if (p.ModLoader.hasOwnProperty('eventHandlers')) {
-            p.ModLoader.eventHandlers.forEach(function(value: Function, key: string) {
-                let a = (instance as any)[value()].bind(instance);
+            p.ModLoader.eventHandlers.forEach(function(value: string, key: string) {
+                let a = (instance as any)[value].bind(instance);
                 bus.addListener(key, a);
             });
         }
     }
+}
+
+export function markPrototypeProcessed(instance: any){
+    let p = Object.getPrototypeOf(instance);
+    if (!p.hasOwnProperty('ModLoader')) {
+        return;
+    }
+    p['ModLoader']['hasBeenProcessed'] = true;
 }
 
 export { bus, EventHandler };
