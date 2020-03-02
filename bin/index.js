@@ -183,7 +183,7 @@ if (commander_1["default"].build) {
     }
     catch (err) {
         if (err) {
-            child_process_1["default"].execSync("tsc");
+            throw Error(err.stdout.toString());
         }
     }
     fs_extra_1["default"].copySync("./src", "./build/src");

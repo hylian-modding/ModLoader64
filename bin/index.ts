@@ -164,11 +164,11 @@ if (program.build) {
     if (!fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
     }
-    try{
+    try {
         child_process.execSync("npx tsc");
-    }catch(err){
-        if (err){
-            child_process.execSync("tsc");
+    } catch (err) {
+        if (err) {
+            throw Error(err.stdout.toString());
         }
     }
     fse.copySync("./src", "./build/src");
@@ -248,7 +248,7 @@ if (program.runp2) {
 function updateCores() {
     let original_dir: string = process.cwd();
     let deps_dir: string = path.join("./", "external_cores");
-    if (!fse.existsSync(deps_dir)){
+    if (!fse.existsSync(deps_dir)) {
         return;
     }
     process.chdir(deps_dir);
@@ -310,7 +310,7 @@ if (program.update) {
     child_process.execSync("git reset --hard origin/master");
     child_process.execSync("git pull");
     fse.removeSync("./node_modules");
-    if (fse.existsSync("./build/emulator")){
+    if (fse.existsSync("./build/emulator")) {
         fse.removeSync("./build/emulator");
     }
     let ml = child_process.exec("npm install");
