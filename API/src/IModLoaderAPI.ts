@@ -19,6 +19,7 @@ export const enum ILoggerLevels {
 
 export interface ILogger {
   info(...msg: string[]): void;
+  warn(...msg: string[]): void;
   error(...msg: string[]): void;
   debug(...msg: string[]): void;
   setLevel(level: ILoggerLevels): void;
@@ -51,7 +52,6 @@ export interface IModLoaderAPI {
 
 export interface IPlugin {
   ModLoader: IModLoaderAPI;
-  // This is set by the ModLoader.
   pluginName?: string;
   preinit(): void;
   init(): void;

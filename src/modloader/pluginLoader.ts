@@ -42,13 +42,14 @@ import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
 import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
-import {setupMLInjects} from 'modloader64_api/ModLoaderAPIInjector';
+import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
+import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 
 class pluginLoader {
     plugin_directories: string[];
     core_plugins: any = {};
     plugin_folders: string[] = [];
-    plugins: IPlugin[] = [];
+    plugins: any[] = [];
     selected_core = '';
     loaded_core: ICore = {} as ICore;
     config: IConfig;
@@ -64,6 +65,7 @@ class pluginLoader {
     lastCrashCheckFrame = -1;
     payloadManager!: PayloadManager;
     injector!: Function;
+    lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
 
     constructor(dirs: string[], config: IConfig, logger: ILogger) {
         this.plugin_directories = dirs;
@@ -81,6 +83,22 @@ class pluginLoader {
             cleanup();
         });
         cleanup();
+        this.lifecycle_funcs.set(LifeCycleEvents.PREINIT, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.INIT, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.POSTINIT, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONTICK, []);
+        lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.INIT, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.POSTINIT, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONTICK, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.push(handler);
+        });
     }
 
     registerCorePlugin(name: string, core: any) {
@@ -136,7 +154,7 @@ class pluginLoader {
         parse = path.parse(file);
         if (parse.ext.indexOf('js') > -1) {
             let p = require(file);
-            let plugin: IPlugin = new p() as IPlugin;
+            let plugin: any = new p();
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
@@ -147,12 +165,14 @@ class pluginLoader {
             setupEventHandlers(plugin);
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
+            setupLifecycle_IPlugin(plugin);
             markPrototypeProcessed(plugin);
-            Object.keys(plugin).forEach((key: string)=>{
+            Object.keys(plugin).forEach((key: string) => {
                 setupMLInjects((plugin as any)[key], plugin.ModLoader);
                 setupCoreInject((plugin as any)[key], this.loaded_core);
                 setupEventHandlers((plugin as any)[key]);
                 setupNetworkHandlers((plugin as any)[key]);
+                setupLifecycle((plugin as any)[key]);
                 markPrototypeProcessed((plugin as any)[key]);
             });
             Object.defineProperty(plugin, 'metadata', {
@@ -184,14 +204,19 @@ class pluginLoader {
             writable: false,
         });
 
+        Object.defineProperty(this.loaded_core, 'pluginName', {
+            value: this.selected_core,
+            writable: false,
+        });
+
         setupEventHandlers(this.loaded_core);
         setupNetworkHandlers(this.loaded_core);
         markPrototypeProcessed(this.loaded_core);
-
-        Object.keys(this.loaded_core).forEach((key: string)=>{
+        Object.keys(this.loaded_core).forEach((key: string) => {
             setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
             setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
             setupEventHandlers((this.loaded_core as any)[key]);
+            setupLifecycle((this.loaded_core as any)[key]);
             setupNetworkHandlers((this.loaded_core as any)[key]);
             markPrototypeProcessed((this.loaded_core as any)[key]);
         });
@@ -251,7 +276,7 @@ class pluginLoader {
         } catch (err) {
             if (err) {
                 this.logger.error(err);
-                this.logger.error("Failed to configure core?");
+                this.logger.error("Failed to configure core!");
                 this.logger.error(this.selected_core);
                 this.logger.error(this.loaded_core.constructor.name);
                 process.exit(1);
@@ -264,7 +289,9 @@ class pluginLoader {
             plugin.ModLoader.utils = utils;
             plugin.ModLoader.clientLobby = lobby;
             plugin.ModLoader.lobbyManager = lma;
-            plugin.preinit();
+        });
+        this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
+            value();
         });
     }
 
@@ -278,14 +305,16 @@ class pluginLoader {
         this.loaded_core.init();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.me = me;
-            plugin.init();
+        });
+        this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
+            value();
         });
         this.onTickHandle = () => {
             let frame: number = iconsole.getFrameCount();
             if (frame > -1) {
                 this.loaded_core.onTick(frame);
-                this.plugins.forEach((plugin: IPlugin) => {
-                    plugin.onTick(frame);
+                this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                    value(frame);
                 });
                 net.onTick();
                 this.frameTimeouts.forEach(
@@ -356,7 +385,11 @@ class pluginLoader {
                 new GUIAPI(plugin.pluginName as string, plugin)
             );
             plugin.ModLoader.savestates = (emu as unknown) as ISaveState;
-            plugin.postinit();
+        });
+        this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
+            value();
+        });
+        this.plugins.forEach((plugin: IPlugin) => {
             if (mainConfig.isClient) {
                 bus.emit(EventsClient.ON_PLUGIN_READY, plugin);
             }
@@ -396,8 +429,8 @@ class pluginLoader {
         }
     }
 
-    reinject(callback: Function){
-        this.loaded_core.ModLoader.utils.setTimeoutFrames(()=>{
+    reinject(callback: Function) {
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
             this.injector();
             callback();
         }, 20);

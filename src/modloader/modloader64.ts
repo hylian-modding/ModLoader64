@@ -53,6 +53,7 @@ class ModLoader64 {
     done = false;
 
     constructor(logger: any) {
+        global.ModLoader["logger"] = logger;
         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
             this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
         }

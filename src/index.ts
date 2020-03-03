@@ -103,7 +103,6 @@ logger.info('Version: ', version);
 logger.info('Setting running directory: ' + process.cwd());
 
 class logwrapper implements ILogger{
-
     private logger: any;
 
     constructor(logger: any){
@@ -113,6 +112,9 @@ class logwrapper implements ILogger{
     info(...msg: string[]): void {
         this.logger.info(msg.toString());
     }    
+    warn(...msg: string[]): void {
+        this.logger.warn(msg.toString());
+    }
     error(...msg: string[]): void {
         this.logger.error(msg.toString());
     }
