@@ -34,7 +34,6 @@ import { Pak } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
-import uuid from 'uuid';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
@@ -260,7 +259,7 @@ class pluginLoader {
             if (frames <= 0) {
                 frames = 1;
             }
-            this.frameTimeouts.set(uuid.v4(), new frameTimeoutContainer(fn, frames));
+            this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = ()=>{return ML_UUID.getUUID();};
         Object.freeze(utils);
