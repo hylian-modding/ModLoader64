@@ -493,7 +493,7 @@ namespace NetworkEngine {
         config.setData(
             'NetworkEngine.Client',
             'lobby',
-            ML_UUID.getUUID()
+            ML_UUID.getLobbyName()
         );
         config.setData('NetworkEngine.Client', 'nickname', 'Player');
         config.setData('NetworkEngine.Client', 'password', '');
