@@ -1,4 +1,5 @@
 interface IUtils {
+  
   utilBitCount8(value: number): number;
 
   utilBitCount16(value: number): number;
@@ -18,6 +19,8 @@ interface IUtils {
   clearBuffer(buf: Buffer): Buffer;
 
   setTimeoutFrames(fn: Function, frames: number): void;
+
+  getUUID(): string;
 }
 
 export default IUtils;

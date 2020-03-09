@@ -33,13 +33,13 @@ import {
 } from 'modloader64_api/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
 import fs from 'fs';
-import uuid from 'uuid';
 import { internal_event_bus } from './modloader64';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
 import path from 'path';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import { ML_UUID } from './uuid/mluuid';
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
 const NetworkingEventBus: EventBus = new EventBus();
@@ -85,7 +85,7 @@ class FakeNetworkPlayer implements INetworkPlayer {
 
   constructor() {
       this.nickname = 'FakeNetworkPlayer';
-      this.uuid = uuid.v4();
+      this.uuid = ML_UUID.getUUID();
   }
 
   isSamePlayer(compare: INetworkPlayer): boolean {
@@ -493,7 +493,7 @@ namespace NetworkEngine {
         config.setData(
             'NetworkEngine.Client',
             'lobby',
-            require('human-readable-ids').hri.random()
+            ML_UUID.getUUID()
         );
         config.setData('NetworkEngine.Client', 'nickname', 'Player');
         config.setData('NetworkEngine.Client', 'password', '');
@@ -574,7 +574,7 @@ namespace NetworkEngine {
             inst.socket.on('versionGood', (data: any) => {
                 inst.logger.info('Version good! ' + JSON.stringify(data.server));
                 let ld = new LobbyData(
-                    inst.config.lobby.toLowerCase(),
+                    inst.config.lobby,
                     crypto
                         .createHash('md5')
                         .update(Buffer.from(inst.config.password))

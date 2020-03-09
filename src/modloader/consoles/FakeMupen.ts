@@ -78,6 +78,9 @@ class FakeN64SaveState implements ISaveState {
 }
 
 class FakeN64Utils implements IUtils {
+    getUUID(): string {
+        return "";
+    }
     setTimeoutFrames(fn: Function, frames: number): void {}
     clearBuffer(buf: Buffer): Buffer {
         buf.fill('00', 0, buf.byteLength, 'hex');

@@ -44,6 +44,7 @@ import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
 import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
+import { ML_UUID } from './uuid/mluuid';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -261,6 +262,7 @@ class pluginLoader {
             }
             this.frameTimeouts.set(uuid.v4(), new frameTimeoutContainer(fn, frames));
         };
+        utils.getUUID = ()=>{return ML_UUID.getUUID();};
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
