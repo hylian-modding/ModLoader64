@@ -169,12 +169,14 @@ class pluginLoader {
             setupLifecycle_IPlugin(plugin);
             markPrototypeProcessed(plugin);
             Object.keys(plugin).forEach((key: string) => {
-                setupMLInjects((plugin as any)[key], plugin.ModLoader);
-                setupCoreInject((plugin as any)[key], this.loaded_core);
-                setupEventHandlers((plugin as any)[key]);
-                setupNetworkHandlers((plugin as any)[key]);
-                setupLifecycle((plugin as any)[key]);
-                markPrototypeProcessed((plugin as any)[key]);
+                if (plugin[key] !== null && plugin[key] !== undefined) {
+                    setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                    setupCoreInject((plugin as any)[key], this.loaded_core);
+                    setupEventHandlers((plugin as any)[key]);
+                    setupNetworkHandlers((plugin as any)[key]);
+                    setupLifecycle((plugin as any)[key]);
+                    markPrototypeProcessed((plugin as any)[key]);
+                }
             });
             Object.defineProperty(plugin, 'metadata', {
                 value: pkg,
@@ -262,7 +264,7 @@ class pluginLoader {
             }
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
-        utils.getUUID = ()=>{return ML_UUID.getUUID();};
+        utils.getUUID = () => { return ML_UUID.getUUID(); };
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
