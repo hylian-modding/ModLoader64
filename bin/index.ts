@@ -378,7 +378,9 @@ function install(url: string) {
                     mod_meta["modloader64_deps"][meta2.name] = url;
                 }
                 if (tsconfig !== undefined) {
-                    tsconfig["compilerOptions"]["paths"] = {};
+                    if (!tsconfig["compilerOptions"].hasOwnProperty("paths")){
+                        tsconfig["compilerOptions"]["paths"] = {};
+                    }
                     tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
                     saveTSConfig();
                 }
