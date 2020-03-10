@@ -216,12 +216,14 @@ class pluginLoader {
         setupNetworkHandlers(this.loaded_core);
         markPrototypeProcessed(this.loaded_core);
         Object.keys(this.loaded_core).forEach((key: string) => {
-            setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
-            setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
-            setupEventHandlers((this.loaded_core as any)[key]);
-            setupLifecycle((this.loaded_core as any)[key]);
-            setupNetworkHandlers((this.loaded_core as any)[key]);
-            markPrototypeProcessed((this.loaded_core as any)[key]);
+            if ((this.loaded_core as any)[key] !== null && (this.loaded_core as any)[key] !== undefined) {
+                setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
+                setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
+                setupEventHandlers((this.loaded_core as any)[key]);
+                setupLifecycle((this.loaded_core as any)[key]);
+                setupNetworkHandlers((this.loaded_core as any)[key]);
+                markPrototypeProcessed((this.loaded_core as any)[key]);
+            }
         });
 
         internal_event_bus.emit("CORE_LOADED", this.selected_core);
