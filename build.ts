@@ -14,30 +14,60 @@ program.option('-s, --step <type>', 'build step');
 program.parse(process.argv);
 
 switch (program.step) {
-    case "prebuild": {
-        prebuild();
-        break;
+case "prebuild": {
+    prebuild();
+    break;
+}
+case "build": {
+    build();
+    break;
+}
+case "postbuild": {
+    postbuild();
+    break;
+}
+case "pushModules": {
+    pushModules();
+    break;
+}
+case "installEmulator": {
+    getEmulator();
+    break;
+}
+case "player2": {
+    player2();
+    break;
+}
+case "bump": {
+    bump();
+    break;
+}
+case "clean": {
+    clean();
+    break;
+}
+}
+
+function clean(){
+    console.log("Cleaning...");
+    if (fs.existsSync("./build")) {
+        fs.removeSync("./build");
     }
-    case "build": {
-        build();
-        break;
+    if (fs.existsSync("./build2")) {
+        fs.removeSync("./build2");
     }
-    case "postbuild": {
-        postbuild();
-        break;
-    }
-    case "pushModules": {
-        pushModules();
-        break;
-    }
-    case "installEmulator": {
-        getEmulator();
-        break;
-    }
-    case "player2": {
-        player2();
-        break;
-    }
+}
+
+function bump() {
+    let original_dir: string = process.cwd();
+    child_process.execSync("npm version --no-git-tag-version patch");
+    let u: any = JSON.parse(fs.readFileSync("./update.json").toString());
+    let p: any = JSON.parse(fs.readFileSync("./package.json").toString());
+    u["version"] = p["version"];
+    fs.writeFileSync("./update.json", JSON.stringify(u, null, 2));
+    process.chdir("./src");
+    child_process.execSync("npm version --no-git-tag-version patch");
+    process.chdir(original_dir);
 }
 
 function getEmulator() {
@@ -61,13 +91,13 @@ function pushModules() {
     console.log("Cleaning...");
     let original_dir: string = process.cwd();
 
-    if (fs.existsSync("./build")){
+    if (fs.existsSync("./build")) {
         fs.removeSync("./build");
     }
-    if (fs.existsSync("./build2")){
+    if (fs.existsSync("./build2")) {
         fs.removeSync("./build2");
     }
-    if (fs.existsSync("./dist")){
+    if (fs.existsSync("./dist")) {
         fs.removeSync("./dist");
     }
     console.log("Building...");
@@ -103,10 +133,10 @@ function pushModules() {
         process.chdir("./dist/linux");
         child_process.execSync("npx tar -xzvf ./emulator_linux.tar.gz");
         process.chdir(original_dir);
-        if (fs.existsSync("./dist/windows/emulator_windows.tar.gz")){
+        if (fs.existsSync("./dist/windows/emulator_windows.tar.gz")) {
             fs.unlinkSync("./dist/windows/emulator_windows.tar.gz");
         }
-        if (fs.existsSync("./dist/linux/emulator_linux.tar.gz")){
+        if (fs.existsSync("./dist/linux/emulator_linux.tar.gz")) {
             fs.unlinkSync("./dist/linux/emulator_linux.tar.gz");
         }
         console.log("Building paks...");

@@ -44,6 +44,7 @@ import { Math } from './Math';
 import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 import { ML_UUID } from './uuid/mluuid';
+import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -369,8 +370,10 @@ class pluginLoader {
         ) as IModLoaderConfig;
 
         let emu: IMemory = Object.freeze(emulator);
+        let rom: IRomMemory = Object.freeze((emulator as unknown as IRomMemory));
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
+        this.loaded_core.ModLoader.rom = rom;
         this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
         this.loaded_core.ModLoader.gui = Object.freeze(
             new GUIAPI('core', this.loaded_core)
@@ -380,6 +383,7 @@ class pluginLoader {
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;
+            plugin.ModLoader.rom = rom;
             plugin.ModLoader.payloadManager = this.payloadManager;
             plugin.ModLoader.math = math;
             plugin.ModLoader.gui = Object.freeze(

@@ -4,7 +4,6 @@ import path from 'path';
 import request from 'request';
 const download = require('download-file');
 import fse from 'fs-extra';
-import { ncp } from 'ncp';
 
 request(
     'https://nexus.inpureprojects.info/ModLoader64/update/update.json',
@@ -48,13 +47,8 @@ request(
                         let pak: Pak = new Pak('./ModLoader.pak');
                         pak.extractAll('./');
                         fs.unlinkSync('./ModLoader.pak');
-                        ncp('./ModLoader', './', function(err) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            fse.removeSync('./ModLoader');
-                            console.log('done!');
-                        });
+                        fse.copySync("./ModLoader", "./");
+                        fse.removeSync("./ModLoader");
                     }
                 });
             }

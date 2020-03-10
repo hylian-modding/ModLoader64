@@ -6,6 +6,7 @@ import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
 import { IPayloadManager } from './PayloadType';
 import { IMath } from './math/IMath';
+import { IRomMemory } from './IRomMemory';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -48,6 +49,7 @@ export interface IModLoaderAPI {
   gui: IGUIAPI;
   payloadManager: IPayloadManager;
   math: IMath;
+  rom: IRomMemory;
 }
 
 export interface IPlugin {
