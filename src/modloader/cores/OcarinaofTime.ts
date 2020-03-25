@@ -1,15 +1,12 @@
 import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import { GameShark } from 'modloader64_api/GameShark';
-import { ICore, IModLoaderAPI, ILogger, ICoreServerConfig } from 'modloader64_api/IModLoaderAPI';
+import { ICore, IModLoaderAPI, ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
     IGlobalContext,
     ILink,
     IOOTCore,
     IOotHelper,
-    ISaveContext,
     OotEvents,
-    IKeyManager,
 } from 'modloader64_api/OOT/OOTAPI';
 import { ActorManager } from './OOT/ActorManager';
 import { CommandBuffer } from './OOT/CommandBuffer';
@@ -17,15 +14,11 @@ import { GlobalContext } from './OOT/GlobalContext';
 import { Link } from './OOT/Link';
 import { OotHelper } from './OOT/OotHelper';
 import { SaveContext } from './OOT/SaveContext';
-import { KeyManager } from './OOT/KeyManager';
-import { IDungeonItemManager } from 'modloader64_api/OOT/IDungeonItemManager';
-import { DungeonItemManager } from './OOT/DungeonItemManager';
 import { PayloadType } from 'modloader64_api/PayloadType';
 import fs from 'fs';
 import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
-import { throws } from 'assert';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 
 enum ROM_VERSIONS {
@@ -47,7 +40,7 @@ export interface OOT_Offsets {
     raw_anim: number;
 }
 
-export class OcarinaofTime implements ICore, IOOTCore, ICoreServerConfig {
+export class OcarinaofTime implements ICore, IOOTCore {
     header = 'THE LEGEND OF ZELDA';
     ModLoader!: IModLoaderAPI;
     payloads: string[] = new Array<string>();
@@ -228,10 +221,6 @@ export class OcarinaofTime implements ICore, IOOTCore, ICoreServerConfig {
         for (let i = 0; i < this.payloads.length; i++) {
             this.ModLoader.payloadManager.parseFile(this.payloads[i]);
         }
-    }
-
-    getServerURL(): string {
-        return "192.99.70.23:8000";
     }
 }
 

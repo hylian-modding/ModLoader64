@@ -185,8 +185,8 @@ class pluginLoader {
             this.logger.info("Registered plugin " + pkg.name + ".");
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
+            internal_event_bus.emit('PLUGIN_LOADED', {meta: pkg, instance: plugin});
         }
-        internal_event_bus.emit('PLUGIN_LOADED', pkg);
     }
 
     loadPluginsConstruct(header: IRomHeader, overrideCore = '') {

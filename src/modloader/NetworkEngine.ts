@@ -3,7 +3,7 @@ import {
     IConfig,
     IPlugin,
     ModLoaderEvents,
-    ICoreServerConfig,
+    IPluginServerConfig,
 } from 'modloader64_api/IModLoaderAPI';
 import {
     bus,
@@ -163,12 +163,12 @@ namespace NetworkEngine {
                 'ModLoader64'
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
-                let p: any = args[0];
+                let p: any = args[0].meta;
                 this.plugins[p.name] = p.version;
             });
             internal_event_bus.on('CORE_LOADED', (args: any[]) => {
                 this.core = args[0].name;
-                if ((config.registerConfigCategory("NetworkEngine.Client") as IClientConfig).isSinglePlayer){
+                if ((config.registerConfigCategory("NetworkEngine.Client") as IClientConfig).isSinglePlayer) {
                     this.config.port = parseInt("8082");
                     (config.registerConfigCategory('ModLoader64') as IModLoaderConfig).isServer = true;
                 }
@@ -489,6 +489,7 @@ namespace NetworkEngine {
         core: string = "";
         isConnectionReady = false;
         lastPacketBuffer: IPacketHeader[] = new Array<IPacketHeader>();
+        pluginConfiguredConnection: boolean = false;
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger;
@@ -517,8 +518,15 @@ namespace NetworkEngine {
                 'ModLoader64'
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
-                let p: any = args[0];
+                let p: any = args[0].meta;
                 this.plugins[p.name] = p.version;
+                if (typeof args[0].instance.getServerURL === "function" && !this.config.forceServerOverride && !this.pluginConfiguredConnection && !this.config.isSinglePlayer) {
+                    this.logger.info("Using plugin server configuration: " + p.name + ".");
+                    let server_connection_setup: IPluginServerConfig = args[0].instance as IPluginServerConfig;
+                    this.config.ip = server_connection_setup.getServerURL().split(":")[0];
+                    this.config.port = parseInt(server_connection_setup.getServerURL().split(":")[1]);
+                    this.pluginConfiguredConnection = true;
+                }
             });
             internal_event_bus.on('CORE_LOADED', (args: any[]) => {
                 this.core = args[0].name;
@@ -526,13 +534,6 @@ namespace NetworkEngine {
                     this.logger.info("Dropping into single player mode due to config.");
                     this.config.ip = "127.0.0.1";
                     this.config.port = parseInt("8082");
-                } else {
-                    if (typeof args[0].obj.getServerURL === "function" && !this.config.forceServerOverride) {
-                        this.logger.info("Using core server configuration.");
-                        let server_connection_setup: ICoreServerConfig = args[0].obj as ICoreServerConfig;
-                        this.config.ip = server_connection_setup.getServerURL().split(":")[0];
-                        this.config.port = parseInt(server_connection_setup.getServerURL().split(":")[1]);
-                    }
                 }
             });
             internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {

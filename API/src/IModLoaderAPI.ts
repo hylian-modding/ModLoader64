@@ -71,7 +71,7 @@ export interface ICore {
   onTick(frame?: number): void;
 }
 
-export interface ICoreServerConfig {
+export interface IPluginServerConfig {
   getServerURL(): string;
 }
 
