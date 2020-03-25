@@ -21,6 +21,8 @@ interface IUtils {
   setTimeoutFrames(fn: Function, frames: number): void;
 
   getUUID(): string;
+
+  cloneBuffer(buf: Buffer): Buffer;
 }
 
 export default IUtils;

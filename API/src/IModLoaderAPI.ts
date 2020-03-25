@@ -71,6 +71,10 @@ export interface ICore {
   onTick(frame?: number): void;
 }
 
+export interface ICoreServerConfig {
+  getServerURL(): string;
+}
+
 export enum ModLoaderEvents {
   ON_ROM_PATH = 'ON_ROM_PATH',
   ON_ROM_PATCHED = 'ON_ROM_PATCHED',

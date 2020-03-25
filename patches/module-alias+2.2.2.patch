@@ -1,0 +1,14 @@
+diff --git a/node_modules/module-alias/index.js b/node_modules/module-alias/index.js
+index 8f2e570..c73d7fd 100644
+--- a/node_modules/module-alias/index.js
++++ b/node_modules/module-alias/index.js
+@@ -216,6 +216,9 @@ function getMainModule () {
+   return require.main._simulateRepl ? undefined : require.main
+ }
+ 
++global["module-alias"] = {};
++global["module-alias"]["moduleAliases"] = moduleAliases;
++
+ module.exports = init
+ module.exports.addPath = addPath
+ module.exports.addAlias = addAlias

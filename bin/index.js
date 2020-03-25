@@ -254,6 +254,9 @@ if (commander_1["default"].runp2) {
     ml.on('error', function (err) {
         console.log(err);
     });
+    ml.stderr.on('data', function (data) {
+        console.log(data);
+    });
     process.chdir(original_dir_8);
 }
 function updateCores() {

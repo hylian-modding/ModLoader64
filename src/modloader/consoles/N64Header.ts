@@ -4,6 +4,7 @@ export class N64Header implements IRomHeader {
   name: string;
   country_code: string;
   revision: number;
+  id: string;
 
   constructor(raw: Buffer) {
       this.name = raw
@@ -15,5 +16,6 @@ export class N64Header implements IRomHeader {
           .toString('ascii')
           .trim();
       this.revision = raw.readUInt8(0x3f);
+      this.id = raw.slice(0x3B, 0x3E).toString('ascii').trim();
   }
 }

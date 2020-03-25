@@ -226,7 +226,7 @@ class pluginLoader {
             }
         });
 
-        internal_event_bus.emit("CORE_LOADED", this.selected_core);
+        internal_event_bus.emit("CORE_LOADED", {name: this.selected_core, obj: this.loaded_core});
 
         // Start external plugins.
         this.plugin_directories.forEach((dir: string) => {
@@ -260,6 +260,11 @@ class pluginLoader {
             buf.fill('00', 0, buf.byteLength, 'hex');
             return buf;
         };
+        utils.cloneBuffer = (buf: Buffer) =>{
+            let b: Buffer = Buffer.alloc(buf.byteLength);
+            buf.copy(b);
+            return b;
+        };
         utils.setTimeoutFrames = (fn: Function, frames: number) => {
             if (frames <= 0) {
                 frames = 1;
@@ -271,13 +276,14 @@ class pluginLoader {
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
         let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
-
+        let rom: IRomMemory = Object.freeze((iconsole.getMemoryAccess() as unknown as IRomMemory));
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
             this.loaded_core.ModLoader.utils = utils;
             this.loaded_core.ModLoader.clientLobby = lobby;
             this.loaded_core.ModLoader.lobbyManager = lma;
+            this.loaded_core.ModLoader.rom = rom;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -295,6 +301,7 @@ class pluginLoader {
             plugin.ModLoader.utils = utils;
             plugin.ModLoader.clientLobby = lobby;
             plugin.ModLoader.lobbyManager = lma;
+            plugin.ModLoader.rom = rom;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             value();
@@ -372,12 +379,9 @@ class pluginLoader {
         let mainConfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
-
         let emu: IMemory = Object.freeze(emulator);
-        let rom: IRomMemory = Object.freeze((emulator as unknown as IRomMemory));
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
-        this.loaded_core.ModLoader.rom = rom;
         this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
         this.loaded_core.ModLoader.gui = Object.freeze(
             new GUIAPI('core', this.loaded_core)
@@ -387,7 +391,6 @@ class pluginLoader {
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;
-            plugin.ModLoader.rom = rom;
             plugin.ModLoader.payloadManager = this.payloadManager;
             plugin.ModLoader.math = math;
             plugin.ModLoader.gui = Object.freeze(

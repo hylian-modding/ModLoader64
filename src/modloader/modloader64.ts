@@ -134,6 +134,8 @@ class ModLoader64 {
         internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
             this.emulator.stopEmulator();
         });
+        let BPS = require('./BPS');
+        registerPatchType(".bps", new BPS() as RomPatchType);
         this.preinit();
     }
 
@@ -318,8 +320,6 @@ class ModLoader64 {
                     let p: Buffer = result[0].patch as Buffer;
                     let rom_data: Buffer = instance.emulator.getLoadedRom();
                     if (p.byteLength > 1 && rom_data.byteLength > 1) {
-                        let BPS = require('./BPS');
-                        registerPatchType(".bps", new BPS() as RomPatchType);
                         try {
                             let hash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info('Patching rom...');
