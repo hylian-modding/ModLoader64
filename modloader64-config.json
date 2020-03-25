@@ -1,6 +1,6 @@
 {
   "ModLoader64": {
-    "rom": "Legend of Zelda, The - Majora's Mask (USA).zip",
+    "rom": "Legend of Zelda, The - Ocarina of Time (U) (V1.0) [!].z64",
     "patch": "",
     "isServer": true,
     "isClient": true,
@@ -15,9 +15,11 @@
     "udpPort": 8082
   },
   "NetworkEngine.Client": {
+    "isSinglePlayer": true,
+    "forceServerOverride": false,
     "ip": "127.0.0.1",
     "port": 8082,
-    "lobby": "selfish-quail-56",
+    "lobby": "land-disloyal-41",
     "nickname": "Player",
     "password": ""
   }
