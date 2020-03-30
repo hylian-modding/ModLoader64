@@ -232,6 +232,7 @@ if (program.runp2) {
     let original_dir: string = process.cwd();
     let cfg: any = JSON.parse(fs.readFileSync(path.join(original_dir, "modloader64-config.json")).toString());
     cfg["ModLoader64"]["isServer"] = false;
+    cfg["NetworkEngine.Client"]["isSinglePlayer"] = false;
     fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path.join(__dirname, "../"));
     let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);

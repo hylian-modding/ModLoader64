@@ -185,7 +185,7 @@ class pluginLoader {
             this.logger.info("Registered plugin " + pkg.name + ".");
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
-            internal_event_bus.emit('PLUGIN_LOADED', {meta: pkg, instance: plugin});
+            internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin });
         }
     }
 
@@ -226,7 +226,7 @@ class pluginLoader {
             }
         });
 
-        internal_event_bus.emit("CORE_LOADED", {name: this.selected_core, obj: this.loaded_core});
+        internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start external plugins.
         this.plugin_directories.forEach((dir: string) => {
@@ -260,7 +260,7 @@ class pluginLoader {
             buf.fill('00', 0, buf.byteLength, 'hex');
             return buf;
         };
-        utils.cloneBuffer = (buf: Buffer) =>{
+        utils.cloneBuffer = (buf: Buffer) => {
             let b: Buffer = Buffer.alloc(buf.byteLength);
             buf.copy(b);
             return b;
@@ -434,6 +434,13 @@ class pluginLoader {
             bus.emit(EventsClient.ON_INJECT_FINISHED, {});
             iconsole.finishInjects();
         };
+        let testBuffer: Buffer = Buffer.from("MODLOADER64");
+        emu.rdramWriteBuffer(0x80800000, testBuffer);
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+            if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+                this.logger.info("16MB Expansion verified.");
+            }
+        }, 10);
         this.loaded_core.ModLoader.utils.setTimeoutFrames(this.injector, 20);
         if (config.isClient) {
             setInterval(this.onTickHandle, 0);

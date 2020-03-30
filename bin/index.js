@@ -244,6 +244,7 @@ if (commander_1["default"].runp2) {
     var original_dir_8 = process.cwd();
     var cfg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(original_dir_8, "modloader64-config.json")).toString());
     cfg["ModLoader64"]["isServer"] = false;
+    cfg["NetworkEngine.Client"]["isSinglePlayer"] = false;
     fs_1["default"].writeFileSync(path_1["default"].join(original_dir_8, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
     process.chdir(path_1["default"].join(__dirname, "../"));
     var ml = child_process_1["default"].exec("npm run start_2 -- --mods=" + path_1["default"].join(original_dir_8, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_8, "libs") + " --config=" + path_1["default"].join(original_dir_8, "modloader64-p2-config.json") + " --startdir " + original_dir_8);
