@@ -127,7 +127,10 @@ class ModLoader64 {
                 event: string | string[],
                 ...values: any[]
             ): boolean {
-                inst.tunnel.send(event as string, values);
+                try {
+                    inst.tunnel.send(event as string, values);
+                } catch (err) {
+                }
                 return ofn(event, values);
             };
         })(this);
@@ -219,26 +222,26 @@ class ModLoader64 {
             }
         });
         switch (this.data.selectedConsole) {
-        case 'N64': {
-            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
-            if (this.data.isServer) {
-                this.emulator = new FakeMupen(this.rom_path);
+            case 'N64': {
+                moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+                if (this.data.isServer) {
+                    this.emulator = new FakeMupen(this.rom_path);
+                }
+                if (this.data.isClient) {
+                    this.emulator = new N64(this.rom_path, this.logger);
+                }
+                break;
             }
-            if (this.data.isClient){
-                this.emulator = new N64(this.rom_path, this.logger);
-            }
-            break;
-        }
         }
         internal_event_bus.emit('preinit_done', {});
-        bus.on('SOFT_RESET_PRESSED', ()=>{
+        bus.on('SOFT_RESET_PRESSED', () => {
             this.logger.info("Soft reset detected. Sending alert to plugins.");
             bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
             this.logger.info("Letting the reset go through...");
             this.emulator.softReset();
             while (!this.emulator.isEmulatorReady()) { }
             this.logger.info("Reinvoking the payload injector...");
-            this.plugins.reinject(()=>{
+            this.plugins.reinject(() => {
                 this.logger.info("Soft reset complete. Sending alert to plugins.");
                 bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
             });
