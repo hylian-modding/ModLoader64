@@ -296,7 +296,9 @@ class ModLoader64 {
         });
         if (this.data.isServer) {
             this.Server.setup();
-            this.Analytics_Server.setup();
+            if (this.data.isAnalyticsServer){
+                this.Analytics_Server.setup();
+            }
         }
         if (this.data.isClient) {
             this.Client.setup();
