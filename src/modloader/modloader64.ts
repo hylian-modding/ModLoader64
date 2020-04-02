@@ -29,6 +29,7 @@ import zip from 'adm-zip';
 import moduleAlias from 'module-alias';
 import { RomPatchType, registerPatchType, PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import { AnalyticsServer } from '../analytics/AnalyticsServer';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -47,6 +48,7 @@ class ModLoader64 {
     roms: string[];
     Server: NetworkEngine.Server;
     Client: NetworkEngine.Client;
+    Analytics_Server: AnalyticsServer;
     rom_path!: string;
     emulator!: IConsole;
     tunnel!: IGUITunnel;
@@ -77,6 +79,7 @@ class ModLoader64 {
             this.config,
             this.logger.getLogger("PluginLoader")
         );
+        this.Analytics_Server = new AnalyticsServer(this.logger.getLogger("Analytics"));
         this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
         this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config);
 
@@ -152,6 +155,7 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'patch', '');
         this.config.setData('ModLoader64', 'isServer', true);
         this.config.setData('ModLoader64', 'isClient', true);
+        this.config.setData('ModLoader64', 'isAnalyticsServer', false);
         this.config.setData(
             'ModLoader64',
             'supportedConsoles',
@@ -222,16 +226,16 @@ class ModLoader64 {
             }
         });
         switch (this.data.selectedConsole) {
-            case 'N64': {
-                moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
-                if (this.data.isServer) {
-                    this.emulator = new FakeMupen(this.rom_path);
-                }
-                if (this.data.isClient) {
-                    this.emulator = new N64(this.rom_path, this.logger);
-                }
-                break;
+        case 'N64': {
+            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+            if (this.data.isServer) {
+                this.emulator = new FakeMupen(this.rom_path);
             }
+            if (this.data.isClient) {
+                this.emulator = new N64(this.rom_path, this.logger);
+            }
+            break;
+        }
         }
         internal_event_bus.emit('preinit_done', {});
         bus.on('SOFT_RESET_PRESSED', () => {
@@ -273,6 +277,7 @@ class ModLoader64 {
             this.logger.error(
                 'Failed to find a compatible core for the selected rom!'
             );
+            this.logger.debug(JSON.stringify(loaded_rom_header, null, 2));
             this.logger.info('Setting core to DummyCore.');
             this.plugins.selected_core = 'DummyCore';
         }
@@ -291,6 +296,7 @@ class ModLoader64 {
         });
         if (this.data.isServer) {
             this.Server.setup();
+            this.Analytics_Server.setup();
         }
         if (this.data.isClient) {
             this.Client.setup();
@@ -347,7 +353,7 @@ class ModLoader64 {
                     }
                     return evt.rom;
                 }) as IMemory;
-                while (!instance.emulator.isEmulatorReady()) { }
+                while (!instance.emulator.isEmulatorReady()) {}
                 internal_event_bus.emit('emulator_started', {});
                 resolve();
             });

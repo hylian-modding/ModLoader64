@@ -95,6 +95,7 @@ export interface IPakFile {
     insertFile(file: string, compressed?: boolean): number;
     retrieve(index: number): any;
     footer: PakFooter;
+    verify(): boolean;
 }
 
 export class PakFile implements IPakFile {
@@ -108,7 +109,7 @@ export class PakFile implements IPakFile {
         this._load();
     }
 
-    _load(){
+    _load() {
         let hlength = this.data.readUInt32BE(0x0b);
         let table = this.data.slice(0x10, 0x10 + hlength * 0x10 + 0x1);
         for (let i = 0; i < hlength; i++) {
@@ -277,6 +278,21 @@ export class PakFile implements IPakFile {
         return JSON.parse(d.toString('ascii'));
 
     }
+
+    verify(): boolean {
+        try {
+            let find_footer: number = this.data.indexOf(
+                Buffer.from('MLPublish.......')
+            );
+            let _hash = crypto
+                .createHash('sha512')
+                .update(this.data.slice(0, find_footer))
+                .digest('hex');
+            return this.footer._hash === _hash;
+        } catch (err) {
+        }
+        return false;
+    }
 }
 
 export interface IPak {
@@ -287,6 +303,7 @@ export interface IPak {
     extractAll(target: string): void;
     update(): void;
     overwriteFileAtIndex(index: number, obj: any, compressed?: boolean): number;
+    verify(): boolean;
 }
 
 export class Pak implements IPak {
@@ -337,5 +354,9 @@ export class Pak implements IPak {
             fx.mkdirSync(dir);
             fs.writeFileSync(path.resolve(path.join(target, filename)), data);
         }
+    }
+
+    verify(): boolean {
+        return this.pak.verify();
     }
 }

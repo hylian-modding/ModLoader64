@@ -7,6 +7,7 @@ import { IGUIAPI } from './GUITunnel';
 import { IPayloadManager } from './PayloadType';
 import { IMath } from './math/IMath';
 import { IRomMemory } from './IRomMemory';
+import { IAnalytics } from './analytics/IAnalytics';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -50,6 +51,9 @@ export interface IModLoaderAPI {
   payloadManager: IPayloadManager;
   math: IMath;
   rom: IRomMemory;
+  analytics: IAnalytics;
+  isClient: boolean;
+  isServer: boolean;
 }
 
 export interface IPlugin {
@@ -83,5 +87,6 @@ export enum ModLoaderEvents {
   ON_PRE_ROM_LOAD = "ON_PRE_ROM_LOAD",
   ON_SOFT_RESET_PRE = "ON_SOFT_RESET_PRE",
   ON_SOFT_RESET_POST = "ON_SOFT_RESET_POST",
-  ON_ROM_PATCHED_POST = "ON_ROM_PATCHED_POST"
+  ON_ROM_PATCHED_POST = "ON_ROM_PATCHED_POST",
+  ON_RECEIVED_CRASH_LOG = "ON_RECEIVED_CRASH_LOG"
 }

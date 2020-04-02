@@ -41,6 +41,9 @@ import { AddressInfo } from 'net';
 import path from 'path';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { ML_UUID } from './uuid/mluuid';
+import { AnalyticsClient } from '../analytics/AnalyticsClient';
+import { Analytics_StorePacket } from 'modloader64_api/analytics/Analytics_StorePacket';
+
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
 const NetworkingEventBus: EventBus = new EventBus();
@@ -150,6 +153,7 @@ namespace NetworkEngine {
         udpPort = -1;
         plugins: any = {};
         core: string = "";
+        analytics!: AnalyticsClient;
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger;
@@ -247,6 +251,11 @@ namespace NetworkEngine {
             this.logger.info(
                 'NetworkEngine.Server set up on port ' + this.config.port + '.'
             );
+
+            this.analytics = new AnalyticsClient((packet: Analytics_StorePacket) => {
+                NetworkBusServer.emit(packet.packet_id, packet);
+                NetworkChannelBusServer.emit(packet.channel, packet);
+            });
 
             if (!this.modLoaderconfig.isClient) {
                 internal_event_bus.emit('onNetworkConnect', {
@@ -404,6 +413,15 @@ namespace NetworkEngine {
                     socket.on('toSpecificPlayer', function (data: any) {
                         inst.sendToTarget(data.player.uuid, 'msg', data.packet);
                     });
+                    socket.on('onCrash', function(data: any){
+                        console.log("Receiving crash dump...");
+                        if (!fs.existsSync("./crashlogs")){
+                            fs.mkdirSync("./crashlogs");
+                        }
+                        let f = "./crashlogs/" + Date.now().toString(16) + ".bin";
+                        fs.writeFileSync(f, JSON.parse(data.dump).dump);
+                        bus.emit(ModLoaderEvents.ON_RECEIVED_CRASH_LOG, {name: path.parse(f).name, dump: zlib.inflateSync(fs.readFileSync(f))});
+                    });
                     socket.on('disconnect', () => {
                         //@ts-ignore
                         let ML = socket.ModLoader64;
@@ -537,10 +555,11 @@ namespace NetworkEngine {
                 }
             });
             internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
-                fs.writeFileSync(
-                    './NetworkEngine.Client_crashdump.json',
-                    JSON.stringify(this.lastPacketBuffer, null, 2)
-                );
+                this.logger.info("Sending crashlog...");
+                console.log(args);
+                this.socket.emit('onCrash', {
+                    dump: JSON.stringify({dump: args[0]})
+                });
             });
         }
 

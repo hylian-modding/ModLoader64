@@ -45,6 +45,8 @@ import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
+import { Analytics } from 'modloader64_api/analytics/Analytics';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -277,6 +279,10 @@ class pluginLoader {
         Object.freeze(lobby);
         let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
         let rom: IRomMemory = Object.freeze((iconsole.getMemoryAccess() as unknown as IRomMemory));
+        let analytics: Analytics = Object.freeze(AnalyticsManager);
+        let mlconfig = this.config.registerConfigCategory(
+            'ModLoader64'
+        ) as IModLoaderConfig;
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -284,6 +290,9 @@ class pluginLoader {
             this.loaded_core.ModLoader.clientLobby = lobby;
             this.loaded_core.ModLoader.lobbyManager = lma;
             this.loaded_core.ModLoader.rom = rom;
+            this.loaded_core.ModLoader.analytics = analytics;
+            this.loaded_core.ModLoader.isClient = mlconfig.isClient;
+            this.loaded_core.ModLoader.isServer = mlconfig.isServer;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -302,6 +311,9 @@ class pluginLoader {
             plugin.ModLoader.clientLobby = lobby;
             plugin.ModLoader.lobbyManager = lma;
             plugin.ModLoader.rom = rom;
+            plugin.ModLoader.analytics = analytics;
+            plugin.ModLoader.isClient = mlconfig.isClient;
+            plugin.ModLoader.isServer = mlconfig.isServer;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             value();
@@ -352,14 +364,15 @@ class pluginLoader {
         this.crashCheck = () => {
             if (this.lastCrashCheckFrame === this.curFrame) {
                 // Emulator probably died. Lets make a crash dump.
+                let dump = zlib.deflateSync(
+                    iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
+                );
                 fs.writeFileSync(
                     './crash_dump.bin',
-                    zlib.deflateSync(
-                        iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
-                    )
+                    dump
                 );
-                internal_event_bus.emit(ModLoaderEvents.ON_CRASH, {});
-                bus.emit(ModLoaderEvents.ON_CRASH, {});
+                internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
+                bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
             } else {
                 this.lastCrashCheckFrame = this.curFrame;
