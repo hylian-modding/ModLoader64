@@ -47,6 +47,7 @@ import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
 import { Analytics } from 'modloader64_api/analytics/Analytics';
+import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -274,6 +275,11 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
+
+        // Monkey patch Yaz0Encode to have a cache.
+        let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils);
+        monkeypatch.patch();
+
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
@@ -373,7 +379,9 @@ class pluginLoader {
                 );
                 internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 bus.emit(ModLoaderEvents.ON_CRASH, dump);
-                process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
+                setTimeout(()=>{
+                    process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
+                }, 5 * 1000);
             } else {
                 this.lastCrashCheckFrame = this.curFrame;
             }
@@ -457,7 +465,7 @@ class pluginLoader {
         this.loaded_core.ModLoader.utils.setTimeoutFrames(this.injector, 20);
         if (config.isClient) {
             setInterval(this.onTickHandle, 0);
-            setInterval(this.crashCheck, 10 * 1000);
+            setInterval(this.crashCheck, 5 * 1000);
         }
     }
 

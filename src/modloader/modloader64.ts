@@ -211,7 +211,6 @@ class ModLoader64 {
             let f = path.join(ext_core_path, file);
             if (f.indexOf(".disabled") === -1) {
                 if (path.parse(f).ext === ".pak") {
-                    let parse = path.parse(file);
                     let pak: Pak = new Pak(f);
                     let v: pakVerifier = new pakVerifier(this.logger);
                     if (v.verifyPak(pak, f)) {
