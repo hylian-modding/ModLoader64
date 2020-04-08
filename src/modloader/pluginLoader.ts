@@ -70,6 +70,7 @@ class pluginLoader {
     payloadManager!: PayloadManager;
     injector!: Function;
     lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
+    processNextFrame: boolean = true;
 
     constructor(dirs: string[], config: IConfig, logger: ILogger) {
         this.plugin_directories = dirs;
@@ -275,6 +276,10 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
+        utils.stopEmulatorThisFrame = ()=>{
+            this.processNextFrame = false;
+            return this.processNextFrame;
+        };
 
         // Monkey patch Yaz0Encode to have a cache.
         let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils);
@@ -363,11 +368,18 @@ class pluginLoader {
                     }
                 );
                 this.curFrame = frame;
-                iconsole.setFrameCount(-1);
+                if (this.processNextFrame){
+                    iconsole.setFrameCount(-1);
+                }else{
+                    this.processNextFrame = true;
+                }
             }
         };
         Object.freeze(this.onTickHandle);
         this.crashCheck = () => {
+            if (!this.processNextFrame){
+                this.lastCrashCheckFrame = -1;
+            }
             if (this.lastCrashCheckFrame === this.curFrame) {
                 // Emulator probably died. Lets make a crash dump.
                 let dump = zlib.deflateSync(

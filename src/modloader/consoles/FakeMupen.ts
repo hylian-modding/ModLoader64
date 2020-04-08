@@ -79,6 +79,10 @@ class FakeN64SaveState implements ISaveState {
 
 class FakeN64Utils implements IUtils {
 
+    stopEmulatorThisFrame(): boolean {
+        return true;
+    }
+
     cloneBuffer(buf: Buffer): Buffer {
         let b: Buffer = Buffer.alloc(buf.byteLength);
         buf.copy(b);

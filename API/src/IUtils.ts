@@ -23,6 +23,8 @@ interface IUtils {
   getUUID(): string;
 
   cloneBuffer(buf: Buffer): Buffer;
+
+  stopEmulatorThisFrame(): boolean;
 }
 
 export default IUtils;
