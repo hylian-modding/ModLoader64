@@ -386,6 +386,7 @@ export interface IInventory extends IInventoryFields, IInventoryCounts {
   giveItem(item: InventoryItem, desiredSlot: number): void;
   removeItem(item: InventoryItem): void;
   getEmptySlots(): number[];
+  getMaxRupeeCount(): number;
 }
 
 export interface IQuestStatus {

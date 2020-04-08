@@ -399,6 +399,15 @@ export class Inventory extends JSONTemplate implements IInventory {
       this.emulator.rdramWriteBits8(this.inventory_upgrades_addr + 0x2, buf);
   }
 
+  getMaxRupeeCount(): number{
+      let addr: number = 0x800F8CEC;
+      let capacities: Array<number> = [];
+      for (let i = 0; i < 8; i+=2){
+          capacities.push(this.emulator.rdramRead16(addr + i));
+      }
+      return capacities[this.wallet];
+  }
+
   get dekuSticks(): boolean {
       let val = this.getItemInSlot(InventorySlots.DEKU_STICKS);
       return !(val === InventoryItem.NONE);
