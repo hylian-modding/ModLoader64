@@ -466,18 +466,21 @@ class pluginLoader {
             });
             bus.emit(EventsClient.ON_INJECT_FINISHED, {});
             iconsole.finishInjects();
+            if (config.isClient){
+                setInterval(this.crashCheck, 5 * 1000);
+            }
         };
         let testBuffer: Buffer = Buffer.from("MODLOADER64");
         emu.rdramWriteBuffer(0x80800000, testBuffer);
         this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
             if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
                 this.logger.info("16MB Expansion verified.");
+                emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
             }
         }, 10);
         this.loaded_core.ModLoader.utils.setTimeoutFrames(this.injector, 20);
         if (config.isClient) {
             setInterval(this.onTickHandle, 0);
-            setInterval(this.crashCheck, 5 * 1000);
         }
     }
 
