@@ -1,0 +1,23 @@
+#!/bin/sh
+
+OBJCOPY="${OBJCOPY:-mips64-objcopy}"
+NM="${NM:-mips64-nm}"
+
+elf="$1"
+if [ -z "$elf" ]; then
+  echo 'usage: elf2gsc <elf-file>'
+  exit 1
+fi
+
+symrc="$(mktemp)"
+$NM "$elf" |
+awk '(/^[0-9A-Za-z_ ]*$/) {printf "sym_%s=0x%s\n",$3,substr($1,length($1)-7)}' >"$symrc"
+. "$symrc"
+rm -f "$symrc"
+
+addr="$(( $sym_start & 0x00FFFFFF ))"
+bin="$(mktemp)"
+$OBJCOPY -O binary -j .text -j .data "$elf" "$bin"
+od -An -t x1 -v "$bin" |
+awk 'BEGIN {RS=""; a='"$addr"'} {for (i=1; i<=NF; i++) {if (i<NF) {printf "81%06x %s%s\n",a,$i,$(i+1); i++; a++} else printf "80%06x 00%s",a,$i; a++}}'
+rm -f "$bin"

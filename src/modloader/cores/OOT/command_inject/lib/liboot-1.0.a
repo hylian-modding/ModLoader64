@@ -1,0 +1,44 @@
+z64_SpawnActor                    = 0x80025110 ;
+z64_SpawnActorIndirect            = 0x800255C4 ;
+z64_UpdateButtonIcon              = 0x8006FB50 ;
+z64_PlaySound                     = 0x800C806C ;
+z64_DoRelocation                  = 0x800CC8F0 ;
+
+z64_state_ovl_tab                 = 0x800F1340 ;
+z64_object_table                  = 0x800F8FF8 ;
+z64_scene_table                   = 0x800FB4E0 ;
+z64_file                          = 0x8011A5D0 ;
+z64_afx                           = 0x80125630 ;
+z64_afx_cmd_write_pos             = (z64_afx + 0x00005BD8) ;
+z64_afx_cmd_buf                   = (z64_afx + 0x00005C50) ;
+z64_ctxt                          = 0x801C84A0 ;
+z64_scene_index                   = (z64_ctxt + 0x000000A4) ;
+z64_scene_ptr                     = (z64_ctxt + 0x000000B0) ;
+z64_obj_ctxt                      = (z64_ctxt + 0x000117A4) ;
+z64_room_ctxt                     = (z64_ctxt + 0x00011CBC) ;
+z64_room_list                     = (z64_ctxt + 0x00011DF0) ;
+
+anim_hook                         = 0x80089710 ;
+sfx_hook                          = 0x80022F98 ;
+actor_ctor_hook                   = 0x800210D0 ;
+actor_dtor_hook                   = 0x80021104 ;
+room_actor_hook                   = 0x80023DE8 ;
+actor_main_hook                   = 0x800240D8 ;
+spawn_actor_hook                  = 0x80025110 ;
+tnsn_actor_hook                   = 0x8002557C ;
+command_hook                      = 0x800A0BF8 ;
+
+anim_func                         = 0x80609000 ;
+sfx_func                          = 0x80609100 ;
+actor_ctor_func                   = 0x80609200 ;
+actor_dtor_func                   = 0x80609300 ;
+room_actor_func                   = 0x80609400 ;
+actor_main_func                   = 0x80609500 ;
+spawn_actor_func                  = 0x80609600 ;
+tnsn_actor_func                   = 0x80609700 ;
+command_func                      = 0x80609800 ;
+
+command_buf                       = 0x80600090 ;
+notif_buf                         = 0x806001E0 ;
+notif_pos                         = 0x806011E0 ;
+notif_ctxt                        = 0x806011E4 ;

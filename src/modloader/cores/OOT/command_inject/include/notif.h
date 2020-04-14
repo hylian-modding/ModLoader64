@@ -1,0 +1,10 @@
+#ifndef NOTIF_H
+#define NOTIF_H
+
+#define NOTIF_BUF_LENGTH      0x00000100
+#define NOTIF_CTXT_NONOTIF    0xFFFFFFFF
+#define NOTIF_TNSN_ACTOR      0x00000001
+#define NOTIF_ROOM_ACTOR      0x00000002
+#define NOTIF_SPAWN_ACTOR     0x00000003
+
+#endif

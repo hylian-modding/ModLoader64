@@ -1,71 +1,62 @@
-AS                    = mips64-gcc
+CCAS                  = mips64-gcc -x assembler-with-cpp
+LD                    = mips64-g++
 OBJCOPY               = mips64-objcopy
-BIN2GSC               = gru bin2gsc.lua
-ASMFLAGS              = -Os
-CPPFLAGS              =
-ACTOR_CTOR_FUNC_ADDR  = 0x80609200
-ACTOR_CTOR_HOOK_ADDR  = 0x800210D0
-ACTOR_DTOR_FUNC_ADDR  = 0x80609300
-ACTOR_DTOR_HOOK_ADDR  = 0x80021104
-ROOM_ACTOR_FUNC_ADDR  = 0x80609400
-ROOM_ACTOR_HOOK_ADDR  = 0x80023DE8
-ACTOR_MAIN_FUNC_ADDR  = 0x80609500
-ACTOR_MAIN_HOOK_ADDR  = 0x800240D8
-SPAWN_ACTOR_FUNC_ADDR = 0x80609600
-SPAWN_ACTOR_HOOK_ADDR = 0x80025110
-TNSN_ACTOR_FUNC_ADDR  = 0x80609700
-TNSN_ACTOR_HOOK_ADDR  = 0x8002557C
-COMMAND_FUNC_ADDR     = 0x80609800
-COMMAND_HOOK_ADDR     = 0x800A0BF8
+NM                    = mips64-nm
+ELF2GSC               = OBJCOPY='$(OBJCOPY)' NM='$(NM)' ./elf2gsc
+ALL_CPPFLAGS          = -Iinclude $(CPPFLAGS)
+ALL_ASMFLAGS          = -mabi=o64 -Os $(ASMFLAGS)
+ALL_LDFLAGS           = -nostdlib -Llib -T elf32ebmip-bin.x $(LDFLAGS)
+ALL_LDLIBS            = $(LDLIBS)
+VERSIONS              = oot-1.0 oot-debug
+SRCDIR                = src
+OBJDIR                = obj
+BINDIR                = bin
+GSCDIR                = gsc
 
-GSC                   = actor_ctor_hook.gsc \
-                        actor_dtor_hook.gsc \
-                        room_actor_hook.gsc \
-                        actor_main_hook.gsc \
-                        spawn_actor_hook.gsc \
-                        tnsn_actor_hook.gsc \
-                        command_hook.gsc \
-                        actor_ctor_func.gsc \
-                        actor_dtor_func.gsc \
-                        room_actor_func.gsc \
-                        actor_main_func.gsc \
-                        spawn_actor_func.gsc \
-                        tnsn_actor_func.gsc \
-                        command_func.gsc
-
-all                   : all.gsc
+ALL                   = $(foreach v,$(VERSIONS),all-$(v).gsc)
+all                   : $(ALL)
 clean                 :
-	rm -f *.o *.bin *.gsc
+	rm -rf $(OBJDIR) $(BINDIR) $(GSCDIR) $(ALL)
 .PHONY                : all clean
 
-%.o                   : %.S
-	$(AS) $(CPPFLAGS) $(ASMFLAGS) -c $< -o $@
-%.bin                 : %.o
-	$(OBJCOPY) -j .text -j .data -O binary $< $@
-%.gsc                 : %.bin
-	$(BIN2GSC) $< $(GSC_ADDR) $@
-all.gsc               : $(GSC)
-	cat $^ > $@
+define version_template
+SRCDIR-$(1)           = $$(SRCDIR)
+OBJDIR-$(1)           = $$(OBJDIR)/$(1)
+BINDIR-$(1)           = $$(BINDIR)/$(1)
+GSCDIR-$(1)           = $$(GSCDIR)/$(1)
+OUTDIR-$(1)           = $$(OBJDIR-$(1)) $$(BINDIR-$(1)) $$(GSCDIR-$(1))
+ASMSRC-$(1)          := $$(wildcard $$(SRCDIR-$(1))/*.S)
+ASMOBJ-$(1)           = $$(patsubst $$(SRCDIR-$(1))/%.S,$$(OBJDIR-$(1))/%.o,$$(ASMSRC-$(1)))
+OBJ-$(1)              = $$(ASMOBJ-$(1))
+DEPS-$(1)             = $$(patsubst %.o,%.d,$$(OBJ-$(1)))
+ELF-$(1)              = $$(patsubst $$(OBJDIR-$(1))/%.o,$$(BINDIR-$(1))/%.elf,$$(OBJ-$(1)))
+GSC-$(1)              = $$(patsubst $$(BINDIR-$(1))/%.elf,$$(GSCDIR-$(1))/%.gsc,$$(ELF-$(1)))
+ALL-$(1)              = all-$(1).gsc
+BUILD-$(1)            = $(1)
+CLEAN-$(1)            = clean-$(1)
+-include $$(DEPS-$(1))
+$$(BUILD-$(1))        : $$(ALL-$(1))
+$$(CLEAN-$(1))        :
+	rm -rf $$(OUTDIR-$(1))
+.PHONY                : $$(BUILD-$(1)) $$(CLEAN-$(1))
+$$(ALL-$(1))          : $$(GSC-$(1))
+	cat $$^ >$$@
+$$(GSC-$(1))          : $$(GSCDIR-$(1))/%.gsc: $$(BINDIR-$(1))/%.elf | $$(GSCDIR-$(1))
+	$$(ELF2GSC) $$< >$$@
+$$(ELF-$(1))          : $$(BINDIR-$(1))/%.elf: $$(OBJDIR-$(1))/%.o | $$(BINDIR-$(1))
+	$$(LD) $$(ALL_LDFLAGS) $$^ $$(ALL_LDLIBS) -Wl,--defsym,start=$$(patsubst $$(BINDIR-$(1))/%.elf,%,$$@) -o $$@
+$$(ASMOBJ-$(1))       : $$(OBJDIR-$(1))/%.o: $$(SRCDIR-$(1))/%.S | $$(OBJDIR-$(1))
+	$$(CCAS) -c -MMD -MP $$(ALL_CPPFLAGS) $$(ALL_ASMFLAGS) $$^ -o $$@
+$$(OUTDIR-$(1))       :
+	mkdir -p $$@
 
-actor_ctor_hook.gsc   : CPPFLAGS             += -DACTOR_CTOR_FUNC_ADDR=$(ACTOR_CTOR_FUNC_ADDR)
-actor_dtor_hook.gsc   : CPPFLAGS             += -DACTOR_DTOR_FUNC_ADDR=$(ACTOR_DTOR_FUNC_ADDR)
-room_actor_hook.gsc   : CPPFLAGS             += -DROOM_ACTOR_FUNC_ADDR=$(ROOM_ACTOR_FUNC_ADDR)
-actor_main_hook.gsc   : CPPFLAGS             += -DACTOR_MAIN_FUNC_ADDR=$(ACTOR_MAIN_FUNC_ADDR)
-spawn_actor_hook.gsc  : CPPFLAGS             += -DSPAWN_ACTOR_FUNC_ADDR=$(SPAWN_ACTOR_FUNC_ADDR)
-tnsn_actor_hook.gsc   : CPPFLAGS             += -DTNSN_ACTOR_FUNC_ADDR=$(TNSN_ACTOR_FUNC_ADDR)
-command_hook.gsc      : CPPFLAGS             += -DCOMMAND_FUNC_ADDR=$(COMMAND_FUNC_ADDR)
+endef
 
-actor_ctor_func.gsc   : GSC_ADDR              = $(ACTOR_CTOR_FUNC_ADDR)
-actor_ctor_hook.gsc   : GSC_ADDR              = $(ACTOR_CTOR_HOOK_ADDR)
-actor_dtor_func.gsc   : GSC_ADDR              = $(ACTOR_DTOR_FUNC_ADDR)
-actor_dtor_hook.gsc   : GSC_ADDR              = $(ACTOR_DTOR_HOOK_ADDR)
-room_actor_func.gsc   : GSC_ADDR              = $(ROOM_ACTOR_FUNC_ADDR)
-room_actor_hook.gsc   : GSC_ADDR              = $(ROOM_ACTOR_HOOK_ADDR)
-actor_main_func.gsc   : GSC_ADDR              = $(ACTOR_MAIN_FUNC_ADDR)
-actor_main_hook.gsc   : GSC_ADDR              = $(ACTOR_MAIN_HOOK_ADDR)
-spawn_actor_func.gsc  : GSC_ADDR              = $(SPAWN_ACTOR_FUNC_ADDR)
-spawn_actor_hook.gsc  : GSC_ADDR              = $(SPAWN_ACTOR_HOOK_ADDR)
-tnsn_actor_func.gsc   : GSC_ADDR              = $(TNSN_ACTOR_FUNC_ADDR)
-tnsn_actor_hook.gsc   : GSC_ADDR              = $(TNSN_ACTOR_HOOK_ADDR)
-command_func.gsc      : GSC_ADDR              = $(COMMAND_FUNC_ADDR)
-command_hook.gsc      : GSC_ADDR              = $(COMMAND_HOOK_ADDR)
+$(foreach v,$(VERSIONS),$(eval \
+  $(call version_template,$(v)) \
+))
+
+$(OBJ-oot-1.0)        : ALL_CPPFLAGS         += -DZ64_VERSION=Z64_OOT10
+$(OBJ-oot-debug)      : ALL_CPPFLAGS         += -DZ64_VERSION=Z64_OOTDEBUG
+$(ELF-oot-1.0)        : ALL_LDLIBS           += -loot-1.0
+$(ELF-oot-debug)      : ALL_LDLIBS           += -loot-debug
