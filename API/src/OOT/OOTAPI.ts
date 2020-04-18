@@ -591,58 +591,69 @@ class UpgradeCount {
   count: number;
 
   constructor(item: InventoryItem, level: AmmoUpgrade, count: number) {
-    this.item = item;
-    this.level = level;
-    this.count = count;
+      this.item = item;
+      this.level = level;
+      this.count = count;
   }
 
   isMatch(inst: UpgradeCount) {
-    return inst.item === this.item && inst.level === this.level;
+      return inst.item === this.item && inst.level === this.level;
   }
 }
 
 const UpgradeCountLookupTable: UpgradeCount[] = [
-  // Bombs
-  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
-  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
-  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
-  // Sticks
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.UPGRADED, 20),
-  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.MAX, 30),
-  // Nuts
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.BASE, 20),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.UPGRADED, 30),
-  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.MAX, 40),
-  // Seeds
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.BASE, 30),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.UPGRADED, 40),
-  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.MAX, 50),
-  // Arrows
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
-  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
-  // Bombchu
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 0),
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 5),
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 10),
-  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.MAX, 20),
+    // Bombs
+    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
+    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
+    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
+    // Sticks
+    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
+    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.UPGRADED, 20),
+    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.MAX, 30),
+    // Nuts
+    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.BASE, 20),
+    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.UPGRADED, 30),
+    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.MAX, 40),
+    // Seeds
+    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.BASE, 30),
+    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.UPGRADED, 40),
+    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.MAX, 50),
+    // Arrows
+    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
+    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
+    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
+    // Bombchu
+    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 0),
+    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 5),
+    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 10),
+    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.MAX, 20),
 ];
 
 export function UpgradeCountLookup(
-  item: InventoryItem,
-  level: AmmoUpgrade
+    item: InventoryItem,
+    level: AmmoUpgrade
 ): number {
-  let inst: UpgradeCount = new UpgradeCount(item, level, -1);
-  for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
-    if (inst.isMatch(UpgradeCountLookupTable[i])) {
-      return UpgradeCountLookupTable[i].count;
+    let inst: UpgradeCount = new UpgradeCount(item, level, -1);
+    for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
+        if (inst.isMatch(UpgradeCountLookupTable[i])) {
+            return UpgradeCountLookupTable[i].count;
+        }
     }
-  }
-  return 0;
+    return 0;
+}
+
+export interface IOvlPayloadResult{
+  file: string;
+  slot: number;
+  addr: number;
+  params: number;
+  buf: Buffer;
+  relocate: number;
+  
+  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number)=>{}): void;
 }

@@ -168,7 +168,7 @@ namespace NetworkEngine {
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
                 let p: any = args[0].meta;
-                this.plugins[p.name] = p.version;
+                this.plugins[p.name] = {version: p.version, hash: args[0].hash};
             });
             internal_event_bus.on('CORE_LOADED', (args: any[]) => {
                 this.core = args[0].name;
@@ -310,11 +310,17 @@ namespace NetworkEngine {
                     socket.on('version', function (packet: VersionPacket) {
                         let mismatch = false;
                         Object.keys(inst.plugins).forEach((name: string) => {
+                            console.log(packet.plugins[name]);
                             if (packet.plugins.hasOwnProperty(name)) {
-                                if (inst.plugins[name] !== packet.plugins[name]) {
+                                if (inst.plugins[name].version !== packet.plugins[name].version) {
                                     mismatch = true;
                                 } else {
                                     inst.logger.info('Plugin ' + name + ' version check passed.');
+                                    if (inst.plugins[name].hash === packet.plugins[name].hash) {
+                                        inst.logger.info('Plugin ' + name + ' hash check passed.');
+                                    }else{
+                                        mismatch = true;
+                                    }
                                 }
                             }
                         });
@@ -537,7 +543,7 @@ namespace NetworkEngine {
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
                 let p: any = args[0].meta;
-                this.plugins[p.name] = p.version;
+                this.plugins[p.name] = {version: p.version, hash: args[0].hash};
                 if (typeof args[0].instance.getServerURL === "function" && !this.config.forceServerOverride && !this.pluginConfiguredConnection && !this.config.isSinglePlayer) {
                     this.logger.info("Using plugin server configuration: " + p.name + ".");
                     let server_connection_setup: IPluginServerConfig = args[0].instance as IPluginServerConfig;

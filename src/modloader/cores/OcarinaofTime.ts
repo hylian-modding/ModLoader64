@@ -7,6 +7,7 @@ import {
     IOOTCore,
     IOotHelper,
     OotEvents,
+    IOvlPayloadResult,
 } from 'modloader64_api/OOT/OOTAPI';
 import { ActorManager } from './OOT/ActorManager';
 import { CommandBuffer } from './OOT/CommandBuffer';
@@ -20,6 +21,7 @@ import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import { Command } from 'modloader64_api/OOT/ICommandBuffer';
 
 enum ROM_VERSIONS {
     N0 = 0x00,
@@ -199,17 +201,15 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.global,
             this.ModLoader.utils
         );
-        this.eventTicks.set('tickingStuff', () => {
-            this.commandBuffer.onTick();
-            this.actorManager.onTick();
-        });
         this.ModLoader.payloadManager.registerPayloadType(
-            new OverlayPayload('.ovl', this.ModLoader.logger.getLogger("OverlayPayload"))
+            new OverlayPayload('.ovl', this.ModLoader.logger.getLogger("OverlayPayload"), this)
         );
     }
 
     onTick(): void {
+        this.commandBuffer.onTick();
         if (!this.helper.isTitleScreen()) {
+            this.actorManager.onTick();
             this.eventTicks.forEach((value: Function, key: string) => {
                 value();
             });
@@ -221,6 +221,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
         for (let i = 0; i < this.payloads.length; i++) {
             this.ModLoader.payloadManager.parseFile(this.payloads[i]);
         }
+        this.ModLoader.logger.info("Skipping N64 logo screen...");
+        this.ModLoader.emulator.rdramWritePtr8(global.ModLoader['global_context_pointer'], 0x1E1, 0x1);
     }
 }
 
@@ -243,11 +245,15 @@ interface ovl_meta {
 
 export class OverlayPayload extends PayloadType {
 
-    logger: ILogger;
+    private logger: ILogger;
+    private start: number = 0x80601A00;
+    private ovl_offset: number = 0;
+    private core: IOOTCore;
 
-    constructor(ext: string, logger: ILogger) {
+    constructor(ext: string, logger: ILogger, core: IOOTCore) {
         super(ext);
         this.logger = logger;
+        this.core = core;
     }
 
     parse(file: string, buf: Buffer, dest: IMemory) {
@@ -282,14 +288,45 @@ export class OverlayPayload extends PayloadType {
             );
             return -1;
         }
-        let addr: number = parseInt(meta.addr) + offset;
         let slot: number = empty_slots.shift() as number;
         this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
-        dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, 0x80000000 + addr);
+        let final: number = this.start + this.ovl_offset;
+        dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, final + offset);
         buf.writeUInt8(slot, offset + 0x1);
-        dest.rdramWriteBuffer(parseInt(meta.addr), buf);
-        return slot;
+        dest.rdramWriteBuffer(final, buf);
+        this.ovl_offset += buf.byteLength;
+        let relocate_final: number = this.start + this.ovl_offset;
+        dest.rdramWrite32(this.start + this.ovl_offset, final);
+        this.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + this.ovl_offset, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)));
+        this.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + this.ovl_offset, 0x80800000);
+        this.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + this.ovl_offset, buf.byteLength);
+        this.ovl_offset += 0x4;
+        let params: Buffer = Buffer.from("00014600C50046000000000000000000", 'hex');
+        let params_addr: number = this.start + this.ovl_offset;
+        dest.rdramWriteBuffer(params_addr, params);
+        dest.rdramWrite16(params_addr, slot);
+        this.ovl_offset += params.byteLength;
+        let hash: string = this.core.ModLoader.utils.hashBuffer(buf);
+        console.log(relocate_final.toString(16));
+        this.core.commandBuffer.runCommand(Command.RELOCATE_OVL, relocate_final, () => {
+            let hash2: string = this.core.ModLoader.utils.hashBuffer(dest.rdramReadBuffer(final, buf.byteLength));
+            if (hash !== hash2) {
+                this.logger.debug("ovl " + path.parse(file).base + " relocated successfully!");
+            }
+        });
+        return {
+            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, spawn: (obj: any, cb?: Function) => {
+                if (cb !== undefined) {
+                    this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"], cb);
+                } else {
+                    this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"]);
+                }
+            }
+        } as IOvlPayloadResult;
     }
 }

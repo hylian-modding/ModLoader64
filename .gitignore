@@ -20,3 +20,5 @@ Scripts/Windows/.wget-hsts
 dist/
 Mupen64Plus/
 SDK-config.json
+CustomActorToolkit/
+tools/

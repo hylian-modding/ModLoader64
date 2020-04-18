@@ -29,6 +29,7 @@ program.option("-a, --modulealias <alias>", "alias a module path");
 program.option("-p, --modulealiaspath <path>", "alias a module path");
 program.option("-z, --rebuildsdk", "rebuild sdk");
 program.option("-t, --template <template>", "make project from template");
+program.option("-e, --external <tool>");
 
 program.parse(process.argv);
 
@@ -71,181 +72,18 @@ function saveTSConfig() {
     fs.writeFileSync(tsconfig_path, JSON.stringify(tsconfig, null, 2));
 }
 
-if (program.rebuildsdk) {
-    console.log("Rebuilding SDK...");
+let WAITING_ON_EXTERNAL: boolean = false;
+
+if (program.external !== undefined) {
     let original_dir: string = process.cwd();
     process.chdir(path.join(__dirname, "../"));
-    child_process.execSync("npm install");
-    process.chdir(original_dir);
-}
-
-if (program.init) {
-    let original_dir: string = process.cwd();
-    console.log("Generating mod scaffolding...");
-    child_process.execSync("npm init --yes");
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    if (!fs.existsSync("./src")) {
-        fs.mkdirSync("./src");
-        fs.mkdirSync("./src/" + meta.name);
-        process.chdir("./src/" + meta.name);
-        child_process.execSync("npm init --yes");
+    let p = path.join(".", "tools", program.external);
+    if (fs.existsSync(p)) {
+        let meta: any = JSON.parse(fs.readFileSync(path.join(p, "package.json")).toString());
+        let s = meta.main;
+        child_process.fork(path.join(p, s), process.argv);
+        WAITING_ON_EXTERNAL = true;
     }
-    process.chdir(original_dir);
-    if (!fs.existsSync("./node_modules")) {
-        let mod_pkg: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
-        if (mod_pkg.hasOwnProperty("dependencies")) {
-            Object.keys(mod_pkg.dependencies).forEach((key: string) => {
-                delete mod_pkg.dependencies[key];
-            });
-        }
-        if (mod_pkg.hasOwnProperty("devDependencies")) {
-            Object.keys(mod_pkg.devDependencies).forEach((key: string) => {
-                delete mod_pkg.dependencies[key];
-            });
-        }
-        fs.writeFileSync(path.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
-        child_process.execSync("npm install");
-        console.log("Linking ModLoader64 API to project...");
-        console.log("This might take a moment. Please be patient.");
-        let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
-        Object.keys(our_pkg.dependencies).forEach((key: string) => {
-            if (key.indexOf("modloader64") === -1) {
-                child_process.execSync("npm link " + key);
-            }
-        });
-        Object.keys(our_pkg.devDependencies).forEach((key: string) => {
-            if (key.indexOf("modloader64") === -1) {
-                child_process.execSync("npm link " + key);
-            }
-        });
-        child_process.execSync("npm link " + "modloader64_api");
-        console.log("Setting up TypeScript compiler...");
-        child_process.execSync("tsc --init");
-        fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
-        if (fs.existsSync(tsconfig_path)) {
-            tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
-        }
-        tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
-        saveTSConfig();
-        console.log("Installing any required cores...");
-        installCores();
-    }
-}
-
-if (program.setroms !== undefined) {
-    sdk_cfg.ModLoader64.SDK.roms_dir = path.resolve(program.setroms);
-    let original_dir: string = process.cwd();
-    process.chdir(path.join(__dirname, "../"));
-    fs.writeFileSync("./SDK-config.json", JSON.stringify(sdk_cfg, null, 2));
-    process.chdir(original_dir);
-}
-
-if (program.bumpversion) {
-    let original_dir: string = process.cwd();
-    child_process.execSync("npm version --no-git-tag-version patch");
-    let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-    let p: string = "./src/" + meta.name;
-    process.chdir(p);
-    child_process.execSync("npm version --no-git-tag-version patch");
-    meta = JSON.parse(fs.readFileSync("./package.json").toString());
-    console.log("New version number: " + meta.version);
-    process.chdir(original_dir);
-}
-
-if (program.clean) {
-    fse.removeSync("./build");
-    fse.removeSync("./build2");
-    fse.removeSync("./dist");
-}
-
-if (program.build) {
-    let original_dir: string = process.cwd();
-    console.log("Building mod. Please wait...");
-    if (!fs.existsSync("./cores")) {
-        fs.mkdirSync("./cores");
-    }
-    try {
-        child_process.execSync("npx tsc");
-    } catch (err) {
-        if (err) {
-            throw Error(err.stdout.toString());
-        }
-    }
-    fse.copySync("./src", "./build/src");
-    if (!fs.existsSync("./build/cores")) {
-        fs.mkdirSync("./build/cores");
-    }
-    if (!fs.existsSync("./libs")) {
-        fs.mkdirSync("./libs");
-    }
-    fse.copySync("./cores", "./build/cores");
-    fse.copySync("./build/cores", "./libs");
-    fs.readdirSync("./libs").forEach((file: string) => {
-        let p: string = path.join("./libs", file);
-        if (fs.lstatSync(p).isDirectory()) {
-            child_process.execSync("npm link --local " + p);
-        }
-    });
-    process.chdir(original_dir);
-}
-
-if (program.run) {
-    console.log("Running mod. Please wait while we load the emulator...");
-    let original_dir: string = process.cwd();
-    process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
-    ml.stdout.on('data', function (data) {
-        console.log(data);
-    });
-    ml.on('error', (err: Error) => {
-        console.log(err);
-    });
-    ml.stderr.on('data', (data) => {
-        console.log(data);
-    });
-    process.chdir(original_dir);
-}
-
-if (program.dist) {
-    let original_dir: string = process.cwd();
-    const fsExtra = require('fs-extra');
-    fsExtra.emptyDirSync("./dist");
-    if (!fs.existsSync("./dist")) {
-        fs.mkdirSync("./dist");
-    }
-    let f1: string = path.join(__dirname, "../");
-    fse.copySync("./build/src", "./dist");
-    fse.copySync("./build/cores", "./dist");
-    process.chdir(path.join(".", "dist"));
-    fs.readdirSync(".").forEach((file: string) => {
-        let p: string = path.join(".", file);
-        if (fs.lstatSync(p).isDirectory()) {
-            child_process.execSync("node " + path.join(f1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
-            console.log("Generated pak for " + file + ".");
-        }
-    });
-    process.chdir(original_dir);
-}
-
-if (program.runp2) {
-    console.log("Running mod. Please wait while we load the emulator...");
-    let original_dir: string = process.cwd();
-    let cfg: any = JSON.parse(fs.readFileSync(path.join(original_dir, "modloader64-config.json")).toString());
-    cfg["ModLoader64"]["isServer"] = false;
-    cfg["NetworkEngine.Client"]["isSinglePlayer"] = false;
-    fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
-    process.chdir(path.join(__dirname, "../"));
-    let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
-    console.log("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
-    ml.stdout.on('data', function (data) {
-        console.log(data);
-    });
-    ml.on('error', (err: Error) => {
-        console.log(err);
-    });
-    ml.stderr.on('data', (data) => {
-        console.log(data);
-    });
     process.chdir(original_dir);
 }
 
@@ -307,26 +145,6 @@ function installCores() {
     });
 }
 
-if (program.update) {
-    let original_dir: string = process.cwd();
-    process.chdir(path.join(__dirname, "../"));
-    console.log("Updating ModLoader64...");
-    child_process.execSync("git reset --hard origin/master");
-    child_process.execSync("git pull");
-    fse.removeSync("./node_modules");
-    if (fse.existsSync("./build/emulator")) {
-        fse.removeSync("./build/emulator");
-    }
-    let ml = child_process.exec("npm install");
-    ml.stdout.on('data', function (data) {
-        console.log(data);
-    });
-    ml.on('exit', () => {
-        process.chdir(original_dir);
-        updateCores();
-    });
-}
-
 function install(url: string) {
     (async () => {
         let elv: boolean = await isElevated();
@@ -382,7 +200,7 @@ function install(url: string) {
                     mod_meta["modloader64_deps"][meta2.name] = url;
                 }
                 if (tsconfig !== undefined) {
-                    if (!tsconfig["compilerOptions"].hasOwnProperty("paths")){
+                    if (!tsconfig["compilerOptions"].hasOwnProperty("paths")) {
                         tsconfig["compilerOptions"]["paths"] = {};
                     }
                     tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
@@ -414,69 +232,269 @@ function install(url: string) {
     })();
 }
 
-if (program.install !== undefined) {
-    if (program.install.indexOf("https://") > -1) {
-        install(program.install);
-    } else {
-        console.log("Searching the nexus...");
-        let core_repo: any = JSON.parse(getFileContents(CORE_REPO_URL));
-        let mod_repo: any = JSON.parse(getFileContents(MOD_REPO_URL));
-        if (Object.keys(core_repo).indexOf(program.install) > -1) {
-            console.log("Found " + program.install + " in cores repo.");
-            install(core_repo[program.install].git);
-        } else if (Object.keys(mod_repo).indexOf(program.install) > -1) {
-            console.log("Found " + program.install + " in mods repo.");
-            console.log("Installing pak file...");
-            let update: any = JSON.parse(getFileContents(mod_repo[program.install].url));
-            getBinaryContents(update.url);
+if (!WAITING_ON_EXTERNAL) {
+    if (program.rebuildsdk) {
+        console.log("Rebuilding SDK...");
+        let original_dir: string = process.cwd();
+        process.chdir(path.join(__dirname, "../"));
+        child_process.execSync("npm install");
+        process.chdir(original_dir);
+    }
+
+    if (program.init) {
+        let original_dir: string = process.cwd();
+        console.log("Generating mod scaffolding...");
+        child_process.execSync("npm init --yes");
+        let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+        if (!fs.existsSync("./src")) {
+            fs.mkdirSync("./src");
+            fs.mkdirSync("./src/" + meta.name);
+            process.chdir("./src/" + meta.name);
+            child_process.execSync("npm init --yes");
+        }
+        process.chdir(original_dir);
+        if (!fs.existsSync("./node_modules")) {
+            let mod_pkg: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
+            if (mod_pkg.hasOwnProperty("dependencies")) {
+                Object.keys(mod_pkg.dependencies).forEach((key: string) => {
+                    delete mod_pkg.dependencies[key];
+                });
+            }
+            if (mod_pkg.hasOwnProperty("devDependencies")) {
+                Object.keys(mod_pkg.devDependencies).forEach((key: string) => {
+                    delete mod_pkg.dependencies[key];
+                });
+            }
+            fs.writeFileSync(path.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
+            child_process.execSync("npm install");
+            console.log("Linking ModLoader64 API to project...");
+            console.log("This might take a moment. Please be patient.");
+            let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
+            Object.keys(our_pkg.dependencies).forEach((key: string) => {
+                if (key.indexOf("modloader64") === -1) {
+                    child_process.execSync("npm link " + key);
+                }
+            });
+            Object.keys(our_pkg.devDependencies).forEach((key: string) => {
+                if (key.indexOf("modloader64") === -1) {
+                    child_process.execSync("npm link " + key);
+                }
+            });
+            child_process.execSync("npm link " + "modloader64_api");
+            console.log("Setting up TypeScript compiler...");
+            child_process.execSync("tsc --init");
+            fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+            if (fs.existsSync(tsconfig_path)) {
+                tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
+            }
+            tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
+            saveTSConfig();
+            console.log("Installing any required cores...");
+            installCores();
         }
     }
-}
 
-if (program.modulealiaspath !== undefined) {
-    (async () => {
-        let elv: boolean = await isElevated();
-        if (!elv && platformkey.indexOf("win32") > -1) {
-            console.log("Alias must be run as administrator on Windows!");
-            return;
+    if (program.setroms !== undefined) {
+        sdk_cfg.ModLoader64.SDK.roms_dir = path.resolve(program.setroms);
+        let original_dir: string = process.cwd();
+        process.chdir(path.join(__dirname, "../"));
+        fs.writeFileSync("./SDK-config.json", JSON.stringify(sdk_cfg, null, 2));
+        process.chdir(original_dir);
+    }
+
+    if (program.bumpversion) {
+        let original_dir: string = process.cwd();
+        child_process.execSync("npm version --no-git-tag-version patch");
+        let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+        let p: string = "./src/" + meta.name;
+        process.chdir(p);
+        child_process.execSync("npm version --no-git-tag-version patch");
+        meta = JSON.parse(fs.readFileSync("./package.json").toString());
+        console.log("New version number: " + meta.version);
+        process.chdir(original_dir);
+    }
+
+    if (program.clean) {
+        fse.removeSync("./build");
+        fse.removeSync("./build2");
+        fse.removeSync("./dist");
+    }
+
+    if (program.build) {
+        let original_dir: string = process.cwd();
+        console.log("Building mod. Please wait...");
+        if (!fs.existsSync("./cores")) {
+            fs.mkdirSync("./cores");
+        }
+        try {
+            child_process.execSync("npx tsc");
+        } catch (err) {
+            if (err) {
+                throw Error(err.stdout.toString());
+            }
+        }
+        fse.copySync("./src", "./build/src");
+        if (!fs.existsSync("./build/cores")) {
+            fs.mkdirSync("./build/cores");
         }
         if (!fs.existsSync("./libs")) {
             fs.mkdirSync("./libs");
         }
-        let p: string = path.resolve(program.modulealiaspath);
-        let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
-        if (fs.lstatSync(p).isDirectory()) {
-            fse.symlinkSync(p, p2);
+        fse.copySync("./cores", "./build/cores");
+        fse.copySync("./build/cores", "./libs");
+        fs.readdirSync("./libs").forEach((file: string) => {
+            let p: string = path.join("./libs", file);
+            if (fs.lstatSync(p).isDirectory()) {
+                child_process.execSync("npm link --local " + p);
+            }
+        });
+        process.chdir(original_dir);
+    }
+
+    if (program.run) {
+        console.log("Running mod. Please wait while we load the emulator...");
+        let original_dir: string = process.cwd();
+        process.chdir(path.join(__dirname, "../"));
+        let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
+        ml.stdout.on('data', function (data) {
+            console.log(data);
+        });
+        ml.on('error', (err: Error) => {
+            console.log(err);
+        });
+        ml.stderr.on('data', (data) => {
+            console.log(data);
+        });
+        process.chdir(original_dir);
+    }
+
+    if (program.dist) {
+        let original_dir: string = process.cwd();
+        const fsExtra = require('fs-extra');
+        fsExtra.emptyDirSync("./dist");
+        if (!fs.existsSync("./dist")) {
+            fs.mkdirSync("./dist");
         }
-        console.log("Created alias for " + program.modulealiaspath + " -> " + program.modulealias);
-        if (program.modulealias !== undefined) {
+        let f1: string = path.join(__dirname, "../");
+        fse.copySync("./build/src", "./dist");
+        fse.copySync("./build/cores", "./dist");
+        process.chdir(path.join(".", "dist"));
+        fs.readdirSync(".").forEach((file: string) => {
+            let p: string = path.join(".", file);
+            if (fs.lstatSync(p).isDirectory()) {
+                child_process.execSync("node " + path.join(f1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                console.log("Generated pak for " + file + ".");
+            }
+        });
+        process.chdir(original_dir);
+    }
+
+    if (program.runp2) {
+        console.log("Running mod. Please wait while we load the emulator...");
+        let original_dir: string = process.cwd();
+        let cfg: any = JSON.parse(fs.readFileSync(path.join(original_dir, "modloader64-config.json")).toString());
+        cfg["ModLoader64"]["isServer"] = false;
+        cfg["NetworkEngine.Client"]["isSinglePlayer"] = false;
+        fs.writeFileSync(path.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
+        process.chdir(path.join(__dirname, "../"));
+        let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+        console.log("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+        ml.stdout.on('data', function (data) {
+            console.log(data);
+        });
+        ml.on('error', (err: Error) => {
+            console.log(err);
+        });
+        ml.stderr.on('data', (data) => {
+            console.log(data);
+        });
+        process.chdir(original_dir);
+    }
+
+    if (program.update) {
+        let original_dir: string = process.cwd();
+        process.chdir(path.join(__dirname, "../"));
+        console.log("Updating ModLoader64...");
+        child_process.execSync("git reset --hard origin/master");
+        child_process.execSync("git pull");
+        fse.removeSync("./node_modules");
+        if (fse.existsSync("./build/emulator")) {
+            fse.removeSync("./build/emulator");
+        }
+        let ml = child_process.exec("npm install");
+        ml.stdout.on('data', function (data) {
+            console.log(data);
+        });
+        ml.on('exit', () => {
+            process.chdir(original_dir);
+            updateCores();
+        });
+    }
+
+    if (program.install !== undefined) {
+        if (program.install.indexOf("https://") > -1) {
+            install(program.install);
+        } else {
+            console.log("Searching the nexus...");
+            let core_repo: any = JSON.parse(getFileContents(CORE_REPO_URL));
+            let mod_repo: any = JSON.parse(getFileContents(MOD_REPO_URL));
+            if (Object.keys(core_repo).indexOf(program.install) > -1) {
+                console.log("Found " + program.install + " in cores repo.");
+                install(core_repo[program.install].git);
+            } else if (Object.keys(mod_repo).indexOf(program.install) > -1) {
+                console.log("Found " + program.install + " in mods repo.");
+                console.log("Installing pak file...");
+                let update: any = JSON.parse(getFileContents(mod_repo[program.install].url));
+                getBinaryContents(update.url);
+            }
+        }
+    }
+
+    if (program.modulealiaspath !== undefined) {
+        (async () => {
+            let elv: boolean = await isElevated();
+            if (!elv && platformkey.indexOf("win32") > -1) {
+                console.log("Alias must be run as administrator on Windows!");
+                return;
+            }
+            if (!fs.existsSync("./libs")) {
+                fs.mkdirSync("./libs");
+            }
             let p: string = path.resolve(program.modulealiaspath);
             let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
-            let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-            let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
-            if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
-                mod_meta["modloader64_aliases"] = {};
+            if (fs.lstatSync(p).isDirectory()) {
+                fse.symlinkSync(p, p2);
             }
-            mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
-            fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
-            // TSConfig.
-            tsconfig["compilerOptions"]["paths"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
-            saveTSConfig();
-        }
-    })();
-}
+            console.log("Created alias for " + program.modulealiaspath + " -> " + program.modulealias);
+            if (program.modulealias !== undefined) {
+                let p: string = path.resolve(program.modulealiaspath);
+                let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
+                let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
+                let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
+                if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
+                    mod_meta["modloader64_aliases"] = {};
+                }
+                mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+                fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
+                // TSConfig.
+                tsconfig["compilerOptions"]["paths"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+                saveTSConfig();
+            }
+        })();
+    }
 
-if (program.template !== undefined) {
-    if (fse.existsSync("./external_cores/" + program.template)) {
-        let t_path: string = path.join("./", "external_cores", program.template);
-        let meta: any = JSON.parse(fs.readFileSync(path.join(t_path, "package.json")).toString());
-        let m_path: string = path.join(t_path, "src", meta.name);
-        let meta2: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
-        fse.copySync(m_path, path.join(".", "src", meta2.name), {});
-        let meta3: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta2.name, "package.json")).toString());
-        meta3.name = meta2.name;
-        fse.writeFileSync(path.join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
-    } else {
-        console.log("Install the template first.");
+    if (program.template !== undefined) {
+        if (fse.existsSync("./external_cores/" + program.template)) {
+            let t_path: string = path.join("./", "external_cores", program.template);
+            let meta: any = JSON.parse(fs.readFileSync(path.join(t_path, "package.json")).toString());
+            let m_path: string = path.join(t_path, "src", meta.name);
+            let meta2: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
+            fse.copySync(m_path, path.join(".", "src", meta2.name), {});
+            let meta3: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta2.name, "package.json")).toString());
+            meta3.name = meta2.name;
+            fse.writeFileSync(path.join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
+        } else {
+            console.log("Install the template first.");
+        }
     }
 }

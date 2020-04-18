@@ -115,6 +115,7 @@ class pluginLoader {
     }
 
     private processFolder(dir: string) {
+        let hash: string = "";
         let parse = path.parse(dir);
         if (parse.ext === '.pak') {
             let pakFile: Pak = new Pak(path.resolve(dir));
@@ -124,6 +125,7 @@ class pluginLoader {
             }
             // Unpak first.
             dir = v.extractPakToTemp(pakFile, dir);
+            hash = pakFile.pak.footer._hash;
         }
         if (!fs.lstatSync(path.resolve(dir)).isDirectory()) {
             return;
@@ -189,7 +191,7 @@ class pluginLoader {
             this.logger.info("Registered plugin " + pkg.name + ".");
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
-            internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin });
+            internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
         }
     }
 
@@ -276,7 +278,7 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
-        utils.stopEmulatorThisFrame = ()=>{
+        utils.stopEmulatorThisFrame = () => {
             this.processNextFrame = false;
             return this.processNextFrame;
         };
@@ -368,16 +370,16 @@ class pluginLoader {
                     }
                 );
                 this.curFrame = frame;
-                if (this.processNextFrame){
+                if (this.processNextFrame) {
                     iconsole.setFrameCount(-1);
-                }else{
+                } else {
                     this.processNextFrame = true;
                 }
             }
         };
         Object.freeze(this.onTickHandle);
         this.crashCheck = () => {
-            if (!this.processNextFrame){
+            if (!this.processNextFrame) {
                 this.lastCrashCheckFrame = -1;
             }
             if (this.lastCrashCheckFrame === this.curFrame) {
@@ -391,7 +393,7 @@ class pluginLoader {
                 );
                 internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 bus.emit(ModLoaderEvents.ON_CRASH, dump);
-                setTimeout(()=>{
+                setTimeout(() => {
                     process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
                 }, 5 * 1000);
             } else {
@@ -466,19 +468,17 @@ class pluginLoader {
             });
             bus.emit(EventsClient.ON_INJECT_FINISHED, {});
             iconsole.finishInjects();
-            if (config.isClient){
+            if (config.isClient) {
                 setInterval(this.crashCheck, 5 * 1000);
             }
         };
         let testBuffer: Buffer = Buffer.from("MODLOADER64");
         emu.rdramWriteBuffer(0x80800000, testBuffer);
-        this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-            if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-                this.logger.info("16MB Expansion verified.");
-                emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-            }
-        }, 10);
-        this.loaded_core.ModLoader.utils.setTimeoutFrames(this.injector, 20);
+        if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+            this.logger.info("16MB Expansion verified.");
+            emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
+        }
+        this.injector();
         if (config.isClient) {
             setInterval(this.onTickHandle, 0);
         }

@@ -33,6 +33,8 @@
     "download-file": "^0.1.5",
     "eventemitter2": "^6.0.0",
     "fs-extra": "^8.1.0",
+    "graceful-fs": "^4.2.3",
+    "jsonfile": "^6.0.1",
     "log4js": "^6.1.2",
     "mkdir-recursive": "^0.4.0",
     "module-alias": "^2.2.2",
@@ -42,7 +44,8 @@
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
     "socket.io-encrypt": "^0.1.1",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "universalify": "^1.0.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.32",

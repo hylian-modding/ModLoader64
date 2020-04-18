@@ -5,7 +5,8 @@ export const enum Command {
   PLAY_SOUND,
   LOAD_OBJECT,
   WARP,
-  PLAY_MUSIC
+  PLAY_MUSIC,
+  RELOCATE_OVL
 }
 
 export interface ICommandBuffer {
