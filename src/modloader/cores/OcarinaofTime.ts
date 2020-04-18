@@ -20,7 +20,6 @@ import fs from 'fs';
 import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
-import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { Command } from 'modloader64_api/OOT/ICommandBuffer';
 
 enum ROM_VERSIONS {
@@ -43,7 +42,7 @@ export interface OOT_Offsets {
 }
 
 export class OcarinaofTime implements ICore, IOOTCore {
-    header = 'THE LEGEND OF ZELDA';
+    header = ROM_REGIONS.NTSC;
     ModLoader!: IModLoaderAPI;
     payloads: string[] = new Array<string>();
     link!: ILink;
@@ -79,10 +78,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
         global.ModLoader["offsets"] = {};
         global.ModLoader["offsets"]["link"] = {} as OOT_Offsets;
         let offsets: OOT_Offsets = global.ModLoader["offsets"]["link"];
-        if (this.rom_header.id === ROM_REGIONS.PAL) {
-            this.ModLoader.logger.error("This rom is not supported!");
-            process.exit(ModLoaderErrorCodes.ML_CORE_REFUSED_ROM);
-        }
         if (this.rom_header.revision === ROM_VERSIONS.REV_B) {
             this.applyVersionPatch("Rom downgrade in progress... (1.2 -> 1.1)", "RevB.bps", ROM_VERSIONS.REV_A);
         }

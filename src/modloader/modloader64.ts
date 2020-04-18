@@ -263,7 +263,7 @@ class ModLoader64 {
         if (fs.existsSync(this.rom_path)) {
             this.logger.info('Parsing rom header...');
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-                if (loaded_rom_header.name === this.plugins.core_plugins[key].header) {
+                if (loaded_rom_header.id === this.plugins.core_plugins[key].header) {
                     core_match = this.plugins.core_plugins[key];
                     core_key = key;
                 }
