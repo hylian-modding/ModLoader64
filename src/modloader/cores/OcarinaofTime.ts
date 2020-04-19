@@ -21,6 +21,7 @@ import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { Command } from 'modloader64_api/OOT/ICommandBuffer';
+import { GameShark } from 'modloader64_api/GameShark';
 
 enum ROM_VERSIONS {
     N0 = 0x00,
@@ -62,6 +63,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     rom_header!: IRomHeader;
     inventory_cache: Buffer = Buffer.alloc(0x24, 0xff);
     last_known_age!: number;
+    map_select_enabled: boolean = false;
 
     applyVersionPatch(msg: string, bps: string, target: ROM_VERSIONS) {
         this.ModLoader.logger.info(msg);
@@ -203,6 +205,9 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
     onTick(): void {
         this.commandBuffer.onTick();
+        if (this.map_select_enabled){
+            this.mapSelectCode();
+        }
         if (!this.helper.isTitleScreen()) {
             this.actorManager.onTick();
             this.eventTicks.forEach((value: Function, key: string) => {
@@ -218,6 +223,27 @@ export class OcarinaofTime implements ICore, IOOTCore {
         }
         this.ModLoader.logger.info("Skipping N64 logo screen...");
         this.ModLoader.emulator.rdramWritePtr8(global.ModLoader['global_context_pointer'], 0x1E1, 0x1);
+    }
+
+    mapSelectCode(): void {
+        this.ModLoader.emulator.rdramWrite32(0x800F1434, 0x00B9E400);
+        this.ModLoader.emulator.rdramWrite32(0x800F1438, 0x00BA1160);
+        this.ModLoader.emulator.rdramWrite32(0x800F143C, 0x808009C0);
+        this.ModLoader.emulator.rdramWrite32(0x800F1440, 0x80803720);
+        this.ModLoader.emulator.rdramWrite32(0x800F1448, 0x80801C14);
+        this.ModLoader.emulator.rdramWrite32(0x800F144C, 0x80801C08);
+        if (this.ModLoader.emulator.rdramRead16(0x800F1430) === 0x803B) {
+            this.ModLoader.emulator.rdramWrite8(0x8011B92F, 0);
+        }
+        if (this.ModLoader.emulator.rdramRead16(0x801C84B4) === 0x2030) {
+            this.ModLoader.emulator.rdramWrite8(0x8011B92F, 0x0002);
+            this.ModLoader.emulator.rdramWrite16(0x801DA2B4, 0x0EC0);
+        }
+    }
+
+    toggleMapSelectKeybind(): boolean {
+        this.map_select_enabled = true;
+        return true;
     }
 }
 
@@ -307,7 +333,6 @@ export class OverlayPayload extends PayloadType {
         dest.rdramWrite16(params_addr, slot);
         this.ovl_offset += params.byteLength;
         let hash: string = this.core.ModLoader.utils.hashBuffer(buf);
-        console.log(relocate_final.toString(16));
         this.core.commandBuffer.runCommand(Command.RELOCATE_OVL, relocate_final, () => {
             let hash2: string = this.core.ModLoader.utils.hashBuffer(dest.rdramReadBuffer(final, buf.byteLength));
             if (hash !== hash2) {

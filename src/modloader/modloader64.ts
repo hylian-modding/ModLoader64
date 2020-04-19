@@ -329,6 +329,10 @@ class ModLoader64 {
                 mupen = instance.emulator.startEmulator(() => {
                     let p: Buffer = result[0].patch as Buffer;
                     let rom_data: Buffer = instance.emulator.getLoadedRom();
+                    let evt: any = { rom: rom_data };
+                    if (instance.data.isClient) {
+                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
+                    }
                     if (p.byteLength > 1 && rom_data.byteLength > 1) {
                         try {
                             let hash = crypto.createHash('md5').update(rom_data).digest('hex');
@@ -347,7 +351,6 @@ class ModLoader64 {
                             }
                         }
                     }
-                    let evt: any = { rom: rom_data };
                     if (instance.data.isClient) {
                         bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
                         bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
