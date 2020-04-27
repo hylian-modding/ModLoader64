@@ -340,6 +340,7 @@ class ModLoader64 {
                             let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data, p);
                             if (nbuf !== undefined) {
                                 rom_data = nbuf;
+                                evt.rom = nbuf;
                             }
                             let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info(hash);

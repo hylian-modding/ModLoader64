@@ -37,7 +37,6 @@ export class AnalyticsClient {
         this.encrypt('MELONSUCKS')(this.socket);
         this.socket.on('Analytics_ConnectionPacket', (packet: Analytics_ConnectionPacket) => {
             this.me = packet.to;
-            console.log(this.me);
             this.send(new Analytics_StorePacket(this.me, "test", { fake: true }));
         });
         this.socket.on('Analytics_StoreConfirmPacket', (packet: Analytics_StoreConfirmPacket) => {
@@ -47,7 +46,6 @@ export class AnalyticsClient {
         });
     }
     send(packet: AnalyticsPacket) {
-        console.log(this.socket);
         this.socket.emit(packet.packet_id, packet);
     }
 }

@@ -310,7 +310,6 @@ namespace NetworkEngine {
                     socket.on('version', function (packet: VersionPacket) {
                         let mismatch = false;
                         Object.keys(inst.plugins).forEach((name: string) => {
-                            console.log(packet.plugins[name]);
                             if (packet.plugins.hasOwnProperty(name)) {
                                 if (inst.plugins[name].version !== packet.plugins[name].version) {
                                     mismatch = true;
@@ -562,7 +561,6 @@ namespace NetworkEngine {
             });
             internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
                 this.logger.info("Sending crashlog...");
-                console.log(args);
                 this.socket.emit('onCrash', {
                     dump: JSON.stringify({dump: args[0]})
                 });
