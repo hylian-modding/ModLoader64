@@ -1,5 +1,5 @@
 import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
-import { ICore, IModLoaderAPI, ILogger } from 'modloader64_api/IModLoaderAPI';
+import { ICore, IModLoaderAPI, ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
     IGlobalContext,
@@ -114,6 +114,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
         }
     }
 
+    @EventHandler(ModLoaderEvents.ON_SOFT_RESET_PRE)
+    onReset(evt: any) {
+        this.isSaveLoaded = false;
+    }
+
     init(): void {
         this.eventTicks.set('waitingForAgeChange', () => {
             if (this.save.age !== this.last_known_age) {
@@ -205,7 +210,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
     onTick(): void {
         this.commandBuffer.onTick();
-        if (this.map_select_enabled){
+        if (this.map_select_enabled) {
             this.mapSelectCode();
         }
         if (!this.helper.isTitleScreen()) {

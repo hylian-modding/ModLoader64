@@ -295,7 +295,7 @@ class ModLoader64 {
         });
         if (this.data.isServer) {
             this.Server.setup();
-            if (this.data.isAnalyticsServer){
+            if (this.data.isAnalyticsServer) {
                 this.Analytics_Server.setup();
             }
         }
@@ -358,7 +358,7 @@ class ModLoader64 {
                     }
                     return evt.rom;
                 }) as IMemory;
-                while (!instance.emulator.isEmulatorReady()) {}
+                while (!instance.emulator.isEmulatorReady()) { }
                 internal_event_bus.emit('emulator_started', {});
                 resolve();
             });

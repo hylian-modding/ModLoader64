@@ -69,6 +69,7 @@ commander_1["default"].option("-p, --modulealiaspath <path>", "alias a module pa
 commander_1["default"].option("-z, --rebuildsdk", "rebuild sdk");
 commander_1["default"].option("-t, --template <template>", "make project from template");
 commander_1["default"].option("-e, --external <tool>");
+commander_1["default"].allowUnknownOption(true);
 commander_1["default"].parse(process.argv);
 var original_dir = process.cwd();
 process.chdir(path_1["default"].join(__dirname, "../"));
@@ -99,7 +100,9 @@ if (commander_1["default"].external !== undefined) {
     if (fs_1["default"].existsSync(p)) {
         var meta = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(p, "package.json")).toString());
         var s = meta.main;
-        child_process_1["default"].fork(path_1["default"].join(p, s), process.argv);
+        var f = path_1["default"].resolve(path_1["default"].join(p, s));
+        process.chdir(original_dir_1);
+        child_process_1["default"].fork(f, process.argv);
         WAITING_ON_EXTERNAL = true;
     }
     process.chdir(original_dir_1);

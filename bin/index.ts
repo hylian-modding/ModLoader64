@@ -31,6 +31,7 @@ program.option("-z, --rebuildsdk", "rebuild sdk");
 program.option("-t, --template <template>", "make project from template");
 program.option("-e, --external <tool>");
 
+program.allowUnknownOption(true);
 program.parse(process.argv);
 
 interface SDK_Cat {
@@ -81,7 +82,9 @@ if (program.external !== undefined) {
     if (fs.existsSync(p)) {
         let meta: any = JSON.parse(fs.readFileSync(path.join(p, "package.json")).toString());
         let s = meta.main;
-        child_process.fork(path.join(p, s), process.argv);
+        let f = path.resolve(path.join(p, s));
+        process.chdir(original_dir);
+        child_process.fork(f, process.argv);
         WAITING_ON_EXTERNAL = true;
     }
     process.chdir(original_dir);
