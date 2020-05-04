@@ -57,9 +57,9 @@ export class mluuid implements Imluuid {
     }
 
     getLobbyName(): string {
-        let n: string = this.nouns[this.randomIntFromInterval(0, this.nouns.length - 1)];
-        let a: string = this.adjectives[this.randomIntFromInterval(0, this.adjectives.length - 1)];
-        let z: string = (Math.floor(Math.random() * Math.floor(99))).toString();
+        let n: string = this.nouns[this.randomIntFromInterval(0, this.nouns.length - 1)].replace("\r", "");
+        let a: string = this.adjectives[this.randomIntFromInterval(0, this.adjectives.length - 1)].replace("\r", "");
+        let z: string = (Math.floor(Math.random() * Math.floor(99))).toString().replace("\r", "");
         return n + "-" + a + "-" + z;
     }
 
