@@ -25,6 +25,7 @@ program.option("-c, --cores <dir>", "change core folder");
 program.option("-o, --config <file>, change config file");
 program.option("-s, --startdir <dir>", "the start dir for sdk usage");
 program.option("-l, --logginglevel <level>", "the logging level");
+program.option("-z, --devmode", "developer mode");
 program.allowUnknownOption(true);
 program.parse(process.argv);
 
@@ -42,6 +43,12 @@ if (program.cores) {
 
 if (program.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
+}
+
+if (program.devmode){
+    global.ModLoader["DEVFLAG"] = true;
+}else{
+    global.ModLoader["DEVFLAG"] = false;
 }
 
 if (program.dir) {

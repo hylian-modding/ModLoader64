@@ -232,7 +232,6 @@ namespace NetworkEngine {
         }
 
         sendToTarget(target: string, internalChannel: string, packet: any) {
-            bus.emit('Packet:' + packet.packet_id, packet);
             this.io.to(target).emit(internalChannel, packet);
         }
 
@@ -560,10 +559,10 @@ namespace NetworkEngine {
                 }
             });
             internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
-                this.logger.info("Sending crashlog...");
+                /* this.logger.info("Sending crashlog...");
                 this.socket.emit('onCrash', {
                     dump: JSON.stringify({dump: args[0]})
-                });
+                }); */
             });
         }
 
@@ -652,6 +651,7 @@ namespace NetworkEngine {
                     let ld: LobbyData = data.storage as LobbyData;
                     let udpPort: number = data.udp as number;
                     inst.logger.info('Joined lobby ' + ld.name + '.');
+                    internal_event_bus.emit("DISCORD_INVITE_SETUP", inst.config);
                     let p: Buffer = Buffer.alloc(1);
                     if (ld.data.hasOwnProperty('patch')) {
                         p = zlib.gunzipSync(ld.data.patch);
