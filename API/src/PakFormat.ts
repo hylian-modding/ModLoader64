@@ -6,6 +6,20 @@ import crypto from 'crypto';
 import os from 'os';
 import slash from 'slash';
 
+class lzmaWrapper{
+    private lzma: any = require("lzma");
+
+    compress(buf: Buffer){
+        return Buffer.from(this.lzma.compress(buf));
+    }
+
+    decompress(buf: Buffer){
+        return Buffer.from(this.lzma.decompress(buf));
+    }
+}
+
+const lzmaInstance: lzmaWrapper = new lzmaWrapper();
+
 export interface IPakFileEntry {
     type: string;
     size: number;
@@ -91,11 +105,16 @@ export interface IPakFile {
     header: PakHeader;
     data: Buffer;
     load(file: string): void;
-    insert(obj: any, compressed?: boolean): number;
-    insertFile(file: string, compressed?: boolean): number;
+    insert(obj: any, compressed?: IPakFileCompressionOptions): number;
+    insertFile(file: string, compressed?: IPakFileCompressionOptions): number;
     retrieve(index: number): any;
     footer: PakFooter;
     verify(): boolean;
+}
+
+export interface IPakFileCompressionOptions{
+    enabled: true;
+    algo: string;
 }
 
 export class PakFile implements IPakFile {
@@ -204,7 +223,7 @@ export class PakFile implements IPakFile {
     overwrite(
         index: number,
         obj: any,
-        compressed = true,
+        compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions,
         filename = 'obj.json'
     ): number {
         let type = 'UNCO';
@@ -215,9 +234,17 @@ export class PakFile implements IPakFile {
             let json = JSON.stringify(obj);
             data = Buffer.from(json);
         }
-        if (compressed) {
-            data = zlib.deflateSync(data);
-            type = 'DEFL';
+        if (compressed.enabled) {
+            switch(compressed.algo){
+            case "DEFL":
+                data = zlib.deflateSync(data);
+                type = 'DEFL';
+                break;
+            case "LZMA":
+                data = lzmaInstance.compress(data);
+                type = "LZMA";
+                break;
+            }
         }
         let entry = new PakFileEntry(
             slash(filename),
@@ -231,7 +258,7 @@ export class PakFile implements IPakFile {
         return this.header.files.indexOf(entry);
     }
 
-    insert(obj: any, compressed = true, filename = 'obj.json'): number {
+    insert(obj: any, compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions, filename = 'obj.json'): number {
         let type = 'UNCO';
         let data: Buffer;
         if (Buffer.isBuffer(obj)) {
@@ -240,9 +267,17 @@ export class PakFile implements IPakFile {
             let json = JSON.stringify(obj);
             data = Buffer.from(json);
         }
-        if (compressed) {
-            data = zlib.deflateSync(data);
-            type = 'DEFL';
+        if (compressed.enabled) {
+            switch(compressed.algo){
+            case "DEFL":
+                data = zlib.deflateSync(data);
+                type = 'DEFL';
+                break;
+            case "LZMA":
+                data =lzmaInstance.compress(data);
+                type = "LZMA";
+                break;
+            }
         }
         let entry = new PakFileEntry(
             slash(filename),
@@ -256,7 +291,7 @@ export class PakFile implements IPakFile {
         return this.header.files.indexOf(entry);
     }
 
-    insertFile(file: string, compressed = true): number {
+    insertFile(file: string, compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions): number {
         return this.insert(fs.readFileSync(file), compressed, file);
     }
 
@@ -264,6 +299,8 @@ export class PakFile implements IPakFile {
         let d = this.header.files[index].data;
         if (this.header.files[index].type === 'DEFL') {
             d = zlib.inflateSync(this.header.files[index].data);
+        }else if (this.header.files[index].type === 'LZMA'){
+            d = lzmaInstance.decompress(this.header.files[index].data);
         }
         try {
             JSON.parse(d.toString('ascii'));
@@ -297,12 +334,12 @@ export class PakFile implements IPakFile {
 
 export interface IPak {
     fileName: string;
-    save(obj: any, compressed?: boolean): number;
-    save_file(file: string, compressed?: boolean): number;
+    save(obj: any, compressed?: IPakFileCompressionOptions): number;
+    save_file(file: string, compressed?: IPakFileCompressionOptions): number;
     load(index: number): any;
     extractAll(target: string): void;
     update(): void;
-    overwriteFileAtIndex(index: number, obj: any, compressed?: boolean): number;
+    overwriteFileAtIndex(index: number, obj: any, compressed?: IPakFileCompressionOptions): number;
     verify(): boolean;
 }
 
@@ -322,17 +359,17 @@ export class Pak implements IPak {
         }
     }
 
-    overwriteFileAtIndex(index: number, obj: any, compressed = true): number {
+    overwriteFileAtIndex(index: number, obj: any, compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions): number {
         let i = this.pak.overwrite(index, obj, compressed);
         return i;
     }
 
-    save(obj: any, compressed = true): number {
+    save(obj: any, compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions): number {
         let index = this.pak.insert(obj, compressed);
         return index;
     }
 
-    save_file(file: string, compressed = true) {
+    save_file(file: string, compressed = {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions) {
         let index = this.pak.insertFile(file, compressed);
         return index;
     }

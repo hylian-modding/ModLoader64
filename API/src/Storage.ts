@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { IPak, Pak } from './PakFormat';
+import { IPak, Pak, IPakFileCompressionOptions } from './PakFormat';
 
 export class StorageContainer {
   private pak: IPak;
@@ -10,11 +10,11 @@ export class StorageContainer {
       this.pak = new Pak(file);
   }
 
-  storeObject(obj: any, compressed = true) {
+  storeObject(obj: any) {
       if (!fs.existsSync(path.parse(this.pak.fileName).dir)) {
           fs.mkdirSync(path.parse(this.pak.fileName).dir);
       }
-      this.pak.overwriteFileAtIndex(0, obj, compressed);
+      this.pak.overwriteFileAtIndex(0, obj, {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions);
       this.pak.update();
   }
 

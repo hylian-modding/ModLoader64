@@ -10,14 +10,22 @@ var path_1 = __importDefault(require("path"));
 commander_1["default"].option('-d --dir <dir>', 'base directory');
 commander_1["default"].option('-i --input <pak>', 'pak to unpak');
 commander_1["default"].option('-o, --output <dir>', 'output dir');
+commander_1["default"].option("-a, --algo <algo>", "compression algo");
 commander_1["default"].parse(process.argv);
 if (commander_1["default"].dir !== undefined) {
     var recursive = require('recursive-readdir');
     require('mkdir-recursive');
     recursive(commander_1["default"].dir, function (err, files) {
         var pak = new PakFormat_1.Pak(commander_1["default"].output + "/" + path_1["default"].parse(commander_1["default"].dir).name + '.pak');
+        console.log("Total files: " + files.length);
         for (var i = 0; i < files.length; i++) {
-            pak.save_file(files[i]);
+            if (commander_1["default"].algo !== undefined) {
+                console.log(i + " / " + files.length);
+                pak.save_file(files[i], { enabled: true, algo: commander_1["default"].algo });
+            }
+            else {
+                pak.save_file(files[i]);
+            }
         }
         pak.update();
     });

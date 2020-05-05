@@ -7,6 +7,7 @@ import path from 'path';
 program.option('-d --dir <dir>', 'base directory');
 program.option('-i --input <pak>', 'pak to unpak');
 program.option('-o, --output <dir>', 'output dir');
+program.option("-a, --algo <algo>", "compression algo");
 
 program.parse(process.argv);
 
@@ -17,8 +18,14 @@ if (program.dir !== undefined) {
     recursive(program.dir, function (err: any, files: string[]) {
         
         let pak: Pak = new Pak(program.output + "/" + path.parse(program.dir).name + '.pak');
+        console.log("Total files: " + files.length);
         for (let i = 0; i < files.length; i++) {
-            pak.save_file(files[i]);
+            if (program.algo !== undefined){
+                console.log(i + " / " + files.length);
+                pak.save_file(files[i], {enabled: true, algo: program.algo});
+            }else{
+                pak.save_file(files[i]);
+            }
         }
         pak.update();
     });
