@@ -184,9 +184,12 @@ class ModLoader64 {
                 if (!fs.lstatSync(f).isDirectory()) {
                     let parse = path.parse(file);
                     if (parse.ext === '.js') {
-                        let p = require(path.resolve(f))[parse.name];
-                        this.plugins.registerCorePlugin(parse.name, new p() as ICore);
-                        this.logger.info('Auto-wiring core: ' + parse.name);
+                        try{
+                            let p = require(path.resolve(f))[parse.name];
+                            this.plugins.registerCorePlugin(parse.name, new p() as ICore);
+                            this.logger.info('Auto-wiring core: ' + parse.name);
+                        }catch(err){
+                        }
                     }
                 }
             });
