@@ -2,7 +2,7 @@
 
 import program from 'commander';
 import path from 'path';
-import fs from 'fs';
+import fs, { fdatasync } from 'fs';
 import child_process from 'child_process';
 import fse from 'fs-extra';
 const isElevated = require('is-elevated');
@@ -30,6 +30,7 @@ program.option("-p, --modulealiaspath <path>", "alias a module path");
 program.option("-z, --rebuildsdk", "rebuild sdk");
 program.option("-t, --template <template>", "make project from template");
 program.option("-e, --external <tool>");
+program.option("-w, --window gui window");
 
 program.allowUnknownOption(true);
 program.parse(process.argv);
@@ -59,6 +60,7 @@ if (fs.existsSync(tsconfig_path)) {
 
 const MOD_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
 const CORE_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
+const GUI_SDK_URL: string = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
 
 
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
@@ -357,17 +359,48 @@ if (!WAITING_ON_EXTERNAL) {
     if (program.run) {
         console.log("Running mod. Please wait while we load the emulator...");
         let original_dir: string = process.cwd();
-        process.chdir(path.join(__dirname, "../"));
-        let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
-        ml.stdout.on('data', function (data) {
-            console.log(data);
-        });
-        ml.on('error', (err: Error) => {
-            console.log(err);
-        });
-        ml.stderr.on('data', (data) => {
-            console.log(data);
-        });
+        if (program.window) {
+            process.chdir(original_dir);
+            let file: string = "./win-ia32-unpacked.pak";
+            if (!fs.existsSync(file)) {
+                console.log("Downloading GUI files...");
+                getBinaryContents(GUI_SDK_URL);
+            }
+            if (!fs.existsSync("./win-ia32-unpacked")) {
+                child_process.execSync("paker -i ./win-ia32-unpacked.pak -o ./");
+            }
+            if (!fs.existsSync("./win-ia32-unpacked/ModLoader")) {
+                process.chdir("./win-ia32-unpacked");
+                console.log(process.cwd());
+                child_process.execSync("\"modloader64 gui.exe\"");
+                process.chdir(original_dir);
+                fse.removeSync("./win-ia32-unpacked/ModLoader/roms");
+                fse.symlinkSync(path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path.resolve("./win-ia32-unpacked/ModLoader/roms"));
+                process.exit(1);
+            }
+            if (fse.existsSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json")){
+                process.chdir(original_dir);
+                fse.removeSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json");
+                fse.symlinkSync(path.resolve("./ModLoader64-config.json"), path.resolve("./win-ia32-unpacked/ModLoader/ModLoader64-config.json"));
+            }
+            fse.removeSync("./win-ia32-unpacked/ModLoader/mods");
+            fse.copySync("./build/src", "./win-ia32-unpacked/ModLoader/mods");
+            process.chdir("./win-ia32-unpacked");
+            child_process.execSync("\"modloader64 gui.exe\" --devSkip");
+            process.chdir(original_dir);
+        } else {
+            process.chdir(path.join(__dirname, "../"));
+            let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
+            ml.stdout.on('data', function (data) {
+                console.log(data);
+            });
+            ml.on('error', (err: Error) => {
+                console.log(err);
+            });
+            ml.stderr.on('data', (data) => {
+                console.log(data);
+            });
+        }
         process.chdir(original_dir);
     }
 

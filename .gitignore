@@ -22,3 +22,5 @@ Mupen64Plus/
 SDK-config.json
 CustomActorToolkit/
 tools/
+win-ia32-unpacked/
+win-ia32-unpacked.pak

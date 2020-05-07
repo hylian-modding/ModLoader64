@@ -69,6 +69,7 @@ commander_1["default"].option("-p, --modulealiaspath <path>", "alias a module pa
 commander_1["default"].option("-z, --rebuildsdk", "rebuild sdk");
 commander_1["default"].option("-t, --template <template>", "make project from template");
 commander_1["default"].option("-e, --external <tool>");
+commander_1["default"].option("-w, --window gui window");
 commander_1["default"].allowUnknownOption(true);
 commander_1["default"].parse(process.argv);
 var original_dir = process.cwd();
@@ -82,6 +83,7 @@ if (fs_1["default"].existsSync(tsconfig_path)) {
 }
 var MOD_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
 var CORE_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
+var GUI_SDK_URL = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
 function getFileContents(url) {
     return child_process_1["default"].execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
@@ -380,17 +382,49 @@ if (!WAITING_ON_EXTERNAL) {
     if (commander_1["default"].run) {
         console.log("Running mod. Please wait while we load the emulator...");
         var original_dir_7 = process.cwd();
-        process.chdir(path_1["default"].join(__dirname, "../"));
-        var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_7, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_7, "libs") + " --config=" + path_1["default"].join(original_dir_7, "modloader64-config.json") + " --startdir " + original_dir_7);
-        ml.stdout.on('data', function (data) {
-            console.log(data);
-        });
-        ml.on('error', function (err) {
-            console.log(err);
-        });
-        ml.stderr.on('data', function (data) {
-            console.log(data);
-        });
+        if (commander_1["default"].window) {
+            process.chdir(original_dir_7);
+            var file = "./win-ia32-unpacked.pak";
+            if (!fs_1["default"].existsSync(file)) {
+                console.log("Downloading GUI files...");
+                getBinaryContents(GUI_SDK_URL);
+            }
+            if (!fs_1["default"].existsSync("./win-ia32-unpacked")) {
+                child_process_1["default"].execSync("paker -i ./win-ia32-unpacked.pak -o ./");
+            }
+            if (!fs_1["default"].existsSync("./win-ia32-unpacked/ModLoader")) {
+                process.chdir("./win-ia32-unpacked");
+                console.log(process.cwd());
+                child_process_1["default"].execSync("\"modloader64 gui.exe\"");
+                process.chdir(original_dir_7);
+                fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/roms");
+                fs_extra_1["default"].symlinkSync(path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path_1["default"].resolve("./win-ia32-unpacked/ModLoader/roms"));
+                process.exit(1);
+            }
+            if (fs_extra_1["default"].existsSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json")) {
+                process.chdir(original_dir_7);
+                fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json");
+                fs_extra_1["default"].symlinkSync(path_1["default"].resolve("./ModLoader64-config.json"), path_1["default"].resolve("./win-ia32-unpacked/ModLoader/ModLoader64-config.json"));
+            }
+            fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/mods");
+            fs_extra_1["default"].copySync("./build/src", "./win-ia32-unpacked/ModLoader/mods");
+            process.chdir("./win-ia32-unpacked");
+            child_process_1["default"].execSync("\"modloader64 gui.exe\" --devSkip");
+            process.chdir(original_dir_7);
+        }
+        else {
+            process.chdir(path_1["default"].join(__dirname, "../"));
+            var ml = child_process_1["default"].exec("npm run start -- --mods=" + path_1["default"].join(original_dir_7, "build", "src") + " --roms=" + path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1["default"].join(original_dir_7, "libs") + " --config=" + path_1["default"].join(original_dir_7, "modloader64-config.json") + " --startdir " + original_dir_7);
+            ml.stdout.on('data', function (data) {
+                console.log(data);
+            });
+            ml.on('error', function (err) {
+                console.log(err);
+            });
+            ml.stderr.on('data', function (data) {
+                console.log(data);
+            });
+        }
         process.chdir(original_dir_7);
     }
     if (commander_1["default"].dist) {
