@@ -39,10 +39,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 exports.__esModule = true;
 var commander_1 = __importDefault(require("commander"));
 var path_1 = __importDefault(require("path"));
-var fs_1 = __importDefault(require("fs"));
+var fs_1 = __importStar(require("fs"));
 var child_process_1 = __importDefault(require("child_process"));
 var fs_extra_1 = __importDefault(require("fs-extra"));
 var isElevated = require('is-elevated');
@@ -84,6 +91,7 @@ if (fs_1["default"].existsSync(tsconfig_path)) {
 var MOD_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
 var CORE_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
 var GUI_SDK_URL = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
+var GUI_SDK_URL_UNIX = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/linux-unpacked.pak";
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
 function getFileContents(url) {
     return child_process_1["default"].execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
@@ -383,33 +391,48 @@ if (!WAITING_ON_EXTERNAL) {
         console.log("Running mod. Please wait while we load the emulator...");
         var original_dir_7 = process.cwd();
         if (commander_1["default"].window) {
+            var isWindows = platformkey.indexOf("win32") > -1;
+            var url = GUI_SDK_URL;
+            if (!isWindows) {
+                url = GUI_SDK_URL_UNIX;
+            }
+            var dir = "./win-ia32-unpacked";
+            if (!isWindows) {
+                dir = "./linux-unpacked";
+            }
+            var exe = "modloader64 gui.exe";
+            if (!isWindows) {
+                exe = "modloader64 gui";
+            }
             process.chdir(original_dir_7);
-            var file = "./win-ia32-unpacked.pak";
+            var file = dir + ".pak";
             if (!fs_1["default"].existsSync(file)) {
                 console.log("Downloading GUI files...");
-                getBinaryContents(GUI_SDK_URL);
+                getBinaryContents(url);
             }
-            if (!fs_1["default"].existsSync("./win-ia32-unpacked")) {
-                child_process_1["default"].execSync("paker -i ./win-ia32-unpacked.pak -o ./");
+            if (!fs_1["default"].existsSync(dir)) {
+                child_process_1["default"].execSync("paker -i " + file + " -o ./");
             }
-            if (!fs_1["default"].existsSync("./win-ia32-unpacked/ModLoader")) {
-                process.chdir("./win-ia32-unpacked");
+            if (!fs_1["default"].existsSync(path_1["default"].resolve(dir, "ModLoader"))) {
+                process.chdir(dir);
                 console.log(process.cwd());
-                child_process_1["default"].execSync("\"modloader64 gui.exe\"");
+                child_process_1["default"].execSync("\"" + exe + "\"");
                 process.chdir(original_dir_7);
-                fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/roms");
-                fs_extra_1["default"].symlinkSync(path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path_1["default"].resolve("./win-ia32-unpacked/ModLoader/roms"));
+                fs_extra_1["default"].removeSync(path_1["default"].resolve(dir, "ModLoader/roms"));
+                fs_extra_1["default"].symlinkSync(path_1["default"].resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path_1["default"].resolve(dir, "ModLoader/roms"));
                 process.exit(1);
             }
-            if (fs_extra_1["default"].existsSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json")) {
-                process.chdir(original_dir_7);
-                fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json");
-                fs_extra_1["default"].symlinkSync(path_1["default"].resolve("./ModLoader64-config.json"), path_1["default"].resolve("./win-ia32-unpacked/ModLoader/ModLoader64-config.json"));
+            if (fs_extra_1["default"].existsSync(path_1["default"].resolve(dir, "ModLoader/ModLoader64-config.json"))) {
+                if (!fs_1.lstatSync(path_1["default"].resolve(dir, "ModLoader/ModLoader64-config.json")).isSymbolicLink()) {
+                    process.chdir(original_dir_7);
+                    fs_extra_1["default"].removeSync(path_1["default"].resolve(dir, "ModLoader/ModLoader64-config.json"));
+                    fs_extra_1["default"].symlinkSync(path_1["default"].resolve("./ModLoader64-config.json"), path_1["default"].resolve(dir, "ModLoader/ModLoader64-config.json"));
+                }
             }
-            fs_extra_1["default"].removeSync("./win-ia32-unpacked/ModLoader/mods");
-            fs_extra_1["default"].copySync("./build/src", "./win-ia32-unpacked/ModLoader/mods");
-            process.chdir("./win-ia32-unpacked");
-            child_process_1["default"].execSync("\"modloader64 gui.exe\" --devSkip");
+            fs_extra_1["default"].removeSync(path_1["default"].resolve(dir, "ModLoader/mods"));
+            fs_extra_1["default"].copySync("./build/src", path_1["default"].resolve(dir, "ModLoader/mods"));
+            process.chdir(dir);
+            child_process_1["default"].execSync("\"" + exe + "\" --devSkip");
             process.chdir(original_dir_7);
         }
         else {

@@ -2,7 +2,7 @@
 
 import program from 'commander';
 import path from 'path';
-import fs, { fdatasync } from 'fs';
+import fs, { fdatasync, lstatSync } from 'fs';
 import child_process from 'child_process';
 import fse from 'fs-extra';
 const isElevated = require('is-elevated');
@@ -61,6 +61,7 @@ if (fs.existsSync(tsconfig_path)) {
 const MOD_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
 const CORE_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
 const GUI_SDK_URL: string = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
+const GUI_SDK_URL_UNIX: string = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/linux-unpacked.pak";
 
 
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
@@ -360,33 +361,48 @@ if (!WAITING_ON_EXTERNAL) {
         console.log("Running mod. Please wait while we load the emulator...");
         let original_dir: string = process.cwd();
         if (program.window) {
+            let isWindows: boolean = platformkey.indexOf("win32") > -1;
+            let url = GUI_SDK_URL;
+            if (!isWindows) {
+                url = GUI_SDK_URL_UNIX;
+            }
+            let dir = "./win-ia32-unpacked";
+            if (!isWindows) {
+                dir = "./linux-unpacked";
+            }
+            let exe = "modloader64 gui.exe";
+            if (!isWindows) {
+                exe = "modloader64 gui";
+            }
             process.chdir(original_dir);
-            let file: string = "./win-ia32-unpacked.pak";
+            let file: string = dir + ".pak";
             if (!fs.existsSync(file)) {
                 console.log("Downloading GUI files...");
-                getBinaryContents(GUI_SDK_URL);
+                getBinaryContents(url);
             }
-            if (!fs.existsSync("./win-ia32-unpacked")) {
-                child_process.execSync("paker -i ./win-ia32-unpacked.pak -o ./");
+            if (!fs.existsSync(dir)) {
+                child_process.execSync("paker -i " + file + " -o ./");
             }
-            if (!fs.existsSync("./win-ia32-unpacked/ModLoader")) {
-                process.chdir("./win-ia32-unpacked");
+            if (!fs.existsSync(path.resolve(dir, "ModLoader"))) {
+                process.chdir(dir);
                 console.log(process.cwd());
-                child_process.execSync("\"modloader64 gui.exe\"");
+                child_process.execSync("\"" + exe + "\"");
                 process.chdir(original_dir);
-                fse.removeSync("./win-ia32-unpacked/ModLoader/roms");
-                fse.symlinkSync(path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path.resolve("./win-ia32-unpacked/ModLoader/roms"));
+                fse.removeSync(path.resolve(dir, "ModLoader/roms"));
+                fse.symlinkSync(path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir), path.resolve(dir, "ModLoader/roms"));
                 process.exit(1);
             }
-            if (fse.existsSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json")){
-                process.chdir(original_dir);
-                fse.removeSync("./win-ia32-unpacked/ModLoader/ModLoader64-config.json");
-                fse.symlinkSync(path.resolve("./ModLoader64-config.json"), path.resolve("./win-ia32-unpacked/ModLoader/ModLoader64-config.json"));
+            if (fse.existsSync(path.resolve(dir, "ModLoader/ModLoader64-config.json"))) {
+                if (!lstatSync(path.resolve(dir, "ModLoader/ModLoader64-config.json")).isSymbolicLink()) {
+                    process.chdir(original_dir);
+                    fse.removeSync(path.resolve(dir, "ModLoader/ModLoader64-config.json"));
+                    fse.symlinkSync(path.resolve("./ModLoader64-config.json"), path.resolve(dir, "ModLoader/ModLoader64-config.json"));
+                }
             }
-            fse.removeSync("./win-ia32-unpacked/ModLoader/mods");
-            fse.copySync("./build/src", "./win-ia32-unpacked/ModLoader/mods");
-            process.chdir("./win-ia32-unpacked");
-            child_process.execSync("\"modloader64 gui.exe\" --devSkip");
+            fse.removeSync(path.resolve(dir, "ModLoader/mods"));
+            fse.copySync("./build/src", path.resolve(dir, "ModLoader/mods"));
+            process.chdir(dir);
+            child_process.execSync("\"" + exe + "\" --devSkip");
             process.chdir(original_dir);
         } else {
             process.chdir(path.join(__dirname, "../"));
