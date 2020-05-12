@@ -12,7 +12,7 @@ export class TunicsEquipment extends JSONTemplate implements ITunics {
   private emulator: IMemory;
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c;
-  jsonFields: string[] = ['kokiriTunic', 'goronTunic', 'goronTunic'];
+  jsonFields: string[] = ['kokiriTunic', 'goronTunic', 'zoraTunic'];
   constructor(emulator: IMemory) {
       super();
       this.emulator = emulator;
