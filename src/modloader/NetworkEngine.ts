@@ -33,7 +33,7 @@ import {
     UDPPacket,
 } from 'modloader64_api/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
-import fs from 'fs';
+import fs, { rmdir } from 'fs';
 import { internal_event_bus } from './modloader64';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
@@ -154,6 +154,7 @@ namespace NetworkEngine {
         plugins: any = {};
         core: string = "";
         analytics!: AnalyticsClient;
+        lobby_names: Array<string> = [];
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger;
@@ -168,7 +169,7 @@ namespace NetworkEngine {
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
                 let p: any = args[0].meta;
-                this.plugins[p.name] = {version: p.version, hash: args[0].hash};
+                this.plugins[p.name] = { version: p.version, hash: args[0].hash };
             });
             internal_event_bus.on('CORE_LOADED', (args: any[]) => {
                 this.core = args[0].name;
@@ -263,6 +264,25 @@ namespace NetworkEngine {
                 });
             }
 
+            setInterval(() => {
+                let rm: Array<string> = [];
+                let lobbies: any = {};
+                for (let i = 0; i < this.lobby_names.length; i++){
+                    if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null){
+                        lobbies[this.lobby_names[i]] = Object.keys(this.getLobbies()[this.lobby_names[i]]['sockets']).length;
+                    }else{
+                        rm.push(this.lobby_names[i]);
+                    }
+                }
+                if (rm.length > 0){
+                    for (let i = 0; i < rm.length; i++){
+                        let index = this.lobby_names.indexOf(rm[i]);
+                        this.logger.info(this.lobby_names.splice(index, 1)[0] + " lobby terminated.");
+                    }
+                }
+                fs.writeFile("./lobbies.json", JSON.stringify(lobbies), ()=>{});
+            }, 60 * 1000);
+
             (function (inst) {
                 natUpnp_client.portMapping(
                     {
@@ -316,7 +336,7 @@ namespace NetworkEngine {
                                     inst.logger.info('Plugin ' + name + ' version check passed.');
                                     if (inst.plugins[name].hash === packet.plugins[name].hash) {
                                         inst.logger.info('Plugin ' + name + ' hash check passed.');
-                                    }else{
+                                    } else {
                                         mismatch = true;
                                     }
                                 }
@@ -398,6 +418,7 @@ namespace NetworkEngine {
                                 udp: inst.udpPort,
                             });
                             inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
+                            inst.lobby_names.push(lj.lobbyData.name);
                         }
                     });
                     socket.on('playerJoined_reply', function (data: any) {
@@ -417,14 +438,14 @@ namespace NetworkEngine {
                     socket.on('toSpecificPlayer', function (data: any) {
                         inst.sendToTarget(data.player.uuid, 'msg', data.packet);
                     });
-                    socket.on('onCrash', function(data: any){
+                    socket.on('onCrash', function (data: any) {
                         console.log("Receiving crash dump...");
-                        if (!fs.existsSync("./crashlogs")){
+                        if (!fs.existsSync("./crashlogs")) {
                             fs.mkdirSync("./crashlogs");
                         }
                         let f = "./crashlogs/" + Date.now().toString(16) + ".bin";
                         fs.writeFileSync(f, JSON.parse(data.dump).dump);
-                        bus.emit(ModLoaderEvents.ON_RECEIVED_CRASH_LOG, {name: path.parse(f).name, dump: zlib.inflateSync(fs.readFileSync(f))});
+                        bus.emit(ModLoaderEvents.ON_RECEIVED_CRASH_LOG, { name: path.parse(f).name, dump: zlib.inflateSync(fs.readFileSync(f)) });
                     });
                     socket.on('disconnect', () => {
                         //@ts-ignore
@@ -541,7 +562,7 @@ namespace NetworkEngine {
             ) as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
                 let p: any = args[0].meta;
-                this.plugins[p.name] = {version: p.version, hash: args[0].hash};
+                this.plugins[p.name] = { version: p.version, hash: args[0].hash };
                 if (typeof args[0].instance.getServerURL === "function" && !this.config.forceServerOverride && !this.pluginConfiguredConnection && !this.config.isSinglePlayer) {
                     this.logger.info("Using plugin server configuration: " + p.name + ".");
                     let server_connection_setup: IPluginServerConfig = args[0].instance as IPluginServerConfig;
