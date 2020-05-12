@@ -36,6 +36,7 @@ class N64 implements IConsole {
             this.logger.error('MUPEN INITIALIZE RETURNED ' + code.toString() + '.');
         }
 
+        logger.info("Loading rom: " + rom + ".");
         this.rom_size = this.mupen.loadRom(rom);
         if (this.rom_size < 0) {
             this.logger.error(
