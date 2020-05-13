@@ -466,9 +466,9 @@ class pluginLoader {
                     }
                 }
             });
-            bus.emit(EventsClient.ON_INJECT_FINISHED, {});
             iconsole.finishInjects();
             if (config.isClient) {
+                bus.emit(EventsClient.ON_INJECT_FINISHED, {});
                 setInterval(this.crashCheck, 5 * 1000);
             }
         };
