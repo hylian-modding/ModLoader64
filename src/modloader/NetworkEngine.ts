@@ -267,20 +267,20 @@ namespace NetworkEngine {
             setInterval(() => {
                 let rm: Array<string> = [];
                 let lobbies: any = {};
-                for (let i = 0; i < this.lobby_names.length; i++){
-                    if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null){
+                for (let i = 0; i < this.lobby_names.length; i++) {
+                    if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null) {
                         lobbies[this.lobby_names[i]] = Object.keys(this.getLobbies()[this.lobby_names[i]]['sockets']).length;
-                    }else{
+                    } else {
                         rm.push(this.lobby_names[i]);
                     }
                 }
-                if (rm.length > 0){
-                    for (let i = 0; i < rm.length; i++){
+                if (rm.length > 0) {
+                    for (let i = 0; i < rm.length; i++) {
                         let index = this.lobby_names.indexOf(rm[i]);
                         this.logger.info(this.lobby_names.splice(index, 1)[0] + " lobby terminated.");
                     }
                 }
-                fs.writeFile("./lobbies.json", JSON.stringify(lobbies), ()=>{});
+                fs.writeFile("./lobbies.json", JSON.stringify(lobbies), () => { });
             }, 60 * 1000);
 
             (function (inst) {
@@ -607,6 +607,10 @@ namespace NetworkEngine {
                 NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
                     data.player = inst.me;
                     data.lobby = inst.config.lobby;
+                    if (data.player === undefined) {
+                        inst.logger.error("Tried to send a packet with no local INetworkPlayer!");
+                        return;
+                    }
                     if (
                         data.socketType === SocketType.UDP &&
                         inst.isUDPEnabled &&

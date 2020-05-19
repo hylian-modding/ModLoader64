@@ -8,6 +8,13 @@ import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
 //require('source-map-support').install();
+const debug = true;
+if (debug) {
+    var heapdump = require('heapdump');
+    setInterval(() => {
+        heapdump.writeSnapshot(path.resolve('./' + Date.now() + '.heapsnapshot'));
+    }, (60 * 60) * 1000);
+}
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
@@ -45,9 +52,9 @@ if (program.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
 }
 
-if (program.devmode){
+if (program.devmode) {
     global.ModLoader["DEVFLAG"] = true;
-}else{
+} else {
     global.ModLoader["DEVFLAG"] = false;
 }
 
@@ -57,7 +64,7 @@ if (program.dir) {
 
 if (program.startdir) {
     global.ModLoader["startdir"] = program.startdir;
-}else{
+} else {
     global.ModLoader['startdir'] = process.cwd();
 }
 
@@ -68,7 +75,7 @@ if (fs.existsSync('./console.log')) {
 const logger = getLogger("Core");
 
 const logConfig: any = {
-    appenders: { ML64Core_stdout: { type: 'stdout'}, ML64Core_file: { type: 'file', filename: 'console.log'}},
+    appenders: { ML64Core_stdout: { type: 'stdout' }, ML64Core_file: { type: 'file', filename: 'console.log' } },
     categories: { default: { appenders: ['ML64Core_stdout', 'ML64Core_file'], level: 'all' } }
 };
 
@@ -80,15 +87,15 @@ console.log = (message?: any, ...optionalParams: any[]) => {
     logger_ovl.debug(message);
 };
 
-class dumb_logger{
-    setLevel(level: string){
+class dumb_logger {
+    setLevel(level: string) {
     }
 
-    info(...msg: any){
+    info(...msg: any) {
         console.log(msg);
     }
 
-    error(...msg: any){
+    error(...msg: any) {
         console.log(msg);
     }
 }
@@ -97,7 +104,7 @@ if (fs.existsSync('../README.md')) {
     logger.level = ('all' as ILoggerLevels);
 }
 
-if (program.logginglevel !== undefined){
+if (program.logginglevel !== undefined) {
     logger.level = (program.logginglevel);
 }
 
@@ -110,16 +117,16 @@ logger.info('Version: ', version);
 
 logger.info('Setting running directory: ' + process.cwd());
 
-class logwrapper implements ILogger{
+class logwrapper implements ILogger {
     private logger: any;
 
-    constructor(logger: any){
+    constructor(logger: any) {
         this.logger = logger;
     }
 
     info(...msg: string[]): void {
         this.logger.info(msg.toString());
-    }    
+    }
     warn(...msg: string[]): void {
         this.logger.warn(msg.toString());
     }

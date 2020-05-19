@@ -48,6 +48,7 @@ import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
 import { Analytics } from 'modloader64_api/analytics/Analytics';
 import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
+import { ModLoadOrder } from './ModLoadOrder';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -115,6 +116,9 @@ class pluginLoader {
     }
 
     private processFolder(dir: string) {
+        if (!fs.existsSync(dir)){
+            return;
+        }
         let hash: string = "";
         let parse = path.parse(dir);
         if (parse.ext === '.pak') {
@@ -235,15 +239,27 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start external plugins.
-        this.plugin_directories.forEach((dir: string) => {
-            if (fs.lstatSync(dir).isDirectory()) {
-                let temp1 = path.resolve(path.join(dir));
-                fs.readdirSync(temp1).forEach((file: string) => {
-                    let temp2 = path.join(temp1, file);
-                    this.processFolder(temp2);
-                });
-            }
-        });
+        if (fs.existsSync("./load_order.json")) {
+            let order: ModLoadOrder = new ModLoadOrder();
+            order = JSON.parse(fs.readFileSync("./load_order.json").toString());
+            this.logger.info("Using load order saved from GUI...");
+            Object.keys(order.loadOrder).forEach((key: string)=>{
+                let temp = path.resolve(".", "mods", key);
+                if (order.loadOrder[key]){
+                    this.processFolder(temp);
+                }
+            });
+        } else {
+            this.plugin_directories.forEach((dir: string) => {
+                if (fs.lstatSync(dir).isDirectory()) {
+                    let temp1 = path.resolve(path.join(dir));
+                    fs.readdirSync(temp1).forEach((file: string) => {
+                        let temp2 = path.join(temp1, file);
+                        this.processFolder(temp2);
+                    });
+                }
+            });
+        }
         internal_event_bus.on('onNetworkConnect', (evt: any) => {
             this.loaded_core.ModLoader.me = evt.me;
             this.plugins.forEach((plugin: IPlugin) => {
