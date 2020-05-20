@@ -49,6 +49,7 @@ import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
 import { Analytics } from 'modloader64_api/analytics/Analytics';
 import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
+import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -116,7 +117,7 @@ class pluginLoader {
     }
 
     private processFolder(dir: string) {
-        if (!fs.existsSync(dir)){
+        if (!fs.existsSync(dir)) {
             return;
         }
         let hash: string = "";
@@ -173,13 +174,16 @@ class pluginLoader {
                 value: parse.name,
                 writable: false,
             });
+            let mlconfig = this.config.registerConfigCategory(
+                'ModLoader64'
+            ) as IModLoaderConfig;
             setupEventHandlers(plugin);
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
-            markPrototypeProcessed(plugin);
             Object.keys(plugin).forEach((key: string) => {
                 if (plugin[key] !== null && plugin[key] !== undefined) {
+                    setupParentReference((plugin as any)[key], plugin);
                     setupMLInjects((plugin as any)[key], plugin.ModLoader);
                     setupCoreInject((plugin as any)[key], this.loaded_core);
                     setupEventHandlers((plugin as any)[key]);
@@ -188,6 +192,28 @@ class pluginLoader {
                     markPrototypeProcessed((plugin as any)[key]);
                 }
             });
+            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children.length; i++) {
+                setupParentReference(children[i], plugin);
+                setupMLInjects(children[i], plugin.ModLoader);
+                setupCoreInject(children[i], this.loaded_core);
+                setupEventHandlers(children[i]);
+                setupNetworkHandlers(children[i]);
+                setupLifecycle(children[i]);
+                markPrototypeProcessed(children[i]);
+                Object.keys(children[i]).forEach((key: string) => {
+                    if (children[i][key] !== null && children[i][key] !== undefined) {
+                        setupParentReference((children[i] as any)[key], plugin);
+                        setupMLInjects((children[i] as any)[key], plugin.ModLoader);
+                        setupCoreInject((children[i] as any)[key], this.loaded_core);
+                        setupEventHandlers((children[i] as any)[key]);
+                        setupNetworkHandlers((children[i] as any)[key]);
+                        setupLifecycle((children[i] as any)[key]);
+                        markPrototypeProcessed((children[i] as any)[key]);
+                    }
+                });
+            }
+            markPrototypeProcessed(plugin);
             Object.defineProperty(plugin, 'metadata', {
                 value: pkg,
                 writable: false,
@@ -196,10 +222,27 @@ class pluginLoader {
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
             internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
+            if (pkg.hasOwnProperty("HDTextures")) {
+                this.logger.info(parse.name + " has HD textures.");
+                let high_res_folder: string = "./emulator/hires_texture";
+                if (!fs.existsSync(high_res_folder)) {
+                    fs.mkdirSync(high_res_folder);
+                }
+                let mod_res_folder: string = path.resolve(dir, "hires_texture");
+                fs.copySync(mod_res_folder, high_res_folder);
+            }
         }
     }
 
     loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
+        let high_res_folder: string = "./emulator/hires_texture";
+        if (fs.existsSync(high_res_folder)) {
+            fs.removeSync(high_res_folder);
+        }
+        let high_res_cache_folder: string = "./emulator/cache";
+        if (fs.existsSync(high_res_cache_folder)) {
+            fs.removeSync(high_res_cache_folder);
+        }
         // Start the core plugin.
         this.header = header;
         if (overrideCore !== '') {
@@ -243,9 +286,9 @@ class pluginLoader {
             let order: ModLoadOrder = new ModLoadOrder();
             order = JSON.parse(fs.readFileSync("./load_order.json").toString());
             this.logger.info("Using load order saved from GUI...");
-            Object.keys(order.loadOrder).forEach((key: string)=>{
+            Object.keys(order.loadOrder).forEach((key: string) => {
                 let temp = path.resolve(".", "mods", key);
-                if (order.loadOrder[key]){
+                if (order.loadOrder[key]) {
                     this.processFolder(temp);
                 }
             });
