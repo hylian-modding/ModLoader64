@@ -81,6 +81,9 @@ commander_1["default"].allowUnknownOption(true);
 commander_1["default"].parse(process.argv);
 var original_dir = process.cwd();
 process.chdir(path_1["default"].join(__dirname, "../"));
+if (!fs_1["default"].existsSync("./SDK-config.json")) {
+    console.log("This copy of the ModLoader64 SDK appears to have been improperly installed. Please consult the instructions and reinstall.");
+}
 var sdk_cfg = JSON.parse(fs_1["default"].readFileSync("./SDK-config.json").toString());
 process.chdir(original_dir);
 var tsconfig_path = path_1["default"].resolve(path_1["default"].join("./", "tsconfig.json"));

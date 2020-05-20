@@ -49,6 +49,9 @@ interface SDKCFG {
 
 let original_dir: string = process.cwd();
 process.chdir(path.join(__dirname, "../"));
+if (!fs.existsSync("./SDK-config.json")){
+    console.log("This copy of the ModLoader64 SDK appears to have been improperly installed. Please consult the instructions and reinstall.");
+}
 let sdk_cfg: SDKCFG = JSON.parse(fs.readFileSync("./SDK-config.json").toString());
 process.chdir(original_dir);
 
