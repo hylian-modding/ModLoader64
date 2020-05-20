@@ -433,8 +433,17 @@ if (!WAITING_ON_EXTERNAL) {
         process.chdir(path.join(".", "dist"));
         fs.readdirSync(".").forEach((file: string) => {
             let p: string = path.join(".", file);
+            let meta: string = path.join(p, "package.json");
+            let alg = "";
+            let m = JSON.parse(fs.readFileSync(meta).toString());
+            if (m.hasOwnProperty("compression")) {
+                alg = "--algo=" + m["compression"];
+            }
             if (fs.lstatSync(p).isDirectory()) {
-                child_process.execSync("node " + path.join(f1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                let d = child_process.exec("node " + path.join(f1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
+                d.stdout.on('data', (buf: Buffer) => {
+                    console.log(buf.toString());
+                });
                 console.log("Generated pak for " + file + ".");
             }
         });

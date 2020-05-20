@@ -463,8 +463,17 @@ if (!WAITING_ON_EXTERNAL) {
         process.chdir(path_1["default"].join(".", "dist"));
         fs_1["default"].readdirSync(".").forEach(function (file) {
             var p = path_1["default"].join(".", file);
+            var meta = path_1["default"].join(p, "package.json");
+            var alg = "";
+            var m = JSON.parse(fs_1["default"].readFileSync(meta).toString());
+            if (m.hasOwnProperty("compression")) {
+                alg = "--algo=" + m["compression"];
+            }
             if (fs_1["default"].lstatSync(p).isDirectory()) {
-                child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\"");
+                var d = child_process_1["default"].exec("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
+                d.stdout.on('data', function (buf) {
+                    console.log(buf.toString());
+                });
                 console.log("Generated pak for " + file + ".");
             }
         });
