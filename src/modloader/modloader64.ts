@@ -361,9 +361,13 @@ class ModLoader64 {
                     }
                     return evt.rom;
                 }) as IMemory;
-                while (!instance.emulator.isEmulatorReady()) { }
-                internal_event_bus.emit('emulator_started', {});
-                resolve();
+                let wait = setInterval(()=>{
+                    if (instance.emulator.isEmulatorReady()){
+                        clearInterval(wait);
+                        internal_event_bus.emit('emulator_started', {});
+                        resolve();
+                    }
+                }, 1);
             });
             load_mupen.then(function () {
                 instance.logger.info('Finishing plugin init...');
