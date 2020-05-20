@@ -8,13 +8,6 @@ import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
 //require('source-map-support').install();
-const debug = true;
-if (debug) {
-    var heapdump = require('heapdump');
-    setInterval(() => {
-        heapdump.writeSnapshot(path.resolve('./' + Date.now() + '.heapsnapshot'));
-    }, (60 * 60) * 1000);
-}
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];
@@ -150,6 +143,12 @@ let stringify = new MonkeyPatch_Stringify();
 stringify.patch();
 let parse = new MonkeyPatch_Parse();
 parse.patch();
+
+setInterval(() => {
+    try {
+        global.gc();
+    } catch (err) { }
+}, 60 * 1000);
 
 if (program.update) {
     let updateProcess = fork(__dirname + '/updater/updateModLoader.js');
