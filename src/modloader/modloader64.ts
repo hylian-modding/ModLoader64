@@ -30,6 +30,7 @@ import moduleAlias from 'module-alias';
 import { RomPatchType, registerPatchType, PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsServer } from '../analytics/AnalyticsServer';
+import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -48,6 +49,7 @@ class ModLoader64 {
     roms: string[];
     Server: NetworkEngine.Server;
     Client: NetworkEngine.Client;
+    RPC: ModLoaderRPC;
     Analytics_Server: AnalyticsServer;
     rom_path!: string;
     emulator!: IConsole;
@@ -82,6 +84,7 @@ class ModLoader64 {
         this.Analytics_Server = new AnalyticsServer(this.logger.getLogger("Analytics"));
         this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
         this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config);
+        this.RPC = new ModLoaderRPC();
 
         if (process.platform === 'win32') {
             let rl = require('readline').createInterface({
@@ -184,11 +187,11 @@ class ModLoader64 {
                 if (!fs.lstatSync(f).isDirectory()) {
                     let parse = path.parse(file);
                     if (parse.ext === '.js') {
-                        try{
+                        try {
                             let p = require(path.resolve(f))[parse.name];
                             this.plugins.registerCorePlugin(parse.name, new p() as ICore);
                             this.logger.info('Auto-wiring core: ' + parse.name);
-                        }catch(err){
+                        } catch (err) {
                         }
                     }
                 }
@@ -228,16 +231,16 @@ class ModLoader64 {
             }
         });
         switch (this.data.selectedConsole) {
-        case 'N64': {
-            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
-            if (this.data.isServer) {
-                this.emulator = new FakeMupen(this.rom_path);
+            case 'N64': {
+                moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+                if (this.data.isServer) {
+                    this.emulator = new FakeMupen(this.rom_path);
+                }
+                if (this.data.isClient) {
+                    this.emulator = new N64(this.rom_path, this.logger);
+                }
+                break;
             }
-            if (this.data.isClient) {
-                this.emulator = new N64(this.rom_path, this.logger);
-            }
-            break;
-        }
         }
         internal_event_bus.emit('preinit_done', {});
         bus.on('SOFT_RESET_PRESSED', () => {
@@ -304,6 +307,7 @@ class ModLoader64 {
         }
         if (this.data.isClient) {
             this.Client.setup();
+            this.RPC.setup();
         }
         internal_event_bus.emit('onInitDone', {});
     }
@@ -361,8 +365,8 @@ class ModLoader64 {
                     }
                     return evt.rom;
                 }) as IMemory;
-                let wait = setInterval(()=>{
-                    if (instance.emulator.isEmulatorReady()){
+                let wait = setInterval(() => {
+                    if (instance.emulator.isEmulatorReady()) {
                         clearInterval(wait);
                         internal_event_bus.emit('emulator_started', {});
                         resolve();
