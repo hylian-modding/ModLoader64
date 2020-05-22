@@ -192,26 +192,34 @@ class pluginLoader {
                     markPrototypeProcessed((plugin as any)[key]);
                 }
             });
-            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-            for (let i = 0; i < children.length; i++) {
-                setupParentReference(children[i], plugin);
-                setupMLInjects(children[i], plugin.ModLoader);
-                setupCoreInject(children[i], this.loaded_core);
-                setupEventHandlers(children[i]);
-                setupNetworkHandlers(children[i]);
-                setupLifecycle(children[i]);
-                markPrototypeProcessed(children[i]);
-                Object.keys(children[i]).forEach((key: string) => {
-                    if (children[i][key] !== null && children[i][key] !== undefined) {
-                        setupParentReference((children[i] as any)[key], plugin);
-                        setupMLInjects((children[i] as any)[key], plugin.ModLoader);
-                        setupCoreInject((children[i] as any)[key], this.loaded_core);
-                        setupEventHandlers((children[i] as any)[key]);
-                        setupNetworkHandlers((children[i] as any)[key]);
-                        setupLifecycle((children[i] as any)[key]);
-                        markPrototypeProcessed((children[i] as any)[key]);
+
+            let fn = (instance: any, parent: any) => {
+                setupParentReference(instance, parent);
+                setupMLInjects(instance, parent.ModLoader);
+                setupCoreInject(instance, this.loaded_core);
+                setupEventHandlers(instance);
+                setupNetworkHandlers(instance);
+                setupLifecycle(instance);
+                Object.keys(instance).forEach((key: string) => {
+                    if (instance[key] !== null && instance[key] !== undefined) {
+                        setupParentReference((instance as any)[key], parent);
+                        setupMLInjects((instance as any)[key], plugin.ModLoader);
+                        setupCoreInject((instance as any)[key], this.loaded_core);
+                        setupEventHandlers((instance as any)[key]);
+                        setupNetworkHandlers((instance as any)[key]);
+                        setupLifecycle((instance as any)[key]);
+                        markPrototypeProcessed((instance as any)[key]);
                     }
                 });
+                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                for (let i = 0; i < children.length; i++) {
+                    fn(children[i], plugin);
+                }
+                markPrototypeProcessed(instance);
+            };
+            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children.length; i++) {
+                fn(children[i], plugin);
             }
             markPrototypeProcessed(plugin);
             Object.defineProperty(plugin, 'metadata', {

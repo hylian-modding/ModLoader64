@@ -33,7 +33,7 @@ import {
     UDPPacket,
 } from 'modloader64_api/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
-import fs, { rmdir } from 'fs';
+import fs from 'fs';
 import { internal_event_bus } from './modloader64';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
@@ -143,7 +143,6 @@ export class LobbyManagerAbstract implements ILobbyManager {
 namespace NetworkEngine {
     export class Server implements ILobbyManager {
         io: any;
-        encrypt = require('socket.io-encrypt');
         logger: ILogger;
         masterConfig: IConfig;
         config: IServerConfig;
@@ -242,7 +241,6 @@ namespace NetworkEngine {
             this.io = require('socket.io')(server);
 
             server.listen(this.config.port);
-            this.io.use(this.encrypt('MELONSUCKS'));
 
             internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
                 this.logger.info('SHUTDOWN DETECTED.');
@@ -522,7 +520,6 @@ namespace NetworkEngine {
         modLoaderconfig: IModLoaderConfig;
         masterConfig: IConfig;
         me!: INetworkPlayer;
-        encrypt = require('socket.io-encrypt');
         udpClient = dgram.createSocket('udp4');
         serverUDPPort = -1;
         isUDPEnabled = false;
@@ -603,7 +600,6 @@ namespace NetworkEngine {
                 inst.socket = inst.io.connect(
                     'http://' + inst.config.ip + ':' + inst.config.port
                 );
-                inst.encrypt('MELONSUCKS')(inst.socket);
                 NetworkSendBus.addListener('msg', (data: IPacketHeader) => {
                     data.player = inst.me;
                     data.lobby = inst.config.lobby;
