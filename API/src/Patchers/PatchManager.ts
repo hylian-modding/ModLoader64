@@ -6,5 +6,4 @@ export interface RomPatchType{
 
 export function registerPatchType(ext: string, def: RomPatchType){
     PatchTypes.set(ext, def);
-    console.log("Registered patch type: " + ext + ".");
 }
