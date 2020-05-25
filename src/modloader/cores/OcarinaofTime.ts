@@ -89,35 +89,40 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.applyVersionPatch("Rom downgrade in progress... (1.1 -> 1.0)", "RevA.bps", ROM_VERSIONS.N0);
         }
         switch (this.rom_header.revision) {
-            case ROM_VERSIONS.DEBUG:
-                global.ModLoader['save_context'] = 0x15e660;
-                global.ModLoader['global_context_pointer'] = 0x157da0;
-                global.ModLoader['overlay_table'] = 0x1162A0;
-                global.ModLoader['link_instance'] = 0x2245B0;
-                global.ModLoader['gui_isShown'] = 0x1C4357;
-                offsets.state = 0x067C;
-                offsets.state2 = 0x0680;
-                offsets.paused = 0x166600;
-                offsets.raw_anim = 0x0200;
-                this.payloads.push(__dirname + '/OOT/OcarinaofTime_debug.payload');
-                break;
-            default:
-                global.ModLoader['save_context'] = 0x11a5d0;
-                global.ModLoader['global_context_pointer'] = 0x11f248;
-                global.ModLoader['overlay_table'] = 0x0e8530;
-                global.ModLoader['link_instance'] = 0x1daa30;
-                global.ModLoader['gui_isShown'] = global.ModLoader['save_context'] + 0xbe613;
-                offsets.state = 0x066c;
-                offsets.state2 = 0x0670;
-                offsets.paused = 0x1c6fa0;
-                offsets.raw_anim = 0x01F0;
-                this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
-                break;
+        case ROM_VERSIONS.DEBUG:
+            global.ModLoader['save_context'] = 0x15e660;
+            global.ModLoader['global_context_pointer'] = 0x157da0;
+            global.ModLoader['overlay_table'] = 0x1162A0;
+            global.ModLoader['link_instance'] = 0x2245B0;
+            global.ModLoader['gui_isShown'] = 0x1C4357;
+            offsets.state = 0x067C;
+            offsets.state2 = 0x0680;
+            offsets.paused = 0x166600;
+            offsets.raw_anim = 0x0200;
+            this.payloads.push(__dirname + '/OOT/OcarinaofTime_debug.payload');
+            break;
+        default:
+            global.ModLoader['save_context'] = 0x11a5d0;
+            global.ModLoader['global_context_pointer'] = 0x11f248;
+            global.ModLoader['overlay_table'] = 0x0e8530;
+            global.ModLoader['link_instance'] = 0x1daa30;
+            global.ModLoader['gui_isShown'] = global.ModLoader['save_context'] + 0xbe613;
+            offsets.state = 0x066c;
+            offsets.state2 = 0x0670;
+            offsets.paused = 0x1c6fa0;
+            offsets.raw_anim = 0x01F0;
+            this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
+            break;
         }
     }
 
     @EventHandler(ModLoaderEvents.ON_SOFT_RESET_PRE)
-    onReset(evt: any) {
+    onReset1(evt: any) {
+        this.isSaveLoaded = false;
+    }
+
+    @EventHandler(ModLoaderEvents.ON_SOFT_RESET_POST)
+    onReset2(evt: any) {
         this.isSaveLoaded = false;
     }
 
