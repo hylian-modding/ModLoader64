@@ -31,6 +31,7 @@ import { RomPatchType, registerPatchType, PatchTypes } from 'modloader64_api/Pat
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsServer } from '../analytics/AnalyticsServer';
 import { ModLoaderRPC } from './rpc/ModLoaderRPC';
+import { Cloudmax } from './Cloudmax';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -145,6 +146,7 @@ class ModLoader64 {
         });
         let BPS = require('./BPS');
         registerPatchType(".bps", new BPS() as RomPatchType);
+        registerPatchType(".txt", new Cloudmax());
         this.preinit();
     }
 
