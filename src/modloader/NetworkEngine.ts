@@ -326,20 +326,31 @@ namespace NetworkEngine {
                     inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
                     socket.on('version', function (packet: VersionPacket) {
                         let mismatch = false;
-                        Object.keys(inst.plugins).forEach((name: string) => {
-                            if (packet.plugins.hasOwnProperty(name)) {
-                                if (inst.plugins[name].version !== packet.plugins[name].version) {
-                                    mismatch = true;
-                                } else {
-                                    inst.logger.info('Plugin ' + name + ' version check passed.');
-                                    if (inst.plugins[name].hash === packet.plugins[name].hash) {
-                                        inst.logger.info('Plugin ' + name + ' hash check passed.');
-                                    } else {
+                        try {
+                            Object.keys(inst.plugins).forEach((name: string) => {
+                                if (packet.plugins.hasOwnProperty(name)) {
+                                    if (inst.plugins[name].version !== packet.plugins[name].version) {
                                         mismatch = true;
+                                    } else {
+                                        inst.logger.info('Plugin ' + name + ' version check passed.');
+                                        if (inst.plugins[name].hash === packet.plugins[name].hash) {
+                                            inst.logger.info('Plugin ' + name + ' hash check passed.');
+                                        } else {
+                                            mismatch = true;
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        } catch (err) {
+                            inst.sendToTarget(socket.id, 'versionBad', {
+                                client: { ml: packet.ml, plugins: packet.plugins, core: packet.core },
+                                server: new VersionPacket(
+                                    global.ModLoader.version,
+                                    inst.plugins,
+                                    inst.core
+                                ),
+                            });
+                        }
                         if (inst.core !== packet.core) {
                             mismatch = true;
                         }
