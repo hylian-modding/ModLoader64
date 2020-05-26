@@ -49,7 +49,7 @@ interface SDKCFG {
 
 let original_dir: string = process.cwd();
 process.chdir(path.join(__dirname, "../"));
-if (!fs.existsSync("./SDK-config.json")){
+if (!fs.existsSync("./SDK-config.json")) {
     console.log("This copy of the ModLoader64 SDK appears to have been improperly installed. Please consult the instructions and reinstall.");
 }
 let sdk_cfg: SDKCFG = JSON.parse(fs.readFileSync("./SDK-config.json").toString());
@@ -436,13 +436,14 @@ if (!WAITING_ON_EXTERNAL) {
         process.chdir(path.join(".", "dist"));
         fs.readdirSync(".").forEach((file: string) => {
             let p: string = path.join(".", file);
-            let meta: string = path.join(p, "package.json");
-            let alg = "";
-            let m = JSON.parse(fs.readFileSync(meta).toString());
-            if (m.hasOwnProperty("compression")) {
-                alg = "--algo=" + m["compression"];
-            }
+            console.log(p);
             if (fs.lstatSync(p).isDirectory()) {
+                let meta: string = path.join(p, "package.json");
+                let alg = "";
+                let m = JSON.parse(fs.readFileSync(meta).toString());
+                if (m.hasOwnProperty("compression")) {
+                    alg = "--algo=" + m["compression"];
+                }
                 let d = child_process.exec("node " + path.join(f1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
                 d.stdout.on('data', (buf: Buffer) => {
                     console.log(buf.toString());
