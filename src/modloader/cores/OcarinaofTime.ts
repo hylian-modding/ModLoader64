@@ -69,7 +69,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
         this.ModLoader.logger.info(msg);
         let r = PatchTypes.get(".bps")!.patch(this.ModLoader.rom.romReadBuffer(0x0, (32 * 1024 * 1024)), fs.readFileSync(path.join(__dirname, "OOT", bps)));
         this.ModLoader.rom.romWriteBuffer(0x0, r);
-        fs.writeFileSync("./wutface.z64", r);
         this.rom_header.revision = target;
     }
 
