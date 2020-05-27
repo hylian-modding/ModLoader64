@@ -42,18 +42,24 @@ export class pakVerifier {
     }
 
     extractPakToTemp(pakFile: Pak, filePath: string): string {
-        let parse = path.parse(filePath);
         let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
         pakFile.extractAll(ndir);
-        return path.join(ndir, parse.name);
+        let d = "";
+        fs.readdirSync(ndir).forEach((dir: string) => {
+            d = dir;
+        });
+        return path.join(ndir, d);
     }
 
     extractPakFileToTarget(pakFile: Pak, filePath: string, dest: string): string {
-        let parse = path.parse(filePath);
         if (!fs.existsSync(dest)) {
             fs.mkdirSync(dest);
         }
         pakFile.extractAll(dest);
-        return path.join(dest, parse.name);
+        let d = "";
+        fs.readdirSync(dest).forEach((dir: string) => {
+            d = dir;
+        });
+        return path.join(dest, d);
     }
 }
