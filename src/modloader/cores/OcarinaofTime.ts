@@ -25,7 +25,7 @@ import { GameShark } from 'modloader64_api/GameShark';
 
 enum ROM_VERSIONS {
     N0 = 0x00,
-    DEBUG = 0x0f,
+    GAMECUBE = 0x0f,
     REV_A = 0x01,
     REV_B = 0x02
 }
@@ -81,6 +81,20 @@ export class OcarinaofTime implements ICore, IOOTCore {
         global.ModLoader["offsets"] = {};
         global.ModLoader["offsets"]["link"] = {} as OOT_Offsets;
         let offsets: OOT_Offsets = global.ModLoader["offsets"]["link"];
+        if (this.rom_header.revision === ROM_VERSIONS.GAMECUBE) {
+            // Check if its the retail Gamecube roms from the collector's edition discs or the actual debug rom.
+            let rom: Buffer = this.ModLoader.rom.romReadBuffer(0x0, (32 * 1024 * 1024));
+            let hash: string = this.ModLoader.utils.hashBuffer(rom);
+            // Is this Master Quest?
+            let mq_GC: string = "da35577fe54579f6a266931cc75f512d";
+            let vanilla_GC: string = "cd09029edcfb7c097ac01986a0f83d3f";
+            if (hash === mq_GC) {
+                this.applyVersionPatch("Rom downgrade in progress... (Ura -> GC)", "UratoGC.bps", ROM_VERSIONS.GAMECUBE);
+                this.applyVersionPatch("Rom downgrade in progress... (GC -> 1.2)", "GCtoRevB.bps", ROM_VERSIONS.REV_B);
+            } else if (hash === vanilla_GC) {
+                this.applyVersionPatch("Rom downgrade in progress... (GC -> 1.2)", "GCtoRevB.bps", ROM_VERSIONS.REV_B);
+            }
+        }
         if (this.rom_header.revision === ROM_VERSIONS.REV_B) {
             this.applyVersionPatch("Rom downgrade in progress... (1.2 -> 1.1)", "RevB.bps", ROM_VERSIONS.REV_A);
         }
@@ -88,7 +102,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.applyVersionPatch("Rom downgrade in progress... (1.1 -> 1.0)", "RevA.bps", ROM_VERSIONS.N0);
         }
         switch (this.rom_header.revision) {
-        case ROM_VERSIONS.DEBUG:
+        case ROM_VERSIONS.GAMECUBE:
             global.ModLoader['save_context'] = 0x15e660;
             global.ModLoader['global_context_pointer'] = 0x157da0;
             global.ModLoader['overlay_table'] = 0x1162A0;
