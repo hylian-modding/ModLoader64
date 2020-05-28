@@ -474,10 +474,7 @@ if (!WAITING_ON_EXTERNAL) {
                 if (m.hasOwnProperty("compression")) {
                     alg = "--algo=" + m["compression"];
                 }
-                var d = child_process_1["default"].exec("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
-                d.stdout.on('data', function (buf) {
-                    console.log(buf.toString());
-                });
+                child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
                 console.log("Generated pak for " + file + ".");
             }
         });
