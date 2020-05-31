@@ -243,14 +243,6 @@ class pluginLoader {
     }
 
     loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
-        let high_res_folder: string = "./emulator/hires_texture";
-        if (fs.existsSync(high_res_folder)) {
-            fs.removeSync(high_res_folder);
-        }
-        let high_res_cache_folder: string = "./emulator/cache";
-        if (fs.existsSync(high_res_cache_folder)) {
-            fs.removeSync(high_res_cache_folder);
-        }
         // Start the core plugin.
         this.header = header;
         if (overrideCore !== '') {
