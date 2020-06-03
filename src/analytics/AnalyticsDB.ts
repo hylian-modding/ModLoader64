@@ -10,7 +10,7 @@ export class AnalyticsDB {
         }
         else {
             this.pak = new Pak(file);
-            this.db = JSON.parse(this.pak.load(0));
+            this.db = JSON.parse(this.pak.load(0).toString());
         }
     }
     store(key: string, data: any): boolean {
