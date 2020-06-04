@@ -65,7 +65,6 @@
     "eslint": "^6.8.0",
     "find-remove": "^2.0.1",
     "form-data": "^3.0.0",
-    "heapdump": "^0.3.15",
     "is-elevated": "^3.0.0",
     "modloader64-platform-deps": "github:hylian-modding/ModLoader64-Platform-Deps",
     "patch-package": "^6.2.1",
