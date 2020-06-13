@@ -32,6 +32,7 @@ import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsServer } from '../analytics/AnalyticsServer';
 import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 import { Cloudmax } from './Cloudmax';
+import { getAllFiles } from './getAllFiles';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -169,22 +170,6 @@ class ModLoader64 {
         );
         this.config.setData('ModLoader64', 'selectedConsole', 'N64');
         this.config.setData('ModLoader64', 'coreOverride', '');
-
-        let getAllFiles = function(dirPath: string, arrayOfFiles: Array<string>) {
-            let files = fs.readdirSync(dirPath);
-           
-            arrayOfFiles = arrayOfFiles || [];
-           
-            files.forEach(function(file) {
-                if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-                    arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
-                } else {
-                    arrayOfFiles.push(path.join(".", dirPath, "/", file));
-                }
-            });
-           
-            return arrayOfFiles;
-        };
 
         let roms = getAllFiles(this.rom_folder, []);
         for (let i = 0; i < roms.length; i++){

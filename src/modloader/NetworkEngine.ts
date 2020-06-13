@@ -43,6 +43,7 @@ import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { ML_UUID } from './uuid/mluuid';
 import { AnalyticsClient } from '../analytics/AnalyticsClient';
 import { Analytics_StorePacket } from 'modloader64_api/analytics/Analytics_StorePacket';
+import { getAllFiles } from './getAllFiles';
 
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
@@ -662,12 +663,22 @@ namespace NetworkEngine {
                         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
                             mods = global.ModLoader.OVERRIDE_MODS_FOLDER;
                         }
-                        ld.data['patch'] = zlib.gzipSync(
-                            fs.readFileSync(
-                                path.resolve(path.join(mods, inst.modLoaderconfig.patch))
-                            )
-                        );
-                        ld.data['patch_name'] = inst.modLoaderconfig.patch;
+                        let files: Array<string> = getAllFiles(mods, []);
+                        let patch_path: string = "";
+                        for (let i = 0; i < files.length; i++) {
+                            let p = path.parse(files[i]);
+                            if (p.base === inst.modLoaderconfig.patch) {
+                                patch_path = files[i];
+                            }
+                        }
+                        if (patch_path !== "") {
+                            ld.data['patch'] = zlib.gzipSync(
+                                fs.readFileSync(
+                                    path.resolve(patch_path)
+                                )
+                            );
+                            ld.data['patch_name'] = inst.modLoaderconfig.patch;
+                        }
                     }
                     inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
                     bus.emit(EventsClient.ON_SERVER_CONNECTION, {});

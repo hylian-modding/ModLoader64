@@ -50,6 +50,7 @@ import { Analytics } from 'modloader64_api/analytics/Analytics';
 import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
+import { getAllFiles } from './getAllFiles';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -106,22 +107,6 @@ class pluginLoader {
         lifecyclebus.on(LifeCycleEvents.ONTICK, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.push(handler);
         });
-    }
-
-    getAllFiles(dirPath: string, arrayOfFiles: Array<string>) {
-        let files = fs.readdirSync(dirPath);
-
-        arrayOfFiles = arrayOfFiles || [];
-
-        files.forEach((file) => {
-            if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-                arrayOfFiles = this.getAllFiles(dirPath + "/" + file, arrayOfFiles);
-            } else {
-                arrayOfFiles.push(path.join(".", dirPath, "/", file));
-            }
-        });
-
-        return arrayOfFiles;
     }
 
     registerCorePlugin(name: string, core: any) {
@@ -304,7 +289,7 @@ class pluginLoader {
             this.logger.info("Using load order saved from GUI...");
             let files: Array<string> = [];
             this.plugin_directories.forEach((dir: string) => {
-                files = this.getAllFiles(dir, files);
+                files = getAllFiles(dir, files);
             });
             Object.keys(order.loadOrder).forEach((key: string) => {
                 for (let i = 0; i < files.length; i++){
