@@ -170,7 +170,30 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'selectedConsole', 'N64');
         this.config.setData('ModLoader64', 'coreOverride', '');
 
-        this.rom_path = path.resolve(path.join(this.rom_folder, this.data['rom']));
+        let getAllFiles = function(dirPath: string, arrayOfFiles: Array<string>) {
+            let files = fs.readdirSync(dirPath);
+           
+            arrayOfFiles = arrayOfFiles || [];
+           
+            files.forEach(function(file) {
+                if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+                    arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+                } else {
+                    arrayOfFiles.push(path.join(".", dirPath, "/", file));
+                }
+            });
+           
+            return arrayOfFiles;
+        };
+
+        let roms = getAllFiles(this.rom_folder, []);
+        for (let i = 0; i < roms.length; i++){
+            let p = path.parse(roms[i]);
+            if (p.base === this.data['rom']){
+                this.rom_path = path.resolve(roms[i]);
+                break;
+            }
+        }
 
         if (path.parse(this.rom_path).ext === ".zip") {
             // Some dumbass tried to load a zip file. Babysit it.
@@ -233,16 +256,16 @@ class ModLoader64 {
             }
         });
         switch (this.data.selectedConsole) {
-            case 'N64': {
-                moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
-                if (this.data.isServer) {
-                    this.emulator = new FakeMupen(this.rom_path);
-                }
-                if (this.data.isClient) {
-                    this.emulator = new N64(this.rom_path, this.logger);
-                }
-                break;
+        case 'N64': {
+            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+            if (this.data.isServer) {
+                this.emulator = new FakeMupen(this.rom_path);
             }
+            if (this.data.isClient) {
+                this.emulator = new N64(this.rom_path, this.logger);
+            }
+            break;
+        }
         }
         internal_event_bus.emit('preinit_done', {});
         bus.on('SOFT_RESET_PRESSED', () => {

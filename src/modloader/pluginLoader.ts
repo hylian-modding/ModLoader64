@@ -108,6 +108,22 @@ class pluginLoader {
         });
     }
 
+    getAllFiles(dirPath: string, arrayOfFiles: Array<string>) {
+        let files = fs.readdirSync(dirPath);
+
+        arrayOfFiles = arrayOfFiles || [];
+
+        files.forEach((file) => {
+            if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+                arrayOfFiles = this.getAllFiles(dirPath + "/" + file, arrayOfFiles);
+            } else {
+                arrayOfFiles.push(path.join(".", dirPath, "/", file));
+            }
+        });
+
+        return arrayOfFiles;
+    }
+
     registerCorePlugin(name: string, core: any) {
         this.core_plugins[name] = core;
     }
@@ -286,10 +302,17 @@ class pluginLoader {
             let order: ModLoadOrder = new ModLoadOrder();
             order = JSON.parse(fs.readFileSync("./load_order.json").toString());
             this.logger.info("Using load order saved from GUI...");
+            let files: Array<string> = [];
+            this.plugin_directories.forEach((dir: string) => {
+                files = this.getAllFiles(dir, files);
+            });
             Object.keys(order.loadOrder).forEach((key: string) => {
-                let temp = path.resolve(".", "mods", key);
-                if (order.loadOrder[key]) {
-                    this.processFolder(temp);
+                for (let i = 0; i < files.length; i++){
+                    let p = path.parse(files[i]).base;
+                    if (p === key && order.loadOrder[key] === true){
+                        this.processFolder(path.resolve(files[i]));
+                        break;
+                    }
                 }
             });
         } else {
