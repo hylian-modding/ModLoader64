@@ -81,9 +81,9 @@ function getEmulator() {
         fs.mkdirSync("./Mupen64Plus");
     }
     if (platformkey.indexOf("win32") > -1) {
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.tar.gz", "./Mupen64Plus/emulator.tar.gz");
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
     } else if (platformkey.indexOf("linux") > -1) {
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.tar.gz", "./Mupen64Plus/emulator.tar.gz");
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./Mupen64Plus/emulator.pak");
     }
 }
 
@@ -125,19 +125,19 @@ function pushModules() {
         //fs.copySync("./build", "./dist/mac");
         //fs.copySync("./build", "./dist/switch");
         console.log("Copying emulator files...");
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.tar.gz", "./dist/windows/emulator_windows.tar.gz");
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./dist/windows/emulator_windows.pak");
         process.chdir("./dist/windows");
-        child_process.execSync("npx tar -xzvf ./emulator_windows.tar.gz");
+        child_process.execSync("paker -i ./emulator_windows.pak -o ./");
         process.chdir(original_dir);
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.tar.gz", "./dist/linux/emulator_linux.tar.gz");
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./dist/linux/emulator_linux.pak");
         process.chdir("./dist/linux");
-        child_process.execSync("npx tar -xzvf ./emulator_linux.tar.gz");
+        child_process.execSync("paker -i ./emulator_linux.pak -o ./");
         process.chdir(original_dir);
-        if (fs.existsSync("./dist/windows/emulator_windows.tar.gz")) {
-            fs.unlinkSync("./dist/windows/emulator_windows.tar.gz");
+        if (fs.existsSync("./dist/windows/emulator_windows.pak")) {
+            fs.unlinkSync("./dist/windows/emulator_windows.pak");
         }
-        if (fs.existsSync("./dist/linux/emulator_linux.tar.gz")) {
-            fs.unlinkSync("./dist/linux/emulator_linux.tar.gz");
+        if (fs.existsSync("./dist/linux/emulator_linux.pak")) {
+            fs.unlinkSync("./dist/linux/emulator_linux.pak");
         }
         console.log("Building paks...");
         process.chdir("./dist");
