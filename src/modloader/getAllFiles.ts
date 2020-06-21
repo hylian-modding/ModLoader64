@@ -11,7 +11,7 @@ export function getAllFiles(dirPath: string, arrayOfFiles: Array<string>) {
             arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
         }
         else {
-            arrayOfFiles.push(path.join(".", dirPath, "/", file));
+            arrayOfFiles.push(path.join(dirPath, "/", file));
         }
     });
 
