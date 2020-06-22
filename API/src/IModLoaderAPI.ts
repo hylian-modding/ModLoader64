@@ -54,6 +54,7 @@ export interface IModLoaderAPI {
   analytics: IAnalytics;
   isClient: boolean;
   isServer: boolean;
+  isModLoaded(modid: string): boolean;
 }
 
 export interface IPlugin {

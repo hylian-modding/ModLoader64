@@ -172,7 +172,7 @@ class pluginLoader {
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
             Object.defineProperty(plugin, 'pluginName', {
-                value: parse.name,
+                value: pkg.name,
                 writable: false,
             });
             let mlconfig = this.config.registerConfigCategory(
@@ -292,9 +292,9 @@ class pluginLoader {
                 files = getAllFiles(dir, files);
             });
             Object.keys(order.loadOrder).forEach((key: string) => {
-                for (let i = 0; i < files.length; i++){
+                for (let i = 0; i < files.length; i++) {
                     let p = path.parse(files[i]).base;
-                    if (p === key && order.loadOrder[key] === true){
+                    if (p === key && order.loadOrder[key] === true) {
                         this.processFolder(path.resolve(files[i]));
                         break;
                     }
@@ -350,6 +350,16 @@ class pluginLoader {
             return this.processNextFrame;
         };
 
+        let fn = (modid: string): boolean => {
+            for (let i = 0; i < this.plugins.length; i++) {
+                if (this.plugins[i].pluginName === modid) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        fn = Object.freeze(fn);
+
         // Monkey patch Yaz0Encode to have a cache.
         let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils);
         monkeypatch.patch();
@@ -373,6 +383,7 @@ class pluginLoader {
             this.loaded_core.ModLoader.analytics = analytics;
             this.loaded_core.ModLoader.isClient = mlconfig.isClient;
             this.loaded_core.ModLoader.isServer = mlconfig.isServer;
+            this.loaded_core.ModLoader.isModLoaded = fn;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -394,6 +405,7 @@ class pluginLoader {
             plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.isClient = mlconfig.isClient;
             plugin.ModLoader.isServer = mlconfig.isServer;
+            plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             value();
