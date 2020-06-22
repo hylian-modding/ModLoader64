@@ -22,6 +22,7 @@ import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { Command } from 'modloader64_api/OOT/ICommandBuffer';
 import { GameShark } from 'modloader64_api/GameShark';
+import { onPostTick } from 'modloader64_api/PluginLifecycle';
 
 enum ROM_VERSIONS {
     N0 = 0x00,
@@ -239,6 +240,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 value();
             });
         }
+    }
+
+    @onPostTick()
+    onPostTick(){
+        this.link.current_sound_id = 0;
     }
 
     @EventHandler(EventsClient.ON_INJECT_FINISHED)
