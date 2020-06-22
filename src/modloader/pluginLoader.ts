@@ -95,6 +95,7 @@ class pluginLoader {
         this.lifecycle_funcs.set(LifeCycleEvents.INIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.POSTINIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONTICK, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONPOSTTICK, []);
         lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
         });
@@ -106,6 +107,9 @@ class pluginLoader {
         });
         lifecyclebus.on(LifeCycleEvents.ONTICK, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONPOSTTICK, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.push(handler);
         });
     }
 
@@ -268,6 +272,7 @@ class pluginLoader {
 
         setupEventHandlers(this.loaded_core);
         setupNetworkHandlers(this.loaded_core);
+        setupLifecycle(this.loaded_core);
         markPrototypeProcessed(this.loaded_core);
         Object.keys(this.loaded_core).forEach((key: string) => {
             if ((this.loaded_core as any)[key] !== null && (this.loaded_core as any)[key] !== undefined) {
@@ -431,6 +436,9 @@ class pluginLoader {
             if (frame > -1) {
                 this.loaded_core.onTick(frame);
                 this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                    value(frame);
+                });
+                this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
                     value(frame);
                 });
                 net.onTick();

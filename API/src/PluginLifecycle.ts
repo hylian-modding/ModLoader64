@@ -8,7 +8,8 @@ export const enum LifeCycleEvents {
     PREINIT = "preinit",
     INIT = "init",
     POSTINIT = "postinit",
-    ONTICK = "ontick"
+    ONTICK = "ontick",
+    ONPOSTTICK = 'onposttick'
 }
 
 export function Preinit() {
@@ -103,6 +104,29 @@ export function onTick() {
     };
 }
 
+export function onPostTick() {
+    return function (
+        this: any,
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        if (target.ModLoader === undefined) {
+            target['ModLoader'] = {};
+        }
+        if (target.ModLoader.Lifecycle === undefined) {
+            target.ModLoader['Lifecycle'] = {};
+        }
+        if (target.ModLoader.Lifecycle.onPostTick === undefined) {
+            target.ModLoader.Lifecycle['onPostTick'] = new Map<
+                string,
+                string
+            >();
+        }
+        target.ModLoader.Lifecycle.onPostTick.set("onPostTick", propertyKey);
+    };
+}
+
 export function setupLifecycle(instance: any) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
@@ -132,6 +156,12 @@ export function setupLifecycle(instance: any) {
                 p.ModLoader.Lifecycle.onTick.forEach(function (value: string, key: string) {
                     let a = (instance as any)[value].bind(instance);
                     lifecyclebus.emit(LifeCycleEvents.ONTICK, a);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onPostTick")) {
+                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: string, key: string) {
+                    let a = (instance as any)[value].bind(instance);
+                    lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
                 });
             }
         }
