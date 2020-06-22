@@ -356,7 +356,7 @@ class pluginLoader {
                     return true;
                 }
             }
-            return false;
+            return this.core_plugins.hasOwnProperty(modid);
         };
         fn = Object.freeze(fn);
 
