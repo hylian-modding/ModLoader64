@@ -474,7 +474,7 @@ if (!WAITING_ON_EXTERNAL) {
                 if (m.hasOwnProperty("compression")) {
                     alg = "--algo=" + m["compression"];
                 }
-                child_process_1["default"].execSync("node " + path_1["default"].join(f1_1, "/bin/paker.js") + " --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
+                child_process_1["default"].execSync("node \"" + path_1["default"].join(f1_1, "/bin/paker.js") + "\" --dir=\"" + "./" + p + "\" --output=\"" + "./" + "\" " + alg);
                 console.log("Generated pak for " + file + ".");
             }
         });
