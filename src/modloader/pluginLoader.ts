@@ -148,11 +148,30 @@ class pluginLoader {
             return;
         }
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
-        if (pkg.core !== this.selected_core && pkg.core !== '*') {
-            this.logger.info(
-                'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
-            );
-            return;
+        if (typeof pkg.core === "string"){
+            if (pkg.core !== this.selected_core && pkg.core !== '*') {
+                this.logger.info(
+                    'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
+                );
+                return;
+            }
+    
+        }
+
+        if (pkg.core instanceof Array){
+            let possibles: Array<string> = pkg.core as Array<string>;
+            let yes: boolean = false;
+            for (let i = 0; i < possibles.length; i++){
+                if (possibles[i] === this.selected_core){
+                    yes = true;
+                }
+            }
+            if (!yes){
+                this.logger.info(
+                    'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
+                );
+                return;
+            }
         }
 
         this.logger.info('--------------------');
@@ -250,6 +269,7 @@ class pluginLoader {
     loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
         // Start the core plugin.
         this.header = header;
+        global.ModLoader["ROM_HEADER"] = Object.freeze(this.header);
         if (overrideCore !== '') {
             this.selected_core = overrideCore;
         }

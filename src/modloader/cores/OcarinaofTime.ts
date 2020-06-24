@@ -21,17 +21,16 @@ import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { Command } from 'modloader64_api/OOT/ICommandBuffer';
-import { GameShark } from 'modloader64_api/GameShark';
 import { onPostTick } from 'modloader64_api/PluginLifecycle';
 
-enum ROM_VERSIONS {
+export enum ROM_VERSIONS {
     N0 = 0x00,
     GAMECUBE = 0x0f,
     REV_A = 0x01,
     REV_B = 0x02
 }
 
-enum ROM_REGIONS {
+export enum ROM_REGIONS {
     NTSC = "CZL",
     PAL = "NZL"
 }
@@ -41,10 +40,11 @@ export interface OOT_Offsets {
     state2: number;
     paused: number;
     raw_anim: number;
+    dma_rom: number;
 }
 
 export class OcarinaofTime implements ICore, IOOTCore {
-    header = ROM_REGIONS.NTSC;
+    header = [ROM_REGIONS.NTSC, ROM_REGIONS.PAL];
     ModLoader!: IModLoaderAPI;
     payloads: string[] = new Array<string>();
     link!: ILink;
@@ -113,6 +113,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
             offsets.state2 = 0x0680;
             offsets.paused = 0x166600;
             offsets.raw_anim = 0x0200;
+            offsets.dma_rom = 0x00012F70;
+            global.ModLoader['isDebugRom'] = true;
             this.payloads.push(__dirname + '/OOT/OcarinaofTime_debug.payload');
             break;
         default:
@@ -125,6 +127,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
             offsets.state2 = 0x0670;
             offsets.paused = 0x1c6fa0;
             offsets.raw_anim = 0x01F0;
+            offsets.dma_rom = 0x00007430;
+            global.ModLoader['isDebugRom'] = false;
             this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
             break;
         }

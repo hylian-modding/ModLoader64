@@ -7,7 +7,7 @@ import { fork } from 'child_process';
 import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
-//require('source-map-support').install();
+require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'SpiceyWolf'];

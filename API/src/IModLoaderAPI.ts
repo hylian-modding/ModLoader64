@@ -67,7 +67,7 @@ export interface IPlugin {
 }
 
 export interface ICore {
-  header: string;
+  header: string | string[];
   ModLoader: IModLoaderAPI;
   rom_header?: IRomHeader;
   preinit(): void;

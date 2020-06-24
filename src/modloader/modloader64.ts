@@ -180,6 +180,10 @@ class ModLoader64 {
             }
         }
 
+        if (this.rom_path === undefined){
+            this.rom_path = "";
+        }
+
         if (path.parse(this.rom_path).ext === ".zip") {
             // Some dumbass tried to load a zip file. Babysit it.
             let temp: string = fs.mkdtempSync("ModLoader64_temp_");
@@ -202,6 +206,7 @@ class ModLoader64 {
                             this.plugins.registerCorePlugin(parse.name, new p() as ICore);
                             this.logger.info('Auto-wiring core: ' + parse.name);
                         } catch (err) {
+                            console.log(err);
                         }
                     }
                 }
@@ -279,9 +284,18 @@ class ModLoader64 {
         if (fs.existsSync(this.rom_path)) {
             this.logger.info('Parsing rom header...');
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-                if (loaded_rom_header.id === this.plugins.core_plugins[key].header) {
-                    core_match = this.plugins.core_plugins[key];
-                    core_key = key;
+                if (typeof this.plugins.core_plugins[key].header === "string"){
+                    if (loaded_rom_header.id === this.plugins.core_plugins[key].header) {
+                        core_match = this.plugins.core_plugins[key];
+                        core_key = key;
+                    }
+                }else if (this.plugins.core_plugins[key].header instanceof Array){
+                    for (let i = 0; i < this.plugins.core_plugins[key].header.length; i++){
+                        if (loaded_rom_header.id === this.plugins.core_plugins[key].header[i]) {
+                            core_match = this.plugins.core_plugins[key];
+                            core_key = key;
+                        }
+                    }
                 }
             });
         }

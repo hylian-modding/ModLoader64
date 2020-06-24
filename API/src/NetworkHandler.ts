@@ -132,7 +132,7 @@ export const ClientController: INetwork = new Client();
 export interface INetworkPlayer {
   nickname: string;
   uuid: string;
-  isSamePlayer(compare: INetworkPlayer): boolean;
+  data: any;
 }
 
 export const enum SocketType {

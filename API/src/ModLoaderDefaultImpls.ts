@@ -3,14 +3,11 @@ import { INetworkPlayer, IPacketHeader, SocketType } from './NetworkHandler';
 export class NetworkPlayer implements INetworkPlayer {
   nickname: string;
   uuid: string;
+  data: any = {};
 
   constructor(nickname: string, uuid: string) {
       this.nickname = nickname;
       this.uuid = uuid;
-  }
-
-  isSamePlayer(compare: INetworkPlayer): boolean {
-      return compare.nickname === this.nickname && compare.uuid === this.uuid;
   }
 }
 

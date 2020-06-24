@@ -89,14 +89,11 @@ class LobbyJoin {
 class FakeNetworkPlayer implements INetworkPlayer {
     nickname: string;
     uuid!: string;
+    data: any = {};
 
     constructor() {
         this.nickname = 'FakeNetworkPlayer';
         this.uuid = ML_UUID.getUUID();
-    }
-
-    isSamePlayer(compare: INetworkPlayer): boolean {
-        return compare.nickname === this.nickname && compare.uuid === this.uuid;
     }
 }
 
