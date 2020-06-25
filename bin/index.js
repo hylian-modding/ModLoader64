@@ -1,5 +1,24 @@
 #!/usr/bin/env node
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,13 +58,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 exports.__esModule = true;
 var commander_1 = __importDefault(require("commander"));
 var path_1 = __importDefault(require("path"));
@@ -79,6 +91,18 @@ commander_1["default"].option("-e, --external <tool>");
 commander_1["default"].option("-w, --window gui window");
 commander_1["default"].allowUnknownOption(true);
 commander_1["default"].parse(process.argv);
+function makeSymlink(src, dest) {
+    try {
+        var p = path_1["default"].parse(dest);
+        if (!fs_1["default"].existsSync(p.dir)) {
+            fs_1["default"].mkdirSync(p.dir);
+        }
+        fs_extra_1["default"].symlinkSync(src, dest, 'junction');
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
 var original_dir = process.cwd();
 process.chdir(path_1["default"].join(__dirname, "../"));
 if (!fs_1["default"].existsSync("./SDK-config.json")) {
@@ -185,10 +209,10 @@ function install(url) {
                 case 0: return [4 /*yield*/, isElevated()];
                 case 1:
                     elv = _a.sent();
-                    if (!elv && platformkey.indexOf("win32") > -1) {
-                        console.log("Install must be run as administrator on Windows!");
-                        return [2 /*return*/];
-                    }
+                    /*         if (!elv && platformkey.indexOf("win32") > -1) {
+                                console.log("Install must be run as administrator on Windows!");
+                                return;
+                            } */
                     console.log("Installing " + url + "...");
                     original_dir = process.cwd();
                     deps_dir = path_1["default"].join("./", "external_cores");
@@ -258,7 +282,7 @@ function install(url) {
                             var f = path_1["default"].join(c, dir);
                             if (fs_1["default"].lstatSync(f).isDirectory()) {
                                 try {
-                                    fs_extra_1["default"].symlinkSync(f, path_1["default"].resolve(path_1["default"].join("./libs", path_1["default"].parse(f).name)));
+                                    fs_extra_1["default"].symlinkSync(f, path_1["default"].resolve(path_1["default"].join("./libs", path_1["default"].parse(f).name)), 'junction');
                                 }
                                 catch (err) {
                                     if (err) {
@@ -310,22 +334,21 @@ if (!WAITING_ON_EXTERNAL) {
             }
             fs_1["default"].writeFileSync(path_1["default"].join(".", "package.json"), JSON.stringify(mod_pkg_1, null, 2));
             child_process_1["default"].execSync("npm install");
+            if (!fs_1["default"].existsSync("./node_modules")) {
+                fs_1["default"].mkdirSync("./node_modules");
+            }
             console.log("Linking ModLoader64 API to project...");
             console.log("This might take a moment. Please be patient.");
             var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
             Object.keys(our_pkg.dependencies).forEach(function (key) {
-                if (key.indexOf("modloader64") === -1) {
-                    child_process_1["default"].execSync("npm link " + key);
-                }
+                makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
             });
             Object.keys(our_pkg.devDependencies).forEach(function (key) {
-                if (key.indexOf("modloader64") === -1) {
-                    child_process_1["default"].execSync("npm link " + key);
-                }
+                makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
             });
-            child_process_1["default"].execSync("npm link " + "modloader64_api");
+            makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", "modloader64_api"), path_1["default"].resolve(original_dir_3, "node_modules", "modloader64_api"));
             console.log("Setting up TypeScript compiler...");
-            child_process_1["default"].execSync("tsc --init");
+            child_process_1["default"].execSync("npx tsc --init");
             fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
             if (fs_1["default"].existsSync(tsconfig_path)) {
                 tsconfig = JSON.parse(stripJsonComments(fs_1["default"].readFileSync(tsconfig_path).toString()));
