@@ -30,7 +30,7 @@ import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
-import { Pak } from 'modloader64_api/PakFormat';
+import { Pak, PakFooter } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
@@ -51,6 +51,7 @@ import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 import { getAllFiles } from './getAllFiles';
+import zip from 'adm-zip';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -137,6 +138,19 @@ class pluginLoader {
             dir = v.extractPakToTemp(pakFile, dir);
             hash = pakFile.pak.footer._hash;
         }
+        if (parse.ext === ".zip") {
+            let zipFile: zip = new zip(path.resolve(dir));
+            let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
+            zipFile.extractAllTo(ndir);
+            let d = "";
+            fs.readdirSync(ndir).forEach((dir: string) => {
+                d = dir;
+            });
+            dir = path.join(ndir, d);
+            let f = new PakFooter();
+            f.generateHash(zipFile.toBuffer());
+            hash = f._hash;
+        }
         if (!fs.lstatSync(path.resolve(dir)).isDirectory()) {
             return;
         }
@@ -148,25 +162,25 @@ class pluginLoader {
             return;
         }
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
-        if (typeof pkg.core === "string"){
+        if (typeof pkg.core === "string") {
             if (pkg.core !== this.selected_core && pkg.core !== '*') {
                 this.logger.info(
                     'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
                 );
                 return;
             }
-    
+
         }
 
-        if (pkg.core instanceof Array){
+        if (pkg.core instanceof Array) {
             let possibles: Array<string> = pkg.core as Array<string>;
             let yes: boolean = false;
-            for (let i = 0; i < possibles.length; i++){
-                if (possibles[i] === this.selected_core){
+            for (let i = 0; i < possibles.length; i++) {
+                if (possibles[i] === this.selected_core) {
                     yes = true;
                 }
             }
-            if (!yes){
+            if (!yes) {
                 this.logger.info(
                     'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
                 );
