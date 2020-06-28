@@ -33,6 +33,7 @@ import { AnalyticsServer } from '../analytics/AnalyticsServer';
 import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
+import { PakPatch } from './PakPatch';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -148,6 +149,7 @@ class ModLoader64 {
         let BPS = require('./BPS');
         registerPatchType(".bps", new BPS() as RomPatchType);
         registerPatchType(".txt", new Cloudmax());
+        registerPatchType(".pak", new PakPatch());
         this.preinit();
     }
 
