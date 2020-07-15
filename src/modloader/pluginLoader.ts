@@ -451,17 +451,20 @@ class pluginLoader {
         });
     }
 
+    resetPlayerInstance(me: INetworkPlayer) {
+        this.loaded_core.ModLoader.me = me;
+        this.plugins.forEach((plugin: IPlugin) => {
+            plugin.ModLoader.me = me;
+        });
+    }
+
     loadPluginsInit(
         me: INetworkPlayer,
         iconsole: IConsole,
         net: NetworkEngine.Client
     ) {
-        Object.freeze(me);
-        this.loaded_core.ModLoader.me = me;
+        this.resetPlayerInstance(me);
         this.loaded_core.init();
-        this.plugins.forEach((plugin: IPlugin) => {
-            plugin.ModLoader.me = me;
-        });
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
             value();
         });
@@ -505,18 +508,20 @@ class pluginLoader {
             }
             if (this.lastCrashCheckFrame === this.curFrame) {
                 // Emulator probably died. Lets make a crash dump.
-                let dump = zlib.deflateSync(
-                    iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
-                );
+                let z: zip = new zip();
+                let dump = iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000);
                 fs.writeFileSync(
                     './crash_dump.bin',
                     dump
                 );
+                z.addLocalFile('./crash_dump.bin');
+                z.writeZip('./crash_dump.zip');
+                dump = fs.readFileSync('./crash_dump.zip');
                 internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 setTimeout(() => {
                     process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
-                }, 5 * 1000);
+                }, 10 * 1000);
             } else {
                 this.lastCrashCheckFrame = this.curFrame;
             }

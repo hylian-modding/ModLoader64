@@ -340,6 +340,7 @@ class ModLoader64 {
 
     private postinit(result: any) {
         if (this.done) {
+            this.plugins.resetPlayerInstance(result[0].me);
             return;
         }
         if (fs.existsSync(this.rom_path) || this.data.isServer) {
