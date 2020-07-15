@@ -33,6 +33,7 @@ export class Link extends JSONTemplate implements ILink {
       Anim data is safely copied into this space at the end of each rendering cycle.
       This helps prevent jittering.*/
     private sound_addr: number = 0x600000 + 0x88;
+    private sound_addr2: number = 0x600000 + 0x8A;
     private anim_data_addr = 0x600000;
     private anim_raw_data_addr = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).raw_anim;
 
@@ -242,7 +243,13 @@ export class Link extends JSONTemplate implements ILink {
         this.emulator.rdramWriteBuffer(this.anim_raw_data_addr, buf);
     }
     get current_sound_id(): number {
-        return this.emulator.rdramRead16(this.sound_addr);
+        if (this.emulator.rdramRead16(this.sound_addr) > 0){
+            return this.emulator.rdramRead16(this.sound_addr);
+        }
+        if (this.emulator.rdramRead16(this.sound_addr2) > 0){
+            return this.emulator.rdramRead16(this.sound_addr);
+        }
+        return 0;
     }
     set current_sound_id(s: number) {
         this.emulator.rdramWrite16(this.sound_addr, s);
