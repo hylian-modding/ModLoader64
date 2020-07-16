@@ -30,7 +30,7 @@ import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
-import { Pak } from 'modloader64_api/PakFormat';
+import { Pak, PakFooter } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
@@ -51,6 +51,8 @@ import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 import { getAllFiles } from './getAllFiles';
+import zip from 'adm-zip';
+import { SoundSystem } from './AudioAPI/API/SoundSystem';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -137,6 +139,19 @@ class pluginLoader {
             dir = v.extractPakToTemp(pakFile, dir);
             hash = pakFile.pak.footer._hash;
         }
+        if (parse.ext === ".zip") {
+            let zipFile: zip = new zip(path.resolve(dir));
+            let ndir: string = fs.mkdtempSync('ModLoader64_temp_');
+            zipFile.extractAllTo(ndir);
+            let d = "";
+            fs.readdirSync(ndir).forEach((dir: string) => {
+                d = dir;
+            });
+            dir = path.join(ndir, d);
+            let f = new PakFooter();
+            f.generateHash(zipFile.toBuffer());
+            hash = f._hash;
+        }
         if (!fs.lstatSync(path.resolve(dir)).isDirectory()) {
             return;
         }
@@ -148,25 +163,25 @@ class pluginLoader {
             return;
         }
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
-        if (typeof pkg.core === "string"){
+        if (typeof pkg.core === "string") {
             if (pkg.core !== this.selected_core && pkg.core !== '*') {
                 this.logger.info(
                     'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
                 );
                 return;
             }
-    
+
         }
 
-        if (pkg.core instanceof Array){
+        if (pkg.core instanceof Array) {
             let possibles: Array<string> = pkg.core as Array<string>;
             let yes: boolean = false;
-            for (let i = 0; i < possibles.length; i++){
-                if (possibles[i] === this.selected_core){
+            for (let i = 0; i < possibles.length; i++) {
+                if (possibles[i] === this.selected_core) {
                     yes = true;
                 }
             }
-            if (!yes){
+            if (!yes) {
                 this.logger.info(
                     'Plugin ' + pkg.name + ' does not belong to this core. Skipping.'
                 );
@@ -398,6 +413,7 @@ class pluginLoader {
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
+        let ss = Object.freeze(new SoundSystem());
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -409,6 +425,7 @@ class pluginLoader {
             this.loaded_core.ModLoader.isClient = mlconfig.isClient;
             this.loaded_core.ModLoader.isServer = mlconfig.isServer;
             this.loaded_core.ModLoader.isModLoaded = fn;
+            this.loaded_core.ModLoader.sound = ss;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -430,10 +447,18 @@ class pluginLoader {
             plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.isClient = mlconfig.isClient;
             plugin.ModLoader.isServer = mlconfig.isServer;
+            plugin.ModLoader.sound = ss;
             plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             value();
+        });
+    }
+
+    resetPlayerInstance(me: INetworkPlayer) {
+        this.loaded_core.ModLoader.me = me;
+        this.plugins.forEach((plugin: IPlugin) => {
+            plugin.ModLoader.me = me;
         });
     }
 
@@ -442,12 +467,8 @@ class pluginLoader {
         iconsole: IConsole,
         net: NetworkEngine.Client
     ) {
-        Object.freeze(me);
-        this.loaded_core.ModLoader.me = me;
+        this.resetPlayerInstance(me);
         this.loaded_core.init();
-        this.plugins.forEach((plugin: IPlugin) => {
-            plugin.ModLoader.me = me;
-        });
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
             value();
         });
@@ -491,18 +512,20 @@ class pluginLoader {
             }
             if (this.lastCrashCheckFrame === this.curFrame) {
                 // Emulator probably died. Lets make a crash dump.
-                let dump = zlib.deflateSync(
-                    iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000)
-                );
+                let z: zip = new zip();
+                let dump = iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000);
                 fs.writeFileSync(
                     './crash_dump.bin',
                     dump
                 );
+                z.addLocalFile('./crash_dump.bin');
+                z.writeZip('./crash_dump.zip');
+                dump = fs.readFileSync('./crash_dump.zip');
                 internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 bus.emit(ModLoaderEvents.ON_CRASH, dump);
                 setTimeout(() => {
                     process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
-                }, 5 * 1000);
+                }, 10 * 1000);
             } else {
                 this.lastCrashCheckFrame = this.curFrame;
             }

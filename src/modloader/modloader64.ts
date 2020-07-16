@@ -33,6 +33,7 @@ import { AnalyticsServer } from '../analytics/AnalyticsServer';
 import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
+import { PakPatch } from './PakPatch';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -59,6 +60,8 @@ class ModLoader64 {
     done = false;
 
     constructor(logger: any) {
+        moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+        moduleAlias.addAlias("@sound", path.join(process.cwd(), "/emulator"));
         global.ModLoader["logger"] = logger;
         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
             this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
@@ -148,6 +151,7 @@ class ModLoader64 {
         let BPS = require('./BPS');
         registerPatchType(".bps", new BPS() as RomPatchType);
         registerPatchType(".txt", new Cloudmax());
+        registerPatchType(".pak", new PakPatch());
         this.preinit();
     }
 
@@ -247,7 +251,6 @@ class ModLoader64 {
         });
         switch (this.data.selectedConsole) {
         case 'N64': {
-            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
             if (this.data.isServer) {
                 this.emulator = new FakeMupen(this.rom_path);
             }
@@ -338,6 +341,7 @@ class ModLoader64 {
 
     private postinit(result: any) {
         if (this.done) {
+            this.plugins.resetPlayerInstance(result[0].me);
             return;
         }
         if (fs.existsSync(this.rom_path) || this.data.isServer) {

@@ -1,5 +1,5 @@
 import IMemory from 'modloader64_api/IMemory';
-import OOTAPI from 'modloader64_api/OOT/OOTAPI';
+import * as OOTAPI from 'modloader64_api/OOT/OOTAPI';
 
 export class KeyManager implements OOTAPI.IKeyManager {
   private readonly KEY_ARRAY_ADDR: number =

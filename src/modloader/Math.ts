@@ -10,6 +10,15 @@ export class Math implements IMath {
         this.emulator = emulator;
     }
 
+    rdramReadPtrV3(addr: number, offset: number): Vector3 {
+        return new Vector3(this.emulator.rdramReadPtrF32(addr, offset), this.emulator.rdramReadPtrF32(addr, offset + 4), this.emulator.rdramReadPtrF32(addr, offset + 8));
+    }
+    rdramWritePtrV3(addr: number, offset: number, rhs: Vector3): void {
+        this.emulator.rdramWritePtrF32(addr, offset, rhs.x);
+        this.emulator.rdramWritePtrF32(addr, offset + 4, rhs.y);
+        this.emulator.rdramWritePtrF32(addr, offset + 8, rhs.y);
+    }
+
     rdramReadV3(addr: number): Vector3 {
         return new Vector3(this.emulator.rdramReadF32(addr),
             this.emulator.rdramReadF32(addr + 4),

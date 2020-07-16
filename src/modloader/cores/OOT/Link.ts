@@ -16,9 +16,11 @@ import { IPosition } from 'modloader64_api/OOT/IPosition';
 import { Position, Rotation } from './Actor';
 import { OOT_Offsets } from '../OcarinaofTime';
 import Vector3 from 'modloader64_api/math/Vector3';
+import { IMath } from 'modloader64_api/math/IMath';
 
 export class Link extends JSONTemplate implements ILink {
     private emulator: IMemory;
+    private math: IMath;
     private instance = global.ModLoader["link_instance"];
     private state_addr: number = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).state;
     private state2_addr: number = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).state2;
@@ -33,6 +35,7 @@ export class Link extends JSONTemplate implements ILink {
       Anim data is safely copied into this space at the end of each rendering cycle.
       This helps prevent jittering.*/
     private sound_addr: number = 0x600000 + 0x88;
+    private sound_addr2: number = 0x600000 + 0x8A;
     private anim_data_addr = 0x600000;
     private anim_raw_data_addr = this.instance + (global.ModLoader["offsets"]["link"] as OOT_Offsets).raw_anim;
 
@@ -52,11 +55,12 @@ export class Link extends JSONTemplate implements ILink {
         'current_sound_id',
     ];
 
-    constructor(emu: IMemory) {
+    constructor(emu: IMemory, math: IMath) {
         super();
         this.emulator = emu;
         this.rotation = new Rotation(this);
         this.position = new Position(this);
+        this.math = math;
     }
 
     get actorID(): number {
@@ -242,7 +246,13 @@ export class Link extends JSONTemplate implements ILink {
         this.emulator.rdramWriteBuffer(this.anim_raw_data_addr, buf);
     }
     get current_sound_id(): number {
-        return this.emulator.rdramRead16(this.sound_addr);
+        if (this.emulator.rdramRead16(this.sound_addr) > 0){
+            return this.emulator.rdramRead16(this.sound_addr);
+        }
+        if (this.emulator.rdramRead16(this.sound_addr2) > 0){
+            return this.emulator.rdramRead16(this.sound_addr);
+        }
+        return 0;
     }
     set current_sound_id(s: number) {
         this.emulator.rdramWrite16(this.sound_addr, s);
@@ -391,4 +401,12 @@ export class Link extends JSONTemplate implements ILink {
         this.emulator.rdramWritePtrF32(this.instance + addr, offset, value);
     }
     memoryDebugLogger(bool: boolean): void { }
+
+    get projected_position(): Vector3{
+        return this.math.rdramReadV3(this.instance + 0xE4);
+    }
+
+    set projected_position(vec: Vector3){
+        this.math.rdramWriteV3(this.instance + 0xE4, vec);
+    }
 }

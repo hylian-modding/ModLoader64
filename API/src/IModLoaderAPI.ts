@@ -8,6 +8,7 @@ import { IPayloadManager } from './PayloadType';
 import { IMath } from './math/IMath';
 import { IRomMemory } from './IRomMemory';
 import { IAnalytics } from './analytics/IAnalytics';
+import { ISoundSystem } from './Sound/ISoundSystem';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -54,6 +55,7 @@ export interface IModLoaderAPI {
   analytics: IAnalytics;
   isClient: boolean;
   isServer: boolean;
+  sound: ISoundSystem;
   isModLoaded(modid: string): boolean;
 }
 

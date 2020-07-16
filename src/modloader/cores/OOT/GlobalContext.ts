@@ -1,6 +1,8 @@
 import IMemory from 'modloader64_api/IMemory';
-import { IGlobalContext } from 'modloader64_api/OOT/OOTAPI';
+import { IGlobalContext, IViewStruct } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
+import { IModLoaderAPI } from 'modloader64_api/IModLoaderAPI';
+import { viewStruct } from './viewStruct';
 
 export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private emulator: IMemory;
@@ -14,11 +16,15 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
   private scene_frame_count_addr = 0x9c;
   private collectable_flag_addr = 0x01d44;
   private continue_state_addr = 0x98;
+  viewStruct: IViewStruct;
   jsonFields: string[] = ['scene', 'room', 'framecount'];
-  constructor(emulator: IMemory) {
+
+  constructor(ModLoader: IModLoaderAPI) {
       super();
-      this.emulator = emulator;
+      this.emulator = ModLoader.emulator;
+      this.viewStruct = new viewStruct(ModLoader);
   }
+
   get scene(): number {
       return this.emulator.rdramReadPtr16(
           global.ModLoader.global_context_pointer,

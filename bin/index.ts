@@ -47,6 +47,18 @@ interface SDKCFG {
     ModLoader64: ModLoader64_Cat;
 }
 
+function makeSymlink(src, dest) {
+    try {
+        let p = path.parse(dest);
+        if (!fs.existsSync(p.dir)) {
+            fs.mkdirSync(p.dir);
+        }
+        fse.symlinkSync(src, dest, 'junction');
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 let original_dir: string = process.cwd();
 process.chdir(path.join(__dirname, "../"));
 if (!fs.existsSync("./SDK-config.json")) {
@@ -65,7 +77,6 @@ const MOD_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo
 const CORE_REPO_URL: string = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
 const GUI_SDK_URL: string = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
 const GUI_SDK_URL_UNIX: string = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/linux-unpacked.pak";
-
 
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
 function getFileContents(url: string) {
@@ -157,10 +168,10 @@ function installCores() {
 function install(url: string) {
     (async () => {
         let elv: boolean = await isElevated();
-        if (!elv && platformkey.indexOf("win32") > -1) {
+/*         if (!elv && platformkey.indexOf("win32") > -1) {
             console.log("Install must be run as administrator on Windows!");
             return;
-        }
+        } */
         console.log("Installing " + url + "...");
         let original_dir: string = process.cwd();
         let deps_dir: string = path.join("./", "external_cores");
@@ -229,7 +240,7 @@ function install(url: string) {
                 let f: string = path.join(c, dir);
                 if (fs.lstatSync(f).isDirectory()) {
                     try {
-                        fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)));
+                        fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)), 'junction');
                     } catch (err) {
                         if (err) {
                             //console.log(err);
@@ -276,22 +287,21 @@ if (!WAITING_ON_EXTERNAL) {
             }
             fs.writeFileSync(path.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
             child_process.execSync("npm install");
+            if (!fs.existsSync("./node_modules")) {
+                fs.mkdirSync("./node_modules");
+            }
             console.log("Linking ModLoader64 API to project...");
             console.log("This might take a moment. Please be patient.");
             let our_pkg: any = JSON.parse(fs.readFileSync(path.join(__dirname, "../", "package.json")).toString());
             Object.keys(our_pkg.dependencies).forEach((key: string) => {
-                if (key.indexOf("modloader64") === -1) {
-                    child_process.execSync("npm link " + key);
-                }
+                makeSymlink(path.resolve(__dirname, "../", "node_modules", key), path.resolve(original_dir, "node_modules", key));
             });
             Object.keys(our_pkg.devDependencies).forEach((key: string) => {
-                if (key.indexOf("modloader64") === -1) {
-                    child_process.execSync("npm link " + key);
-                }
+                makeSymlink(path.resolve(__dirname, "../", "node_modules", key), path.resolve(original_dir, "node_modules", key));
             });
-            child_process.execSync("npm link " + "modloader64_api");
+            makeSymlink(path.resolve(__dirname, "../", "node_modules", "modloader64_api"), path.resolve(original_dir, "node_modules", "modloader64_api"));
             console.log("Setting up TypeScript compiler...");
-            child_process.execSync("tsc --init");
+            child_process.execSync("npx tsc --init");
             fs.copyFileSync(path.join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
             if (fs.existsSync(tsconfig_path)) {
                 tsconfig = JSON.parse(stripJsonComments(fs.readFileSync(tsconfig_path).toString()));
