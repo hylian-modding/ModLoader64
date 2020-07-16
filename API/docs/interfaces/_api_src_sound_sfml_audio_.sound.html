@@ -1,0 +1,624 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Sound | modloader64_api</title>
+	<meta name="description" content="Documentation for modloader64_api">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">modloader64_api</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_api_src_sound_sfml_audio_.html">&quot;API/src/Sound/sfml_audio&quot;</a>
+				</li>
+				<li>
+					<a href="_api_src_sound_sfml_audio_.sound.html">Sound</a>
+				</li>
+			</ul>
+			<h1>Interface Sound</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Regular sound that can be played in the audio environment.</p>
+					</div>
+					<p>Sound is the class to use to play sounds.</p>
+					<p>It provides:</p>
+					<ul>
+						<li>Control (play, pause, stop)</li>
+						<li>Ability to modify output parameters in real-time (pitch, volume, ...)</li>
+						<li>3D spatial features (position, attenuation, ...).</li>
+					</ul>
+					<p>Sound is perfect for playing short sounds that can fit in memory and require no latency, like foot steps or gun shots.
+					For longer sounds, like background musics or long speeches, rather see Music (which is based on streaming).</p>
+					<p>In order to work, a sound must be given a buffer of audio data to play. Audio data (samples) is stored in SoundBuffer,
+						and attached to a sound with the buffer property. The buffer object attached to a sound must remain alive as long as the
+					sound uses it. Note that multiple sounds can use the same sound buffer at the same time.</p>
+					<p>Usage example:</p>
+					<pre><code class="language-typescript"><span class="hljs-keyword">let</span> buffer = <span class="hljs-keyword">new</span> SoundBuffer();
+buffer.loadFromFile(<span class="hljs-string">&#x27;sound.wav&#x27;</span>);
+
+<span class="hljs-keyword">let</span> sound = <span class="hljs-keyword">new</span> Sound();
+sound.buffer = buffer;
+sound.play();</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="_api_src_sound_sfml_audio_.refcounted.html" class="tsd-signature-type">RefCounted</a>
+					</li>
+					<li>
+						<a href="_api_src_sound_sfml_audio_.soundsource.html" class="tsd-signature-type">SoundSource</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">Sound</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#attenuation" class="tsd-kind-icon">attenuation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.sound.html#buffer" class="tsd-kind-icon">buffer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.sound.html#loop" class="tsd-kind-icon">loop</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#mindistance" class="tsd-kind-icon">min<wbr>Distance</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#pitch" class="tsd-kind-icon">pitch</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.sound.html#playingoffset" class="tsd-kind-icon">playing<wbr>Offset</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#position" class="tsd-kind-icon">position</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#relativetolistener" class="tsd-kind-icon">relative<wbr>ToListener</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#status" class="tsd-kind-icon">status</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#volume" class="tsd-kind-icon">volume</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section tsd-is-inherited">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#pause" class="tsd-kind-icon">pause</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#play" class="tsd-kind-icon">play</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#ref" class="tsd-kind-icon">ref</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#release" class="tsd-kind-icon">release</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#stop" class="tsd-kind-icon">stop</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.sound.html#unref" class="tsd-kind-icon">unref</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="attenuation" class="tsd-anchor"></a>
+					<h3>attenuation</h3>
+					<div class="tsd-signature tsd-kind-icon">attenuation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#attenuation">attenuation</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:131</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the attenuation factor of the sound.</p>
+						</div>
+						<p>The attenuation is a multiplicative factor which makes the sound more or less loud according to its distance from the listener.
+							An attenuation of 0 will produce a non-attenuated sound, i.e. its volume will always be the same whether it is heard from near or from far.
+							On the other hand, an attenuation value such as 100 will make the sound fade out very quickly as it gets further from the listener.
+						The default value of the attenuation is 1.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="buffer" class="tsd-anchor"></a>
+					<h3>buffer</h3>
+					<div class="tsd-signature tsd-kind-icon">buffer<span class="tsd-signature-symbol">:</span> <a href="_api_src_sound_sfml_audio_.soundbuffer.html" class="tsd-signature-type">SoundBuffer</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:337</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the source buffer containing the audio data to play.</p>
+						</div>
+						<p>It is important to note that the sound buffer is not copied, thus the SoundBuffer instance must remain alive as long as it
+						is attached to the sound.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="loop" class="tsd-anchor"></a>
+					<h3>loop</h3>
+					<div class="tsd-signature tsd-kind-icon">loop<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:321</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set whether or not the sound should loop after reaching the end.</p>
+						</div>
+						<p>If set, the sound will restart from beginning after reaching the end and so on, until it is stopped or loop is set to false.
+						The default looping state for sound is false.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="mindistance" class="tsd-anchor"></a>
+					<h3>min<wbr>Distance</h3>
+					<div class="tsd-signature tsd-kind-icon">min<wbr>Distance<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#mindistance">minDistance</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:121</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the minimum distance of the sound.</p>
+						</div>
+						<p>The &quot;minimum distance&quot; of a sound is the maximum distance at which it is heard at its maximum volume.
+							Further than the minimum distance, it will start to fade out according to its attenuation factor.
+							A value of 0 (&quot;inside the head of the listener&quot;) is an invalid value and is forbidden.
+						The default value of the minimum distance is 1.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="pitch" class="tsd-anchor"></a>
+					<h3>pitch</h3>
+					<div class="tsd-signature tsd-kind-icon">pitch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#pitch">pitch</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:88</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the pitch of the sound.</p>
+						</div>
+						<p>The pitch represents the perceived fundamental frequency of a sound; thus you can make a sound more acute or grave by changing its pitch.
+						A side effect of changing the pitch is to modify the playing speed of the sound as well. The default value for the pitch is 1.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="playingoffset" class="tsd-anchor"></a>
+					<h3>playing<wbr>Offset</h3>
+					<div class="tsd-signature tsd-kind-icon">playing<wbr>Offset<span class="tsd-signature-symbol">:</span> <a href="../modules/_api_src_sound_sfml_audio_.html#time" class="tsd-signature-type">Time</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:329</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the current playing position of the sound.</p>
+						</div>
+						<p>The playing position can be changed when the sound is either paused or playing.
+						Changing the playing position when the sound is stopped has no effect, since playing the sound will reset its position.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="position" class="tsd-anchor"></a>
+					<h3>position</h3>
+					<div class="tsd-signature tsd-kind-icon">position<span class="tsd-signature-symbol">:</span> <a href="../modules/_api_src_sound_sfml_audio_.html#vec3" class="tsd-signature-type">Vec3</a></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#position">position</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:102</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the 3D position of the sound in the audio scene.</p>
+						</div>
+						<p>Only sounds with one channel (mono sounds) can be spatialized. The default position of a sound is (0, 0, 0).</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="relativetolistener" class="tsd-anchor"></a>
+					<h3>relative<wbr>ToListener</h3>
+					<div class="tsd-signature tsd-kind-icon">relative<wbr>ToListener<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#relativetolistener">relativeToListener</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:111</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set whether the sound&#39;s position is relative to the listener or is absolute.</p>
+						</div>
+						<p>Making a sound relative to the listener will ensure that it will always be played the same way regardless of the position of the listener.
+							This can be useful for non-spatialized sounds, sounds that are produced by the listener, or sounds attached to it.
+						The default value is false (position is absolute).</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="status" class="tsd-anchor"></a>
+					<h3>status</h3>
+					<div class="tsd-signature tsd-kind-icon">status<span class="tsd-signature-symbol">:</span> <a href="../enums/_api_src_sound_sfml_audio_.soundsourcestatus.html" class="tsd-signature-type">SoundSourceStatus</a></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#status">status</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:136</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the current status of the sound (stopped, paused, playing).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="volume" class="tsd-anchor"></a>
+					<h3>volume</h3>
+					<div class="tsd-signature tsd-kind-icon">volume<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#volume">volume</a></p>
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:95</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get or set the volume of the sound.</p>
+						</div>
+						<p>The volume is a value between 0 (mute) and 100 (full volume). The default value for the volume is 100.</p>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="pause" class="tsd-anchor"></a>
+					<h3>pause</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">pause<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#pause">pause</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:150</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Pause the sound source.</p>
+								</div>
+								<p>This function pauses the source if it was playing, otherwise (source already paused or stopped) it has no effect.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="play" class="tsd-anchor"></a>
+					<h3>play</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">play<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#play">play</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:143</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Start or resume playing the sound source.</p>
+								</div>
+								<p>This function starts the source if it was stopped, resumes it if it was paused, and restarts it from the beginning if it was already playing.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="ref" class="tsd-anchor"></a>
+					<h3>ref</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">ref<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#ref">ref</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:10</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Increments the reference count.</p>
+								</div>
+								<p>After this call the reference will be a strong reference because its refcount is &gt;0, and the referenced object is effectively &quot;pinned&quot;.
+								Calling this when the refcount is 0 and the object is unavailable results in an error.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Current reference count</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="release" class="tsd-anchor"></a>
+					<h3>release</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">release<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#release">release</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:27</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deletes a reference.</p>
+								</div>
+								<p>The referenced value is released, and may be GC&#39;d unless there are other references to it.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="stop" class="tsd-anchor"></a>
+					<h3>stop</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">stop<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.soundsource.html">SoundSource</a>.<a href="_api_src_sound_sfml_audio_.soundsource.html#stop">stop</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:158</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Stop playing the sound source.</p>
+								</div>
+								<p>This function stops the source if it was playing or paused, and does nothing if it was already stopped.
+								It also resets the playing position (unlike pause()).</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="unref" class="tsd-anchor"></a>
+					<h3>unref</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">unref<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#unref">unref</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:20</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decrements the reference count.</p>
+								</div>
+								<p>If the result is 0 the reference is now weak and the object may be GC&#39;d at any time if there are no other references.
+								Calling this when the refcount is already 0 results in an error.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Current reference count</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html">&quot;API/src/<wbr>Sound/sfml_<wbr>audio&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_api_src_sound_sfml_audio_.soundsourcestatus.html" class="tsd-kind-icon">Sound<wbr>Source<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.listener.html" class="tsd-kind-icon">Listener</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.music.html" class="tsd-kind-icon">Music</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module tsd-is-not-exported">
+						<a href="_api_src_sound_sfml_audio_.refcounted.html" class="tsd-kind-icon">Ref<wbr>Counted</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.sound.html" class="tsd-kind-icon">Sound</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#attenuation" class="tsd-kind-icon">attenuation</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.sound.html#buffer" class="tsd-kind-icon">buffer</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.sound.html#loop" class="tsd-kind-icon">loop</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#mindistance" class="tsd-kind-icon">min<wbr>Distance</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#pitch" class="tsd-kind-icon">pitch</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.sound.html#playingoffset" class="tsd-kind-icon">playing<wbr>Offset</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#position" class="tsd-kind-icon">position</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#relativetolistener" class="tsd-kind-icon">relative<wbr>ToListener</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#status" class="tsd-kind-icon">status</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#volume" class="tsd-kind-icon">volume</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#pause" class="tsd-kind-icon">pause</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#play" class="tsd-kind-icon">play</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#ref" class="tsd-kind-icon">ref</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#release" class="tsd-kind-icon">release</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#stop" class="tsd-kind-icon">stop</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.sound.html#unref" class="tsd-kind-icon">unref</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundbuffer.html" class="tsd-kind-icon">Sound<wbr>Buffer</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundsource.html" class="tsd-kind-icon">Sound<wbr>Source</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundstream.html" class="tsd-kind-icon">Sound<wbr>Stream</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.timespan.html" class="tsd-kind-icon">Time<wbr>Span</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#time" class="tsd-kind-icon">Time</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#vec3" class="tsd-kind-icon">Vec3</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#music-1" class="tsd-kind-icon">Music</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#sound-1" class="tsd-kind-icon">Sound</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#soundbuffer-1" class="tsd-kind-icon">Sound<wbr>Buffer</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

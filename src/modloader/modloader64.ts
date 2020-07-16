@@ -60,6 +60,8 @@ class ModLoader64 {
     done = false;
 
     constructor(logger: any) {
+        moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+        moduleAlias.addAlias("@sound", path.join(process.cwd(), "/emulator"));
         global.ModLoader["logger"] = logger;
         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
             this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
@@ -249,7 +251,6 @@ class ModLoader64 {
         });
         switch (this.data.selectedConsole) {
         case 'N64': {
-            moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
             if (this.data.isServer) {
                 this.emulator = new FakeMupen(this.rom_path);
             }

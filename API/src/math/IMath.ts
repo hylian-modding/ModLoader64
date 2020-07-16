@@ -8,6 +8,9 @@ export interface IMath {
     rdramReadV3(addr: number): Vector3;
     rdramWriteV3(addr: number, rhs: Vector3): void;
 
+    rdramReadPtrV3(addr: number, offset: number): Vector3;
+    rdramWritePtrV3(addr: number, offset: number, rhs: Vector3): void;
+
     rdramReadV3i(addr: number): Vector3;
     rdramWriteV3i(addr: number, rhs: Vector3): void;
 

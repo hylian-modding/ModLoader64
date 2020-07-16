@@ -27,6 +27,7 @@ function prebuild() {
 }
 
 function build() {
+	fse.copySync("./src", "./build");
 }
 
 function postbuild() {

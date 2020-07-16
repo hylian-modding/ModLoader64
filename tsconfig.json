@@ -13,6 +13,9 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
+      "@sound/*": [
+        "./build/emulator/*"
+      ]
     }
   },
   "include": [
@@ -21,7 +24,7 @@
     "mods/**/*.ts",
     "cores/**/*.ts",
     "bin/paker.ts",
-	"tools/**/*.ts"
+	  "tools/**/*.ts"
   ],
   "exclude": [
     "node_modules",

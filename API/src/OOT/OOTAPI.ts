@@ -2,6 +2,7 @@ import { ICommandBuffer } from './ICommandBuffer';
 import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';
 import { IDungeonItemManager } from './IDungeonItemManager';
+import Vector3 from '../math/Vector3';
 
 export const enum LinkState {
   UNKNOWN,
@@ -471,6 +472,7 @@ export interface ILink extends IActor {
   sword: Sword;
   get_anim_id(): number;
   get_anim_frame(): number;
+  projected_position: Vector3;
 }
 
 export interface IGlobalContext {
@@ -486,6 +488,18 @@ export interface IGlobalContext {
   liveSceneData_collectable: Buffer;
   getSaveDataForCurrentScene(): Buffer;
   writeSaveDataForCurrentScene(buf: Buffer): void;
+  viewStruct: IViewStruct;
+}
+
+export interface IViewStruct {
+  readonly VIEW: string;
+  gfx_ctx_pointer: number;
+  fov: number;
+  near_clip: number;
+  far_clip: number;
+  position: Vector3;
+  focus: Vector3;
+  axis: Vector3;
 }
 
 export interface IOotHelper {

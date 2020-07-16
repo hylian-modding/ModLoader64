@@ -1,0 +1,593 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>SoundBuffer | modloader64_api</title>
+	<meta name="description" content="Documentation for modloader64_api">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">modloader64_api</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_api_src_sound_sfml_audio_.html">&quot;API/src/Sound/sfml_audio&quot;</a>
+				</li>
+				<li>
+					<a href="_api_src_sound_sfml_audio_.soundbuffer.html">SoundBuffer</a>
+				</li>
+			</ul>
+			<h1>Interface SoundBuffer</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Storage for audio samples defining a sound.</p>
+					</div>
+					<p>A sound buffer holds the data of a sound, which is an array of audio samples.</p>
+					<p>A sample is a 16 bits signed integer that defines the amplitude of the sound at a given time.
+						The sound is then reconstituted by playing these samples at a high rate (for example, 44100 samples per second is the standard rate used
+					for playing CDs).</p>
+					<p>A sound buffer can be loaded from a file (see loadFromFile() for the complete list of supported formats), from memory or directly from an
+					array of samples. It can also be saved back to a file.</p>
+					<p>Sound buffers alone are not very useful: they hold the audio data but cannot be played.
+						To do so, you need to use the Sound class, which provides functions to play/pause/stop the sound as well as changing the way it is
+						outputted (volume, pitch, 3D position, ...). This separation allows more flexibility and better performances: indeed a SoundBuffer
+						is a heavy resource, and any operation on it is slow (often too slow for real-time applications). On the other side, a Sound is a
+						lightweight object, which can use the audio data of a sound buffer and change the way it is played without actually modifying that data.
+					Note that it is also possible to bind several Sound instances to the same SoundBuffer.</p>
+					<p>It is important to note that the Sound instance doesn&#39;t copy the buffer that it uses, it only keeps a reference to it. Thus, a SoundBuffer
+					must not be destructed while it is used by a Sound.</p>
+					<p>Usage example:</p>
+					<pre><code class="language-typescript"><span class="hljs-comment">// Create a new sound buffer</span>
+<span class="hljs-keyword">let</span> buffer = <span class="hljs-keyword">new</span> SoundBuffer();
+
+<span class="hljs-comment">// Load it from a file</span>
+buffer.loadFromFile(<span class="hljs-string">&#x27;sound.wav&#x27;</span>);
+
+<span class="hljs-keyword">let</span> sound1 = <span class="hljs-keyword">new</span> Sound();
+sound1.buffer = buffer;
+
+<span class="hljs-comment">// Play the sound</span>
+sound1.play();
+
+<span class="hljs-comment">// Create another sound source bound to the same buffer</span>
+<span class="hljs-keyword">let</span> sound2 = <span class="hljs-keyword">new</span> Sound();
+sound2.buffer = buffer;
+
+<span class="hljs-comment">// Play it with a higher pitch -- the first sound remains unchanged</span>
+sound2.pitch = <span class="hljs-number">2</span>;
+sound2.play();</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="_api_src_sound_sfml_audio_.refcounted.html" class="tsd-signature-type">RefCounted</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">SoundBuffer</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#channelcount" class="tsd-kind-icon">channel<wbr>Count</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#duration" class="tsd-kind-icon">duration</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#samplecount" class="tsd-kind-icon">sample<wbr>Count</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#samplerate" class="tsd-kind-icon">sample<wbr>Rate</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#samples" class="tsd-kind-icon">samples</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfromfile" class="tsd-kind-icon">load<wbr>From<wbr>File</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfrommemory" class="tsd-kind-icon">load<wbr>From<wbr>Memory</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfromsamples" class="tsd-kind-icon">load<wbr>From<wbr>Samples</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#ref" class="tsd-kind-icon">ref</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#release" class="tsd-kind-icon">release</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#savetofile" class="tsd-kind-icon">save<wbr>ToFile</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited"><a href="_api_src_sound_sfml_audio_.soundbuffer.html#unref" class="tsd-kind-icon">unref</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="channelcount" class="tsd-anchor"></a>
+					<h3>channel<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">channel<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:233</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the number of channels used by the sound.</p>
+						</div>
+						<p>If the sound is mono then the number of channels will be 1, 2 for stereo, etc.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="duration" class="tsd-anchor"></a>
+					<h3>duration</h3>
+					<div class="tsd-signature tsd-kind-icon">duration<span class="tsd-signature-symbol">:</span> <a href="../modules/_api_src_sound_sfml_audio_.html#time" class="tsd-signature-type">Time</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:238</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the total duration of the sound in milliseconds.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="samplecount" class="tsd-anchor"></a>
+					<h3>sample<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">sample<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:219</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the number of samples stored in the buffer.</p>
+						</div>
+						<p>The array of samples can be accessed with the samples property.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="samplerate" class="tsd-anchor"></a>
+					<h3>sample<wbr>Rate</h3>
+					<div class="tsd-signature tsd-kind-icon">sample<wbr>Rate<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:226</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the sample rate of the sound.</p>
+						</div>
+						<p>The sample rate is the number of samples played per second. The higher, the better the quality (for example, 44100 samples/s is CD quality).</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="samples" class="tsd-anchor"></a>
+					<h3>samples</h3>
+					<div class="tsd-signature tsd-kind-icon">samples<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Int16Array</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in API/src/Sound/sfml_audio.ts:212</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Get the array of audio samples stored in the buffer.</p>
+						</div>
+						<p>The format of the returned samples is 16 bits signed integer. The total number of samples in this array is given by the sampleCount property.</p>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="loadfromfile" class="tsd-anchor"></a>
+					<h3>load<wbr>From<wbr>File</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>File<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:249</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Load the sound buffer from a file.</p>
+								</div>
+								<p>The supported audio formats are: WAV (PCM only), OGG/Vorbis, FLAC, MP2, MP3. The supported sample sizes for FLAC and WAV are 8, 16, 24 and 32 bit.</p>
+								<p>Throws an exception if loading failed.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Path of the sound file to load</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="loadfrommemory" class="tsd-anchor"></a>
+					<h3>load<wbr>From<wbr>Memory</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>Memory<span class="tsd-signature-symbol">(</span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Uint8Array</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:260</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Load the sound buffer from a file in memory.</p>
+								</div>
+								<p>The supported audio formats are: WAV (PCM only), OGG/Vorbis, FLAC, MP2, MP3. The supported sample sizes for FLAC and WAV are 8, 16, 24 and 32 bit.</p>
+								<p>Throws an exception if loading failed.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>data: <span class="tsd-signature-type">Uint8Array</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Sound file data</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="loadfromsamples" class="tsd-anchor"></a>
+					<h3>load<wbr>From<wbr>Samples</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">load<wbr>From<wbr>Samples<span class="tsd-signature-symbol">(</span>samples<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Int16Array</span>, channelCount<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, sampleRate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:273</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Load the sound buffer from an array of audio samples.</p>
+								</div>
+								<p>The assumed format of the audio samples is 16 bits signed integer.</p>
+								<p>Throws an exception if loading failed.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>samples: <span class="tsd-signature-type">Int16Array</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Array of samples</p>
+									</div>
+								</li>
+								<li>
+									<h5>channelCount: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Number of channels (1 = mono, 2 = stereo, ...)</p>
+									</div>
+								</li>
+								<li>
+									<h5>sampleRate: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Sample rate (number of samples to play per second)</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="ref" class="tsd-anchor"></a>
+					<h3>ref</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">ref<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#ref">ref</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:10</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Increments the reference count.</p>
+								</div>
+								<p>After this call the reference will be a strong reference because its refcount is &gt;0, and the referenced object is effectively &quot;pinned&quot;.
+								Calling this when the refcount is 0 and the object is unavailable results in an error.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Current reference count</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="release" class="tsd-anchor"></a>
+					<h3>release</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">release<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#release">release</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:27</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Deletes a reference.</p>
+								</div>
+								<p>The referenced value is released, and may be GC&#39;d unless there are other references to it.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="savetofile" class="tsd-anchor"></a>
+					<h3>save<wbr>ToFile</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">save<wbr>ToFile<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:284</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Save the sound buffer to an audio file.</p>
+								</div>
+								<p>The supported audio formats are: WAV, OGG/Vorbis, FLAC.</p>
+								<p>Throws an exception if saving failed.</p>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Path of the sound file to write</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+					<a name="unref" class="tsd-anchor"></a>
+					<h3>unref</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">unref<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_api_src_sound_sfml_audio_.refcounted.html">RefCounted</a>.<a href="_api_src_sound_sfml_audio_.refcounted.html#unref">unref</a></p>
+								<ul>
+									<li>Defined in API/src/Sound/sfml_audio.ts:20</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Decrements the reference count.</p>
+								</div>
+								<p>If the result is 0 the reference is now weak and the object may be GC&#39;d at any time if there are no other references.
+								Calling this when the refcount is already 0 results in an error.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Current reference count</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html">&quot;API/src/<wbr>Sound/sfml_<wbr>audio&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-parent-kind-module">
+						<a href="../enums/_api_src_sound_sfml_audio_.soundsourcestatus.html" class="tsd-kind-icon">Sound<wbr>Source<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.listener.html" class="tsd-kind-icon">Listener</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.music.html" class="tsd-kind-icon">Music</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module tsd-is-not-exported">
+						<a href="_api_src_sound_sfml_audio_.refcounted.html" class="tsd-kind-icon">Ref<wbr>Counted</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.sound.html" class="tsd-kind-icon">Sound</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundbuffer.html" class="tsd-kind-icon">Sound<wbr>Buffer</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#channelcount" class="tsd-kind-icon">channel<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#duration" class="tsd-kind-icon">duration</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#samplecount" class="tsd-kind-icon">sample<wbr>Count</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#samplerate" class="tsd-kind-icon">sample<wbr>Rate</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#samples" class="tsd-kind-icon">samples</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfromfile" class="tsd-kind-icon">load<wbr>From<wbr>File</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfrommemory" class="tsd-kind-icon">load<wbr>From<wbr>Memory</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#loadfromsamples" class="tsd-kind-icon">load<wbr>From<wbr>Samples</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#ref" class="tsd-kind-icon">ref</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#release" class="tsd-kind-icon">release</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#savetofile" class="tsd-kind-icon">save<wbr>ToFile</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited">
+								<a href="_api_src_sound_sfml_audio_.soundbuffer.html#unref" class="tsd-kind-icon">unref</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundsource.html" class="tsd-kind-icon">Sound<wbr>Source</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.soundstream.html" class="tsd-kind-icon">Sound<wbr>Stream</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-parent-kind-module">
+						<a href="_api_src_sound_sfml_audio_.timespan.html" class="tsd-kind-icon">Time<wbr>Span</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#time" class="tsd-kind-icon">Time</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#vec3" class="tsd-kind-icon">Vec3</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#music-1" class="tsd-kind-icon">Music</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#sound-1" class="tsd-kind-icon">Sound</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-module">
+						<a href="../modules/_api_src_sound_sfml_audio_.html#soundbuffer-1" class="tsd-kind-icon">Sound<wbr>Buffer</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

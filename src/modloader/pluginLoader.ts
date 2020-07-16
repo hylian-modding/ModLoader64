@@ -52,6 +52,7 @@ import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 import { getAllFiles } from './getAllFiles';
 import zip from 'adm-zip';
+import { SoundSystem } from './AudioAPI/API/SoundSystem';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -412,6 +413,7 @@ class pluginLoader {
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
+        let ss = Object.freeze(new SoundSystem());
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -423,6 +425,7 @@ class pluginLoader {
             this.loaded_core.ModLoader.isClient = mlconfig.isClient;
             this.loaded_core.ModLoader.isServer = mlconfig.isServer;
             this.loaded_core.ModLoader.isModLoaded = fn;
+            this.loaded_core.ModLoader.sound = ss;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -444,6 +447,7 @@ class pluginLoader {
             plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.isClient = mlconfig.isClient;
             plugin.ModLoader.isServer = mlconfig.isServer;
+            plugin.ModLoader.sound = ss;
             plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
