@@ -14,41 +14,41 @@ program.option('-s, --step <type>', 'build step');
 program.parse(process.argv);
 
 switch (program.step) {
-case "prebuild": {
-    prebuild();
-    break;
-}
-case "build": {
-    build();
-    break;
-}
-case "postbuild": {
-    postbuild();
-    break;
-}
-case "pushModules": {
-    pushModules();
-    break;
-}
-case "installEmulator": {
-    getEmulator();
-    break;
-}
-case "player2": {
-    player2();
-    break;
-}
-case "bump": {
-    bump();
-    break;
-}
-case "clean": {
-    clean();
-    break;
-}
+    case "prebuild": {
+        prebuild();
+        break;
+    }
+    case "build": {
+        build();
+        break;
+    }
+    case "postbuild": {
+        postbuild();
+        break;
+    }
+    case "pushModules": {
+        pushModules();
+        break;
+    }
+    case "installEmulator": {
+        getEmulator();
+        break;
+    }
+    case "player2": {
+        player2();
+        break;
+    }
+    case "bump": {
+        bump();
+        break;
+    }
+    case "clean": {
+        clean();
+        break;
+    }
 }
 
-function clean(){
+function clean() {
     console.log("Cleaning...");
     if (fs.existsSync("./build")) {
         fs.removeSync("./build");
@@ -156,7 +156,37 @@ function pushModules() {
         child_process.execSync("tar -zcvf ./ModLoader64.tar.gz .");
         process.chdir(original_dir);
         fs.copyFileSync("./dist/dedi/ModLoader64.tar.gz", "./dist/ModLoader64.tar.gz");
+        process.chdir("./dist");
+        child_process.execSync("paker --dir ./dedi --output ./");
+        process.chdir(original_dir);
         fs.removeSync("./dist/dedi");
+        fs.copyFileSync("./update.json", "./dist/update.json");
+        let Client = require('ssh2-sftp-client');
+        let sftp = new Client();
+        sftp.connect({
+            host: fs.readFileSync('./addr.bin').toString(),
+            port: '22',
+            username: fs.readFileSync("./user.bin").toString(),
+            password: fs.readFileSync("./pw.bin").toString()
+        }).then(() => {
+            console.log("connected.");
+            return sftp.list('/var/www/html/ModLoader64/dev');
+        }).then(data => {
+            console.log(data);
+            console.log("Updating server files.")
+            return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/dev/');
+        }).then(data => {
+            console.log(data);
+            console.log("Updating client files.")
+            child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+            return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
+        }).then(data => {
+            console.log(data);
+            
+            sftp.end();
+        }).catch(err => {
+            console.log(err, 'catch error');
+        });
     });
 }
 
