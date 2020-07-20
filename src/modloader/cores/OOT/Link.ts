@@ -249,9 +249,9 @@ export class Link extends JSONTemplate implements ILink {
         if (this.emulator.rdramRead16(this.sound_addr) > 0){
             return this.emulator.rdramRead16(this.sound_addr);
         }
-        if (this.emulator.rdramRead16(this.sound_addr2) > 0){
+/*         if (this.emulator.rdramRead16(this.sound_addr2) > 0){
             return this.emulator.rdramRead16(this.sound_addr2);
-        }
+        } */
         return 0;
     }
     set current_sound_id(s: number) {
