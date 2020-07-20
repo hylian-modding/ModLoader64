@@ -24,3 +24,6 @@ CustomActorToolkit/
 tools/
 win-ia32-unpacked/
 win-ia32-unpacked.pak
+pw.bin
+user.bin
+addr.bin
