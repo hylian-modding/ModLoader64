@@ -27,3 +27,5 @@ win-ia32-unpacked.pak
 pw.bin
 user.bin
 addr.bin
+API/docs/
+docs/
