@@ -213,6 +213,10 @@ class pluginLoader {
                 value: pkg.name,
                 writable: false,
             });
+            Object.defineProperty(plugin, 'pluginHash', {
+                value: hash,
+                writable: false,
+            });
             let mlconfig = this.config.registerConfigCategory(
                 'ModLoader64'
             ) as IModLoaderConfig;
@@ -284,7 +288,7 @@ class pluginLoader {
     loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
         // Start the core plugin.
         this.header = header;
-        global.ModLoader["ROM_HEADER"] = Object.freeze(this.header);
+        global.ModLoader["ROM_HEADER"] = this.header;
         if (overrideCore !== '') {
             this.selected_core = overrideCore;
         }

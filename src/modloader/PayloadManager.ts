@@ -13,6 +13,7 @@ export class PayloadManager implements IPayloadManager {
   constructor(emulator: IMemory, logger: ILogger) {
       this.emulator = emulator;
       this.registerPayloadType(new PayloadGameshark('.payload'));
+      this.registerPayloadType(new PayloadGameshark('.gsc'));
       this.logger = logger;
   }
 

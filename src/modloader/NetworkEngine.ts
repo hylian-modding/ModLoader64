@@ -4,6 +4,7 @@ import {
     IPlugin,
     ModLoaderEvents,
     IPluginServerConfig,
+    VersionCheckEvent,
 } from 'modloader64_api/IModLoaderAPI';
 import {
     bus,
@@ -352,6 +353,10 @@ namespace NetworkEngine {
                         if (inst.core !== packet.core) {
                             mismatch = true;
                         }
+                        let evt = new VersionCheckEvent(packet.ml, packet.plugins);
+                        evt.canceled = mismatch;
+                        bus.emit(EventsServer.ON_VERSION_CHECK, evt);
+                        mismatch = evt.canceled;
                         if (global.ModLoader.version === packet.ml && mismatch === false) {
                             inst.sendToTarget(socket.id, 'versionGood', {
                                 client: packet.ml,

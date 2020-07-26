@@ -62,6 +62,7 @@ export interface IModLoaderAPI {
 export interface IPlugin {
   ModLoader: IModLoaderAPI;
   pluginName?: string;
+  pluginHash?: string;
   preinit(): void;
   init(): void;
   postinit(): void;
@@ -93,4 +94,15 @@ export enum ModLoaderEvents {
   ON_ROM_PATCHED = 'ON_ROM_PATCHED',
   ON_ROM_PATCHED_POST = "ON_ROM_PATCHED_POST",
   ON_RECEIVED_CRASH_LOG = "ON_RECEIVED_CRASH_LOG"
+}
+
+export class VersionCheckEvent{
+  ModLoader: string;
+  plugins: any;
+  canceled: boolean = false;
+
+  constructor(ModLoader: string, plugins: any){
+    this.ModLoader = ModLoader;
+    this.plugins = plugins;
+  }
 }
