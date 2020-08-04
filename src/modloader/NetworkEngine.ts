@@ -475,7 +475,11 @@ namespace NetworkEngine {
                     inst.logger.error(`server error:\n${err.stack}`);
                     inst.udpServer.close();
                 });
-                inst.udpServer.on('message', (msg: string, rinfo: RemoteInfo) => {
+                inst.udpServer.on('message', (buf: Buffer, rinfo: RemoteInfo) => {
+                    let msg: string = buf.toString();
+                    if (msg.charAt(0) !== '{'){
+                        return;
+                    }
                     let data: IPacketHeader = JSON.parse(msg);
                     if (data.packet_id === 'UDPTestPacket') {
                         let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
