@@ -1,6 +1,6 @@
 {
   "name": "modloader64",
-  "version": "1.2.78",
+  "version": "1.2.80",
   "description": "",
   "main": "index.js",
   "scripts": {

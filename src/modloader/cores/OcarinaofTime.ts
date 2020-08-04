@@ -297,8 +297,8 @@ class find_init {
 }
 
 interface ovl_meta {
-    addr: string;
     init: string;
+    forceSlot: string;
 }
 
 export class OverlayPayload extends PayloadType {
@@ -347,6 +347,9 @@ export class OverlayPayload extends PayloadType {
             return -1;
         }
         let slot: number = empty_slots.shift() as number;
+        if (meta.forceSlot !== undefined){
+            slot = parseInt(meta.forceSlot);
+        }
         this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
