@@ -53,6 +53,7 @@ import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProx
 import { getAllFiles } from './getAllFiles';
 import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
+import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -417,7 +418,12 @@ class pluginLoader {
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
-        let ss = Object.freeze(new SoundSystem());
+        let ss: any;
+        if (mlconfig.isClient){
+            ss = Object.freeze(new SoundSystem());
+        }else{
+            ss = Object.freeze(new FakeSoundImpl());
+        }
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
