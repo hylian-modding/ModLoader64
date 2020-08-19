@@ -47,6 +47,10 @@ export class Position extends JSONTemplate implements IPosition {
     getRawPos(): Buffer {
         return this.parent.rdramReadBuffer(POSITION_OFFSET, POSITION_SIZE);
     }
+
+    setRawPos(pos: Buffer){
+        this.parent.rdramWriteBuffer(POSITION_OFFSET, pos);
+    }
 }
 
 export class Rotation extends JSONTemplate implements IRotation {
@@ -81,6 +85,10 @@ export class Rotation extends JSONTemplate implements IRotation {
 
     getRawRot(): Buffer {
         return this.parent.rdramReadBuffer(ROTATION_OFFSET, ROTATION_SIZE);
+    }
+
+    setRawRot(rot: Buffer){
+        this.parent.rdramWriteBuffer(ROTATION_OFFSET, rot);
     }
 }
 
@@ -154,7 +162,6 @@ export class ActorBase extends JSONTemplate implements IActor {
     jsonFields: string[] = [
         'actorID',
         'actorUUID',
-        'health',
         'rotation',
         'position',
     ];

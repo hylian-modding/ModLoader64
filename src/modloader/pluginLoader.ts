@@ -158,9 +158,7 @@ class pluginLoader {
         }
         let pkg_file: string = path.resolve(path.join(dir, 'package.json'));
         if (!fs.existsSync(pkg_file)) {
-            this.logger.error(
-                'Plugin ' + parse.name + ' is missing package.json. Skipping.'
-            );
+            this.logger.error('Plugin ' + parse.name + ' is missing package.json. Skipping.');
             return;
         }
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());

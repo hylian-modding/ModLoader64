@@ -3,4 +3,5 @@ export interface IRotation {
   y: number;
   z: number;
   getRawRot(): Buffer;
+  setRawRot(rot: Buffer): void;
 }

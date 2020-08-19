@@ -3,4 +3,5 @@ export interface IPosition {
   y: number;
   z: number;
   getRawPos(): Buffer;
+  setRawPos(pos: Buffer): void;
 }
