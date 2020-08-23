@@ -215,18 +215,15 @@ namespace NetworkEngine {
             if (!mainStore.hasOwnProperty('data')) {
                 mainStore['data'] = {};
             }
-            mainStore.data[plugin.pluginName as string] = JSON.parse(
-                JSON.stringify(obj)
-            );
+            mainStore.data[plugin.pluginName as string] = obj;
         }
 
-        getLobbyStorage(lobbyName: string, plugin: IPlugin): any {
+        getLobbyStorage(lobbyName: string, plugin: IPlugin): Object | null {
             try {
                 return this.getLobbies()[lobbyName].ModLoader64.data[
                     plugin.pluginName as string
                 ];
             } catch (err) { }
-            //@ts-ignore
             return null;
         }
 
@@ -477,7 +474,7 @@ namespace NetworkEngine {
                 });
                 inst.udpServer.on('message', (buf: Buffer, rinfo: RemoteInfo) => {
                     let msg: string = buf.toString();
-                    if (msg.charAt(0) !== '{'){
+                    if (msg.charAt(0) !== '{') {
                         return;
                     }
                     let data: IPacketHeader = JSON.parse(msg);
