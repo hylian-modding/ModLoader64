@@ -213,10 +213,10 @@ function install(url: string) {
             cores.push(path.resolve("./build/cores"));
             fs.readdirSync("./build/cores").forEach((file: string) => {
                 let meta2: any = JSON.parse(fs.readFileSync("./package.json").toString());
-                if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                if (!meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
                     meta["modloader64_deps"][meta2.name] = url;
                 }
-                if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                if (!mod_meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
                     mod_meta["modloader64_deps"][meta2.name] = url;
                 }
                 if (tsconfig !== undefined) {

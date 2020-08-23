@@ -255,10 +255,10 @@ function install(url) {
                         cores.push(path_1["default"].resolve("./build/cores"));
                         fs_1["default"].readdirSync("./build/cores").forEach(function (file) {
                             var meta2 = JSON.parse(fs_1["default"].readFileSync("./package.json").toString());
-                            if (!meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                            if (!meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
                                 meta["modloader64_deps"][meta2.name] = url;
                             }
-                            if (!mod_meta["modloader64_deps"].hasOwnProperty("meta2.name")) {
+                            if (!mod_meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
                                 mod_meta["modloader64_deps"][meta2.name] = url;
                             }
                             if (tsconfig !== undefined) {
