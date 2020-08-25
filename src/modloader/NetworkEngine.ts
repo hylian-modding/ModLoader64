@@ -53,6 +53,7 @@ const NetworkingEventBus: EventBus = new EventBus();
 interface IServerConfig {
     port: number;
     udpPort: number;
+    patchSizeLimitMB: number;
 }
 
 interface IClientConfig {
@@ -162,9 +163,8 @@ namespace NetworkEngine {
             ) as IServerConfig;
             config.setData('NetworkEngine.Server', 'port', 8082);
             config.setData('NetworkEngine.Server', 'udpPort', 8082);
-            this.modLoaderconfig = this.masterConfig.registerConfigCategory(
-                'ModLoader64'
-            ) as IModLoaderConfig;
+            config.setData('NetworkEngine.Server', 'patchSizeLimitMB', 10);
+            this.modLoaderconfig = this.masterConfig.registerConfigCategory('ModLoader64') as IModLoaderConfig;
             internal_event_bus.on('PLUGIN_LOADED', (args: any[]) => {
                 let p: any = args[0].meta;
                 this.plugins[p.name] = { version: p.version, hash: args[0].hash };
@@ -357,11 +357,8 @@ namespace NetworkEngine {
                         if (global.ModLoader.version === packet.ml && mismatch === false) {
                             inst.sendToTarget(socket.id, 'versionGood', {
                                 client: packet.ml,
-                                server: new VersionPacket(
-                                    global.ModLoader.version,
-                                    inst.plugins,
-                                    inst.core
-                                ),
+                                server: new VersionPacket(global.ModLoader.version,inst.plugins,inst.core),
+                                patchLimit: inst.config.patchSizeLimitMB
                             });
                         } else {
                             inst.sendToTarget(socket.id, 'versionBad', {
@@ -555,11 +552,7 @@ namespace NetworkEngine {
             config.setData('NetworkEngine.Client', 'forceServerOverride', false);
             config.setData('NetworkEngine.Client', 'ip', '127.0.0.1');
             config.setData('NetworkEngine.Client', 'port', 8082);
-            config.setData(
-                'NetworkEngine.Client',
-                'lobby',
-                ML_UUID.getLobbyName()
-            );
+            config.setData('NetworkEngine.Client','lobby',ML_UUID.getLobbyName());
             config.setData('NetworkEngine.Client', 'nickname', 'Player');
             config.setData('NetworkEngine.Client', 'password', '');
             this.masterConfig = config;
@@ -653,6 +646,7 @@ namespace NetworkEngine {
                 });
                 inst.socket.on('versionGood', (data: any) => {
                     inst.logger.info('Version good! ' + JSON.stringify(data.server));
+                    inst.logger.info("This server has a " + data.patchLimit.toString() + "MB bps patch limit.");
                     let ld = new LobbyData(
                         inst.config.lobby,
                         crypto
@@ -675,12 +669,14 @@ namespace NetworkEngine {
                             }
                         }
                         if (patch_path !== "") {
-                            ld.data['patch'] = zlib.gzipSync(
-                                fs.readFileSync(
-                                    path.resolve(patch_path)
-                                )
-                            );
-                            ld.data['patch_name'] = inst.modLoaderconfig.patch;
+                            let gzip = zlib.gzipSync(fs.readFileSync(path.resolve(patch_path)));
+                            if (gzip.byteLength > (data.patchLimit * 1024 * 1024)){
+                                inst.logger.error("Patch file " + patch_path + " too large.");
+                                process.exit(ModLoaderErrorCodes.BPS_FAILED);
+                            }else{
+                                ld.data['patch'] = gzip;
+                                ld.data['patch_name'] = inst.modLoaderconfig.patch;
+                            }
                         }
                     }
                     inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
