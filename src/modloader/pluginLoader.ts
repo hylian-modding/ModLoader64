@@ -607,7 +607,7 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                setInterval(this.crashCheck, 5 * 1000);
+                setInterval(this.crashCheck, 10 * 1000);
             }
         };
         let testBuffer: Buffer = Buffer.from("MODLOADER64");
