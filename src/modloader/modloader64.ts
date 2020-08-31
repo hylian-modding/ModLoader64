@@ -176,15 +176,15 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'coreOverride', '');
 
         let roms = getAllFiles(this.rom_folder, []);
-        for (let i = 0; i < roms.length; i++){
+        for (let i = 0; i < roms.length; i++) {
             let p = path.parse(roms[i]);
-            if (p.base === this.data['rom']){
+            if (p.base === this.data['rom']) {
                 this.rom_path = path.resolve(roms[i]);
                 break;
             }
         }
 
-        if (this.rom_path === undefined){
+        if (this.rom_path === undefined) {
             this.rom_path = "";
         }
 
@@ -250,15 +250,15 @@ class ModLoader64 {
             }
         });
         switch (this.data.selectedConsole) {
-        case 'N64': {
-            if (this.data.isServer) {
-                this.emulator = new FakeMupen(this.rom_path);
+            case 'N64': {
+                if (this.data.isServer) {
+                    this.emulator = new FakeMupen(this.rom_path);
+                }
+                if (this.data.isClient) {
+                    this.emulator = new N64(this.rom_path, this.logger);
+                }
+                break;
             }
-            if (this.data.isClient) {
-                this.emulator = new N64(this.rom_path, this.logger);
-            }
-            break;
-        }
         }
         internal_event_bus.emit('preinit_done', {});
         bus.on('SOFT_RESET_PRESSED', () => {
@@ -287,13 +287,13 @@ class ModLoader64 {
         if (fs.existsSync(this.rom_path)) {
             this.logger.info('Parsing rom header...');
             Object.keys(this.plugins.core_plugins).forEach((key: string) => {
-                if (typeof this.plugins.core_plugins[key].header === "string"){
+                if (typeof this.plugins.core_plugins[key].header === "string") {
                     if (loaded_rom_header.id === this.plugins.core_plugins[key].header) {
                         core_match = this.plugins.core_plugins[key];
                         core_key = key;
                     }
-                }else if (this.plugins.core_plugins[key].header instanceof Array){
-                    for (let i = 0; i < this.plugins.core_plugins[key].header.length; i++){
+                } else if (this.plugins.core_plugins[key].header instanceof Array) {
+                    for (let i = 0; i < this.plugins.core_plugins[key].header.length; i++) {
                         if (loaded_rom_header.id === this.plugins.core_plugins[key].header[i]) {
                             core_match = this.plugins.core_plugins[key];
                             core_key = key;

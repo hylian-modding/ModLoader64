@@ -161,32 +161,35 @@ function pushModules() {
         process.chdir(original_dir);
         fs.removeSync("./dist/dedi");
         fs.copyFileSync("./update.json", "./dist/update.json");
-        let Client = require('ssh2-sftp-client');
-        let sftp = new Client();
-        sftp.connect({
-            host: fs.readFileSync('./addr.bin').toString(),
-            port: '22',
-            username: fs.readFileSync("./user.bin").toString(),
-            password: fs.readFileSync("./pw.bin").toString()
-        }).then(() => {
-            console.log("connected.");
-            return sftp.list('/var/www/html/ModLoader64/dev');
-        }).then(data => {
-            console.log(data);
-            console.log("Updating server files.")
-            return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/dev/');
-        }).then(data => {
-            console.log(data);
-            console.log("Updating client files.")
-            child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
-            return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
-        }).then(data => {
-            console.log(data);
-            
-            sftp.end();
-        }).catch(err => {
-            console.log(err, 'catch error');
-        });
+    });
+}
+
+function pushToServer() {
+    let Client = require('ssh2-sftp-client');
+    let sftp = new Client();
+    sftp.connect({
+        host: fs.readFileSync('./addr.bin').toString(),
+        port: '22',
+        username: fs.readFileSync("./user.bin").toString(),
+        password: fs.readFileSync("./pw.bin").toString()
+    }).then(() => {
+        console.log("connected.");
+        return sftp.list('/var/www/html/ModLoader64/dev');
+    }).then(data => {
+        console.log(data);
+        console.log("Updating server files.")
+        return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/dev/');
+    }).then(data => {
+        console.log(data);
+        console.log("Updating client files.")
+        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+        return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
+    }).then(data => {
+        console.log(data);
+
+        sftp.end();
+    }).catch(err => {
+        console.log(err, 'catch error');
     });
 }
 

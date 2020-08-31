@@ -154,6 +154,7 @@ namespace NetworkEngine {
         core: string = "";
         analytics!: AnalyticsClient;
         lobby_names: Array<string> = [];
+        lobbyStorage: any = {};
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger;
@@ -198,20 +199,23 @@ namespace NetworkEngine {
         }
 
         createLobbyStorage_internal(ld: LobbyData, owner: string): ILobbyStorage {
-            this.getLobbies()[ld.name]['ModLoader64'] = new LobbyStorage(ld, owner);
-            return this.getLobbies()[ld.name]['ModLoader64'];
+            if (this.getLobbyStorage_internal(ld.name) !== null){
+                delete this.lobbyStorage[ld.name];
+            }
+            this.lobbyStorage[ld.name] = {};
+            this.lobbyStorage[ld.name]['ModLoader64'] = new LobbyStorage(ld, owner);
+            return this.lobbyStorage[ld.name]['ModLoader64'];
         }
 
-        getLobbyStorage_internal(lobbyName: string) {
+        getLobbyStorage_internal(lobbyName: string): ILobbyStorage | null {
             try {
-                return this.getLobbies()[lobbyName].ModLoader64;
+                return this.lobbyStorage[lobbyName].ModLoader64;
             } catch (err) { }
-            //@ts-ignore
             return null;
         }
 
         createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
-            let mainStore: LobbyStorage = this.getLobbies()[lobbyName]['ModLoader64'];
+            let mainStore: LobbyStorage = this.lobbyStorage[lobbyName]['ModLoader64'];
             if (!mainStore.hasOwnProperty('data')) {
                 mainStore['data'] = {};
             }
@@ -220,7 +224,7 @@ namespace NetworkEngine {
 
         getLobbyStorage(lobbyName: string, plugin: IPlugin): Object | null {
             try {
-                return this.getLobbies()[lobbyName].ModLoader64.data[
+                return this.lobbyStorage[lobbyName].ModLoader64.data[
                     plugin.pluginName as string
                 ];
             } catch (err) { }
@@ -271,7 +275,9 @@ namespace NetworkEngine {
                 if (rm.length > 0) {
                     for (let i = 0; i < rm.length; i++) {
                         let index = this.lobby_names.indexOf(rm[i]);
-                        this.logger.info(this.lobby_names.splice(index, 1)[0] + " lobby terminated.");
+                        let name = this.lobby_names.splice(index, 1)[0].trim();
+                        this.logger.info(name + " lobby terminated.");
+                        delete this.lobbyStorage[name];
                     }
                 }
                 fs.writeFile("./lobbies.json", JSON.stringify(lobbies), () => { });
@@ -381,7 +387,7 @@ namespace NetworkEngine {
                             // Lobby already exists.
                             let storage: ILobbyStorage = inst.getLobbyStorage_internal(
                                 lj.lobbyData.name
-                            );
+                            ) as ILobbyStorage;
                             if (storage.config.key === lj.lobbyData.key) {
                                 socket.join(storage.config.name);
                                 bus.emit(

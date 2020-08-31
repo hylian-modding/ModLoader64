@@ -417,9 +417,9 @@ class pluginLoader {
             'ModLoader64'
         ) as IModLoaderConfig;
         let ss: any;
-        if (mlconfig.isClient){
+        if (mlconfig.isClient) {
             ss = Object.freeze(new SoundSystem());
-        }else{
+        } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
         try {
@@ -583,6 +583,7 @@ class pluginLoader {
             }
         });
         this.injector = () => {
+            this.logger.debug("Starting injection...");
             iconsole.finishInjects();
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
@@ -607,8 +608,11 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                setInterval(this.crashCheck, 10 * 1000);
+                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                    setInterval(this.crashCheck, 10 * 1000);
+                }, 20);
             }
+            this.logger.debug("Injection finished.");
         };
         let testBuffer: Buffer = Buffer.from("MODLOADER64");
         emu.rdramWriteBuffer(0x80800000, testBuffer);
