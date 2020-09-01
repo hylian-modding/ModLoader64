@@ -3,6 +3,9 @@ import Vector3 from 'modloader64_api/math/Vector3';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 export class FakeN64Memory implements IMemory, IRomMemory {
+    
+    invalidateCachedCode(): void {
+    }
 
     romRead8(addr: number): number {
         return -1;

@@ -54,6 +54,7 @@ import { getAllFiles } from './getAllFiles';
 import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
+import { Emulator_Callbacks } from './consoles/mupen/IMupen';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -388,10 +389,6 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
-        utils.stopEmulatorThisFrame = () => {
-            this.processNextFrame = false;
-            return this.processNextFrame;
-        };
 
         let fn = (modid: string): boolean => {
             for (let i = 0; i < this.plugins.length; i++) {
@@ -481,37 +478,30 @@ class pluginLoader {
             value();
         });
         this.onTickHandle = () => {
-            let frame: number = iconsole.getFrameCount();
-            if (frame > -1) {
-                this.loaded_core.onTick(frame);
-                this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
-                    value(frame);
-                });
-                this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
-                    value(frame);
-                });
-                net.onTick();
-                this.frameTimeouts.forEach(
-                    (
-                        value: frameTimeoutContainer,
-                        key: string,
-                        map: Map<string, frameTimeoutContainer>
-                    ) => {
-                        if (value.frames <= 0) {
-                            value.fn();
-                            this.frameTimeouts.delete(key);
-                        } else {
-                            value.frames--;
-                        }
+            let frame = iconsole.getFrameCount();
+            this.loaded_core.onTick(frame);
+            this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                value(frame);
+            });
+            this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
+                value(frame);
+            });
+            net.onTick();
+            this.frameTimeouts.forEach(
+                (
+                    value: frameTimeoutContainer,
+                    key: string,
+                    map: Map<string, frameTimeoutContainer>
+                ) => {
+                    if (value.frames <= 0) {
+                        value.fn();
+                        this.frameTimeouts.delete(key);
+                    } else {
+                        value.frames--;
                     }
-                );
-                this.curFrame = frame;
-                if (this.processNextFrame) {
-                    iconsole.setFrameCount(-1);
-                } else {
-                    this.processNextFrame = true;
                 }
-            }
+            );
+            this.curFrame = frame;
         };
         Object.freeze(this.onTickHandle);
         this.crashCheck = () => {
@@ -584,7 +574,6 @@ class pluginLoader {
         });
         this.injector = () => {
             this.logger.debug("Starting injection...");
-            iconsole.finishInjects();
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
                     dir,
@@ -614,16 +603,20 @@ class pluginLoader {
             }
             this.logger.debug("Injection finished.");
         };
-        let testBuffer: Buffer = Buffer.from("MODLOADER64");
-        emu.rdramWriteBuffer(0x80800000, testBuffer);
-        if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-            this.logger.info("16MB Expansion verified.");
-            emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-        }
-        this.injector();
         if (config.isClient) {
-            setInterval(this.onTickHandle, 0);
+            iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
         }
+        iconsole.on(Emulator_Callbacks.core_started, () => {
+            setTimeout(() => {
+                let testBuffer: Buffer = Buffer.from("MODLOADER64");
+                emu.rdramWriteBuffer(0x80800000, testBuffer);
+                if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+                    this.logger.info("16MB Expansion verified.");
+                    emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
+                }
+                //this.injector();
+            }, 1000);
+        });
     }
 
     reinject(callback: Function) {

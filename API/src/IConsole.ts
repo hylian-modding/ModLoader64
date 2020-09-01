@@ -39,6 +39,8 @@ interface IConsole {
   getFrameCount(): number;
 
   setFrameCount(num: number): void;
+
+  on(which: string, callback: any): void;
 }
 
 export default IConsole;

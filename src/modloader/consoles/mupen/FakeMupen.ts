@@ -17,6 +17,9 @@ export class FakeMupen implements IConsole {
         this.rom_data = Buffer.alloc(1);
         this.ram = new FakeN64Memory();
     }
+    
+    on(which: string, callback: any): void {
+    }
 
     startEmulator(preStartCallback: Function): IMemory {
         preStartCallback(this.rom_data);
@@ -73,8 +76,20 @@ export class FakeMupen implements IConsole {
 }
 
 class FakeN64SaveState implements ISaveState {
-    saveState(file: string): void { }
-    loadState(file: string): void { }
+    setStateSlot(slot: number): void {
+    }
+    loadState(): void {
+    }
+    loadStateFromSlot(slot: number): void {
+    }
+    loadStateFromFile(path: string): void {
+    }
+    saveState(): void {
+    }
+    saveStateToSlot(slot: number): void {
+    }
+    saveStateToFile(path: string): void {
+    }
 }
 
 class FakeN64Utils implements IUtils {

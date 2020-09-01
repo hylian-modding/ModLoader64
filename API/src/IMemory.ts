@@ -1,4 +1,6 @@
-interface IMemory {
+import IDynarecCache from "./IDynarecCache";
+
+interface IMemory extends IDynarecCache {
   //--------------------
   // Normal ram functions
   //--------------------

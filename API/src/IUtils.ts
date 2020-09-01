@@ -1,15 +1,5 @@
 interface IUtils {
   
-  utilBitCount8(value: number): number;
-
-  utilBitCount16(value: number): number;
-
-  utilBitCount32(value: number): number;
-
-  utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
-
-  memoryCacheRefresh(): void;
-
   hashBuffer(buf: Buffer): string;
 
   yaz0Encode(buf: Buffer): Buffer;
@@ -23,8 +13,7 @@ interface IUtils {
   getUUID(): string;
 
   cloneBuffer(buf: Buffer): Buffer;
-
-  stopEmulatorThisFrame(): boolean;
+  
 }
 
 export default IUtils;

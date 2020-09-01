@@ -10,10 +10,10 @@ import {
 } from 'modloader64_api/IModLoaderAPI';
 import IModLoaderConfig from './IModLoaderConfig';
 import NetworkEngine from './NetworkEngine';
-import N64 from './consoles/N64';
+import N64 from './consoles/mupen/N64';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
-import { FakeMupen } from './consoles/FakeMupen';
+import { FakeMupen } from './consoles/mupen/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
