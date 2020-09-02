@@ -439,13 +439,17 @@ class FakeImGui implements IImGui {
     }
     alignTextToFramePadding(): void {
     }
-    getTextLineHeight(): void {
+    getTextLineHeight(): number {
+        return -1;
     }
-    getTextLineHeightWithSpacing(): void {
+    getTextLineHeightWithSpacing(): number {
+        return -1;
     }
-    getFrameHeight(): void {
+    getFrameHeight(): number {
+        return -1;
     }
-    getFrameHeightWithSpacing(): void {
+    getFrameHeightWithSpacing(): number {
+        return -1;
     }
     pushId(strId: string): void;
     pushId(ptrId: number): void;
