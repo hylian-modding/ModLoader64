@@ -366,6 +366,7 @@ namespace NetworkEngine {
                                 server: new VersionPacket(global.ModLoader.version,inst.plugins,inst.core),
                                 patchLimit: inst.config.patchSizeLimitMB
                             });
+                            socket.join("__GLOBAL__");
                         } else {
                             inst.sendToTarget(socket.id, 'versionBad', {
                                 client: { ml: packet.ml, plugins: packet.plugins, core: packet.core },
