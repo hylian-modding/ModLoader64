@@ -173,6 +173,9 @@ export class ActorBase extends JSONTemplate implements IActor {
         this.rotation = new Rotation(this);
         this.position = new Position(this);
     }
+    
+    invalidateCachedCode(): void {
+    }
 
     get actorID(): number {
         return this.rdramRead16(0x0);

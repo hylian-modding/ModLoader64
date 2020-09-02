@@ -62,6 +62,9 @@ export class Link extends JSONTemplate implements ILink {
         this.position = new Position(this);
         this.math = math;
     }
+    
+    invalidateCachedCode(): void {
+    }
 
     get actorID(): number {
         return this.rdramRead16(0x0);

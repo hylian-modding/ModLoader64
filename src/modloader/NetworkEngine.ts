@@ -45,26 +45,12 @@ import { ML_UUID } from './uuid/mluuid';
 import { AnalyticsClient } from '../analytics/AnalyticsClient';
 import { Analytics_StorePacket } from 'modloader64_api/analytics/Analytics_StorePacket';
 import { getAllFiles } from './getAllFiles';
+import { IClientConfig } from './IClientConfig';
+import { IServerConfig } from './IServerConfig';
 
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
 const NetworkingEventBus: EventBus = new EventBus();
-
-interface IServerConfig {
-    port: number;
-    udpPort: number;
-    patchSizeLimitMB: number;
-}
-
-interface IClientConfig {
-    isSinglePlayer: boolean;
-    ip: string;
-    port: number;
-    nickname: string;
-    lobby: string;
-    password: string;
-    forceServerOverride: boolean;
-}
 
 class LobbyStorage implements ILobbyStorage {
     config: LobbyData;
@@ -366,6 +352,7 @@ namespace NetworkEngine {
                                 server: new VersionPacket(global.ModLoader.version,inst.plugins,inst.core),
                                 patchLimit: inst.config.patchSizeLimitMB
                             });
+                            socket.join("__GLOBAL__");
                         } else {
                             inst.sendToTarget(socket.id, 'versionBad', {
                                 client: { ml: packet.ml, plugins: packet.plugins, core: packet.core },

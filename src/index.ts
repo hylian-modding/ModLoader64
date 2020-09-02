@@ -10,8 +10,7 @@ import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 require('source-map-support').install();
 
 const projectID = 'ModLoader64';
-const authors: string[] = ['denoflions', 'SpiceyWolf'];
-const testers: string[] = [];
+const authors: string[] = ['denoflions', 'Sylvain'];
 const version = require('./version');
 
 global.ModLoader = {};
@@ -103,9 +102,6 @@ if (program.logginglevel !== undefined) {
 
 logger.info(projectID);
 logger.info('Authors: ', authors.toString());
-if (testers.length > 0) {
-    logger.info('Testers: ', testers.toString());
-}
 logger.info('Version: ', version);
 
 logger.info('Setting running directory: ' + process.cwd());

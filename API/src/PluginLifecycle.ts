@@ -9,7 +9,9 @@ export const enum LifeCycleEvents {
     INIT = "init",
     POSTINIT = "postinit",
     ONTICK = "ontick",
-    ONPOSTTICK = 'onposttick'
+    ONPOSTTICK = 'onposttick',
+    ONVIUPDATE = 'onviupdate',
+    ONCREATERESOURCES = 'oncreateresources'
 }
 
 export function Preinit() {
@@ -127,6 +129,52 @@ export function onPostTick() {
     };
 }
 
+export function onViUpdate() {
+    return function (
+        this: any,
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        if (target.ModLoader === undefined) {
+            target['ModLoader'] = {};
+        }
+        if (target.ModLoader.Lifecycle === undefined) {
+            target.ModLoader['Lifecycle'] = {};
+        }
+        if (target.ModLoader.Lifecycle.onViUpdate === undefined) {
+            target.ModLoader.Lifecycle['onViUpdate'] = new Map<
+                string,
+                string
+            >();
+        }
+        target.ModLoader.Lifecycle.onViUpdate.set("onViUpdate", propertyKey);
+    };
+}
+
+export function onCreateResources() {
+    return function (
+        this: any,
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        if (target.ModLoader === undefined) {
+            target['ModLoader'] = {};
+        }
+        if (target.ModLoader.Lifecycle === undefined) {
+            target.ModLoader['Lifecycle'] = {};
+        }
+        if (target.ModLoader.Lifecycle.onCreateResources === undefined) {
+            target.ModLoader.Lifecycle['onCreateResources'] = new Map<
+                string,
+                string
+            >();
+        }
+        target.ModLoader.Lifecycle.onCreateResources.set("onCreateResources", propertyKey);
+    };
+}
+
 export function setupLifecycle(instance: any) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
@@ -162,6 +210,18 @@ export function setupLifecycle(instance: any) {
                 p.ModLoader.Lifecycle.onPostTick.forEach(function (value: string, key: string) {
                     let a = (instance as any)[value].bind(instance);
                     lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onViUpdate")) {
+                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: string, key: string) {
+                    let a = (instance as any)[value].bind(instance);
+                    lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE, a);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onCreateResources")) {
+                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: string, key: string) {
+                    let a = (instance as any)[value].bind(instance);
+                    lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES, a);
                 });
             }
         }

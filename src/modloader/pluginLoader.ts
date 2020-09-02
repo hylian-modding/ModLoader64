@@ -47,13 +47,14 @@ import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
 import { Analytics } from 'modloader64_api/analytics/Analytics';
-import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
+import { MonkeyPatch_Yaz0Encode, MonkeyPatch_Yaz0Decode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 import { getAllFiles } from './getAllFiles';
 import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
+import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -65,6 +66,8 @@ class pluginLoader {
     config: IConfig;
     logger: ILogger;
     onTickHandle!: any;
+    onViHandle!: any;
+    onResourceHandle!: any;
     header!: IRomHeader;
     curFrame = -1;
     frameTimeouts: Map<string, frameTimeoutContainer> = new Map<
@@ -99,6 +102,8 @@ class pluginLoader {
         this.lifecycle_funcs.set(LifeCycleEvents.POSTINIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONTICK, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONPOSTTICK, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONVIUPDATE, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONCREATERESOURCES, []);
         lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
         });
@@ -114,6 +119,12 @@ class pluginLoader {
         lifecyclebus.on(LifeCycleEvents.ONPOSTTICK, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.push(handler);
         });
+        lifecyclebus.on(LifeCycleEvents.ONVIUPDATE, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONCREATERESOURCES, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.push(handler);
+        });
     }
 
     registerCorePlugin(name: string, core: any) {
@@ -122,6 +133,80 @@ class pluginLoader {
 
     private registerPlugin(plugin: any) {
         this.plugins.push(plugin);
+    }
+
+    private processInternalPlugin(pluginPath: string){
+        let file: string = pluginPath;
+        let parse = path.parse(pluginPath);
+        if (parse.ext.indexOf('js') > -1) {
+            let p = require(file);
+            let plugin: any = new p();
+            plugin['ModLoader'] = {} as IModLoaderAPI;
+            plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
+            plugin['ModLoader']['config'] = this.config;
+            Object.defineProperty(plugin, 'pluginName', {
+                value: pluginPath,
+                writable: false,
+            });
+            Object.defineProperty(plugin, 'pluginHash', {
+                value: "",
+                writable: false,
+            });
+            let mlconfig = this.config.registerConfigCategory(
+                'ModLoader64'
+            ) as IModLoaderConfig;
+            setupEventHandlers(plugin);
+            setupNetworkHandlers(plugin);
+            setupCoreInject(plugin, this.loaded_core);
+            setupLifecycle_IPlugin(plugin);
+            setupLifecycle(plugin);
+            Object.keys(plugin).forEach((key: string) => {
+                if (plugin[key] !== null && plugin[key] !== undefined) {
+                    setupParentReference((plugin as any)[key], plugin);
+                    setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                    setupCoreInject((plugin as any)[key], this.loaded_core);
+                    setupEventHandlers((plugin as any)[key]);
+                    setupNetworkHandlers((plugin as any)[key]);
+                    setupLifecycle((plugin as any)[key]);
+                    markPrototypeProcessed((plugin as any)[key]);
+                }
+            });
+
+            let fn = (instance: any, parent: any) => {
+                setupParentReference(instance, parent);
+                setupMLInjects(instance, parent.ModLoader);
+                setupCoreInject(instance, this.loaded_core);
+                setupEventHandlers(instance);
+                setupNetworkHandlers(instance);
+                setupLifecycle(instance);
+                Object.keys(instance).forEach((key: string) => {
+                    if (instance[key] !== null && instance[key] !== undefined) {
+                        setupParentReference((instance as any)[key], parent);
+                        setupMLInjects((instance as any)[key], plugin.ModLoader);
+                        setupCoreInject((instance as any)[key], this.loaded_core);
+                        setupEventHandlers((instance as any)[key]);
+                        setupNetworkHandlers((instance as any)[key]);
+                        setupLifecycle((instance as any)[key]);
+                        markPrototypeProcessed((instance as any)[key]);
+                    }
+                });
+                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                for (let i = 0; i < children.length; i++) {
+                    fn(children[i], plugin);
+                }
+                markPrototypeProcessed(instance);
+            };
+            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children.length; i++) {
+                fn(children[i], plugin);
+            }
+            markPrototypeProcessed(plugin);
+            Object.defineProperty(plugin, 'metadata', {
+                value: {},
+                writable: false,
+            });
+            this.registerPlugin(plugin);
+        }
     }
 
     private processFolder(dir: string) {
@@ -223,6 +308,7 @@ class pluginLoader {
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
+            setupLifecycle(plugin);
             Object.keys(plugin).forEach((key: string) => {
                 if (plugin[key] !== null && plugin[key] !== undefined) {
                     setupParentReference((plugin as any)[key], plugin);
@@ -272,15 +358,6 @@ class pluginLoader {
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
             internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
-            if (pkg.hasOwnProperty("HDTextures")) {
-                this.logger.info(parse.name + " has HD textures.");
-                let high_res_folder: string = "./emulator/hires_texture";
-                if (!fs.existsSync(high_res_folder)) {
-                    fs.mkdirSync(high_res_folder);
-                }
-                let mod_res_folder: string = path.resolve(dir, "hires_texture");
-                fs.copySync(mod_res_folder, high_res_folder);
-            }
         }
     }
 
@@ -324,6 +401,9 @@ class pluginLoader {
         });
 
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
+
+        // Start internal plugins.
+        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js');
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
@@ -388,10 +468,6 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
-        utils.stopEmulatorThisFrame = () => {
-            this.processNextFrame = false;
-            return this.processNextFrame;
-        };
 
         let fn = (modid: string): boolean => {
             for (let i = 0; i < this.plugins.length; i++) {
@@ -404,8 +480,10 @@ class pluginLoader {
         fn = Object.freeze(fn);
 
         // Monkey patch Yaz0Encode to have a cache.
-        let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils);
+        let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils, iconsole.getYaz0Encoder());
         monkeypatch.patch();
+        let monkeypatch2: MonkeyPatch_Yaz0Decode = new MonkeyPatch_Yaz0Decode(utils, iconsole.getYaz0Encoder());
+        monkeypatch2.patch();
 
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
@@ -481,39 +559,43 @@ class pluginLoader {
             value();
         });
         this.onTickHandle = () => {
-            let frame: number = iconsole.getFrameCount();
-            if (frame > -1) {
-                this.loaded_core.onTick(frame);
-                this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
-                    value(frame);
-                });
-                this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
-                    value(frame);
-                });
-                net.onTick();
-                this.frameTimeouts.forEach(
-                    (
-                        value: frameTimeoutContainer,
-                        key: string,
-                        map: Map<string, frameTimeoutContainer>
-                    ) => {
-                        if (value.frames <= 0) {
-                            value.fn();
-                            this.frameTimeouts.delete(key);
-                        } else {
-                            value.frames--;
-                        }
+            let frame = iconsole.getFrameCount();
+            this.loaded_core.onTick(frame);
+            this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                value(frame);
+            });
+            this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
+                value(frame);
+            });
+            net.onTick();
+            this.frameTimeouts.forEach(
+                (
+                    value: frameTimeoutContainer,
+                    key: string,
+                    map: Map<string, frameTimeoutContainer>
+                ) => {
+                    if (value.frames <= 0) {
+                        value.fn();
+                        this.frameTimeouts.delete(key);
+                    } else {
+                        value.frames--;
                     }
-                );
-                this.curFrame = frame;
-                if (this.processNextFrame) {
-                    iconsole.setFrameCount(-1);
-                } else {
-                    this.processNextFrame = true;
                 }
-            }
+            );
+            this.curFrame = frame;
+        };
+        this.onViHandle = () => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
+                value();
+            });
+        };
+        this.onResourceHandle = () => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.forEach((value: Function) => {
+                value();
+            });
         };
         Object.freeze(this.onTickHandle);
+        Object.freeze(this.onViHandle);
         this.crashCheck = () => {
             if (!this.processNextFrame) {
                 this.lastCrashCheckFrame = -1;
@@ -555,12 +637,31 @@ class pluginLoader {
         let emu: IMemory = Object.freeze(emulator);
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
-        this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
+        let savestates = iconsole.getSaveStateManager();
+        Object.freeze(savestates);
+        this.loaded_core.ModLoader.savestates = savestates;
         this.loaded_core.ModLoader.gui = Object.freeze(
             new GUIAPI('core', this.loaded_core)
         );
         this.loaded_core.ModLoader.payloadManager = this.payloadManager;
         this.loaded_core.ModLoader.math = math;
+        let imgui = iconsole.getImGuiAccess();
+        let sdl = iconsole.getSDLAccess();
+        let gfx = iconsole.getGfxAccess();
+        let input = iconsole.getInputAccess();
+        gfx.createTexture = () => {
+            //@ts-ignore
+            let t = new gfx.Texture();
+            return t;
+        };
+        Object.freeze(imgui);
+        Object.freeze(sdl);
+        Object.freeze(gfx);
+        Object.freeze(input);
+        this.loaded_core.ModLoader.ImGui = imgui;
+        this.loaded_core.ModLoader.SDL = sdl;
+        this.loaded_core.ModLoader.Gfx = gfx;
+        this.loaded_core.ModLoader.Input = input;
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;
@@ -569,7 +670,11 @@ class pluginLoader {
             plugin.ModLoader.gui = Object.freeze(
                 new GUIAPI(plugin.pluginName as string, plugin)
             );
-            plugin.ModLoader.savestates = (emu as unknown) as ISaveState;
+            plugin.ModLoader.savestates = savestates;
+            plugin.ModLoader.ImGui = imgui;
+            plugin.ModLoader.SDL = sdl;
+            plugin.ModLoader.Gfx = gfx;
+            plugin.ModLoader.Input = input;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
             value();
@@ -584,7 +689,6 @@ class pluginLoader {
         });
         this.injector = () => {
             this.logger.debug("Starting injection...");
-            iconsole.finishInjects();
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
                     dir,
@@ -608,22 +712,25 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                    setInterval(this.crashCheck, 10 * 1000);
-                }, 20);
             }
             this.logger.debug("Injection finished.");
         };
-        let testBuffer: Buffer = Buffer.from("MODLOADER64");
-        emu.rdramWriteBuffer(0x80800000, testBuffer);
-        if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-            this.logger.info("16MB Expansion verified.");
-            emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-        }
-        this.injector();
         if (config.isClient) {
-            setInterval(this.onTickHandle, 0);
+            iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
+            iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
+            iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
         }
+        iconsole.on(Emulator_Callbacks.core_started, () => {
+            this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                let testBuffer: Buffer = Buffer.from("MODLOADER64");
+                emu.rdramWriteBuffer(0x80800000, testBuffer);
+                if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+                    this.logger.info("16MB Expansion verified.");
+                    emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
+                }
+                this.injector();
+            }, 1);
+        });
     }
 
     reinject(callback: Function) {

@@ -8,7 +8,6 @@ export class SoundSystem implements ISoundSystem{
 
     constructor(){
         this.native = require('@sound/sfml_audio');
-        console.log(this.native);
     }
 
     get listener(): sf.Listener{
