@@ -559,30 +559,35 @@ class pluginLoader {
             value();
         });
         this.onTickHandle = () => {
-            let frame = iconsole.getFrameCount();
-            this.loaded_core.onTick(frame);
-            this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
-                value(frame);
-            });
-            this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
-                value(frame);
-            });
-            net.onTick();
-            this.frameTimeouts.forEach(
-                (
-                    value: frameTimeoutContainer,
-                    key: string,
-                    map: Map<string, frameTimeoutContainer>
-                ) => {
-                    if (value.frames <= 0) {
-                        value.fn();
-                        this.frameTimeouts.delete(key);
-                    } else {
-                        value.frames--;
+            try{
+                let frame = iconsole.getFrameCount();
+                this.loaded_core.onTick(frame);
+                this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                    value(frame);
+                });
+                this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
+                    value(frame);
+                });
+                net.onTick();
+                this.frameTimeouts.forEach(
+                    (
+                        value: frameTimeoutContainer,
+                        key: string,
+                        map: Map<string, frameTimeoutContainer>
+                    ) => {
+                        if (value.frames <= 0) {
+                            value.fn();
+                            this.frameTimeouts.delete(key);
+                        } else {
+                            value.frames--;
+                        }
                     }
-                }
-            );
-            this.curFrame = frame;
+                );
+                this.curFrame = frame;
+            }catch(err){
+                this.logger.error(err.stack);
+                throw err;
+            }
         };
         this.onViHandle = () => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
