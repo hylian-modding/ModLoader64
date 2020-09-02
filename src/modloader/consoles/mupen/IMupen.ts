@@ -1,6 +1,6 @@
 import { Frontend, ImGui, M64p } from './ml64_emu_addon';
 import IMemory from 'modloader64_api/IMemory';
-import {IImGui} from 'modloader64_api/Sylvain/ImGui';
+import { IImGui } from 'modloader64_api/Sylvain/ImGui';
 import { SDL, WindowRef } from 'modloader64_api/Sylvain/SDL';
 import { Gfx, Texture } from 'modloader64_api/Sylvain/Gfx';
 import { Input } from 'modloader64_api/Sylvain/Input';
@@ -91,10 +91,62 @@ export interface IM64p {
     getNumElapsedFrames(): number;
     Memory: IMemory;
     Input: Input;
+    Config: Config;
 }
 
 export const enum EmuState {
     Stopped = 1,
     Running,
     Paused
+}
+
+export const enum ParamType {
+    Int = 1, Float, Bool, String
+}
+
+export interface Param {
+    name: string;
+    type: ParamType;
+}
+
+export interface Section {
+    getName(): string;
+    listParams(): Param[];
+    save(): void;
+    hasUnsavedChanges(): boolean;
+    erase(): void;
+    revertChanges(): void;
+
+    getHelp(name: string): string;
+    setHelp(name: string, help: string): void;
+    getType(name: string): ParamType;
+
+    setDefaultInt(name: string, value: number): void;
+    setDefaultFloat(name: string, value: number): void;
+    setDefaultBool(name: string, value: boolean): void;
+    setDefaultString(name: string, value: string): void;
+
+    getInt(name: string): number;
+    getIntOr(name: string, value: number): number;
+    setInt(name: string, value: number): void;
+    getFloat(name: string): number;
+    getFloatOr(name: string, value: number): number;
+    setFloat(name: string, value: number): void;
+    getBool(name: string): boolean;
+    getBoolOr(name: string, value: boolean): boolean;
+    setBool(name: string, value: boolean): void;
+    getString(name: string): string;
+    getStringOr(name: string, value: string): string;
+    setString(name: string, value: string): void;
+}
+
+export interface Config {
+    saveFile(): void;
+    hasUnsavedChanges(): boolean;
+    listSections(): string[];
+    openSection(name: string): Section;
+    getSharedDataFilePath(file: string): string;
+    getUserConfigPath(): string;
+    getUserDataPath(): string;
+    getUserCachePath(): string;
 }

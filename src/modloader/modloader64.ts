@@ -34,6 +34,7 @@ import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
 import { PakPatch } from './PakPatch';
+import { IClientConfig } from './IClientConfig';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -46,6 +47,9 @@ class ModLoader64 {
     data: IModLoaderConfig = this.config.registerConfigCategory(
         'ModLoader64'
     ) as IModLoaderConfig;
+    clientConfig: IClientConfig = this.config.registerConfigCategory(
+        'NetworkEngine.Client'
+    ) as IClientConfig;
     plugins: pluginLoader;
     rom_folder = './roms';
     mods_folder = './mods';
@@ -255,7 +259,7 @@ class ModLoader64 {
                     this.emulator = new FakeMupen(this.rom_path);
                 }
                 if (this.data.isClient) {
-                    this.emulator = new N64(this.rom_path, this.logger);
+                    this.emulator = new N64(this.rom_path, this.logger, this.clientConfig.lobby);
                 }
                 break;
             }

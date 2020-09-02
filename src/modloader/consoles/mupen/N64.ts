@@ -1,4 +1,4 @@
-import {IMupen, EmuState} from './IMupen';
+import { IMupen, EmuState } from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -22,17 +22,19 @@ class N64 implements IConsole {
     mupen: IMupen;
     rom_size: number;
     logger: ILogger;
+    lobby: string;
 
-    constructor(rom: string, logger: ILogger) {
+    constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
+        this.lobby = lobby;
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
-        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", 800, 600, "mupen64plus", "mupen64plus-rsp-hle", "mupen64plus-video-gliden64", "mupen64plus-audio-sdl", "mupen64plus-input-sdl", emu_dir, emu_dir));
+        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", 800, 600, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
         const _64_MB = 64 * 1024 * 1024;
         this.mupen.Frontend.on('window-closing', () => {
-            if (this.mupen.M64p.getEmuState() === EmuState.Paused){
+            if (this.mupen.M64p.getEmuState() === EmuState.Paused) {
                 this.mupen.M64p.resume();
             }
             if (this.mupen.M64p.getEmuState() === EmuState.Running)
@@ -46,14 +48,17 @@ class N64 implements IConsole {
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _64_MB;
-        bus.on('openInputConfig', ()=>{
+        bus.on('openInputConfig', () => {
             this.mupen.Frontend.openInputConfig();
         });
-        bus.on('openMemViewer', ()=>{
+        bus.on('openMemViewer', () => {
             this.mupen.Frontend.openMemViewer();
         });
-        bus.on('openCheatConfig', ()=>{
+        bus.on('openCheatConfig', () => {
             this.mupen.Frontend.openCheatConfig();
+        });
+        bus.on('toggleFullScreen', () =>{
+            this.mupen.Frontend.toggleFullScreen();
         });
     }
 
@@ -85,7 +90,9 @@ class N64 implements IConsole {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
         let buf: Buffer = preStartCallback();
         rom_r.romWriteBuffer(0x0, buf);
-        let code = this.mupen.Frontend.execute();
+        this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
+        this.fixSoundLag();
+        this.mupen.Frontend.execute();
         return this.mupen.M64p.Memory as IMemory;
     }
 
@@ -148,7 +155,9 @@ class N64 implements IConsole {
     }
 
     setSaveDir(path: string): void {
-        //this.mupen.M64p.setsave(path);
+        let section = this.mupen.M64p.Config.openSection('Core');
+        section.setString('SaveSRAMPath', path);
+        section.save();
     }
 
     getUtils(): IUtils {
@@ -157,6 +166,12 @@ class N64 implements IConsole {
 
     getSaveStateManager(): ISaveState {
         return this.mupen.M64p as ISaveState;
+    }
+
+    private fixSoundLag(){
+        let section = this.mupen.M64p.Config.openSection('Audio-SDL');
+        section.setString('RESAMPLE', 'trivial');
+        section.save();
     }
 }
 

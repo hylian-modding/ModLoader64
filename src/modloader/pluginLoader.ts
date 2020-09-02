@@ -135,6 +135,80 @@ class pluginLoader {
         this.plugins.push(plugin);
     }
 
+    private processInternalPlugin(pluginPath: string){
+        let file: string = pluginPath;
+        let parse = path.parse(pluginPath);
+        if (parse.ext.indexOf('js') > -1) {
+            let p = require(file);
+            let plugin: any = new p();
+            plugin['ModLoader'] = {} as IModLoaderAPI;
+            plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
+            plugin['ModLoader']['config'] = this.config;
+            Object.defineProperty(plugin, 'pluginName', {
+                value: pluginPath,
+                writable: false,
+            });
+            Object.defineProperty(plugin, 'pluginHash', {
+                value: "",
+                writable: false,
+            });
+            let mlconfig = this.config.registerConfigCategory(
+                'ModLoader64'
+            ) as IModLoaderConfig;
+            setupEventHandlers(plugin);
+            setupNetworkHandlers(plugin);
+            setupCoreInject(plugin, this.loaded_core);
+            setupLifecycle_IPlugin(plugin);
+            setupLifecycle(plugin);
+            Object.keys(plugin).forEach((key: string) => {
+                if (plugin[key] !== null && plugin[key] !== undefined) {
+                    setupParentReference((plugin as any)[key], plugin);
+                    setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                    setupCoreInject((plugin as any)[key], this.loaded_core);
+                    setupEventHandlers((plugin as any)[key]);
+                    setupNetworkHandlers((plugin as any)[key]);
+                    setupLifecycle((plugin as any)[key]);
+                    markPrototypeProcessed((plugin as any)[key]);
+                }
+            });
+
+            let fn = (instance: any, parent: any) => {
+                setupParentReference(instance, parent);
+                setupMLInjects(instance, parent.ModLoader);
+                setupCoreInject(instance, this.loaded_core);
+                setupEventHandlers(instance);
+                setupNetworkHandlers(instance);
+                setupLifecycle(instance);
+                Object.keys(instance).forEach((key: string) => {
+                    if (instance[key] !== null && instance[key] !== undefined) {
+                        setupParentReference((instance as any)[key], parent);
+                        setupMLInjects((instance as any)[key], plugin.ModLoader);
+                        setupCoreInject((instance as any)[key], this.loaded_core);
+                        setupEventHandlers((instance as any)[key]);
+                        setupNetworkHandlers((instance as any)[key]);
+                        setupLifecycle((instance as any)[key]);
+                        markPrototypeProcessed((instance as any)[key]);
+                    }
+                });
+                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                for (let i = 0; i < children.length; i++) {
+                    fn(children[i], plugin);
+                }
+                markPrototypeProcessed(instance);
+            };
+            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children.length; i++) {
+                fn(children[i], plugin);
+            }
+            markPrototypeProcessed(plugin);
+            Object.defineProperty(plugin, 'metadata', {
+                value: {},
+                writable: false,
+            });
+            this.registerPlugin(plugin);
+        }
+    }
+
     private processFolder(dir: string) {
         if (!fs.existsSync(dir)) {
             return;
@@ -284,15 +358,6 @@ class pluginLoader {
             this.registerPlugin(plugin);
             this.plugin_folders.push(parse.dir);
             internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
-            if (pkg.hasOwnProperty("HDTextures")) {
-                this.logger.info(parse.name + " has HD textures.");
-                let high_res_folder: string = "./emulator/hires_texture";
-                if (!fs.existsSync(high_res_folder)) {
-                    fs.mkdirSync(high_res_folder);
-                }
-                let mod_res_folder: string = path.resolve(dir, "hires_texture");
-                fs.copySync(mod_res_folder, high_res_folder);
-            }
         }
     }
 
@@ -336,6 +401,9 @@ class pluginLoader {
         });
 
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
+
+        // Start internal plugins.
+        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js');
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
