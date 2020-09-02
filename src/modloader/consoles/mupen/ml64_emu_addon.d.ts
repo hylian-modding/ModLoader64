@@ -993,10 +993,10 @@ export module ImGui {
     export function getCursorScreenPos(): vec2;
     export function setCursorScreenPos(pos: vec2): void;
     export function alignTextToFramePadding(): void;
-    export function getTextLineHeight(): void;
-    export function getTextLineHeightWithSpacing(): void;
-    export function getFrameHeight(): void;
-    export function getFrameHeightWithSpacing(): void;
+    export function getTextLineHeight(): number;
+    export function getTextLineHeightWithSpacing(): number;
+    export function getFrameHeight(): number;
+    export function getFrameHeightWithSpacing(): number;
 
     export function pushId(strId: string): void;
     export function pushId(ptrId: number): void;

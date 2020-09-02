@@ -437,10 +437,10 @@ export interface IImGui {
     getCursorScreenPos(): vec2;
     setCursorScreenPos(pos: vec2): void;
     alignTextToFramePadding(): void;
-    getTextLineHeight(): void;
-    getTextLineHeightWithSpacing(): void;
-    getFrameHeight(): void;
-    getFrameHeightWithSpacing(): void;
+    getTextLineHeight(): number;
+    getTextLineHeightWithSpacing(): number;
+    getFrameHeight(): number;
+    getFrameHeightWithSpacing(): number;
 
     pushId(strId: string): void;
     pushId(ptrId: number): void;
