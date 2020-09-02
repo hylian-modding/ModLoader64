@@ -9,6 +9,10 @@ import { IMath } from './math/IMath';
 import { IRomMemory } from './IRomMemory';
 import { IAnalytics } from './analytics/IAnalytics';
 import { ISoundSystem } from './Sound/ISoundSystem';
+import { IImGui } from './Sylvain/ImGui';
+import { SDL } from './Sylvain/SDL';
+import { Gfx } from './Sylvain/Gfx';
+import { Input } from './Sylvain/Input';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -57,6 +61,10 @@ export interface IModLoaderAPI {
   isServer: boolean;
   sound: ISoundSystem;
   isModLoaded(modid: string): boolean;
+  ImGui: IImGui;
+  SDL: SDL;
+  Gfx: Gfx;
+  Input: Input;
 }
 
 export interface IPlugin {

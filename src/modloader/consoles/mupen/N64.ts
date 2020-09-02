@@ -10,6 +10,12 @@ import ISaveState from 'modloader64_api/ISaveState';
 import path from 'path';
 import { StartInfoImpl } from './StartInfoImpl';
 import fs from 'fs';
+import { IImGui } from 'modloader64_api/Sylvain/ImGui';
+import { SDL } from 'modloader64_api/Sylvain/SDL';
+import { Gfx } from 'modloader64_api/Sylvain/Gfx';
+import { Input } from 'modloader64_api/Sylvain/Input';
+import { bus } from 'modloader64_api/EventHandler';
+import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -22,7 +28,7 @@ class N64 implements IConsole {
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
-        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", 320, 240, "mupen64plus", "mupen64plus-rsp-hle", "mupen64plus-video-gliden64", "mupen64plus-audio-sdl", "mupen64plus-input-sdl", emu_dir, emu_dir));
+        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", 800, 600, "mupen64plus", "mupen64plus-rsp-hle", "mupen64plus-video-gliden64", "mupen64plus-audio-sdl", "mupen64plus-input-sdl", emu_dir, emu_dir));
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
         const _64_MB = 64 * 1024 * 1024;
         this.mupen.Frontend.on('window-closing', () => {
@@ -40,10 +46,35 @@ class N64 implements IConsole {
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _64_MB;
-
-        setTimeout(()=>{
+        bus.on('openInputConfig', ()=>{
+            this.mupen.Frontend.openInputConfig();
+        });
+        bus.on('openMemViewer', ()=>{
             this.mupen.Frontend.openMemViewer();
-        }, 10 * 1000);
+        });
+        bus.on('openCheatConfig', ()=>{
+            this.mupen.Frontend.openCheatConfig();
+        });
+    }
+
+    getYaz0Encoder(): IYaz0 {
+        return this.mupen.Yaz0;
+    }
+
+    getInputAccess(): Input {
+        return this.mupen.M64p.Input;
+    }
+
+    getGfxAccess(): Gfx {
+        return this.mupen.Gfx;
+    }
+
+    getSDLAccess(): SDL {
+        return this.mupen.SDL;
+    }
+
+    getImGuiAccess(): IImGui {
+        return this.mupen.ImGui;
     }
 
     on(which: string, callback: any): void {

@@ -47,14 +47,14 @@ import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
 import { Analytics } from 'modloader64_api/analytics/Analytics';
-import { MonkeyPatch_Yaz0Encode } from '../monkeypatches/Utils';
+import { MonkeyPatch_Yaz0Encode, MonkeyPatch_Yaz0Decode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
 import { getAllFiles } from './getAllFiles';
 import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
-import { Emulator_Callbacks } from './consoles/mupen/IMupen';
+import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -66,6 +66,8 @@ class pluginLoader {
     config: IConfig;
     logger: ILogger;
     onTickHandle!: any;
+    onViHandle!: any;
+    onResourceHandle!: any;
     header!: IRomHeader;
     curFrame = -1;
     frameTimeouts: Map<string, frameTimeoutContainer> = new Map<
@@ -100,6 +102,8 @@ class pluginLoader {
         this.lifecycle_funcs.set(LifeCycleEvents.POSTINIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONTICK, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONPOSTTICK, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONVIUPDATE, []);
+        this.lifecycle_funcs.set(LifeCycleEvents.ONCREATERESOURCES, []);
         lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
         });
@@ -114,6 +118,12 @@ class pluginLoader {
         });
         lifecyclebus.on(LifeCycleEvents.ONPOSTTICK, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONVIUPDATE, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.push(handler);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONCREATERESOURCES, (handler: Function) => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.push(handler);
         });
     }
 
@@ -224,6 +234,7 @@ class pluginLoader {
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
+            setupLifecycle(plugin);
             Object.keys(plugin).forEach((key: string) => {
                 if (plugin[key] !== null && plugin[key] !== undefined) {
                     setupParentReference((plugin as any)[key], plugin);
@@ -401,8 +412,10 @@ class pluginLoader {
         fn = Object.freeze(fn);
 
         // Monkey patch Yaz0Encode to have a cache.
-        let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils);
+        let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils, iconsole.getYaz0Encoder());
         monkeypatch.patch();
+        let monkeypatch2: MonkeyPatch_Yaz0Decode = new MonkeyPatch_Yaz0Decode(utils, iconsole.getYaz0Encoder());
+        monkeypatch2.patch();
 
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
@@ -503,7 +516,18 @@ class pluginLoader {
             );
             this.curFrame = frame;
         };
+        this.onViHandle = () => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
+                value();
+            });
+        };
+        this.onResourceHandle = () => {
+            this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.forEach((value: Function) => {
+                value();
+            });
+        };
         Object.freeze(this.onTickHandle);
+        Object.freeze(this.onViHandle);
         this.crashCheck = () => {
             if (!this.processNextFrame) {
                 this.lastCrashCheckFrame = -1;
@@ -545,12 +569,31 @@ class pluginLoader {
         let emu: IMemory = Object.freeze(emulator);
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
-        this.loaded_core.ModLoader.savestates = (emu as unknown) as ISaveState;
+        let savestates = iconsole.getSaveStateManager();
+        Object.freeze(savestates);
+        this.loaded_core.ModLoader.savestates = savestates;
         this.loaded_core.ModLoader.gui = Object.freeze(
             new GUIAPI('core', this.loaded_core)
         );
         this.loaded_core.ModLoader.payloadManager = this.payloadManager;
         this.loaded_core.ModLoader.math = math;
+        let imgui = iconsole.getImGuiAccess();
+        let sdl = iconsole.getSDLAccess();
+        let gfx = iconsole.getGfxAccess();
+        let input = iconsole.getInputAccess();
+        gfx.createTexture = () => {
+            //@ts-ignore
+            let t = new gfx.Texture();
+            return t;
+        };
+        Object.freeze(imgui);
+        Object.freeze(sdl);
+        Object.freeze(gfx);
+        Object.freeze(input);
+        this.loaded_core.ModLoader.ImGui = imgui;
+        this.loaded_core.ModLoader.SDL = sdl;
+        this.loaded_core.ModLoader.Gfx = gfx;
+        this.loaded_core.ModLoader.Input = input;
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;
@@ -559,7 +602,11 @@ class pluginLoader {
             plugin.ModLoader.gui = Object.freeze(
                 new GUIAPI(plugin.pluginName as string, plugin)
             );
-            plugin.ModLoader.savestates = (emu as unknown) as ISaveState;
+            plugin.ModLoader.savestates = savestates;
+            plugin.ModLoader.ImGui = imgui;
+            plugin.ModLoader.SDL = sdl;
+            plugin.ModLoader.Gfx = gfx;
+            plugin.ModLoader.Input = input;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
             value();
@@ -597,25 +644,24 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                    setInterval(this.crashCheck, 10 * 1000);
-                }, 20);
             }
             this.logger.debug("Injection finished.");
         };
         if (config.isClient) {
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
+            iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
+            iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
         }
         iconsole.on(Emulator_Callbacks.core_started, () => {
-            setTimeout(() => {
+            this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
                 let testBuffer: Buffer = Buffer.from("MODLOADER64");
                 emu.rdramWriteBuffer(0x80800000, testBuffer);
                 if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
                     this.logger.info("16MB Expansion verified.");
                     emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
                 }
-                //this.injector();
-            }, 1000);
+                this.injector();
+            }, 1);
         });
     }
 

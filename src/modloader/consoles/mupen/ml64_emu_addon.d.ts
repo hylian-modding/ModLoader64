@@ -275,7 +275,7 @@ export module M64p {
         export function rdramWriteBits8(addr: number, buf: Buffer): void;
         export function rdramWriteBitsBuffer(addr: number, buf: Buffer): void;
 
-        export function derefPtr(add: number): number;
+        export function dereferencePointer(addr: number): number;
         export function rdramReadPtr8(addr: number, off: number): number;
         export function rdramReadPtr16(addr: number, off: number): number;
         export function rdramReadPtr32(addr: number, off: number): number;

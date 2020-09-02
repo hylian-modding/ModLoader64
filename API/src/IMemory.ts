@@ -20,7 +20,7 @@ interface IMemory extends IDynarecCache {
   rdramReadBuffer(addr: number, size: number): Buffer;
 
   rdramWriteBuffer(addr: number, buf: Buffer): void;
-
+  
   dereferencePointer(addr: number): number;
 
   rdramReadS8(addr: number): number;
@@ -64,8 +64,6 @@ interface IMemory extends IDynarecCache {
   rdramReadPtrBuffer(addr: number, offset: number, size: number): Buffer;
 
   rdramWritePtrBuffer(addr: number, offset: number, buf: Buffer): void;
-
-  dereferencePointer(addr: number): number;
 
   rdramReadPtrS8(addr: number, offset: number): number;
 

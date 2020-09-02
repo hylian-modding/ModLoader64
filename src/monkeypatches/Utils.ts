@@ -2,19 +2,21 @@ import { MonkeyPatch, IMonkeyPatch } from "./IMonkeyPatch";
 import IUtils from "modloader64_api/IUtils";
 import fs from 'fs';
 import path from 'path';
-
+import { IYaz0 } from "modloader64_api/Sylvain/Yaz0";
 
 export class MonkeyPatch_Yaz0Encode extends MonkeyPatch implements IMonkeyPatch {
 
     obj: IUtils;
+    yaz0: IYaz0;
 
-    constructor(obj: IUtils) {
+    constructor(obj: IUtils, yaz0: IYaz0) {
         super();
         this.obj = obj;
+        this.yaz0 = yaz0;
     }
 
     patch(): void {
-        this.original = (this.obj as any)["yaz0Encode"];
+        this.original = (this.yaz0 as any)["encode"];
         this.replacement = (buf: Buffer) => {
             let cache_dir: string = "./cache";
             if (!fs.existsSync(cache_dir)) {
@@ -31,6 +33,28 @@ export class MonkeyPatch_Yaz0Encode extends MonkeyPatch implements IMonkeyPatch 
     }
 
     unpatch(): void {
-        (this.obj as any)["yaz0Encode"] = this.original;
+    }
+}
+
+export class MonkeyPatch_Yaz0Decode extends MonkeyPatch implements IMonkeyPatch {
+
+    obj: IUtils;
+    yaz0: IYaz0;
+
+    constructor(obj: IUtils, yaz0: IYaz0) {
+        super();
+        this.obj = obj;
+        this.yaz0 = yaz0;
+    }
+
+    patch(): void {
+        this.original = (this.yaz0 as any)["decode"];
+        this.replacement = (buf: Buffer) => {
+            return this.original(buf);
+        };
+        (this.obj as any)["yaz0Decode"] = this.replacement;
+    }
+
+    unpatch(): void {
     }
 }
