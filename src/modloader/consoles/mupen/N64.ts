@@ -47,7 +47,7 @@ class N64 implements IConsole {
         logger.info("Loading rom: " + rom + ".");
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
-        this.rom_size = _64_MB;
+        this.rom_size = _rom.byteLength;
         bus.on('openInputConfig', () => {
             this.mupen.Frontend.openInputConfig();
         });

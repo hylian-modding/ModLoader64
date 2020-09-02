@@ -46,6 +46,10 @@ switch (program.step) {
         clean();
         break;
     }
+	case "push": {
+        pushToServer();
+        break;
+    }
 }
 
 function clean() {
