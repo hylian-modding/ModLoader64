@@ -1,11 +1,15 @@
 import { IPlugin, IModLoaderAPI } from "modloader64_api/IModLoaderAPI";
 import { onViUpdate } from "modloader64_api/PluginLifecycle";
-import { bus } from "modloader64_api/EventHandler";
+import { bus, EventHandler } from "modloader64_api/EventHandler";
+import {MenuEvents} from 'modloader64_api/Sylvain/MenuEvents';
 
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
     pluginName?: string | undefined;
     pluginHash?: string | undefined;
+    cheatMenuEnabled: boolean = true;
+    memoryViewerEnabled: boolean = true;
+
     preinit(): void {
     }
     init(): void {
@@ -15,6 +19,16 @@ class MenubarPlugin implements IPlugin {
     onTick(frame?: number | undefined): void {
     }
 
+    @EventHandler(MenuEvents.DISABLE_CHEATS)
+    onDisableCheats(evt: any){
+        this.cheatMenuEnabled = false;
+    }
+
+    @EventHandler(MenuEvents.DISABLE_MEMORY_VIEWER)
+    onDisableMemoryViewer(evt: any){
+        this.memoryViewerEnabled = false;
+    }
+
     @onViUpdate()
     onViUpdate() {
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
@@ -22,11 +36,15 @@ class MenubarPlugin implements IPlugin {
                 if (this.ModLoader.ImGui.menuItem("Input config")) {
                     bus.emit('openInputConfig', {});
                 }
-                if (this.ModLoader.ImGui.menuItem("Cheats")) {
-                    bus.emit('openCheatConfig', {});
+                if (this.cheatMenuEnabled){
+                    if (this.ModLoader.ImGui.menuItem("Cheats")) {
+                        bus.emit('openCheatConfig', {});
+                    }
                 }
-                if (this.ModLoader.ImGui.menuItem("Memory viewer")) {
-                    bus.emit('openMemViewer', {});
+                if (this.memoryViewerEnabled){
+                    if (this.ModLoader.ImGui.menuItem("Memory viewer")) {
+                        bus.emit('openMemViewer', {});
+                    }
                 }
                 this.ModLoader.ImGui.endMenu();
             }
