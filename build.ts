@@ -187,6 +187,7 @@ function pushToServer() {
         console.log(data);
         console.log("Updating client files.")
         child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+        fs.removeSync("./dist/dedi/node_modules");
         return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
     }).then(data => {
         console.log(data);

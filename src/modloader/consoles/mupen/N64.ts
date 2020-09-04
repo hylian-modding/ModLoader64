@@ -16,7 +16,7 @@ import { Gfx } from 'modloader64_api/Sylvain/Gfx';
 import { Input } from 'modloader64_api/Sylvain/Input';
 import { bus } from 'modloader64_api/EventHandler';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
-import { MonkeyPatch_rdramReadBits8, MonkeyPatch_rdramWriteBits8, MonkeyPatch_rdramWriteBit8 } from '../../../monkeypatches/Mupen';
+import { MonkeyPatch_rdramReadBits8, MonkeyPatch_rdramWriteBits8, MonkeyPatch_rdramWriteBit8, MonkeyPatch_rdramReadBit8 } from '../../../monkeypatches/Mupen';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -31,12 +31,14 @@ class N64 implements IConsole {
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
 
-        let monkeyPatch1 = new MonkeyPatch_rdramReadBits8(this.mupen);
+/*         let monkeyPatch1 = new MonkeyPatch_rdramReadBits8(this.mupen);
         let monkeyPatch2 = new MonkeyPatch_rdramWriteBits8(this.mupen);
         let monkeyPatch3 = new MonkeyPatch_rdramWriteBit8(this.mupen);
+        let monkeyPatch4 = new MonkeyPatch_rdramReadBit8(this.mupen);
         monkeyPatch1.patch();
         monkeyPatch2.patch();
         monkeyPatch3.patch();
+        monkeyPatch4.patch(); */
 
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", 800, 600, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
@@ -119,7 +121,8 @@ class N64 implements IConsole {
 
     getLoadedRom(): Buffer {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
-        let buf: Buffer = rom_r.romReadBuffer(0x0, this.rom_size);
+        const _64_MB = 64 * 1024 * 1024;
+        let buf: Buffer = rom_r.romReadBuffer(0x0, _64_MB);
         return buf;
     }
 

@@ -29,6 +29,30 @@ export class MonkeyPatch_rdramWriteBit8 extends MonkeyPatch
   }
 }
 
+export class MonkeyPatch_rdramReadBit8 extends MonkeyPatch
+    implements IMonkeyPatch {
+  mupen: IMupen;
+
+  constructor(mupen: IMupen) {
+      super();
+      this.mupen = mupen;
+  }
+
+  patch(): void {
+      this.replacement = (addr: number, bitoffset: number): boolean => {
+          let data = this.mupen.M64p.Memory.rdramRead8(addr);
+          let bits = bitwise.byte.read(data as UInt8);
+          return bits[bitoffset] === 1;
+      };
+      this.original = this.mupen.M64p.Memory.rdramReadBit8;
+      (this.mupen.M64p.Memory as any)['rdramReadBit8'] = this.replacement;
+  }
+
+  unpatch(): void {
+      (this.mupen.M64p.Memory as any)['rdramReadBit8'] = this.original;
+  }
+}
+
 export class MonkeyPatch_rdramWriteBits8 extends MonkeyPatch
     implements IMonkeyPatch {
   mupen: IMupen;
