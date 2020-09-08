@@ -26,6 +26,10 @@ export class FakeMupen implements IConsole {
         this.ram = new FakeN64Memory();
     }
 
+    getRomOriginalSize(): number {
+        return -1;
+    }
+
     getYaz0Encoder(): IYaz0 {
         return new FakeYaz0();
     }
@@ -1116,6 +1120,10 @@ class FakeClipboard implements Clipboard {
 }
 
 class FakeGfx implements Gfx {
+    createFont(): Font {
+        //@ts-ignore
+        return null;
+    }
     createTexture(): Texture {
         //@ts-ignore
         return null;
@@ -1175,12 +1183,12 @@ class FakeInput implements Input {
 
 }
 
-class FakeYaz0 implements IYaz0{
+class FakeYaz0 implements IYaz0 {
     encode(buf: Buffer): Buffer {
         return Buffer.alloc(1);
     }
     decode(buf: Buffer): Buffer {
         return Buffer.alloc(1);
     }
-    
+
 }

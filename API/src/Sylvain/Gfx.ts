@@ -32,6 +32,7 @@ export const enum FlipFlags {
 
 export interface Gfx {
     createTexture(): Texture;
+    createFont(): Font;
     addSprite(dl: DrawListRef, texture: Texture, src: vec4, dst: vec4, tint: vec4, flip: FlipFlags): void;
     addSpriteRotated(dl: DrawListRef, texture: Texture, src: vec4, dst: vec4, tint: vec4, flip: FlipFlags, angle: number): void;
     calcSpriteRotatedBounds(dst: vec4, angle: number): vec4;

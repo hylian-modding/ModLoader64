@@ -626,6 +626,18 @@ class pluginLoader {
             }
         };
         Object.freeze(this.crashCheck);
+        let emu: IMemory = iconsole.getMemoryAccess();
+        iconsole.on(Emulator_Callbacks.core_started, () => {
+            this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                let testBuffer: Buffer = Buffer.from("MODLOADER64");
+                emu.rdramWriteBuffer(0x80800000, testBuffer);
+                if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+                    this.logger.info("16MB Expansion verified.");
+                    emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
+                }
+                this.injector();
+            }, 1);
+        });
     }
 
     loadPluginsPostinit(
@@ -658,6 +670,11 @@ class pluginLoader {
             //@ts-ignore
             let t = new gfx.Texture();
             return t;
+        };
+        gfx.createFont = () =>{
+            //@ts-ignore
+            let f = new gfx.Font();
+            return f;
         };
         Object.freeze(imgui);
         Object.freeze(sdl);
@@ -725,17 +742,6 @@ class pluginLoader {
             iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
             iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
         }
-        iconsole.on(Emulator_Callbacks.core_started, () => {
-            this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                let testBuffer: Buffer = Buffer.from("MODLOADER64");
-                emu.rdramWriteBuffer(0x80800000, testBuffer);
-                if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-                    this.logger.info("16MB Expansion verified.");
-                    emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-                }
-                this.injector();
-            }, 1);
-        });
     }
 
     reinject(callback: Function) {

@@ -27,6 +27,8 @@ interface IConsole {
 
   getLoadedRom(): Buffer;
 
+  getRomOriginalSize(): number;
+
   getRomHeader(): IRomHeader;
 
   pauseEmulator(): void;

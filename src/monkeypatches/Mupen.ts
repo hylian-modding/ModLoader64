@@ -1,5 +1,5 @@
 import { MonkeyPatch, IMonkeyPatch } from './IMonkeyPatch';
-import {IMupen} from '../modloader/consoles/Mupen/IMupen';
+import {IMupen} from '../modloader/consoles/mupen/IMupen';
 import bitwise from 'bitwise';
 import { UInt8 } from 'bitwise/types';
 

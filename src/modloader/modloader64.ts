@@ -376,7 +376,7 @@ class ModLoader64 {
                         try {
                             let hash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info('Patching rom...');
-                            let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data, p);
+                            let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data.slice(0, instance.emulator.getRomOriginalSize()), p);
                             if (nbuf !== undefined) {
                                 rom_data = nbuf;
                                 evt.rom = nbuf;
@@ -414,13 +414,6 @@ class ModLoader64 {
                 );
                 internal_event_bus.emit('onPostInitDone', {});
                 instance.done = true;
-                // Detect if the user closed Mupen.
-                setInterval(() => {
-                    if (!instance.emulator.isEmulatorReady()) {
-                        internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-                        process.exit(ModLoaderErrorCodes.NORMAL_EXIT);
-                    }
-                }, 1000);
             });
         }
     }

@@ -76,6 +76,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     preinit(): void {
         this.ModLoader.config.registerConfigCategory("OcarinaofTime");
         this.ModLoader.config.setData("OcarinaofTime", "skipN64Logo", true);
+        this.ModLoader.config.save();
         this.ModLoader.logger.info(
             'OOT VERSION: ' + ROM_VERSIONS[this.rom_header.revision] + '.'
         );
