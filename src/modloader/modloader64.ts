@@ -265,18 +265,6 @@ class ModLoader64 {
             }
         }
         internal_event_bus.emit('preinit_done', {});
-        bus.on('SOFT_RESET_PRESSED', () => {
-            this.logger.info("Soft reset detected. Sending alert to plugins.");
-            bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
-            this.logger.info("Letting the reset go through...");
-            this.emulator.softReset();
-            while (!this.emulator.isEmulatorReady()) { }
-            this.logger.info("Reinvoking the payload injector...");
-            this.plugins.reinject(() => {
-                this.logger.info("Soft reset complete. Sending alert to plugins.");
-                bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
-            });
-        });
         this.init();
     }
 

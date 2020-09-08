@@ -74,12 +74,11 @@ class pluginLoader {
         string,
         frameTimeoutContainer
     >();
-    crashCheck!: any;
-    lastCrashCheckFrame = -1;
     payloadManager!: PayloadManager;
     injector!: Function;
     lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
     processNextFrame: boolean = true;
+    resetting: boolean = false;
 
     constructor(dirs: string[], config: IConfig, logger: ILogger) {
         this.plugin_directories = dirs;
@@ -135,7 +134,7 @@ class pluginLoader {
         this.plugins.push(plugin);
     }
 
-    private processInternalPlugin(pluginPath: string){
+    private processInternalPlugin(pluginPath: string) {
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
         if (parse.ext.indexOf('js') > -1) {
@@ -559,8 +558,18 @@ class pluginLoader {
             value();
         });
         this.onTickHandle = () => {
-            try{
+            try {
                 let frame = iconsole.getFrameCount();
+                if (this.resetting) {
+                    this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                        this.logger.info("Reinvoking the payload injector...");
+                        this.reinject(() => {
+                            this.logger.info("Soft reset complete. Sending alert to plugins.");
+                            bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
+                        });
+                    }, 20);
+                    this.resetting = false;
+                }
                 this.loaded_core.onTick(frame);
                 this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
                     value(frame);
@@ -584,9 +593,20 @@ class pluginLoader {
                     }
                 );
                 this.curFrame = frame;
-            }catch(err){
+            } catch (err) {
                 this.logger.error(err.stack);
                 throw err;
+            }
+            let f9 = iconsole.getSDLAccess().Keybd.getKeyFromName("F9");
+            let code = iconsole.getSDLAccess().Keybd.getScancodeFromKey(f9);
+            if (iconsole.getSDLAccess().Keybd.getKeyState(code)) {
+                if (!this.resetting) {
+                    this.resetting = true;
+                    this.logger.info("Soft reset detected. Sending alert to plugins.");
+                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+                    this.logger.info("Letting the reset go through...");
+                    iconsole.softReset();
+                }
             }
         };
         this.onViHandle = () => {
@@ -601,40 +621,9 @@ class pluginLoader {
         };
         Object.freeze(this.onTickHandle);
         Object.freeze(this.onViHandle);
-        this.crashCheck = () => {
-            if (!this.processNextFrame) {
-                this.lastCrashCheckFrame = -1;
-            }
-            if (this.lastCrashCheckFrame === this.curFrame) {
-                // Emulator probably died. Lets make a crash dump.
-                let z: zip = new zip();
-                let dump = iconsole.getMemoryAccess().rdramReadBuffer(0x0, 0x1000000);
-                fs.writeFileSync(
-                    './crash_dump.bin',
-                    dump
-                );
-                z.addLocalFile('./crash_dump.bin');
-                z.writeZip('./crash_dump.zip');
-                dump = fs.readFileSync('./crash_dump.zip');
-                internal_event_bus.emit(ModLoaderEvents.ON_CRASH, dump);
-                bus.emit(ModLoaderEvents.ON_CRASH, dump);
-                setTimeout(() => {
-                    process.exit(ModLoaderErrorCodes.EMULATOR_CORE_FAILURE);
-                }, 10 * 1000);
-            } else {
-                this.lastCrashCheckFrame = this.curFrame;
-            }
-        };
-        Object.freeze(this.crashCheck);
         let emu: IMemory = iconsole.getMemoryAccess();
         iconsole.on(Emulator_Callbacks.core_started, () => {
             this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                let testBuffer: Buffer = Buffer.from("MODLOADER64");
-                emu.rdramWriteBuffer(0x80800000, testBuffer);
-                if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-                    this.logger.info("16MB Expansion verified.");
-                    emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-                }
                 this.injector();
             }, 1);
         });
@@ -671,7 +660,7 @@ class pluginLoader {
             let t = new gfx.Texture();
             return t;
         };
-        gfx.createFont = () =>{
+        gfx.createFont = () => {
             //@ts-ignore
             let f = new gfx.Font();
             return f;
@@ -710,6 +699,12 @@ class pluginLoader {
             }
         });
         this.injector = () => {
+            let testBuffer: Buffer = Buffer.from("MODLOADER64");
+            emu.rdramWriteBuffer(0x80800000, testBuffer);
+            if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
+                this.logger.info("16MB Expansion verified.");
+                emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
+            }
             this.logger.debug("Starting injection...");
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(

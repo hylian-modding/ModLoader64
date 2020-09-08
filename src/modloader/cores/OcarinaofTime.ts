@@ -138,6 +138,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     @EventHandler(ModLoaderEvents.ON_SOFT_RESET_PRE)
     onReset1(evt: any) {
         this.isSaveLoaded = false;
+        OverlayPayload.ovl_offset = 0;
     }
 
     @EventHandler(ModLoaderEvents.ON_SOFT_RESET_POST)
@@ -306,7 +307,7 @@ export class OverlayPayload extends PayloadType {
 
     private logger: ILogger;
     private start: number = 0x80601A00;
-    private ovl_offset: number = 0;
+    static ovl_offset: number = 0;
     private core: IOOTCore;
 
     constructor(ext: string, logger: ILogger, core: IOOTCore) {
@@ -354,25 +355,25 @@ export class OverlayPayload extends PayloadType {
         this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
-        let final: number = this.start + this.ovl_offset;
+        let final: number = this.start + OverlayPayload.ovl_offset;
         dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, final + offset);
         buf.writeUInt8(slot, offset + 0x1);
         dest.rdramWriteBuffer(final, buf);
-        this.ovl_offset += buf.byteLength;
-        let relocate_final: number = this.start + this.ovl_offset;
-        dest.rdramWrite32(this.start + this.ovl_offset, final);
-        this.ovl_offset += 0x4;
-        dest.rdramWrite32(this.start + this.ovl_offset, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)));
-        this.ovl_offset += 0x4;
-        dest.rdramWrite32(this.start + this.ovl_offset, 0x80800000);
-        this.ovl_offset += 0x4;
-        dest.rdramWrite32(this.start + this.ovl_offset, buf.byteLength);
-        this.ovl_offset += 0x4;
+        OverlayPayload.ovl_offset += buf.byteLength;
+        let relocate_final: number = this.start + OverlayPayload.ovl_offset;
+        dest.rdramWrite32(this.start + OverlayPayload.ovl_offset, final);
+        OverlayPayload.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + OverlayPayload.ovl_offset, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)));
+        OverlayPayload.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + OverlayPayload.ovl_offset, 0x80800000);
+        OverlayPayload.ovl_offset += 0x4;
+        dest.rdramWrite32(this.start + OverlayPayload.ovl_offset, buf.byteLength);
+        OverlayPayload.ovl_offset += 0x4;
         let params: Buffer = Buffer.from("00014600C50046000000000000000000", 'hex');
-        let params_addr: number = this.start + this.ovl_offset;
+        let params_addr: number = this.start + OverlayPayload.ovl_offset;
         dest.rdramWriteBuffer(params_addr, params);
         dest.rdramWrite16(params_addr, slot);
-        this.ovl_offset += params.byteLength;
+        OverlayPayload.ovl_offset += params.byteLength;
         let hash: string = this.core.ModLoader.utils.hashBuffer(buf);
         this.core.commandBuffer.runCommand(Command.RELOCATE_OVL, relocate_final, () => {
             let hash2: string = this.core.ModLoader.utils.hashBuffer(dest.rdramReadBuffer(final, buf.byteLength));
