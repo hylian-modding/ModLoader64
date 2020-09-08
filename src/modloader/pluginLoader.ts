@@ -560,16 +560,6 @@ class pluginLoader {
         this.onTickHandle = () => {
             try {
                 let frame = iconsole.getFrameCount();
-                if (this.resetting) {
-                    this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                        this.logger.info("Reinvoking the payload injector...");
-                        this.reinject(() => {
-                            this.logger.info("Soft reset complete. Sending alert to plugins.");
-                            bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
-                        });
-                    }, 20);
-                    this.resetting = false;
-                }
                 this.loaded_core.onTick(frame);
                 this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
                     value(frame);
@@ -596,17 +586,6 @@ class pluginLoader {
             } catch (err) {
                 this.logger.error(err.stack);
                 throw err;
-            }
-            let f9 = iconsole.getSDLAccess().Keybd.getKeyFromName("F9");
-            let code = iconsole.getSDLAccess().Keybd.getScancodeFromKey(f9);
-            if (iconsole.getSDLAccess().Keybd.getKeyState(code)) {
-                if (!this.resetting) {
-                    this.resetting = true;
-                    this.logger.info("Soft reset detected. Sending alert to plugins.");
-                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
-                    this.logger.info("Letting the reset go through...");
-                    iconsole.softReset();
-                }
             }
         };
         this.onViHandle = () => {
@@ -736,6 +715,13 @@ class pluginLoader {
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
             iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
             iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
+            internal_event_bus.on('CoreEvent.SoftReset', ()=>{
+                this.logger.info("Reinvoking the payload injector...");
+                this.reinject(() => {
+                    this.logger.info("Soft reset complete. Sending alert to plugins.");
+                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
+                });
+            });
         }
     }
 

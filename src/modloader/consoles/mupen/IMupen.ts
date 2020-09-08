@@ -150,3 +150,25 @@ export interface Config {
     getUserDataPath(): string;
     getUserCachePath(): string;
 }
+
+export const enum CoreEvent {
+    ChangeWindow,
+    StateSetSlot,
+    Stop,
+    StateSave,
+    StateLoad,
+    StateIncSlot,
+    SoftReset,
+    SpeedDown,
+    SpeedUp,
+    TakeNextScreenshot,
+    TogglePause,
+    VolumeMute,
+    VolumeUp,
+    VolumeDown,
+    SetFastForward,
+    AdvanceOne,
+    SetGameShark,
+    UnsetFastForward,
+    UnsetGameShark
+}

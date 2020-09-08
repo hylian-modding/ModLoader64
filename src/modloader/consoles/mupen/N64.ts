@@ -1,10 +1,10 @@
-import { IMupen, EmuState } from './IMupen';
+import { IMupen, EmuState, CoreEvent } from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
-import { ILogger } from 'modloader64_api/IModLoaderAPI';
+import { ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 import path from 'path';
@@ -53,6 +53,15 @@ class N64 implements IConsole {
         this.mupen.Frontend.on('core-stopped', () => {
             clearInterval(doEvents);
             this.mupen.Frontend.shutdown();
+        });
+        this.mupen.Frontend.on('core-event', (event: CoreEvent, data: number) => {
+            if (event == CoreEvent.SoftReset) {
+                this.logger.info("Soft reset detected. Sending alert to plugins.");
+                bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+                this.logger.info("Letting the reset go through...");
+                this.softReset();
+                internal_event_bus.emit("CoreEvent.SoftReset", {});
+            }
         });
         logger.info("Loading rom: " + rom + ".");
         let _rom: Buffer = fs.readFileSync(rom);
