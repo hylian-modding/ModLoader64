@@ -1,0 +1,14 @@
+class Script{
+
+    ModLoader;
+
+    onTick(){
+
+    }
+
+    onVi(){
+
+    }
+}
+
+module.exports = Script;

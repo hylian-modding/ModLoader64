@@ -181,17 +181,20 @@ function pushToServer() {
         return sftp.list('/var/www/html/ModLoader64/dev');
     }).then(data => {
         console.log(data);
-        console.log("Updating server files.")
+        console.log("Updating client files.")
         return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/dev/');
     }).then(data => {
         console.log(data);
-        console.log("Updating client files.")
+        console.log("Updating OotO server files.")
         child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
-        fs.removeSync("./dist/dedi/node_modules");
         return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
     }).then(data => {
         console.log(data);
-
+/*         console.log("Updating MMO server files.")
+        return sftp.uploadDir("./dist/dedi", "/MMARO") */
+        return {};
+    }).then(data => {
+        console.log(data);
         sftp.end();
     }).catch(err => {
         console.log(err, 'catch error');
