@@ -95,6 +95,11 @@ class N64 implements IConsole {
                     this.mupen.M64p.resume();
                     this.isPaused = false;
                 }   
+            }else if (event == CoreEvent.Stop){
+                internal_event_bus.emit("SHUTDOWN_EVERYTHING", {});
+                setTimeout(()=>{
+                    process.exit(0);
+                }, 3000);
             }
         });
         logger.info("Loading rom: " + rom + ".");
