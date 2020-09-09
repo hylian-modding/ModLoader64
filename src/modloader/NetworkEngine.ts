@@ -251,7 +251,6 @@ namespace NetworkEngine {
             setInterval(() => {
                 let rm: Array<string> = [];
                 let lobbies: any = {};
-                console.log(this.lobby_names);
                 for (let i = 0; i < this.lobby_names.length; i++) {
                     if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null) {
                         if (this.getLobbies()[this.lobby_names[i]] !== undefined) {
