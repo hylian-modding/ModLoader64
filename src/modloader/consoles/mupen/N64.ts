@@ -40,6 +40,15 @@ class N64 implements IConsole {
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
         const _64_MB = 64 * 1024 * 1024;
+
+        let section = this.mupen.M64p.Config.openSection("Core");
+        let screenshot_dir: string = path.resolve("./", "screenshots");
+        if (!fs.existsSync(screenshot_dir)){
+            fs.mkdirSync(screenshot_dir);
+        }
+        section.setString("ScreenshotPath", screenshot_dir);
+        this.mupen.M64p.Config.saveFile();
+
         this.mupen.Frontend.on('window-closing', () => {
             if (this.mupen.M64p.getEmuState() === EmuState.Paused) {
                 this.mupen.M64p.resume();
@@ -61,6 +70,8 @@ class N64 implements IConsole {
                 this.logger.info("Letting the reset go through...");
                 this.softReset();
                 internal_event_bus.emit("CoreEvent.SoftReset", {});
+            }else if (event == CoreEvent.TakeNextScreenshot){
+                this.mupen.M64p.takeNextScreenshot();
             }
         });
         logger.info("Loading rom: " + rom + ".");
