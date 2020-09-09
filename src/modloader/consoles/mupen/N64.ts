@@ -78,6 +78,14 @@ class N64 implements IConsole {
                 this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - 1);
             }else if (event == CoreEvent.VolumeMute){
                 this.mupen.M64p.setAudioMuted(!this.mupen.M64p.isAudioMuted());
+            }else if (event == CoreEvent.SetFastForward){
+                this.mupen.M64p.setSpeedFactor(300);
+            }else if (event == CoreEvent.UnsetFastForward){
+                this.mupen.M64p.setSpeedFactor(100);
+            }else if (event == CoreEvent.SpeedUp){
+                this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() + 1);
+            }else if (event == CoreEvent.SpeedDown){
+                this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() - 1);
             }
         });
         logger.info("Loading rom: " + rom + ".");
