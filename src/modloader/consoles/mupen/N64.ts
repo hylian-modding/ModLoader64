@@ -25,6 +25,7 @@ class N64 implements IConsole {
     rom_size: number;
     logger: ILogger;
     lobby: string;
+    isPaused: boolean = false;
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
@@ -86,6 +87,14 @@ class N64 implements IConsole {
                 this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() + 1);
             }else if (event == CoreEvent.SpeedDown){
                 this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() - 1);
+            }else if (event == CoreEvent.TogglePause){
+                if (!this.isPaused){
+                    this.mupen.M64p.pause();
+                    this.isPaused = true;
+                }else{
+                    this.mupen.M64p.resume();
+                    this.isPaused = false;
+                }   
             }
         });
         logger.info("Loading rom: " + rom + ".");
