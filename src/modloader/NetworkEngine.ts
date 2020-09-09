@@ -535,6 +535,7 @@ namespace NetworkEngine {
         isConnectionReady = false;
         lastPacketBuffer: IPacketHeader[] = new Array<IPacketHeader>();
         pluginConfiguredConnection: boolean = false;
+        connectionTimer: any;
 
         constructor(logger: ILogger, config: IConfig) {
             this.logger = logger;
@@ -597,6 +598,10 @@ namespace NetworkEngine {
 
         setup() {
             (function (inst) {
+                inst.connectionTimer = setTimeout(()=>{
+                    inst.logger.error("Failed to connect.");
+                    process.exit(0);
+                }, 30 * 1000);
                 inst.logger.info('Starting up NetworkEngine.Client...');
                 inst.socket = inst.io.connect(
                     'http://' + inst.config.ip + ':' + inst.config.port
@@ -629,6 +634,7 @@ namespace NetworkEngine {
                 });
                 inst.socket.on('connect', () => {
                     inst.logger.info('Connected.');
+                    clearTimeout(inst.connectionTimer);
                 });
                 inst.socket.on('uuid', (data: any) => {
                     inst.me = new NetworkPlayer(inst.config.nickname, data.uuid);
