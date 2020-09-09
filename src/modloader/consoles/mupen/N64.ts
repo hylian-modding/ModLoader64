@@ -72,6 +72,12 @@ class N64 implements IConsole {
                 internal_event_bus.emit("CoreEvent.SoftReset", {});
             }else if (event == CoreEvent.TakeNextScreenshot){
                 this.mupen.M64p.takeNextScreenshot();
+            }else if (event == CoreEvent.VolumeUp){
+                this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + 1);
+            }else if (event == CoreEvent.VolumeDown){
+                this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - 1);
+            }else if (event == CoreEvent.VolumeMute){
+                this.mupen.M64p.setAudioMuted(!this.mupen.M64p.isAudioMuted());
             }
         });
         logger.info("Loading rom: " + rom + ".");
