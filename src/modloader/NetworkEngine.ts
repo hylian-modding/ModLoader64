@@ -185,7 +185,7 @@ namespace NetworkEngine {
         }
 
         createLobbyStorage_internal(ld: LobbyData, owner: string): ILobbyStorage {
-            if (this.getLobbyStorage_internal(ld.name) !== null){
+            if (this.getLobbyStorage_internal(ld.name) !== null) {
                 delete this.lobbyStorage[ld.name];
             }
             this.lobbyStorage[ld.name] = {};
@@ -251,9 +251,14 @@ namespace NetworkEngine {
             setInterval(() => {
                 let rm: Array<string> = [];
                 let lobbies: any = {};
+                console.log(this.lobby_names);
                 for (let i = 0; i < this.lobby_names.length; i++) {
                     if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null) {
-                        lobbies[this.lobby_names[i]] = Object.keys(this.getLobbies()[this.lobby_names[i]]['sockets']).length;
+                        if (this.getLobbies()[this.lobby_names[i]] !== undefined) {
+                            lobbies[this.lobby_names[i]] = Object.keys(this.getLobbies()[this.lobby_names[i]]['sockets']).length;
+                        } else {
+                            rm.push(this.lobby_names[i]);
+                        }
                     } else {
                         rm.push(this.lobby_names[i]);
                     }
@@ -262,7 +267,7 @@ namespace NetworkEngine {
                     for (let i = 0; i < rm.length; i++) {
                         let index = this.lobby_names.indexOf(rm[i]);
                         let name = this.lobby_names.splice(index, 1)[0].trim();
-                        this.logger.info(name + " lobby terminated.");
+                        this.logger.info("lobby " + name + " terminated.");
                         delete this.lobbyStorage[name];
                     }
                 }
@@ -349,7 +354,7 @@ namespace NetworkEngine {
                         if (global.ModLoader.version === packet.ml && mismatch === false) {
                             inst.sendToTarget(socket.id, 'versionGood', {
                                 client: packet.ml,
-                                server: new VersionPacket(global.ModLoader.version,inst.plugins,inst.core),
+                                server: new VersionPacket(global.ModLoader.version, inst.plugins, inst.core),
                                 patchLimit: inst.config.patchSizeLimitMB
                             });
                             socket.join("__GLOBAL__");
@@ -546,7 +551,7 @@ namespace NetworkEngine {
             config.setData('NetworkEngine.Client', 'forceServerOverride', false);
             config.setData('NetworkEngine.Client', 'ip', '127.0.0.1');
             config.setData('NetworkEngine.Client', 'port', 8082);
-            config.setData('NetworkEngine.Client','lobby',ML_UUID.getLobbyName());
+            config.setData('NetworkEngine.Client', 'lobby', ML_UUID.getLobbyName());
             config.setData('NetworkEngine.Client', 'nickname', 'Player');
             config.setData('NetworkEngine.Client', 'password', '');
             this.masterConfig = config;
@@ -598,7 +603,7 @@ namespace NetworkEngine {
 
         setup() {
             (function (inst) {
-                inst.connectionTimer = setTimeout(()=>{
+                inst.connectionTimer = setTimeout(() => {
                     inst.logger.error("Failed to connect.");
                     process.exit(0);
                 }, 30 * 1000);
@@ -669,10 +674,10 @@ namespace NetworkEngine {
                         }
                         if (patch_path !== "") {
                             let gzip = zlib.gzipSync(fs.readFileSync(path.resolve(patch_path)));
-                            if (gzip.byteLength > (data.patchLimit * 1024 * 1024)){
+                            if (gzip.byteLength > (data.patchLimit * 1024 * 1024)) {
                                 inst.logger.error("Patch file " + patch_path + " too large.");
                                 process.exit(ModLoaderErrorCodes.BPS_FAILED);
-                            }else{
+                            } else {
                                 ld.data['patch'] = gzip;
                                 ld.data['patch_name'] = inst.modLoaderconfig.patch;
                             }
