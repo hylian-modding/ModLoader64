@@ -320,44 +320,42 @@ if (!WAITING_ON_EXTERNAL) {
             child_process_1["default"].execSync("npm init --yes");
         }
         process.chdir(original_dir_3);
-        if (!fs_1["default"].existsSync("./node_modules")) {
-            var mod_pkg_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
-            if (mod_pkg_1.hasOwnProperty("dependencies")) {
-                Object.keys(mod_pkg_1.dependencies).forEach(function (key) {
-                    delete mod_pkg_1.dependencies[key];
-                });
-            }
-            if (mod_pkg_1.hasOwnProperty("devDependencies")) {
-                Object.keys(mod_pkg_1.devDependencies).forEach(function (key) {
-                    delete mod_pkg_1.dependencies[key];
-                });
-            }
-            fs_1["default"].writeFileSync(path_1["default"].join(".", "package.json"), JSON.stringify(mod_pkg_1, null, 2));
-            child_process_1["default"].execSync("npm install");
-            if (!fs_1["default"].existsSync("./node_modules")) {
-                fs_1["default"].mkdirSync("./node_modules");
-            }
-            console.log("Linking ModLoader64 API to project...");
-            console.log("This might take a moment. Please be patient.");
-            var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
-            Object.keys(our_pkg.dependencies).forEach(function (key) {
-                makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
+        var mod_pkg_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
+        if (mod_pkg_1.hasOwnProperty("dependencies")) {
+            Object.keys(mod_pkg_1.dependencies).forEach(function (key) {
+                delete mod_pkg_1.dependencies[key];
             });
-            Object.keys(our_pkg.devDependencies).forEach(function (key) {
-                makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
-            });
-            makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", "modloader64_api"), path_1["default"].resolve(original_dir_3, "node_modules", "modloader64_api"));
-            console.log("Setting up TypeScript compiler...");
-            child_process_1["default"].execSync("npx tsc --init");
-            fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
-            if (fs_1["default"].existsSync(tsconfig_path)) {
-                tsconfig = JSON.parse(stripJsonComments(fs_1["default"].readFileSync(tsconfig_path).toString()));
-            }
-            tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
-            saveTSConfig();
-            console.log("Installing any required cores...");
-            installCores();
         }
+        if (mod_pkg_1.hasOwnProperty("devDependencies")) {
+            Object.keys(mod_pkg_1.devDependencies).forEach(function (key) {
+                delete mod_pkg_1.dependencies[key];
+            });
+        }
+        fs_1["default"].writeFileSync(path_1["default"].join(".", "package.json"), JSON.stringify(mod_pkg_1, null, 2));
+        child_process_1["default"].execSync("npm install");
+        if (!fs_1["default"].existsSync("./node_modules")) {
+            fs_1["default"].mkdirSync("./node_modules");
+        }
+        console.log("Linking ModLoader64 API to project...");
+        console.log("This might take a moment. Please be patient.");
+        var our_pkg = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(__dirname, "../", "package.json")).toString());
+        Object.keys(our_pkg.dependencies).forEach(function (key) {
+            makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
+        });
+        Object.keys(our_pkg.devDependencies).forEach(function (key) {
+            makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", key), path_1["default"].resolve(original_dir_3, "node_modules", key));
+        });
+        makeSymlink(path_1["default"].resolve(__dirname, "../", "node_modules", "modloader64_api"), path_1["default"].resolve(original_dir_3, "node_modules", "modloader64_api"));
+        console.log("Setting up TypeScript compiler...");
+        child_process_1["default"].execSync("npx tsc --init");
+        fs_1["default"].copyFileSync(path_1["default"].join(__dirname, "../", "tsconfig.json"), "./tsconfig.json");
+        if (fs_1["default"].existsSync(tsconfig_path)) {
+            tsconfig = JSON.parse(stripJsonComments(fs_1["default"].readFileSync(tsconfig_path).toString()));
+        }
+        tsconfig["compilerOptions"]["paths"]["@" + meta.name + "/*"] = ["./src/" + meta.name + "/*"];
+        saveTSConfig();
+        console.log("Installing any required cores...");
+        installCores();
     }
     if (commander_1["default"].setroms !== undefined) {
         sdk_cfg.ModLoader64.SDK.roms_dir = path_1["default"].resolve(commander_1["default"].setroms);
