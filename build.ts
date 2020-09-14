@@ -240,6 +240,16 @@ function prebuild() {
         }
         fs.copySync("./Mupen64Plus", "./build");
     }
+    (async () => {
+        const fetch = require('node-fetch');
+        console.log("Getting commit data...");
+        const response = await fetch('https://api.github.com/repos/hylian-modding/ModLoader64/contributors?anon=1');
+        const body = await response.arrayBuffer();
+        const buf = Buffer.from(body);
+        const j = JSON.parse(buf.toString());
+        fs.writeFileSync("./src/contributors1.json", JSON.stringify(j, null, 2));
+        console.log("Done.");
+    })();
 }
 
 function build() {

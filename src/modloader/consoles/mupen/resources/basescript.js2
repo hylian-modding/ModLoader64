@@ -2,6 +2,10 @@ class Script{
 
     ModLoader;
 
+    start(){
+        
+    }
+
     onTick(){
 
     }

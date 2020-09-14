@@ -11,6 +11,15 @@ require('source-map-support').install();
 
 const projectID = 'ModLoader64';
 const authors: string[] = ['denoflions', 'Sylvain'];
+const contributors: string[] = [];
+let data: Array<any> = JSON.parse(fs.readFileSync(path.resolve(__dirname, "contributors1.json")).toString());
+let dontdisplay: Array<string> = ["denoflionsx", "dependabot[bot]"];
+for (let i = 0; i < data.length; i++){
+    let p = data[i];
+    if (dontdisplay.indexOf(p.login) === -1){
+        contributors.push(p.login);
+    }
+}
 const version = require('./version');
 
 global.ModLoader = {};
@@ -25,6 +34,7 @@ program.option("-o, --config <file>, change config file");
 program.option("-s, --startdir <dir>", "the start dir for sdk usage");
 program.option("-l, --logginglevel <level>", "the logging level");
 program.option("-z, --devmode", "developer mode");
+program.option("-i, --discord <user>", "discord id");
 program.allowUnknownOption(true);
 program.parse(process.argv);
 
@@ -43,11 +53,14 @@ if (program.cores) {
 if (program.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
 }
-
 if (program.devmode) {
     global.ModLoader["DEVFLAG"] = true;
 } else {
     global.ModLoader["DEVFLAG"] = false;
+}
+let discord_id: string = "";
+if (program.discord){
+    discord_id = program.discord;
 }
 
 if (program.dir) {
@@ -103,6 +116,7 @@ if (program.logginglevel !== undefined) {
 logger.info(projectID);
 logger.info('Authors: ', authors.toString());
 logger.info('Version: ', version);
+logger.info(`Github Contributors: ${contributors.toString()}`);
 
 logger.info('Setting running directory: ' + process.cwd());
 
@@ -155,6 +169,6 @@ if (program.update) {
         });
     });
 } else {
-    const instance = new modloader64(new logwrapper(logger));
+    const instance = new modloader64(new logwrapper(logger), discord_id);
     instance.start();
 }

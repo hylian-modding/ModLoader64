@@ -339,7 +339,8 @@ namespace NetworkEngine {
                                 server: new VersionPacket(
                                     global.ModLoader.version,
                                     inst.plugins,
-                                    inst.core
+                                    inst.core,
+                                    packet.discord
                                 ),
                             });
                         }
@@ -353,7 +354,7 @@ namespace NetworkEngine {
                         if (global.ModLoader.version === packet.ml && mismatch === false) {
                             inst.sendToTarget(socket.id, 'versionGood', {
                                 client: packet.ml,
-                                server: new VersionPacket(global.ModLoader.version, inst.plugins, inst.core),
+                                server: new VersionPacket(global.ModLoader.version, inst.plugins, inst.core, packet.discord),
                                 patchLimit: inst.config.patchSizeLimitMB
                             });
                             socket.join("__GLOBAL__");
@@ -363,7 +364,8 @@ namespace NetworkEngine {
                                 server: new VersionPacket(
                                     global.ModLoader.version,
                                     inst.plugins,
-                                    inst.core
+                                    inst.core,
+                                    packet.discord
                                 ),
                             });
                             setTimeout(function () {
@@ -513,11 +515,13 @@ namespace NetworkEngine {
         ml: string;
         plugins: any;
         core: string;
+        discord: string;
 
-        constructor(ml: string, plugins: any, core: string) {
+        constructor(ml: string, plugins: any, core: string, discord: string) {
             this.ml = ml;
             this.plugins = plugins;
             this.core = core;
+            this.discord = discord;
         }
     }
 
@@ -540,8 +544,10 @@ namespace NetworkEngine {
         lastPacketBuffer: IPacketHeader[] = new Array<IPacketHeader>();
         pluginConfiguredConnection: boolean = false;
         connectionTimer: any;
+        discord: string;
 
-        constructor(logger: ILogger, config: IConfig) {
+        constructor(logger: ILogger, config: IConfig, discord: string) {
+            this.discord = discord;
             this.logger = logger;
             this.config = config.registerConfigCategory(
                 'NetworkEngine.Client'
@@ -644,10 +650,14 @@ namespace NetworkEngine {
                     inst.me = new NetworkPlayer(inst.config.nickname, data.uuid);
                     inst.socket.emit(
                         'version',
-                        new VersionPacket(global.ModLoader.version, inst.plugins, inst.core)
+                        new VersionPacket(global.ModLoader.version, inst.plugins, inst.core, inst.discord)
                     );
                 });
                 inst.socket.on('versionGood', (data: any) => {
+                    if (data.server.discord !== ""){
+                        inst.me.data["discord"] = data.server.discord;
+                        inst.logger.info("Local INetworkPlayer linked with Discord user " + inst.me.data["discord"]);
+                    }
                     inst.logger.info('Version good! ' + JSON.stringify(data.server));
                     inst.logger.info("This server has a " + data.patchLimit.toString() + "MB bps patch limit.");
                     let ld = new LobbyData(

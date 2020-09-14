@@ -63,7 +63,7 @@ class ModLoader64 {
     tunnel!: IGUITunnel;
     done = false;
 
-    constructor(logger: any) {
+    constructor(logger: any, discord: string) {
         moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
         moduleAlias.addAlias("@sound", path.join(process.cwd(), "/emulator"));
         global.ModLoader["logger"] = logger;
@@ -92,7 +92,7 @@ class ModLoader64 {
         );
         this.Analytics_Server = new AnalyticsServer(this.logger.getLogger("Analytics"));
         this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
-        this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config);
+        this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config, discord);
         this.RPC = new ModLoaderRPC();
 
         if (process.platform === 'win32') {

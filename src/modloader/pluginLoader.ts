@@ -254,9 +254,7 @@ class pluginLoader {
                 return;
             }
 
-        }
-
-        if (pkg.core instanceof Array) {
+        }else if (pkg.core instanceof Array) {
             let possibles: Array<string> = pkg.core as Array<string>;
             let yes: boolean = false;
             for (let i = 0; i < possibles.length; i++) {

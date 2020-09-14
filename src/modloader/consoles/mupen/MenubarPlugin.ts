@@ -2,13 +2,10 @@ import { IPlugin, IModLoaderAPI } from "modloader64_api/IModLoaderAPI";
 import { onViUpdate, onCreateResources } from "modloader64_api/PluginLifecycle";
 import { bus, EventHandler } from "modloader64_api/EventHandler";
 import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
-import { vec2, xy, vec4, rgba, xywh, rgb } from "modloader64_api/Sylvain/vec";
+import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { DrawCornerFlags, FontRef, string_ref } from "modloader64_api/Sylvain/ImGui";
-import Vector3 from "modloader64_api/math/Vector3";
-import { IActor } from "modloader64_api/OOT/IActor";
-import { OotEvents } from "modloader64_api/OOT/OOTAPI";
+import { string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 
 class TopNotification {
@@ -34,6 +31,7 @@ class MenubarWidget {
     script: string_ref = [fs.readFileSync(path.resolve(__dirname, "resources", "basescript.js2")).toString()];
     scriptTick!: Function | undefined;
     scriptVi!: Function | undefined;
+    openPlayerList: boolean = false;
 
     constructor(ModLoader: IModLoaderAPI) {
         this.ModLoader = ModLoader;
@@ -54,6 +52,9 @@ class MenubarWidget {
                     if (this.ModLoader.ImGui.menuItem("Memory viewer")) {
                         bus.emit('openMemViewer', {});
                     }
+                }
+                if (this.ModLoader.ImGui.menuItem("Player List")) {
+                    this.openPlayerList = true;
                 }
                 if (this.ModLoader.ImGui.menuItem("Script Editor")) {
                     this.openScriptEditor = true;
@@ -81,6 +82,7 @@ class MenubarWidget {
                         i["ModLoader"] = this.ModLoader;
                         this.scriptTick = i["onTick"].bind(i);
                         this.scriptVi = i["onVi"].bind(i);
+                        i["start"].bind(i)();
                     }
                 } catch (err) {
                     console.log(err);
@@ -101,6 +103,11 @@ class MenubarWidget {
                     this.scriptTick = undefined;
                 }
             }
+        }
+        if (this.openPlayerList){
+            this.ModLoader.ImGui.begin("Player List", [true]);
+            this.ModLoader.ImGui.text(this.ModLoader.me.nickname);
+            this.ModLoader.ImGui.end();
         }
     }
 
