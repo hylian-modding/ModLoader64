@@ -7,6 +7,7 @@ import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
 import { string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
+import { AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
 
 class TopNotification {
     text: string;
@@ -53,12 +54,12 @@ class MenubarWidget {
                         bus.emit('openMemViewer', {});
                     }
                 }
-                if (this.ModLoader.ImGui.menuItem("Player List")) {
+                /* if (this.ModLoader.ImGui.menuItem("Player List")) {
                     this.openPlayerList = true;
                 }
                 if (this.ModLoader.ImGui.menuItem("Script Editor")) {
                     this.openScriptEditor = true;
-                }
+                } */
                 this.ModLoader.ImGui.endMenu();
             }
 
@@ -94,9 +95,9 @@ class MenubarWidget {
             }
             this.ModLoader.ImGui.end();
             if (this.scriptVi !== undefined) {
-                try{
+                try {
                     this.scriptVi();
-                }catch(err){
+                } catch (err) {
                     this.ModLoader.logger.error("Script error");
                     this.ModLoader.logger.error(err.stack);
                     this.scriptVi = undefined;
@@ -104,7 +105,7 @@ class MenubarWidget {
                 }
             }
         }
-        if (this.openPlayerList){
+        if (this.openPlayerList) {
             this.ModLoader.ImGui.begin("Player List", [true]);
             this.ModLoader.ImGui.text(this.ModLoader.me.nickname);
             this.ModLoader.ImGui.end();
@@ -113,9 +114,9 @@ class MenubarWidget {
 
     onTick() {
         if (this.scriptTick !== undefined) {
-            try{
+            try {
                 this.scriptTick();
-            }catch(err){
+            } catch (err) {
                 this.ModLoader.logger.error("Script error");
                 this.ModLoader.logger.error(err.stack);
                 this.scriptVi = undefined;
@@ -136,6 +137,10 @@ class TopBarWidget {
 
     constructor(ModLoader: IModLoaderAPI) {
         this.ModLoader = ModLoader;
+    }
+
+    add(notif: ISystemNotification) {
+        this.topNotifications.push(new TopNotification(notif.text));
     }
 
     update() {
@@ -178,11 +183,20 @@ class BottomRightNotification {
     timer: number = 0;
     readonly MAX_TIMER: number = 200;
 
-    constructor(text: string) {
+    constructor(text: string, icon?: Texture, color?: vec4) {
         this.text = text;
         this.pos = xy(0, 0);
-        this.fgcolor = rgba(255, 255, 255, 255);
         this.bgcolor = rgba(0, 0, 0, 255);
+
+        if (color !== undefined) {
+            this.fgcolor = color;
+        } else {
+            this.fgcolor = rgba(255, 255, 255, 255);
+        }
+
+        if (icon !== undefined) {
+            this.icon = icon;
+        }
     }
 }
 
@@ -199,6 +213,10 @@ class BottomRightWidget {
 
     constructor(ModLoader: IModLoaderAPI) {
         this.ModLoader = ModLoader;
+    }
+
+    add(kill: IKillFeedMessage) {
+        this.notifs.push(new BottomRightNotification(kill.text, kill.icon, kill.color));
     }
 
     loadResources() {
@@ -231,7 +249,8 @@ class BottomRightWidget {
                 }
             }
             if (this.currentNotif.icon !== undefined) {
-                let dst = xywh(this.pos.x - 32, this.pos.y, this.currentNotif.icon.width, this.currentNotif.icon.height);
+                let f = this.ModLoader.Gfx.calcTextSize(this.font, "Test", xy(1, 1));
+                let dst = xywh(this.pos.x - 32, this.pos.y, f.y, f.y);
                 this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
             }
             this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
@@ -258,20 +277,6 @@ class AchievementWidget {
             this.ModLoader.logger.error(err);
         }
     }
-
-    getmtx(addr: number) {
-        let m = [];
-        let offset = 0;
-        for (let i = 0; i < 4; i++) {
-            let a = this.ModLoader.emulator.rdramReadF32(addr + offset + 0);
-            let b = this.ModLoader.emulator.rdramReadF32(addr + offset + 4);
-            let c = this.ModLoader.emulator.rdramReadF32(addr + offset + 8);
-            let d = this.ModLoader.emulator.rdramReadF32(addr + offset + 0xC);
-            m.push(a, b, c, d);
-            offset += 0x10;
-        }
-        return m;
-    };
 
     onTick() {
     }
@@ -314,6 +319,16 @@ class MenubarPlugin implements IPlugin {
     @EventHandler(MenuEvents.DISABLE_MEMORY_VIEWER)
     onDisableMemoryViewer(evt: any) {
         this.menubar.memoryViewerEnabled = false;
+    }
+
+    @EventHandler(AnnouncementChannels.SYSTEM_NOTIFICATION)
+    onNotif(notif: ISystemNotification){
+        this.topNotifications.add(notif);
+    }
+
+    @EventHandler(AnnouncementChannels.KILL_FEED)
+    onKillfeed(notif: IKillFeedMessage){
+        this.bottomRight.add(notif);
     }
 
     @onCreateResources()
