@@ -26,6 +26,7 @@ export interface IFrontend {
 
     getVideoOutputInfo(): Frontend.VideoOutputInfo;
     toggleFullScreen(): void;
+    takeNextScreenshot(): void;
     captureFrame(): void;
     getFrameTexture(): Texture;
     createResourcesNextVi(): void;
