@@ -254,7 +254,7 @@ class pluginLoader {
                 return;
             }
 
-        }else if (pkg.core instanceof Array) {
+        } else if (pkg.core instanceof Array) {
             let possibles: Array<string> = pkg.core as Array<string>;
             let yes: boolean = false;
             for (let i = 0; i < possibles.length; i++) {
@@ -283,6 +283,13 @@ class pluginLoader {
         let file: string = path.resolve(path.join(dir, pkg.main));
 
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
+        if (pkg.hasOwnProperty("modloader64_aliases")) {
+            let aliases: any = pkg.modloader64_aliases;
+            Object.keys(aliases).forEach((key: string) => {
+                this.logger.debug("Aliasing " + aliases[key][0] + " as " + key + ".");
+                moduleAlias.addAlias(key, path.resolve(dir, aliases[key][0]));
+            });
+        }
         parse = path.parse(file);
         if (parse.ext.indexOf('js') > -1) {
             let p = require(file);
@@ -713,7 +720,7 @@ class pluginLoader {
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
             iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
             iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
-            internal_event_bus.on('CoreEvent.SoftReset', ()=>{
+            internal_event_bus.on('CoreEvent.SoftReset', () => {
                 this.logger.info("Reinvoking the payload injector...");
                 this.reinject(() => {
                     this.logger.info("Soft reset complete. Sending alert to plugins.");

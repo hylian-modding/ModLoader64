@@ -409,6 +409,14 @@ if (!WAITING_ON_EXTERNAL) {
                 child_process_1["default"].execSync("npm link --local " + p);
             }
         });
+        var meta = path_1["default"].join(process.cwd(), "package.json");
+        var m = JSON.parse(fs_1["default"].readFileSync(meta).toString());
+        if (m.hasOwnProperty("scripts")) {
+            if (m.scripts.hasOwnProperty("ML64Postbuild")) {
+                console.log("Executing postbuild script...");
+                console.log(child_process_1["default"].execSync("npm run ML64Postbuild").toString());
+            }
+        }
         process.chdir(original_dir_6);
     }
     if (commander_1["default"].run) {

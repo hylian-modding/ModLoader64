@@ -365,6 +365,14 @@ if (!WAITING_ON_EXTERNAL) {
                 child_process.execSync("npm link --local " + p);
             }
         });
+        let meta: string = path.join(process.cwd(), "package.json");
+        let m = JSON.parse(fs.readFileSync(meta).toString());
+        if (m.hasOwnProperty("scripts")) {
+            if (m.scripts.hasOwnProperty("ML64Postbuild")) {
+                console.log("Executing postbuild script...");
+                console.log(child_process.execSync("npm run ML64Postbuild").toString());
+            }
+        }
         process.chdir(original_dir);
     }
 
@@ -544,8 +552,8 @@ if (!WAITING_ON_EXTERNAL) {
                 if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
                     mod_meta["modloader64_aliases"] = {};
                 }
-                mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
-                fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
+                //mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+                //fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
                 // TSConfig.
                 tsconfig["compilerOptions"]["paths"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
                 saveTSConfig();
