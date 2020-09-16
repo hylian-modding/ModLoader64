@@ -598,8 +598,8 @@ if (!WAITING_ON_EXTERNAL) {
                             if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
                                 mod_meta["modloader64_aliases"] = {};
                             }
-                            mod_meta["modloader64_aliases"]["@" + commander_1["default"].modulealias + "/*"] = [path_1["default"].relative("./", p2_1) + "/*"];
-                            fs_1["default"].writeFileSync(path_1["default"].join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
+                            //mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
+                            //fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
                             // TSConfig.
                             tsconfig["compilerOptions"]["paths"]["@" + commander_1["default"].modulealias + "/*"] = [path_1["default"].relative("./", p2_1) + "/*"];
                             saveTSConfig();

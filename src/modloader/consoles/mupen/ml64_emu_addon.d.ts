@@ -44,6 +44,7 @@ export module Frontend {
     export function captureFrame(): void;
     export function getFrameTexture(): Gfx.Texture;
     export function createResourcesNextVi(): void;
+    export function takeNextScreenshot(): void;
     export function getMainWindow(): SDL.WindowRef;
     export function showMessageBox(parent: SDL.WindowRef | undefined, icon: MessageBoxIcon,
         title: string, mainInstruction: string, content: string): void;
@@ -1007,7 +1008,7 @@ export module ImGui {
     export function text(text: string): void;
     export function textColored(text: string, col: vec4): void;
     export function textDisabled(text: string): void;
-    export function textWrapper(text: string): void;
+    export function textWrapped(text: string): void;
     export function labelText(label: string, text: string): void;
     export function bulletText(text: string): void;
 
