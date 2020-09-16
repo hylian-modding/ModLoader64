@@ -496,8 +496,12 @@ if (!WAITING_ON_EXTERNAL) {
         child_process.execSync("git reset --hard origin/master");
         child_process.execSync("git pull");
         fse.removeSync("./node_modules");
-        if (fse.existsSync("./build/emulator")) {
-            fse.removeSync("./build/emulator");
+        fse.removeSync("./Mupen64Plus");
+        if (fse.existsSync("./build")) {
+            fse.removeSync("./build");
+        }
+        if (fse.existsSync("./build2")) {
+            fse.removeSync("./build2");
         }
         let ml = child_process.exec("npm install");
         ml.stdout.on('data', function (data) {
