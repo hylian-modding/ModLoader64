@@ -57,12 +57,14 @@ class N64 implements IConsole {
             if (this.mupen.M64p.getEmuState() === EmuState.Running){
                 this.mupen.Frontend.stop();
             }
-            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-            process.exit(0);
         });
         this.mupen.Frontend.on('core-stopped', () => {
             clearInterval(doEvents);
             this.mupen.Frontend.shutdown();
+            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
+            setTimeout(()=>{
+                process.exit(0);
+            }, 3000);
         });
         this.mupen.Frontend.on('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
