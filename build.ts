@@ -46,8 +46,12 @@ switch (program.step) {
         clean();
         break;
     }
-	case "push": {
+    case "push": {
         pushToServer();
+        break;
+    }
+    case "pushLive": {
+        pushToLiveServer();
         break;
     }
 }
@@ -190,9 +194,42 @@ function pushToServer() {
         return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
     }).then(data => {
         console.log(data);
-/*         console.log("Updating MMO server files.")
-        return sftp.uploadDir("./dist/dedi", "/MMARO") */
-        return {};
+        sftp.end();
+    }).catch(err => {
+        console.log(err, 'catch error');
+    });
+}
+
+function pushToLiveServer() {
+    let Client = require('ssh2-sftp-client');
+    let sftp = new Client();
+    sftp.connect({
+        host: fs.readFileSync('./addr.bin').toString(),
+        port: '22',
+        username: fs.readFileSync("./user.bin").toString(),
+        password: fs.readFileSync("./pw.bin").toString()
+    }).then(() => {
+        console.log("connected.");
+        return sftp.list('/var/www/html/ModLoader64/update');
+    }).then(data => {
+        console.log(data);
+        console.log("Updating client files.")
+        return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/update/');
+    }).then(data => {
+        console.log(data);
+        console.log("Updating OotO server files.")
+        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+        return sftp.uploadDir("./dist/dedi", "/OotO_200")
+    }).then(data => {
+        console.log(data);
+        console.log("Updating MMO server files.")
+        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+        return sftp.uploadDir("./dist/dedi", "/MMARO")
+    }).then(data => {
+        console.log(data);
+        console.log("Updating BKO server files.")
+        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
+        return sftp.uploadDir("./dist/dedi", "/ML64_Servers/BKO")
     }).then(data => {
         console.log(data);
         sftp.end();
