@@ -473,20 +473,33 @@ class pluginLoader {
         utils.getUUID = () => { return ML_UUID.getUUID(); };
 
         // Backwards compatibility is arse.
+        global.ModLoader["deprecationWarnings"] = { utilBitCount8: false, utilBitCount16: false, utilBitCount32: false, utilBitCountBuffer: false };
         utils.utilBitCount8 = (value: number) => {
-            this.logger.warn("utilBitCount8 is deprecated. Please use bitCount8 on IMemory instead.");
+            if (!global.ModLoader.deprecationWarnings.utilBitCount8) {
+                this.logger.warn("utilBitCount8 is deprecated. Please use bitCount8 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount8 = true;
+            }
             return iconsole.getMemoryAccess().bitCount8(value);
         };
         utils.utilBitCount16 = (value: number) => {
-            this.logger.warn("utilBitCount16 is deprecated. Please use bitCount16 on IMemory instead.");
+            if (!global.ModLoader.deprecationWarnings.utilBitCount16) {
+                this.logger.warn("utilBitCount16 is deprecated. Please use bitCount16 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount16 = true;
+            }
             return iconsole.getMemoryAccess().bitCount16(value);
         };
         utils.utilBitCount32 = (value: number) => {
-            this.logger.warn("utilBitCount32 is deprecated. Please use bitCount32 on IMemory instead.");
+            if (!global.ModLoader.deprecationWarnings.utilBitCount32) {
+                this.logger.warn("utilBitCount32 is deprecated. Please use bitCount32 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount32 = true;
+            }
             return iconsole.getMemoryAccess().bitCount32(value);
         };
         utils.utilBitCountBuffer = (buf: Buffer, offset: number, length: number) => {
-            this.logger.warn("utilBitCountBuffer is deprecated. Please use bitCountBuffer on IMemory instead.");
+            if (!global.ModLoader.deprecationWarnings.utilBitCountBuffer) {
+                this.logger.warn("utilBitCountBuffer is deprecated. Please use bitCountBuffer on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCountBuffer = true;
+            }
             return iconsole.getMemoryAccess().bitCountBuffer(buf, offset, length);
         };
 
