@@ -37,16 +37,14 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
       this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.MASTER, bool);
   }
   get giantKnife() {
-      return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.GIANT);
+      return this.emulator.rdramReadBit8(this.equipment_addr, SwordBitMap.GIANT) && this.emulator.rdramRead8(this.biggoron_flag_addr) === 0;
   }
   set giantKnife(bool: boolean) {
       this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.GIANT, bool);
+      this.emulator.rdramWrite8(this.biggoron_flag_addr, 0);
   }
   get biggoronSword() {
-      return this.emulator.rdramReadBit8(
-          this.equipment_addr,
-          SwordBitMap.BIGGORON
-      );
+      return this.emulator.rdramReadBit8(this.equipment_addr,SwordBitMap.BIGGORON) && this.emulator.rdramRead8(this.biggoron_flag_addr) === 1;
   }
   set biggoronSword(bool: boolean) {
       this.emulator.rdramWriteBit8(
