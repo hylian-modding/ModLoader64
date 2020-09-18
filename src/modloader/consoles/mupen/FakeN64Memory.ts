@@ -3,6 +3,19 @@ import Vector3 from 'modloader64_api/math/Vector3';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 export class FakeN64Memory implements IMemory, IRomMemory {
+
+    bitCount8(value: number): number {
+        return -1;
+    }
+    bitCount16(value: number): number {
+        return -1;
+    }
+    bitCount32(value: number): number {
+        return -1;
+    }
+    bitCountBuffer(buf: Buffer, off: number, len: number): number {
+        return -1;
+    }
     
     invalidateCachedCode(): void {
     }

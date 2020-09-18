@@ -173,6 +173,19 @@ export class ActorBase extends JSONTemplate implements IActor {
         this.rotation = new Rotation(this);
         this.position = new Position(this);
     }
+
+    bitCount8(value: number): number {
+        return this.emulator.bitCount8(value);
+    }
+    bitCount16(value: number): number {
+        return this.emulator.bitCount16(value);
+    }
+    bitCount32(value: number): number {
+        return this.emulator.bitCount32(value);
+    }
+    bitCountBuffer(buf: Buffer, off: number, len: number): number {
+        return this.emulator.bitCountBuffer(buf, off, len);
+    }
     
     invalidateCachedCode(): void {
     }
