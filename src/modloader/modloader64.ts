@@ -178,6 +178,7 @@ class ModLoader64 {
         );
         this.config.setData('ModLoader64', 'selectedConsole', 'N64');
         this.config.setData('ModLoader64', 'coreOverride', '');
+        this.config.setData('ModLoader64', 'disableVIUpdates', false);
 
         let roms = getAllFiles(this.rom_folder, []);
         for (let i = 0; i < roms.length; i++) {

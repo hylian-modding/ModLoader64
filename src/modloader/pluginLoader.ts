@@ -100,6 +100,7 @@ class pluginLoader {
         this.lifecycle_funcs.set(LifeCycleEvents.ONPOSTTICK, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONVIUPDATE, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONCREATERESOURCES, []);
+
         lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
         });
@@ -734,8 +735,10 @@ class pluginLoader {
         };
         if (config.isClient) {
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
-            iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
-            iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
+            if (!config.disableVIUpdates) {
+                iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
+                iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
+            }
             internal_event_bus.on('CoreEvent.SoftReset', () => {
                 this.logger.info("Reinvoking the payload injector...");
                 this.reinject(() => {

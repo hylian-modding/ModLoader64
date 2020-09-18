@@ -7,6 +7,7 @@ interface IModLoaderConfig {
   supportedConsoles: string[];
   selectedConsole: string;
   coreOverride: string;
+  disableVIUpdates: boolean;
 }
 
 export default IModLoaderConfig;
