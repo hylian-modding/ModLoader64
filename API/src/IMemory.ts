@@ -20,7 +20,7 @@ interface IMemory extends IDynarecCache {
   rdramReadBuffer(addr: number, size: number): Buffer;
 
   rdramWriteBuffer(addr: number, buf: Buffer): void;
-  
+
   dereferencePointer(addr: number): number;
 
   rdramReadS8(addr: number): number;
@@ -104,7 +104,10 @@ interface IMemory extends IDynarecCache {
 
   rdramWritePtrF32(addr: number, offset: number, value: number): void;
 
-  memoryDebugLogger(bool: boolean): void;
+  bitCount8(value: number): number;
+  bitCount16(value: number): number;
+  bitCount32(value: number): number;
+  bitCountBuffer(buf: Buffer, off: number, len: number): number;
 
 }
 

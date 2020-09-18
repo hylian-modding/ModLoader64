@@ -475,57 +475,22 @@ class pluginLoader {
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
 
-        // Reimplementing stuff from the old binding.
+        // Backwards compatibility is arse.
         utils.utilBitCount8 = (value: number) => {
-            let r = 0;
-            let b = bitwise.byte.read(value as any);
-            for (let i = 0; i < b.length; i++) {
-                if (b[i] > 0) {
-                    r++;
-                }
-            }
-            return r;
+            this.logger.warn("utilBitCount8 is deprecated. Please use bitCount8 on IMemory instead.");
+            return iconsole.getMemoryAccess().bitCount8(value);
         };
         utils.utilBitCount16 = (value: number) => {
-            let r = 0;
-            let buf: Buffer = Buffer.alloc(0x2);
-            buf.writeUInt16BE(value, 0);
-            for (let i = 0; i < buf.byteLength; i++) {
-                let b = bitwise.byte.read(buf.readUInt8(i) as any);
-                for (let j = 0; j < b.length; j++) {
-                    if (b[j] > 0){
-                        r++;
-                    }
-                }
-            }
-            return r;
+            this.logger.warn("utilBitCount16 is deprecated. Please use bitCount16 on IMemory instead.");
+            return iconsole.getMemoryAccess().bitCount16(value);
         };
         utils.utilBitCount32 = (value: number) => {
-            let r = 0;
-            let buf: Buffer = Buffer.alloc(0x4);
-            buf.writeUInt16BE(value, 0);
-            for (let i = 0; i < buf.byteLength; i++) {
-                let b = bitwise.byte.read(buf.readUInt8(i) as any);
-                for (let j = 0; j < b.length; j++) {
-                    if (b[j] > 0){
-                        r++;
-                    }
-                }
-            }
-            return r;
+            this.logger.warn("utilBitCount32 is deprecated. Please use bitCount32 on IMemory instead.");
+            return iconsole.getMemoryAccess().bitCount32(value);
         };
         utils.utilBitCountBuffer = (buf: Buffer, offset: number, length: number) => {
-            let r = 0;
-            let buf2: Buffer = buf.slice(offset, offset + length);
-            for (let i = 0; i < buf2.byteLength; i++) {
-                let b = bitwise.byte.read(buf2.readUInt8(i) as any);
-                for (let j = 0; j < b.length; j++) {
-                    if (b[j] > 0){
-                        r++;
-                    }
-                }
-            }
-            return r;
+            this.logger.warn("utilBitCountBuffer is deprecated. Please use bitCountBuffer on IMemory instead.");
+            return iconsole.getMemoryAccess().bitCountBuffer(buf, offset, length);
         };
 
         let fn = (modid: string): boolean => {

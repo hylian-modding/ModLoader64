@@ -14,12 +14,16 @@ interface IUtils {
 
   cloneBuffer(buf: Buffer): Buffer;
 
+  //Deprecated
   utilBitCount8(value: number): number;
 
+  //Deprecated
   utilBitCount16(value: number): number;
 
+  //Deprecated
   utilBitCount32(value: number): number;
 
+  //Deprecated
   utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
   
 }
