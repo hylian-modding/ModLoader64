@@ -493,7 +493,9 @@ class pluginLoader {
             for (let i = 0; i < buf.byteLength; i++) {
                 let b = bitwise.byte.read(buf.readUInt8(i) as any);
                 for (let j = 0; j < b.length; j++) {
-                    r++;
+                    if (b[j] > 0){
+                        r++;
+                    }
                 }
             }
             return r;
@@ -505,7 +507,9 @@ class pluginLoader {
             for (let i = 0; i < buf.byteLength; i++) {
                 let b = bitwise.byte.read(buf.readUInt8(i) as any);
                 for (let j = 0; j < b.length; j++) {
-                    r++;
+                    if (b[j] > 0){
+                        r++;
+                    }
                 }
             }
             return r;
@@ -516,7 +520,9 @@ class pluginLoader {
             for (let i = 0; i < buf2.byteLength; i++) {
                 let b = bitwise.byte.read(buf2.readUInt8(i) as any);
                 for (let j = 0; j < b.length; j++) {
-                    r++;
+                    if (b[j] > 0){
+                        r++;
+                    }
                 }
             }
             return r;
