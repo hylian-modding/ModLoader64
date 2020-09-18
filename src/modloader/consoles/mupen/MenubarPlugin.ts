@@ -5,9 +5,11 @@ import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
 import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { string_ref } from "modloader64_api/Sylvain/ImGui";
+import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 import { AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
+import IConsole from "modloader64_api/IConsole";
+import { IMupen } from "./IMupen";
 
 class TopNotification {
     text: string;
@@ -287,13 +289,15 @@ class AchievementWidget {
 
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
-    pluginName?: string | undefined;
-    pluginHash?: string | undefined;
+    Binding!: IConsole;
     resourcesLoaded: boolean = false;
     menubar!: MenubarWidget;
     topNotifications!: TopBarWidget;
     bottomRight!: BottomRightWidget;
     achievements!: AchievementWidget;
+    aspect: number_ref = [0];
+    aspect_options = ['Stretch', 'Force 4:3', 'Force 16:9', 'Adjust'];
+    highres: boolean = false;
 
     preinit(): void {
         this.menubar = new MenubarWidget(this.ModLoader);
@@ -305,6 +309,8 @@ class MenubarPlugin implements IPlugin {
     init(): void {
     }
     postinit(): void {
+        this.aspect[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("AspectRatio", 1);
+        this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
     }
     onTick(frame?: number | undefined): void {
         this.achievements.onTick();
@@ -346,6 +352,20 @@ class MenubarPlugin implements IPlugin {
         this.topNotifications.update();
         this.bottomRight.update();
         this.achievements.update();
+        if (this.ModLoader.ImGui.beginMainMenuBar()) {
+            if (this.ModLoader.ImGui.beginMenu("Video")){
+                if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)){
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
+                }
+                if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)){
+                    this.highres = !this.highres;
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', this.highres);
+                }
+                this.ModLoader.ImGui.text("These settings require a restart to take effect.");
+                this.ModLoader.ImGui.endMenu();
+            }
+            this.ModLoader.ImGui.endMainMenuBar();
+        }
     }
 
 }

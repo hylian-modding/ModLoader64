@@ -134,7 +134,7 @@ class pluginLoader {
         this.plugins.push(plugin);
     }
 
-    private processInternalPlugin(pluginPath: string) {
+    private processInternalPlugin(pluginPath: string, console: IConsole) {
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
         if (parse.ext.indexOf('js') > -1) {
@@ -143,6 +143,7 @@ class pluginLoader {
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
+            plugin["Binding"] = console;
             Object.defineProperty(plugin, 'pluginName', {
                 value: pluginPath,
                 writable: false,
@@ -365,7 +366,7 @@ class pluginLoader {
         }
     }
 
-    loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
+    loadPluginsConstruct(header: IRomHeader, console: IConsole, overrideCore = '') {
         // Start the core plugin.
         this.header = header;
         global.ModLoader["ROM_HEADER"] = this.header;
@@ -407,7 +408,7 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js');
+        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {

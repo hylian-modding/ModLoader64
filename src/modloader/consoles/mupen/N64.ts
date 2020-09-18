@@ -18,6 +18,7 @@ import { bus } from 'modloader64_api/EventHandler';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
+import { M64p } from './ml64_emu_addon';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -106,6 +107,11 @@ class N64 implements IConsole {
                 this.mupen.Frontend.toggleFullScreen();
             }
         });
+/*         this.mupen.Frontend.on('core-state-changed', (param: M64p.CoreParam, newValue: number) => {
+            if (param == M64p.CoreParam.AudioVolume) {
+                Listener.globalVolume = newValue;
+            }
+        }); */
         logger.info("Loading rom: " + rom + ".");
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
