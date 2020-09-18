@@ -26,7 +26,6 @@ import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
 import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
-import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
@@ -34,8 +33,6 @@ import { Pak, PakFooter } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
-import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
 import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
@@ -55,7 +52,6 @@ import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
-import bitwise from 'bitwise';
 
 class pluginLoader {
     plugin_directories: string[];

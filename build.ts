@@ -5,6 +5,7 @@ import findRemoveSync from 'find-remove';
 var recursive = require("recursive-readdir");
 import crypto from 'crypto';
 import child_process from 'child_process';
+import zip from 'adm-zip';
 
 var isWin = process.platform === "win32";
 
@@ -152,18 +153,24 @@ function pushModules() {
         fs.renameSync("./windows", "./ModLoader");
         child_process.execSync("paker --dir ./ModLoader --output ./");
         fs.renameSync("./ModLoader.pak", "./Windows.pak");
+        let zipFile: zip = new zip();
+        zipFile.addLocalFolder("./ModLoader", "./ModLoader");
+        zipFile.writeZip("./ModLoader-win32.zip");
         fs.removeSync("./ModLoader");
         fs.renameSync("./linux", "./ModLoader");
         child_process.execSync("paker --dir ./ModLoader --output ./");
         fs.renameSync("./ModLoader.pak", "./Linux.pak");
+        let zipFile2: zip = new zip();
+        zipFile2.addLocalFolder("./ModLoader", "./ModLoader");
+        zipFile2.writeZip("./ModLoader-linux64.zip");
         fs.removeSync("./ModLoader");
         process.chdir(original_dir);
         console.log("Building dedi tarball...");
         fs.copySync("./build", "./dist/dedi");
         process.chdir("./dist/dedi");
-        child_process.execSync("tar -zcvf ./ModLoader64.tar.gz .");
+        child_process.execSync("tar -zcvf ./ModLoader64-server.tar.gz .");
         process.chdir(original_dir);
-        fs.copyFileSync("./dist/dedi/ModLoader64.tar.gz", "./dist/ModLoader64.tar.gz");
+        fs.copyFileSync("./dist/dedi/ModLoader64-server.tar.gz", "./dist/ModLoader64-server.tar.gz");
         process.chdir("./dist");
         child_process.execSync("paker --dir ./dedi --output ./");
         process.chdir(original_dir);
