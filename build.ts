@@ -189,7 +189,7 @@ function pushToServer() {
         return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/dev/');
     }).then(data => {
         console.log(data);
-        console.log("Updating OotO server files.")
+        console.log("Updating OotO dev server files.")
         child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
         return sftp.uploadDir("./dist/dedi", "/OotO_200/dev_server")
     }).then(data => {

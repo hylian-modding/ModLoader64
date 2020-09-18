@@ -7,9 +7,11 @@ import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
 import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
-import { AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
+import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
 import { IMupen } from "./IMupen";
+import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
+import { NetworkHandler, ServerNetworkHandler } from "modloader64_api/NetworkHandler";
 
 class TopNotification {
     text: string;
@@ -241,10 +243,19 @@ class BottomRightWidget {
         if (this.currentNotif !== undefined) {
             this.pos.x = this.targetPos.x;
             if (this.pos.y > this.targetPos.y) {
-                this.pos.y -= 1;
+                if (this.notifs.length > 5) {
+                    this.pos.y -= 1 * 5;
+                } else {
+                    this.pos.y -= 1;
+                }
             } else {
-                this.currentNotif.fgcolor.w -= 2 / 255;
-                this.currentNotif.bgcolor.w -= 2 / 255;
+                if (this.notifs.length > 5) {
+                    this.currentNotif.fgcolor.w -= 2 * 5 / 255;
+                    this.currentNotif.bgcolor.w -= 2 * 5 / 255;
+                } else {
+                    this.currentNotif.fgcolor.w -= 2 / 255;
+                    this.currentNotif.bgcolor.w -= 2 / 255;
+                }
                 if (this.currentNotif.fgcolor.w <= 0) {
                     this.currentNotif = undefined;
                     return;
@@ -287,6 +298,16 @@ class AchievementWidget {
     }
 }
 
+class AnnouncePacket extends Packet {
+
+    text: string;
+    constructor(text: string) {
+        super('AnnouncePacket', 'MLCore', "__GLOBAL__")
+        this.text = text;
+    }
+
+}
+
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
     Binding!: IConsole;
@@ -307,7 +328,22 @@ class MenubarPlugin implements IPlugin {
     }
 
     init(): void {
+        if (this.ModLoader.isServer) {
+            setInterval(() => {
+                if (fs.existsSync("./announce.json")) {
+                    let data: any = JSON.parse(fs.readFileSync("./announce.json").toString());
+                    fs.unlinkSync("./announce.json");
+                    this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
+                }
+            }, 30 * 1000);
+        }
     }
+
+    @NetworkHandler('AnnouncePacket')
+    onAnnounce(packet: AnnouncePacket){
+        addToSystemNotificationQueue(packet.text);
+    }
+
     postinit(): void {
         this.aspect[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("AspectRatio", 1);
         this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
@@ -328,12 +364,12 @@ class MenubarPlugin implements IPlugin {
     }
 
     @EventHandler(AnnouncementChannels.SYSTEM_NOTIFICATION)
-    onNotif(notif: ISystemNotification){
+    onNotif(notif: ISystemNotification) {
         this.topNotifications.add(notif);
     }
 
     @EventHandler(AnnouncementChannels.KILL_FEED)
-    onKillfeed(notif: IKillFeedMessage){
+    onKillfeed(notif: IKillFeedMessage) {
         this.bottomRight.add(notif);
     }
 
@@ -353,11 +389,11 @@ class MenubarPlugin implements IPlugin {
         this.bottomRight.update();
         this.achievements.update();
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
-            if (this.ModLoader.ImGui.beginMenu("Video")){
-                if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)){
+            if (this.ModLoader.ImGui.beginMenu("Video")) {
+                if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
                 }
-                if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)){
+                if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)) {
                     this.highres = !this.highres;
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', this.highres);
                 }
