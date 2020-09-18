@@ -13,6 +13,14 @@ interface IUtils {
   getUUID(): string;
 
   cloneBuffer(buf: Buffer): Buffer;
+
+  utilBitCount8(value: number): number;
+
+  utilBitCount16(value: number): number;
+
+  utilBitCount32(value: number): number;
+
+  utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
   
 }
 

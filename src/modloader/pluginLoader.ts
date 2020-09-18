@@ -55,6 +55,7 @@ import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
+import bitwise from 'bitwise';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -473,6 +474,53 @@ class pluginLoader {
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
+
+        // Reimplementing stuff from the old binding.
+        utils.utilBitCount8 = (value: number) => {
+            let r = 0;
+            let b = bitwise.byte.read(value as any);
+            for (let i = 0; i < b.length; i++) {
+                if (b[i] > 0) {
+                    r++;
+                }
+            }
+            return r;
+        };
+        utils.utilBitCount16 = (value: number) => {
+            let r = 0;
+            let buf: Buffer = Buffer.alloc(0x2);
+            buf.writeUInt16BE(value, 0);
+            for (let i = 0; i < buf.byteLength; i++) {
+                let b = bitwise.byte.read(buf.readUInt8(i) as any);
+                for (let j = 0; j < b.length; j++) {
+                    r++;
+                }
+            }
+            return r;
+        };
+        utils.utilBitCount32 = (value: number) => {
+            let r = 0;
+            let buf: Buffer = Buffer.alloc(0x4);
+            buf.writeUInt16BE(value, 0);
+            for (let i = 0; i < buf.byteLength; i++) {
+                let b = bitwise.byte.read(buf.readUInt8(i) as any);
+                for (let j = 0; j < b.length; j++) {
+                    r++;
+                }
+            }
+            return r;
+        };
+        utils.utilBitCountBuffer = (buf: Buffer, offset: number, length: number) => {
+            let r = 0;
+            let buf2: Buffer = buf.slice(offset, offset + length);
+            for (let i = 0; i < buf2.byteLength; i++) {
+                let b = bitwise.byte.read(buf2.readUInt8(i) as any);
+                for (let j = 0; j < b.length; j++) {
+                    r++;
+                }
+            }
+            return r;
+        };
 
         let fn = (modid: string): boolean => {
             for (let i = 0; i < this.plugins.length; i++) {
