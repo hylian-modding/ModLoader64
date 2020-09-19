@@ -571,7 +571,12 @@ class pluginLoader {
             plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
-            value();
+            try{
+                value();
+            }catch(err){
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
     }
 
@@ -590,7 +595,12 @@ class pluginLoader {
         this.resetPlayerInstance(me);
         this.loaded_core.init();
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
-            value();
+            try{
+                value();
+            }catch(err){
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
         this.onTickHandle = () => {
             try {
@@ -702,7 +712,12 @@ class pluginLoader {
             plugin.ModLoader.Input = input;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
-            value();
+            try{
+                value();
+            }catch(err){
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
         this.plugins.forEach((plugin: IPlugin) => {
             if (mainConfig.isClient) {
