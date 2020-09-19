@@ -319,6 +319,8 @@ class MenubarPlugin implements IPlugin {
     aspect: number_ref = [0];
     aspect_options = ['Stretch', 'Force 4:3', 'Force 16:9', 'Adjust'];
     highres: boolean = false;
+    ScreenWidth: number_ref = [0];
+    ScreenHeight: number_ref = [0];
 
     preinit(): void {
         this.menubar = new MenubarWidget(this.ModLoader);
@@ -347,6 +349,8 @@ class MenubarPlugin implements IPlugin {
     postinit(): void {
         this.aspect[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("AspectRatio", 1);
         this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
+        this.ScreenWidth[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenWidth", 800);
+        this.ScreenHeight[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenHeight", 600);
     }
     onTick(frame?: number | undefined): void {
         this.achievements.onTick();
@@ -392,6 +396,14 @@ class MenubarPlugin implements IPlugin {
             if (this.ModLoader.ImGui.beginMenu("Video")) {
                 if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
+                }
+                if (this.ModLoader.ImGui.inputInt("Screen Width", this.ScreenWidth)){
+                    let w = Math.floor(this.ScreenWidth[0]);
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenWidth", w);
+                }
+                if (this.ModLoader.ImGui.inputInt("Screen Height", this.ScreenHeight)){
+                    let w = Math.floor(this.ScreenHeight[0]);
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenHeight", w);
                 }
                 if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)) {
                     this.highres = !this.highres;

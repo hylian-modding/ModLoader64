@@ -34,9 +34,37 @@ class N64 implements IConsole {
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
 
-        //let section = this.mupen.M64p.Config.openSection('Video-General');
-        //let size: vec2 = xy(section.getInt("ScreenWidth"), section.getInt("ScreenHeight"));
         let size: vec2 = xy(800, 600);
+        if (global.ModLoader.hasOwnProperty("ScreenWidth") && global.ModLoader.hasOwnProperty("ScreenHeight")){
+            size.x = global.ModLoader["ScreenWidth"];
+            size.y = global.ModLoader["ScreenHeight"];
+        }else{
+            if (fs.existsSync(path.join(".", "emulator", "mupen64plus.cfg"))) {
+                let opts: any = {};
+                let mupen: string = fs.readFileSync(path.join(".", "emulator", "mupen64plus.cfg")).toString();
+                let lines = mupen.split("\n");
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].indexOf("[") > -1) {
+                        continue;
+                    }
+                    if (lines[i].indexOf("#") > -1) {
+                        continue;
+                    }
+                    if (lines[i].trim() === "") {
+                        continue;
+                    }
+                    let s = lines[i].split("=");
+                    opts[s[0].trim()] = s[1].trim().replace(/['"]+/g, "");
+                }
+                global.ModLoader["ScreenWidth"] = parseInt(opts["ScreenWidth"]);
+                global.ModLoader["ScreenHeight"] = parseInt(opts["ScreenHeight"]);
+            }else{
+                global.ModLoader["ScreenWidth"] = 800;
+                global.ModLoader["ScreenHeight"] = 600;
+            }
+        }
+        size.x = global.ModLoader["ScreenWidth"];
+        size.y = global.ModLoader["ScreenHeight"];
 
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
