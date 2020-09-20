@@ -19,6 +19,7 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { M64p } from './ml64_emu_addon';
+import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -141,6 +142,10 @@ class N64 implements IConsole {
             }
         }); */
         logger.info("Loading rom: " + rom + ".");
+        if (!fs.existsSync(rom)){
+            this.logger.error("No rom selected!");
+            process.exit(ModLoaderErrorCodes.NO_ROM);
+        }
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _rom.byteLength;
