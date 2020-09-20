@@ -142,6 +142,10 @@ class N64 implements IConsole {
             }
         }); */
         logger.info("Loading rom: " + rom + ".");
+        if (rom === ""){
+            this.logger.error("No rom selected!");
+            process.exit(ModLoaderErrorCodes.NO_ROM);
+        }
         if (!fs.existsSync(rom)){
             this.logger.error("No rom selected!");
             process.exit(ModLoaderErrorCodes.NO_ROM);
