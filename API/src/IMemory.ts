@@ -109,6 +109,8 @@ interface IMemory extends IDynarecCache {
   bitCount32(value: number): number;
   bitCountBuffer(buf: Buffer, off: number, len: number): number;
 
+  getRdramBuffer(): Buffer;
+
 }
 
 export default IMemory;

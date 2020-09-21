@@ -3,7 +3,12 @@ import Vector3 from 'modloader64_api/math/Vector3';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 
 export class FakeN64Memory implements IMemory, IRomMemory {
-
+    getRomBuffer(): Buffer {
+        return Buffer.alloc(1);
+    }
+    getRdramBuffer(): Buffer {
+        return Buffer.alloc(1);
+    }
     bitCount8(value: number): number {
         return -1;
     }

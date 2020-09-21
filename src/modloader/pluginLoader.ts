@@ -534,6 +534,7 @@ class pluginLoader {
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
+        internal_event_bus.emit("SOUND_SYSTEM_LOADED", ss);
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -571,9 +572,9 @@ class pluginLoader {
             plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
-            try{
+            try {
                 value();
-            }catch(err){
+            } catch (err) {
                 this.logger.error(err);
                 process.exit(1);
             }
@@ -595,9 +596,9 @@ class pluginLoader {
         this.resetPlayerInstance(me);
         this.loaded_core.init();
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
-            try{
+            try {
                 value();
-            }catch(err){
+            } catch (err) {
                 this.logger.error(err);
                 process.exit(1);
             }
@@ -712,9 +713,9 @@ class pluginLoader {
             plugin.ModLoader.Input = input;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
-            try{
+            try {
                 value();
-            }catch(err){
+            } catch (err) {
                 this.logger.error(err);
                 process.exit(1);
             }

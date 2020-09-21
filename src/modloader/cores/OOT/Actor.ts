@@ -174,6 +174,10 @@ export class ActorBase extends JSONTemplate implements IActor {
         this.position = new Position(this);
     }
 
+    getRdramBuffer(): Buffer {
+        return this.emulator.getRdramBuffer();
+    }
+
     bitCount8(value: number): number {
         return this.emulator.bitCount8(value);
     }

@@ -11,7 +11,8 @@ import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, I
 import IConsole from "modloader64_api/IConsole";
 import { IMupen } from "./IMupen";
 import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
-import { NetworkHandler, ServerNetworkHandler } from "modloader64_api/NetworkHandler";
+import { NetworkHandler } from "modloader64_api/NetworkHandler";
+import { ServerCommand, ServerCommandEvents } from 'modloader64_api/ServerCommand';
 
 class TopNotification {
     text: string;
@@ -332,17 +333,30 @@ class MenubarPlugin implements IPlugin {
     init(): void {
         if (this.ModLoader.isServer) {
             setInterval(() => {
-                if (fs.existsSync("./announce.json")) {
-                    let data: any = JSON.parse(fs.readFileSync("./announce.json").toString());
-                    fs.unlinkSync("./announce.json");
-                    this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
+                try {
+                    if (fs.existsSync("./announce.json")) {
+                        let data: any = JSON.parse(fs.readFileSync("./announce.json").toString());
+                        fs.unlinkSync("./announce.json");
+                        this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
+                    }
+                    if (fs.existsSync("./commands.json")) {
+                        let data: any = JSON.parse(fs.readFileSync("./commands.json").toString());
+                        fs.unlinkSync("./commands.json");
+                        let cmds: Array<string> = data.commands;
+                        for (let i = 0; i < cmds.length; i++) {
+                            let params: Array<string> = cmds[i].split(" ");
+                            bus.emit(ServerCommandEvents.RECEIVE_COMMAND, new ServerCommand(params));
+                        }
+                    }
+                } catch (err) {
+                    this.ModLoader.logger.error(err);
                 }
             }, 30 * 1000);
         }
     }
 
     @NetworkHandler('AnnouncePacket')
-    onAnnounce(packet: AnnouncePacket){
+    onAnnounce(packet: AnnouncePacket) {
         addToSystemNotificationQueue(packet.text);
     }
 
@@ -397,11 +411,11 @@ class MenubarPlugin implements IPlugin {
                 if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
                 }
-                if (this.ModLoader.ImGui.inputInt("Screen Width", this.ScreenWidth)){
+                if (this.ModLoader.ImGui.inputInt("Screen Width", this.ScreenWidth)) {
                     let w = Math.floor(this.ScreenWidth[0]);
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenWidth", w);
                 }
-                if (this.ModLoader.ImGui.inputInt("Screen Height", this.ScreenHeight)){
+                if (this.ModLoader.ImGui.inputInt("Screen Height", this.ScreenHeight)) {
                     let w = Math.floor(this.ScreenHeight[0]);
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenHeight", w);
                 }

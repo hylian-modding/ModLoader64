@@ -62,6 +62,10 @@ export class Link extends JSONTemplate implements ILink {
         this.position = new Position(this);
         this.math = math;
     }
+
+    getRdramBuffer(): Buffer {
+        return this.emulator.getRdramBuffer();
+    }
     
     bitCount8(value: number): number {
         return this.emulator.bitCount8(value);
