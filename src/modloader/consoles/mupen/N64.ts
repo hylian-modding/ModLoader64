@@ -186,7 +186,7 @@ class N64 implements IConsole {
                 }
             });
         }
-        this.callbacks.get(type)!.push(callback.bind(this));
+        this.callbacks.get(type)!.push(callback);
     }
 
     getYaz0Encoder(): IYaz0 {
