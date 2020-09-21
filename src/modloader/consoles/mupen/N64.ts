@@ -28,6 +28,7 @@ class N64 implements IConsole {
     logger: ILogger;
     lobby: string;
     isPaused: boolean = false;
+    callbacks: Map<string, Array<Function>> = new Map<string, Array<Function>>();
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
@@ -80,7 +81,7 @@ class N64 implements IConsole {
         section.setString("ScreenshotPath", screenshot_dir);
         this.mupen.M64p.Config.saveFile();
 
-        this.mupen.Frontend.on('window-closing', () => {
+        this.registerCallback('window-closing', () => {
             if (this.mupen.M64p.getEmuState() === EmuState.Paused) {
                 this.mupen.M64p.resume();
             }
@@ -88,15 +89,15 @@ class N64 implements IConsole {
                 this.mupen.Frontend.stop();
             }
         });
-        this.mupen.Frontend.on('core-stopped', () => {
+        this.registerCallback('core-stopped', () => {
             clearInterval(doEvents);
             this.mupen.Frontend.shutdown();
             internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
             setTimeout(() => {
                 process.exit(0);
             }, 3000);
-        });
-        this.mupen.Frontend.on('core-event', (event: CoreEvent, data: number) => {
+        })
+        this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
                 this.logger.info("Soft reset detected. Sending alert to plugins.");
                 bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
@@ -162,18 +163,30 @@ class N64 implements IConsole {
         });
         internal_event_bus.on("SOUND_SYSTEM_LOADED", (ss: SoundSystem) => {
             let volumeAdjust = this.mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
-            this.mupen.Frontend.on('core-event', (event: CoreEvent, v: number) => {
+            this.registerCallback('core-event', (event: CoreEvent, v: number) => {
                 if (event == CoreEvent.VolumeDown)
                     this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - volumeAdjust);
                 else if (event == CoreEvent.VolumeUp)
                     this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + volumeAdjust);
             });
-            this.mupen.Frontend.on('core-state-changed', (param: CoreParam, newValue: number) => {
+            this.registerCallback('core-state-changed', (param: CoreParam, newValue: number) => {
                 if (param == CoreParam.AudioVolume) {
                     ss.listener.globalVolume = newValue;
                 }
-            });
+            })
         });
+    }
+
+    private registerCallback(type: string, callback: Function) {
+        if (!this.callbacks.has(type)) {
+            this.callbacks.set(type, []);
+            this.mupen.Frontend.on(type, () => {
+                for (let i = 0; i < this.callbacks.get(type)!.length; i++) {
+                    this.callbacks.get(type)![i]();
+                }
+            });
+        }
+        this.callbacks.get(type)!.push(callback.bind(this));
     }
 
     getYaz0Encoder(): IYaz0 {
@@ -197,7 +210,7 @@ class N64 implements IConsole {
     }
 
     on(which: string, callback: any): void {
-        this.mupen.Frontend.on(which, callback);
+        this.registerCallback(which, callback);
     }
 
     startEmulator(preStartCallback: Function): IMemory {
