@@ -6,7 +6,9 @@ var recursive = require("recursive-readdir");
 import crypto from 'crypto';
 import child_process from 'child_process';
 
-var isWin = process.platform === "win32";
+// per https://nodejs.org/api/process.html#process_process_arch
+const isWin = process.platform === "win32";
+const is64bit = process.arch === "x64"
 
 const copyNodeModules = require('copy-node-modules');
 
@@ -239,6 +241,12 @@ function pushToLiveServer() {
 }
 
 function prebuild() {
+    // "sanity" check on windows
+    if (isWin && is64bit) {
+        console.error("Error! Detected Windows 64-bit!")
+        console.error("Windows 64-bit is not supported!")
+        process.exit(1)
+    }
 
     if (!fs.existsSync("./cores")) {
         fs.mkdirSync("./cores");
