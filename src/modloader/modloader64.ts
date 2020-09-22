@@ -178,6 +178,7 @@ class ModLoader64 {
         );
         this.config.setData('ModLoader64', 'selectedConsole', 'N64');
         this.config.setData('ModLoader64', 'coreOverride', '');
+        this.config.setData('ModLoader64', 'disableVIUpdates', false);
 
         let roms = getAllFiles(this.rom_folder, []);
         for (let i = 0; i < roms.length; i++) {
@@ -306,7 +307,7 @@ class ModLoader64 {
             this.plugins.selected_core = 'DummyCore';
         }
         // Load the plugins
-        this.plugins.loadPluginsConstruct(loaded_rom_header);
+        this.plugins.loadPluginsConstruct(loaded_rom_header, this.emulator);
         bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
         let evt: any = { rom: this.emulator.getLoadedRom() };
         bus.emit(ModLoaderEvents.ON_PRE_ROM_LOAD, evt);

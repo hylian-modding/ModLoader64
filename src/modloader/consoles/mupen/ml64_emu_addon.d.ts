@@ -241,8 +241,8 @@ export module M64p {
     }
 
     export module Memory {
-        export function getRdramBuffer(): Buffer;
-        export function getRomBuffer(): Buffer;
+        export function getRdramBuffer(): ArrayBuffer;
+        export function getRomBuffer(): ArrayBuffer;
         export function invalidateCachedCode(): void;
 
         export function rdramRead8(addr: number): number;
@@ -1218,60 +1218,6 @@ export module ImGui {
 
     export function pushItemDisabled(disabled: boolean): void;
     export function popItemDisabled(): void;
-}
-
-export module Mixer {
-    export interface Sound {
-        loadFromFile(path: string): void;
-        loadFromMemory(data: Buffer): void;
-        play(loops: number): void;
-        fadeIn(loops: number, ms: number): void;
-        getVolume(): number;
-        setVolume(volume: number): void;
-        stop(): void;
-        expire(ms: number): void;
-        fadeOut(ms: number): void;
-        pause(): void;
-        resume(): void;
-        isPaused(): boolean;
-        isPlaying(): boolean;
-        setPanning(left: number, right: number): void;
-        setPosition(angle: number, distance: number): void;
-        setDistance(distance: number): void;
-    }
-
-    export var Sound: {
-        new(): Sound;
-        setVolume(volume: number): void;
-        stop(): void;
-        expire(ms: number): void;
-        fadeOut(ms: number): void;
-        pause(): void;
-        resume(): void;
-        isPaused(): boolean;
-        isPlaying(): boolean;
-    };
-
-    export interface Music {
-        openFromFile(path: string): void;
-        openFromMemory(data: Buffer): void;
-        play(loops: number): void;
-        fadeIn(loops: number, ms: number): void;
-    }
-
-    export var Music: {
-        new(): Music;
-        getVolume(): number;
-        setVolume(volume: number): void;
-        stop(): void;
-        fadeOut(ms: number): void;
-        pause(): void;
-        resume(): void;
-        rewind(): void;
-        isPaused(): boolean;
-        setPosition(position: number): void;
-        isPlaying(): boolean;
-    };
 }
 
 export module Gfx {

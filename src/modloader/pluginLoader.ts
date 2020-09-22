@@ -26,7 +26,6 @@ import IConsole from 'modloader64_api/IConsole';
 import { internal_event_bus } from './modloader64';
 import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
-import ISaveState from 'modloader64_api/ISaveState';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
@@ -34,8 +33,6 @@ import { Pak, PakFooter } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
 import { frameTimeoutContainer } from './frameTimeoutContainer';
-import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import zlib from 'zlib';
 import { PayloadManager } from './PayloadManager';
 import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
@@ -103,6 +100,7 @@ class pluginLoader {
         this.lifecycle_funcs.set(LifeCycleEvents.ONPOSTTICK, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONVIUPDATE, []);
         this.lifecycle_funcs.set(LifeCycleEvents.ONCREATERESOURCES, []);
+
         lifecyclebus.on(LifeCycleEvents.PREINIT, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.push(handler);
         });
@@ -134,7 +132,7 @@ class pluginLoader {
         this.plugins.push(plugin);
     }
 
-    private processInternalPlugin(pluginPath: string) {
+    private processInternalPlugin(pluginPath: string, console: IConsole) {
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
         if (parse.ext.indexOf('js') > -1) {
@@ -143,6 +141,7 @@ class pluginLoader {
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
+            plugin["Binding"] = console;
             Object.defineProperty(plugin, 'pluginName', {
                 value: pluginPath,
                 writable: false,
@@ -365,7 +364,7 @@ class pluginLoader {
         }
     }
 
-    loadPluginsConstruct(header: IRomHeader, overrideCore = '') {
+    loadPluginsConstruct(header: IRomHeader, console: IConsole, overrideCore = '') {
         // Start the core plugin.
         this.header = header;
         global.ModLoader["ROM_HEADER"] = this.header;
@@ -407,7 +406,7 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js');
+        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
@@ -473,6 +472,37 @@ class pluginLoader {
         };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
 
+        // Backwards compatibility is arse.
+        global.ModLoader["deprecationWarnings"] = { utilBitCount8: false, utilBitCount16: false, utilBitCount32: false, utilBitCountBuffer: false };
+        utils.utilBitCount8 = (value: number) => {
+            if (!global.ModLoader.deprecationWarnings.utilBitCount8) {
+                this.logger.warn("utilBitCount8 is deprecated. Please use bitCount8 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount8 = true;
+            }
+            return iconsole.getMemoryAccess().bitCount8(value);
+        };
+        utils.utilBitCount16 = (value: number) => {
+            if (!global.ModLoader.deprecationWarnings.utilBitCount16) {
+                this.logger.warn("utilBitCount16 is deprecated. Please use bitCount16 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount16 = true;
+            }
+            return iconsole.getMemoryAccess().bitCount16(value);
+        };
+        utils.utilBitCount32 = (value: number) => {
+            if (!global.ModLoader.deprecationWarnings.utilBitCount32) {
+                this.logger.warn("utilBitCount32 is deprecated. Please use bitCount32 on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCount32 = true;
+            }
+            return iconsole.getMemoryAccess().bitCount32(value);
+        };
+        utils.utilBitCountBuffer = (buf: Buffer, offset: number, length: number) => {
+            if (!global.ModLoader.deprecationWarnings.utilBitCountBuffer) {
+                this.logger.warn("utilBitCountBuffer is deprecated. Please use bitCountBuffer on IMemory instead.");
+                global.ModLoader.deprecationWarnings.utilBitCountBuffer = true;
+            }
+            return iconsole.getMemoryAccess().bitCountBuffer(buf, offset, length);
+        };
+
         let fn = (modid: string): boolean => {
             for (let i = 0; i < this.plugins.length; i++) {
                 if (this.plugins[i].pluginName === modid) {
@@ -504,6 +534,7 @@ class pluginLoader {
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
+        internal_event_bus.emit("SOUND_SYSTEM_LOADED", ss);
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -541,7 +572,12 @@ class pluginLoader {
             plugin.ModLoader.isModLoaded = fn;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
-            value();
+            try {
+                value();
+            } catch (err) {
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
     }
 
@@ -560,7 +596,12 @@ class pluginLoader {
         this.resetPlayerInstance(me);
         this.loaded_core.init();
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
-            value();
+            try {
+                value();
+            } catch (err) {
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
         this.onTickHandle = () => {
             try {
@@ -672,7 +713,12 @@ class pluginLoader {
             plugin.ModLoader.Input = input;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
-            value();
+            try {
+                value();
+            } catch (err) {
+                this.logger.error(err);
+                process.exit(1);
+            }
         });
         this.plugins.forEach((plugin: IPlugin) => {
             if (mainConfig.isClient) {
@@ -718,8 +764,10 @@ class pluginLoader {
         };
         if (config.isClient) {
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
-            iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
-            iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
+            if (!config.disableVIUpdates) {
+                iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
+                iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
+            }
             internal_event_bus.on('CoreEvent.SoftReset', () => {
                 this.logger.info("Reinvoking the payload injector...");
                 this.reinject(() => {

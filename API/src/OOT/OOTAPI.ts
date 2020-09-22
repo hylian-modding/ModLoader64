@@ -3,6 +3,7 @@ import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';
 import { IDungeonItemManager } from './IDungeonItemManager';
 import Vector3 from '../math/Vector3';
+import { throws } from 'assert';
 
 export const enum LinkState {
   UNKNOWN,
@@ -141,7 +142,7 @@ export const enum Scene {
   GANONS_CASTLE_EXTERIOR,
 }
 
-export interface ISceneInfo {}
+export interface ISceneInfo { }
 
 export const enum Tunic {
   KOKIRI,
@@ -531,6 +532,52 @@ export enum OotEvents {
   ON_ROOM_CHANGE = 'onRoomChange',
   ON_ROOM_CHANGE_PRE = 'onPreRoomChange',
   ON_AGE_CHANGE = 'onAgeChange',
+  ON_SAVE_FLAG_CHANGE = "onSaveFlagChange",
+  ON_LOCAL_FLAG_CHANGE = "onLocalFlagChange"
+}
+
+export enum OotFlagTypes {
+  SCENE,
+  SKULLTULA,
+  ITEM,
+  INF,
+  EVENT
+}
+
+export enum OotFlagSubTypes {
+  NONE,
+  CHEST,
+  SWITCH,
+  ROOM_CLEAR,
+  COLLECT,
+  UNUSED,
+  VISITED_ROOM,
+  VISITED_FLOOR
+}
+
+export interface OotFlagEvent {
+  type: OotFlagTypes;
+  subtype: OotFlagSubTypes;
+  scene: Scene;
+  flagNumber: number;
+  state: boolean;
+}
+
+export class OotFlagEventImpl implements OotFlagEvent {
+  type: OotFlagTypes;
+  subtype: OotFlagSubTypes;
+  scene: Scene;
+  flagNumber: number;
+  state: boolean;
+
+  constructor(type: OotFlagTypes, subtype: OotFlagSubTypes, scene: Scene, flagNumber: number, state: boolean) {
+    this.type = type;
+    this.subtype = subtype;
+    this.scene = scene;
+    this.flagNumber = flagNumber;
+    this.state = state;
+  }
+
 }
 
 export interface IActorManager {
@@ -606,69 +653,105 @@ class UpgradeCount {
   count: number;
 
   constructor(item: InventoryItem, level: AmmoUpgrade, count: number) {
-      this.item = item;
-      this.level = level;
-      this.count = count;
+    this.item = item;
+    this.level = level;
+    this.count = count;
   }
 
   isMatch(inst: UpgradeCount) {
-      return inst.item === this.item && inst.level === this.level;
+    return inst.item === this.item && inst.level === this.level;
   }
 }
 
 const UpgradeCountLookupTable: UpgradeCount[] = [
-    // Bombs
-    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
-    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
-    new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
-    // Sticks
-    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
-    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.UPGRADED, 20),
-    new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.MAX, 30),
-    // Nuts
-    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.BASE, 20),
-    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.UPGRADED, 30),
-    new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.MAX, 40),
-    // Seeds
-    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.BASE, 30),
-    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.UPGRADED, 40),
-    new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.MAX, 50),
-    // Arrows
-    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
-    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
-    new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
-    // Bombchu
-    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 0),
-    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 5),
-    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 10),
-    new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.MAX, 20),
+  // Bombs
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.BASE, 20),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.UPGRADED, 30),
+  new UpgradeCount(InventoryItem.BOMB, AmmoUpgrade.MAX, 40),
+  // Sticks
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.BASE, 10),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.UPGRADED, 20),
+  new UpgradeCount(InventoryItem.DEKU_STICK, AmmoUpgrade.MAX, 30),
+  // Nuts
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.BASE, 20),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.UPGRADED, 30),
+  new UpgradeCount(InventoryItem.DEKU_NUT, AmmoUpgrade.MAX, 40),
+  // Seeds
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.BASE, 30),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.UPGRADED, 40),
+  new UpgradeCount(InventoryItem.FAIRY_SLINGSHOT, AmmoUpgrade.MAX, 50),
+  // Arrows
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.BASE, 30),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.UPGRADED, 40),
+  new UpgradeCount(InventoryItem.FAIRY_BOW, AmmoUpgrade.MAX, 50),
+  // Bombchu
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.NONE, 0),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.BASE, 5),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.UPGRADED, 10),
+  new UpgradeCount(InventoryItem.BOMBCHU, AmmoUpgrade.MAX, 20),
 ];
 
 export function UpgradeCountLookup(
-    item: InventoryItem,
-    level: AmmoUpgrade
+  item: InventoryItem,
+  level: AmmoUpgrade
 ): number {
-    let inst: UpgradeCount = new UpgradeCount(item, level, -1);
-    for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
-        if (inst.isMatch(UpgradeCountLookupTable[i])) {
-            return UpgradeCountLookupTable[i].count;
-        }
+  let inst: UpgradeCount = new UpgradeCount(item, level, -1);
+  for (let i = 0; i < UpgradeCountLookupTable.length; i++) {
+    if (inst.isMatch(UpgradeCountLookupTable[i])) {
+      return UpgradeCountLookupTable[i].count;
     }
-    return 0;
+  }
+  return 0;
 }
 
-export interface IOvlPayloadResult{
+export interface IOvlPayloadResult {
   file: string;
   slot: number;
   addr: number;
   params: number;
   buf: Buffer;
   relocate: number;
-  
-  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number)=>{}): void;
+
+  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number) => {}): void;
+}
+
+export class SceneStruct {
+  buf: Buffer;
+
+  constructor(buf: Buffer) {
+    this.buf = buf;
+  }
+
+  get chests(): Buffer {
+    return this.buf.slice(0x0, 0x4);
+  }
+
+  get switches(): Buffer {
+    return this.buf.slice(0x4, 0x8);
+  }
+
+  get room_clear(): Buffer {
+    return this.buf.slice(0x8, 0xC);
+  }
+
+  get collectible(): Buffer {
+    return this.buf.slice(0xC, 0x10);
+  }
+
+  get unused(): Buffer {
+    return this.buf.slice(0x10, 0x14);
+  }
+
+  get visited_rooms(): Buffer {
+    return this.buf.slice(0x14, 0x18);
+  }
+
+  get visited_floors(): Buffer {
+    return this.buf.slice(0x18, 0x1C);
+  }
 }

@@ -35,6 +35,8 @@ program.option("-s, --startdir <dir>", "the start dir for sdk usage");
 program.option("-l, --logginglevel <level>", "the logging level");
 program.option("-z, --devmode", "developer mode");
 program.option("-i, --discord <user>", "discord id");
+program.option("-w, --ScreenWidth <width>", "screen width");
+program.option("-h, --ScreenHeight <height>", "screen height");
 program.allowUnknownOption(true);
 program.parse(process.argv);
 
@@ -71,6 +73,14 @@ if (program.startdir) {
     global.ModLoader["startdir"] = program.startdir;
 } else {
     global.ModLoader['startdir'] = process.cwd();
+}
+
+if (program.ScreenWidth){
+    global.ModLoader["ScreenWidth"] = parseInt(program.ScreenWidth);
+}
+
+if (program.ScreenHeight){
+    global.ModLoader["ScreenHeight"] = parseInt(program.ScreenHeight);
 }
 
 if (fs.existsSync('./console.log')) {

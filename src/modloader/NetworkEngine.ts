@@ -434,10 +434,14 @@ namespace NetworkEngine {
                         );
                     });
                     socket.on('msg', function (data: IPacketHeader) {
-                        NetworkBusServer.emit(data.packet_id, data);
-                        NetworkChannelBusServer.emit(data.channel, data);
-                        if (data.forward) {
-                            socket.to(data.lobby).emit('msg', data);
+                        try {
+                            NetworkBusServer.emit(data.packet_id, data);
+                            NetworkChannelBusServer.emit(data.channel, data);
+                            if (data.forward) {
+                                socket.to(data.lobby).emit('msg', data);
+                            }
+                        } catch (err) {
+                            inst.logger.error(err);
                         }
                     });
                     socket.on('toSpecificPlayer', function (data: any) {
@@ -469,30 +473,34 @@ namespace NetworkEngine {
                     inst.udpServer.close();
                 });
                 inst.udpServer.on('message', (buf: Buffer, rinfo: RemoteInfo) => {
-                    let msg: string = buf.toString();
-                    if (msg.charAt(0) !== '{') {
-                        return;
-                    }
-                    let data: IPacketHeader = JSON.parse(msg);
-                    if (data.packet_id === 'UDPTestPacket') {
-                        let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
-                        reply.player = inst.fakePlayer;
-                        inst.sendToTarget(data.player.uuid, 'udpTest', reply);
-                        return;
-                    }
-                    if (inst.getLobbyStorage_internal(data.lobby) === null) {
-                        return;
-                    }
-                    NetworkBusServer.emit(data.packet_id, data);
-                    NetworkChannelBusServer.emit(data.channel, data);
-                    if (data.forward) {
-                        Object.keys(
-                            inst.io.sockets.adapter.rooms[data.lobby].sockets
-                        ).forEach((key: string) => {
-                            if (key !== data.player.uuid) {
-                                inst.sendToTarget(key, 'msg', data);
-                            }
-                        });
+                    try {
+                        let msg: string = buf.toString();
+                        if (msg.charAt(0) !== '{') {
+                            return;
+                        }
+                        let data: IPacketHeader = JSON.parse(msg);
+                        if (data.packet_id === 'UDPTestPacket') {
+                            let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
+                            reply.player = inst.fakePlayer;
+                            inst.sendToTarget(data.player.uuid, 'udpTest', reply);
+                            return;
+                        }
+                        if (inst.getLobbyStorage_internal(data.lobby) === null) {
+                            return;
+                        }
+                        NetworkBusServer.emit(data.packet_id, data);
+                        NetworkChannelBusServer.emit(data.channel, data);
+                        if (data.forward) {
+                            Object.keys(
+                                inst.io.sockets.adapter.rooms[data.lobby].sockets
+                            ).forEach((key: string) => {
+                                if (key !== data.player.uuid) {
+                                    inst.sendToTarget(key, 'msg', data);
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        inst.logger.error(err);
                     }
                 });
                 inst.udpServer.on('listening', () => {
@@ -599,10 +607,14 @@ namespace NetworkEngine {
         onTick() {
             this.lastPacketBuffer.length = 0;
             while (this.packetBuffer.length > 0) {
-                let data: IPacketHeader = this.packetBuffer.shift() as IPacketHeader;
-                this.lastPacketBuffer.push(data);
-                NetworkBus.emit(data.packet_id, data);
-                NetworkChannelBus.emit(data.channel, data);
+                try {
+                    let data: IPacketHeader = this.packetBuffer.shift() as IPacketHeader;
+                    this.lastPacketBuffer.push(data);
+                    NetworkBus.emit(data.packet_id, data);
+                    NetworkChannelBus.emit(data.channel, data);
+                } catch (err) {
+                    this.logger.error(err);
+                }
             }
         }
 
@@ -654,7 +666,7 @@ namespace NetworkEngine {
                     );
                 });
                 inst.socket.on('versionGood', (data: any) => {
-                    if (data.server.discord !== ""){
+                    if (data.server.discord !== "") {
                         inst.me.data["discord"] = data.server.discord;
                         inst.logger.info("Local INetworkPlayer linked with Discord user " + inst.me.data["discord"]);
                     }
