@@ -5,9 +5,14 @@ import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
 import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { string_ref } from "modloader64_api/Sylvain/ImGui";
+import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
-import { AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
+import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
+import IConsole from "modloader64_api/IConsole";
+import { IMupen } from "./IMupen";
+import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
+import { NetworkHandler } from "modloader64_api/NetworkHandler";
+import { ServerCommand, ServerCommandEvents } from 'modloader64_api/ServerCommand';
 
 class TopNotification {
     text: string;
@@ -239,10 +244,19 @@ class BottomRightWidget {
         if (this.currentNotif !== undefined) {
             this.pos.x = this.targetPos.x;
             if (this.pos.y > this.targetPos.y) {
-                this.pos.y -= 1;
+                if (this.notifs.length > 5) {
+                    this.pos.y -= 1 * 5;
+                } else {
+                    this.pos.y -= 1;
+                }
             } else {
-                this.currentNotif.fgcolor.w -= 2 / 255;
-                this.currentNotif.bgcolor.w -= 2 / 255;
+                if (this.notifs.length > 5) {
+                    this.currentNotif.fgcolor.w -= 2 * 5 / 255;
+                    this.currentNotif.bgcolor.w -= 2 * 5 / 255;
+                } else {
+                    this.currentNotif.fgcolor.w -= 2 / 255;
+                    this.currentNotif.bgcolor.w -= 2 / 255;
+                }
                 if (this.currentNotif.fgcolor.w <= 0) {
                     this.currentNotif = undefined;
                     return;
@@ -285,15 +299,29 @@ class AchievementWidget {
     }
 }
 
+class AnnouncePacket extends Packet {
+
+    text: string;
+    constructor(text: string) {
+        super('AnnouncePacket', 'MLCore', "__GLOBAL__")
+        this.text = text;
+    }
+
+}
+
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
-    pluginName?: string | undefined;
-    pluginHash?: string | undefined;
+    Binding!: IConsole;
     resourcesLoaded: boolean = false;
     menubar!: MenubarWidget;
     topNotifications!: TopBarWidget;
     bottomRight!: BottomRightWidget;
     achievements!: AchievementWidget;
+    aspect: number_ref = [0];
+    aspect_options = ['Stretch', 'Force 4:3', 'Force 16:9', 'Adjust'];
+    highres: boolean = false;
+    ScreenWidth: number_ref = [0];
+    ScreenHeight: number_ref = [0];
 
     preinit(): void {
         this.menubar = new MenubarWidget(this.ModLoader);
@@ -303,8 +331,40 @@ class MenubarPlugin implements IPlugin {
     }
 
     init(): void {
+        if (this.ModLoader.isServer) {
+            setInterval(() => {
+                try {
+                    if (fs.existsSync("./announce.json")) {
+                        let data: any = JSON.parse(fs.readFileSync("./announce.json").toString());
+                        fs.unlinkSync("./announce.json");
+                        this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
+                    }
+                    if (fs.existsSync("./commands.json")) {
+                        let data: any = JSON.parse(fs.readFileSync("./commands.json").toString());
+                        fs.unlinkSync("./commands.json");
+                        let cmds: Array<string> = data.commands;
+                        for (let i = 0; i < cmds.length; i++) {
+                            let params: Array<string> = cmds[i].split(" ");
+                            bus.emit(ServerCommandEvents.RECEIVE_COMMAND, new ServerCommand(params));
+                        }
+                    }
+                } catch (err) {
+                    this.ModLoader.logger.error(err);
+                }
+            }, 30 * 1000);
+        }
     }
+
+    @NetworkHandler('AnnouncePacket')
+    onAnnounce(packet: AnnouncePacket) {
+        addToSystemNotificationQueue(packet.text);
+    }
+
     postinit(): void {
+        this.aspect[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("AspectRatio", 1);
+        this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
+        this.ScreenWidth[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenWidth", 800);
+        this.ScreenHeight[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenHeight", 600);
     }
     onTick(frame?: number | undefined): void {
         this.achievements.onTick();
@@ -322,12 +382,12 @@ class MenubarPlugin implements IPlugin {
     }
 
     @EventHandler(AnnouncementChannels.SYSTEM_NOTIFICATION)
-    onNotif(notif: ISystemNotification){
+    onNotif(notif: ISystemNotification) {
         this.topNotifications.add(notif);
     }
 
     @EventHandler(AnnouncementChannels.KILL_FEED)
-    onKillfeed(notif: IKillFeedMessage){
+    onKillfeed(notif: IKillFeedMessage) {
         this.bottomRight.add(notif);
     }
 
@@ -346,6 +406,28 @@ class MenubarPlugin implements IPlugin {
         this.topNotifications.update();
         this.bottomRight.update();
         this.achievements.update();
+        if (this.ModLoader.ImGui.beginMainMenuBar()) {
+            if (this.ModLoader.ImGui.beginMenu("Video")) {
+                if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
+                }
+                if (this.ModLoader.ImGui.inputInt("Screen Width", this.ScreenWidth)) {
+                    let w = Math.floor(this.ScreenWidth[0]);
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenWidth", w);
+                }
+                if (this.ModLoader.ImGui.inputInt("Screen Height", this.ScreenHeight)) {
+                    let w = Math.floor(this.ScreenHeight[0]);
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenHeight", w);
+                }
+                if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)) {
+                    this.highres = !this.highres;
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', this.highres);
+                }
+                this.ModLoader.ImGui.text("These settings require a restart to take effect.");
+                this.ModLoader.ImGui.endMenu();
+            }
+            this.ModLoader.ImGui.endMainMenuBar();
+        }
     }
 
 }

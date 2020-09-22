@@ -8,6 +8,7 @@ import {
     IOotHelper,
     OotEvents,
     IOvlPayloadResult,
+    SceneStruct, OotFlagEvent, OotFlagEventImpl, OotFlagTypes, OotFlagSubTypes
 } from 'modloader64_api/OOT/OOTAPI';
 import { ActorManager } from './OOT/ActorManager';
 import { CommandBuffer } from './OOT/CommandBuffer';
@@ -22,6 +23,7 @@ import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { Command } from 'modloader64_api/OOT/ICommandBuffer';
 import { onPostTick } from 'modloader64_api/PluginLifecycle';
+import bitwise from 'bitwise';
 
 export enum ROM_VERSIONS {
     N0 = 0x00,
@@ -65,6 +67,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
     inventory_cache: Buffer = Buffer.alloc(0x24, 0xff);
     last_known_age!: number;
     map_select_enabled: boolean = false;
+    localFlags: Buffer = Buffer.alloc(0x1c);
+    localFlagsTemp: Buffer = Buffer.alloc(0x1c);
+    localFlagsHash: string = "";
+    permFlagsScene: Buffer = Buffer.alloc(0xb0c);
+    permFlagsSceneHash: string = "";
 
     applyVersionPatch(msg: string, bps: string, target: ROM_VERSIONS) {
         this.ModLoader.logger.info(msg);
@@ -210,6 +217,122 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 this.doorcheck = true;
             }
         });
+/*         this.eventTicks.set("waitingForLocalFlagChange", () => {
+            let live_scene_chests: Buffer = this.global.liveSceneData_chests;
+            let live_scene_switches: Buffer = this.global.liveSceneData_switch;
+            let live_scene_collect: Buffer = this.global.liveSceneData_collectable;
+            let live_scene_clear: Buffer = this.global.liveSceneData_clear;
+            let live_scene_temp: Buffer = this.global.liveSceneData_temp;
+            let save_scene_data: Buffer = this.global.getSaveDataForCurrentScene();
+            live_scene_chests.copy(this.localFlagsTemp, 0x0); // Chests
+            live_scene_switches.copy(this.localFlagsTemp, 0x4); // Switches
+            live_scene_clear.copy(this.localFlagsTemp, 0x8); // Room Clear
+            live_scene_collect.copy(this.localFlagsTemp, 0xc); // Collectables
+            live_scene_temp.copy(this.localFlagsTemp, 0x10); // Unused space.
+            save_scene_data.copy(this.localFlagsTemp, 0x14, 0x14, 0x18); // Visited Rooms.
+            save_scene_data.copy(this.localFlagsTemp, 0x18, 0x18, 0x1c); // Visited Rooms.
+            let hash1: string = this.ModLoader.utils.hashBuffer(this.localFlagsTemp);
+            if (hash1 !== this.localFlagsHash) {
+                let ss: SceneStruct = new SceneStruct(this.localFlagsTemp);
+                let ss2: SceneStruct = new SceneStruct(this.localFlags);
+                let flagBlockPos: number = 0;
+                for (let i = 0; i < ss.chests.byteLength; i++) {
+                    let byte: number = ss.chests.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.chests.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.CHEST, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.collectible.byteLength; i++) {
+                    let byte: number = ss.collectible.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.collectible.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.COLLECT, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.room_clear.byteLength; i++) {
+                    let byte: number = ss.room_clear.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.room_clear.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.ROOM_CLEAR, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.switches.byteLength; i++) {
+                    let byte: number = ss.switches.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.switches.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.SWITCH, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.unused.byteLength; i++) {
+                    let byte: number = ss.unused.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.unused.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.UNUSED, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.visited_floors.byteLength; i++) {
+                    let byte: number = ss.visited_floors.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.visited_floors.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.VISITED_FLOOR, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                for (let i = 0; i < ss.visited_rooms.byteLength; i++) {
+                    let byte: number = ss.visited_rooms.readUInt8(i);
+                    let bits = bitwise.byte.read(byte as any);
+                    let byte2: number = ss2.visited_rooms.readUInt8(i);
+                    let bits2 = bitwise.byte.read(byte2 as any);
+                    for (let j = 0; j < bits.length; j++) {
+                        if (bits[j] !== bits2[j]) {
+                            bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.VISITED_ROOM, this.global.scene, flagBlockPos, bits[j] === 1));
+                        }
+                        flagBlockPos++;
+                    }
+                }
+                this.localFlagsTemp.copy(this.localFlags);
+                this.localFlagsHash = this.ModLoader.utils.hashBuffer(this.localFlags);
+            }
+        });
+        this.eventTicks.set("waitingForSaveFlagChange", () => {
+            let saveBuf: Buffer = this.save.permSceneData;
+            let hash: string = this.ModLoader.utils.hashBuffer(saveBuf);
+            if (hash !== this.permFlagsSceneHash){
+                
+                saveBuf.copy(this.permFlagsScene);
+                this.permFlagsSceneHash = this.ModLoader.utils.hashBuffer(this.permFlagsScene);
+            }
+        }); */
     }
 
     postinit(): void {

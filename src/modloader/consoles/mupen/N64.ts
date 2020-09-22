@@ -1,4 +1,4 @@
-import { IMupen, EmuState, CoreEvent } from './IMupen';
+import { IMupen, EmuState, CoreEvent, CoreParam } from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -18,6 +18,8 @@ import { bus } from 'modloader64_api/EventHandler';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
+import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import { SoundSystem } from 'src/modloader/AudioAPI/API/SoundSystem';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -26,6 +28,7 @@ class N64 implements IConsole {
     logger: ILogger;
     lobby: string;
     isPaused: boolean = false;
+    callbacks: Map<string, Array<Function>> = new Map<string, Array<Function>>();
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
@@ -33,9 +36,37 @@ class N64 implements IConsole {
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
 
-        //let section = this.mupen.M64p.Config.openSection('Video-General');
-        //let size: vec2 = xy(section.getInt("ScreenWidth"), section.getInt("ScreenHeight"));
         let size: vec2 = xy(800, 600);
+        if (global.ModLoader.hasOwnProperty("ScreenWidth") && global.ModLoader.hasOwnProperty("ScreenHeight")) {
+            size.x = global.ModLoader["ScreenWidth"];
+            size.y = global.ModLoader["ScreenHeight"];
+        } else {
+            if (fs.existsSync(path.join(".", "emulator", "mupen64plus.cfg"))) {
+                let opts: any = {};
+                let mupen: string = fs.readFileSync(path.join(".", "emulator", "mupen64plus.cfg")).toString();
+                let lines = mupen.split("\n");
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].indexOf("[") > -1) {
+                        continue;
+                    }
+                    if (lines[i].indexOf("#") > -1) {
+                        continue;
+                    }
+                    if (lines[i].trim() === "") {
+                        continue;
+                    }
+                    let s = lines[i].split("=");
+                    opts[s[0].trim()] = s[1].trim().replace(/['"]+/g, "");
+                }
+                global.ModLoader["ScreenWidth"] = parseInt(opts["ScreenWidth"]);
+                global.ModLoader["ScreenHeight"] = parseInt(opts["ScreenHeight"]);
+            } else {
+                global.ModLoader["ScreenWidth"] = 800;
+                global.ModLoader["ScreenHeight"] = 600;
+            }
+        }
+        size.x = global.ModLoader["ScreenWidth"];
+        size.y = global.ModLoader["ScreenHeight"];
 
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
@@ -44,67 +75,77 @@ class N64 implements IConsole {
 
         let section = this.mupen.M64p.Config.openSection("Core");
         let screenshot_dir: string = path.resolve("./", "screenshots");
-        if (!fs.existsSync(screenshot_dir)){
+        if (!fs.existsSync(screenshot_dir)) {
             fs.mkdirSync(screenshot_dir);
         }
         section.setString("ScreenshotPath", screenshot_dir);
         this.mupen.M64p.Config.saveFile();
 
-        this.mupen.Frontend.on('window-closing', () => {
+        this.registerCallback('window-closing', () => {
             if (this.mupen.M64p.getEmuState() === EmuState.Paused) {
                 this.mupen.M64p.resume();
             }
-            if (this.mupen.M64p.getEmuState() === EmuState.Running){
+            if (this.mupen.M64p.getEmuState() === EmuState.Running) {
                 this.mupen.Frontend.stop();
             }
-            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
-            process.exit(0);
         });
-        this.mupen.Frontend.on('core-stopped', () => {
+        this.registerCallback('core-stopped', () => {
             clearInterval(doEvents);
             this.mupen.Frontend.shutdown();
-        });
-        this.mupen.Frontend.on('core-event', (event: CoreEvent, data: number) => {
+            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
+            setTimeout(() => {
+                process.exit(0);
+            }, 3000);
+        })
+        this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
                 this.logger.info("Soft reset detected. Sending alert to plugins.");
                 bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
                 this.logger.info("Letting the reset go through...");
                 this.softReset();
                 internal_event_bus.emit("CoreEvent.SoftReset", {});
-            }else if (event == CoreEvent.TakeNextScreenshot){
+            } else if (event == CoreEvent.TakeNextScreenshot) {
                 this.mupen.Frontend.takeNextScreenshot();
-            }else if (event == CoreEvent.VolumeUp){
+            } else if (event == CoreEvent.VolumeUp) {
                 this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + 1);
-            }else if (event == CoreEvent.VolumeDown){
+            } else if (event == CoreEvent.VolumeDown) {
                 this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - 1);
-            }else if (event == CoreEvent.VolumeMute){
+            } else if (event == CoreEvent.VolumeMute) {
                 this.mupen.M64p.setAudioMuted(!this.mupen.M64p.isAudioMuted());
-            }else if (event == CoreEvent.SetFastForward){
+            } else if (event == CoreEvent.SetFastForward) {
                 this.mupen.M64p.setSpeedFactor(300);
-            }else if (event == CoreEvent.UnsetFastForward){
+            } else if (event == CoreEvent.UnsetFastForward) {
                 this.mupen.M64p.setSpeedFactor(100);
-            }else if (event == CoreEvent.SpeedUp){
+            } else if (event == CoreEvent.SpeedUp) {
                 this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() + 1);
-            }else if (event == CoreEvent.SpeedDown){
+            } else if (event == CoreEvent.SpeedDown) {
                 this.mupen.M64p.setSpeedFactor(this.mupen.M64p.getSpeedFactor() - 1);
-            }else if (event == CoreEvent.TogglePause){
-                if (!this.isPaused){
+            } else if (event == CoreEvent.TogglePause) {
+                if (!this.isPaused) {
                     this.mupen.M64p.pause();
                     this.isPaused = true;
-                }else{
+                } else {
                     this.mupen.M64p.resume();
                     this.isPaused = false;
-                }   
-            }else if (event == CoreEvent.Stop){
+                }
+            } else if (event == CoreEvent.Stop) {
                 internal_event_bus.emit("SHUTDOWN_EVERYTHING", {});
-                setTimeout(()=>{
+                setTimeout(() => {
                     process.exit(0);
                 }, 3000);
-            }else if (event == CoreEvent.ChangeWindow){
+            } else if (event == CoreEvent.ChangeWindow) {
                 this.mupen.Frontend.toggleFullScreen();
             }
         });
         logger.info("Loading rom: " + rom + ".");
+        if (rom === "") {
+            this.logger.error("No rom selected!");
+            process.exit(ModLoaderErrorCodes.NO_ROM);
+        }
+        if (!fs.existsSync(rom)) {
+            this.logger.error("No rom selected!");
+            process.exit(ModLoaderErrorCodes.NO_ROM);
+        }
         let _rom: Buffer = fs.readFileSync(rom);
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _rom.byteLength;
@@ -117,9 +158,35 @@ class N64 implements IConsole {
         bus.on('openCheatConfig', () => {
             this.mupen.Frontend.openCheatConfig();
         });
-        bus.on('toggleFullScreen', () =>{
+        bus.on('toggleFullScreen', () => {
             this.mupen.Frontend.toggleFullScreen();
         });
+        internal_event_bus.on("SOUND_SYSTEM_LOADED", (ss: SoundSystem) => {
+            let volumeAdjust = this.mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
+            this.registerCallback('core-event', (event: CoreEvent, v: number) => {
+                if (event == CoreEvent.VolumeDown)
+                    this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - volumeAdjust);
+                else if (event == CoreEvent.VolumeUp)
+                    this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + volumeAdjust);
+            });
+            this.registerCallback('core-state-changed', (param: CoreParam, newValue: number) => {
+                if (param == CoreParam.AudioVolume) {
+                    ss.listener.globalVolume = newValue;
+                }
+            })
+        });
+    }
+
+    private registerCallback(type: string, callback: Function) {
+        if (!this.callbacks.has(type)) {
+            this.callbacks.set(type, []);
+            this.mupen.Frontend.on(type, () => {
+                for (let i = 0; i < this.callbacks.get(type)!.length; i++) {
+                    this.callbacks.get(type)![i]();
+                }
+            });
+        }
+        this.callbacks.get(type)!.push(callback);
     }
 
     getYaz0Encoder(): IYaz0 {
@@ -143,13 +210,13 @@ class N64 implements IConsole {
     }
 
     on(which: string, callback: any): void {
-        this.mupen.Frontend.on(which, callback);
+        this.registerCallback(which, callback);
     }
 
     startEmulator(preStartCallback: Function): IMemory {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
         let buf: Buffer = preStartCallback();
-        if (buf !== undefined || buf !== null){
+        if (buf !== undefined || buf !== null) {
             rom_r.romWriteBuffer(0x0, buf);
         }
         this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
@@ -177,7 +244,7 @@ class N64 implements IConsole {
         return buf;
     }
 
-    getRomOriginalSize(): number{
+    getRomOriginalSize(): number {
         return this.rom_size;
     }
 
@@ -235,7 +302,7 @@ class N64 implements IConsole {
         return this.mupen.M64p as ISaveState;
     }
 
-    private fixSoundLag(){
+    private fixSoundLag() {
         let section = this.mupen.M64p.Config.openSection('Audio-SDL');
         section.setString('RESAMPLE', 'trivial');
         section.save();

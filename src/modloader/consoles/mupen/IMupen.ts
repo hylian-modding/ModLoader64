@@ -173,3 +173,17 @@ export const enum CoreEvent {
     UnsetFastForward,
     UnsetGameShark
 }
+
+export const enum CoreParam {
+    EmuState = 1,
+    VideoMode,
+    SaveStateSlot,
+    SpeedFactor,
+    SpeedLimiter,
+    VideoSize,
+    AudioVolume,
+    AudioMute,
+    InputGameShark,
+    StateLoadComplete,
+    StateSaveComplete
+}
