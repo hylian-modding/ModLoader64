@@ -575,7 +575,8 @@ class pluginLoader {
             try {
                 value();
             } catch (err) {
-                this.logger.error(err);
+                this.logger.error("preinit error");
+                this.logger.error(err.stack);
                 process.exit(1);
             }
         });
@@ -599,7 +600,8 @@ class pluginLoader {
             try {
                 value();
             } catch (err) {
-                this.logger.error(err);
+                this.logger.error("init error");
+                this.logger.error(err.stack);
                 process.exit(1);
             }
         });
@@ -716,7 +718,8 @@ class pluginLoader {
             try {
                 value();
             } catch (err) {
-                this.logger.error(err);
+                this.logger.error("postinit error");
+                this.logger.error(err.stack);
                 process.exit(1);
             }
         });

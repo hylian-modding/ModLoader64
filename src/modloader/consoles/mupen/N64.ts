@@ -180,9 +180,9 @@ class N64 implements IConsole {
     private registerCallback(type: string, callback: Function) {
         if (!this.callbacks.has(type)) {
             this.callbacks.set(type, []);
-            this.mupen.Frontend.on(type, () => {
+            this.mupen.Frontend.on(type, (event: any, data: any) => {
                 for (let i = 0; i < this.callbacks.get(type)!.length; i++) {
-                    this.callbacks.get(type)![i]();
+                    this.callbacks.get(type)![i](event, data);
                 }
             });
         }
