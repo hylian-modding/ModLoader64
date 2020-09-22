@@ -6,6 +6,7 @@ var recursive = require("recursive-readdir");
 import crypto from 'crypto';
 import child_process from 'child_process';
 import zip from 'adm-zip';
+import fse from 'fs-extra';
 
 var isWin = process.platform === "win32";
 
@@ -220,10 +221,6 @@ function pushToLiveServer() {
         return sftp.list('/var/www/html/ModLoader64/update');
     }).then(data => {
         console.log(data);
-        console.log("Updating client files.")
-        return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/update/');
-    }).then(data => {
-        console.log(data);
         console.log("Updating OotO server files.")
         child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
         return sftp.uploadDir("./dist/dedi", "/OotO_200")
@@ -234,9 +231,10 @@ function pushToLiveServer() {
         return sftp.uploadDir("./dist/dedi", "/MMARO")
     }).then(data => {
         console.log(data);
-        console.log("Updating BKO server files.")
-        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
-        return sftp.uploadDir("./dist/dedi", "/ML64_Servers/BKO")
+        fse.removeSync("./dist/dedi");
+        fse.removeSync("./dist/dedi.pak");
+        console.log("Updating client files.")
+        return sftp.uploadDir("./dist", '/var/www/html/ModLoader64/update/');
     }).then(data => {
         console.log(data);
         sftp.end();
