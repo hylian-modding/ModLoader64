@@ -9,7 +9,7 @@ import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
-import { IMupen } from "./IMupen";
+import { CoreEvent, CoreParam, IMupen } from "./IMupen";
 import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
 import { NetworkHandler } from "modloader64_api/NetworkHandler";
 import { ServerCommand, ServerCommandEvents } from 'modloader64_api/ServerCommand';
@@ -361,12 +361,29 @@ class MenubarPlugin implements IPlugin {
     }
 
     postinit(): void {
-        try{
+        try {
             this.aspect[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("AspectRatio", 1);
             this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
             this.ScreenWidth[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenWidth", 800);
             this.ScreenHeight[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenHeight", 600);
-        }catch(err){
+            let volumeAdjust = (this.Binding as any).mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
+            this.Binding.on('core-event', (event: CoreEvent, v: number) => {
+                if (event == CoreEvent.VolumeDown)
+                    (this.Binding as any).mupen.M64p.setAudioVolume((this.Binding as any).mupen.M64p.getAudioVolume() - volumeAdjust);
+                else if (event == CoreEvent.VolumeUp)
+                    (this.Binding as any).mupen.M64p.setAudioVolume((this.Binding as any).mupen.M64p.getAudioVolume() + volumeAdjust);
+            });
+            this.Binding.on('core-state-changed', (param: CoreParam, newValue: number) => {
+                if (param == CoreParam.AudioVolume) {
+                    if (this.ModLoader.sound.listener !== undefined) {
+                        this.ModLoader.sound.listener.globalVolume = newValue;
+                    } else {
+                        console.log("wtf");
+                    }
+                }
+            });
+        } catch (err) {
+            this.ModLoader.logger.error(err);
         }
     }
     onTick(frame?: number | undefined): void {

@@ -534,7 +534,6 @@ class pluginLoader {
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
-        internal_event_bus.emit("SOUND_SYSTEM_LOADED", ss);
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;

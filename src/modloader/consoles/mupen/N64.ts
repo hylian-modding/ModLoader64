@@ -19,7 +19,6 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import { SoundSystem } from 'src/modloader/AudioAPI/API/SoundSystem';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -160,20 +159,6 @@ class N64 implements IConsole {
         });
         bus.on('toggleFullScreen', () => {
             this.mupen.Frontend.toggleFullScreen();
-        });
-        internal_event_bus.on("SOUND_SYSTEM_LOADED", (ss: SoundSystem) => {
-            let volumeAdjust = this.mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
-            this.registerCallback('core-event', (event: CoreEvent, v: number) => {
-                if (event == CoreEvent.VolumeDown)
-                    this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - volumeAdjust);
-                else if (event == CoreEvent.VolumeUp)
-                    this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + volumeAdjust);
-            });
-            this.registerCallback('core-state-changed', (param: CoreParam, newValue: number) => {
-                if (param == CoreParam.AudioVolume) {
-                    ss.listener.globalVolume = newValue;
-                }
-            })
         });
     }
 
