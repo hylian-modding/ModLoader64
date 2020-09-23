@@ -1,10 +1,14 @@
 import { bus } from "./EventHandler";
-import { Texture } from "./Sylvain/Gfx";
+import { Font, Texture } from "./Sylvain/Gfx";
 import { vec4 } from "./Sylvain/vec";
 
 export const enum AnnouncementChannels{
     SYSTEM_NOTIFICATION = "SYSTEM_NOTIFICATION",
     KILL_FEED = "KILL_FEED"
+}
+
+export const enum NotificationEvents{
+    CHANGE_FONT = "CHANGE_FONT"
 }
 
 // Kill Feed
@@ -48,4 +52,8 @@ class SystemNotification implements ISystemNotification{
 
 export function addToSystemNotificationQueue(text: string){
     bus.emit(AnnouncementChannels.SYSTEM_NOTIFICATION, new SystemNotification(text));
+}
+
+export function changeKillfeedFont(font: Font){
+    bus.emit(NotificationEvents.CHANGE_FONT, font);
 }

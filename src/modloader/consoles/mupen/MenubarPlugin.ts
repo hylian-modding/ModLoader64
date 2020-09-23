@@ -7,7 +7,7 @@ import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
 import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
-import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification } from 'modloader64_api/Announcements';
+import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification, NotificationEvents } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
 import { CoreEvent, CoreParam, IMupen } from "./IMupen";
 import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
@@ -448,6 +448,11 @@ class MenubarPlugin implements IPlugin {
             }
             this.ModLoader.ImGui.endMainMenuBar();
         }
+    }
+
+    @EventHandler(NotificationEvents.CHANGE_FONT)
+    onFontChange(font: Font){
+        this.bottomRight.font = font;
     }
 
 }
