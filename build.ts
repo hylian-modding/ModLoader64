@@ -91,7 +91,11 @@ function getEmulator() {
         fs.mkdirSync("./Mupen64Plus");
     }
     if (platformkey.indexOf("win32") > -1) {
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
+        if (platformkey.indexOf("x64")){
+            fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./Mupen64Plus/emulator.pak");
+        }else{
+            fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
+        }
     } else if (platformkey.indexOf("linux") > -1) {
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./Mupen64Plus/emulator.pak");
     }
