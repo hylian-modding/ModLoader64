@@ -530,7 +530,18 @@ class pluginLoader {
         ) as IModLoaderConfig;
         let ss: any;
         if (mlconfig.isClient) {
-            ss = Object.freeze(new SoundSystem());
+            let platformkey = '';
+            if (process.env.PROCESSOR_ARCHITECTURE === undefined) {
+                platformkey = process.platform.trim() + 'x64';
+            } else {
+                platformkey = process.platform.trim() + process.env.PROCESSOR_ARCHITECTURE;
+            }
+            console.log(platformkey);
+            if (platformkey.indexOf("win32") > -1 && platformkey.indexOf("64") > -1) {
+                ss = Object.freeze(new FakeSoundImpl());
+            } else {
+                ss = Object.freeze(new SoundSystem());
+            }
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
