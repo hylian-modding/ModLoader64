@@ -631,8 +631,9 @@ class pluginLoader {
                 );
                 this.curFrame = frame;
             } catch (err) {
+                this.logger.error("onTick error");
                 this.logger.error(err.stack);
-                throw err;
+                process.exit(1);
             }
         };
         this.onViHandle = () => {
