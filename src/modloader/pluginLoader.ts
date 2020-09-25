@@ -638,12 +638,22 @@ class pluginLoader {
         };
         this.onViHandle = () => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
-                value();
+                try{
+                    value();
+                }catch(err){
+                    this.logger.error("vi update error");
+                    this.logger.error(err.stack);
+                }
             });
         };
         this.onResourceHandle = () => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.forEach((value: Function) => {
-                value();
+                try{
+                    value();
+                }catch(err){
+                    this.logger.error("create resources error");
+                    this.logger.error(err.stack);
+                }
             });
         };
         Object.freeze(this.onTickHandle);
