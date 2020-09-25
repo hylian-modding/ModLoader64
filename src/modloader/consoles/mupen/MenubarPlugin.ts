@@ -262,12 +262,16 @@ class BottomRightWidget {
                     return;
                 }
             }
-            if (this.currentNotif.icon !== undefined) {
-                let f = this.ModLoader.Gfx.calcTextSize(this.font, "Test", xy(1, 1));
-                let dst = xywh(this.pos.x - 32, this.pos.y, f.y, f.y);
-                this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
+            try{
+                if (this.currentNotif.icon !== undefined) {
+                    let f = this.ModLoader.Gfx.calcTextSize(this.font, "Test", xy(1, 1));
+                    let dst = xywh(this.pos.x - 32, this.pos.y, f.y, f.y);
+                    this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
+                }
+                this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
+            }catch(err){
+                this.ModLoader.logger.error(err.stack);
             }
-            this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
         }
     }
 }
