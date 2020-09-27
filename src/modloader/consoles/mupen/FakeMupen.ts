@@ -124,6 +124,13 @@ class FakeN64SaveState implements ISaveState {
 
 class FakeN64Utils implements IUtils {
 
+    setIntervalFrames(fn: Function, frames: number): string {
+        return "";
+    }
+    clearIntervalFrames(id: string): boolean {
+        return false;
+    }
+
     stopEmulatorThisFrame(): boolean {
         return true;
     }

@@ -42,6 +42,7 @@ export class Link extends JSONTemplate implements ILink {
     rotation: IRotation;
     position: IPosition;
     actorUUID = 'Link';
+    isTransitionActor: boolean = false;
 
     jsonFields: string[] = [
         'state',

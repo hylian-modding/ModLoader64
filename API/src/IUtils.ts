@@ -10,6 +10,10 @@ interface IUtils {
 
   setTimeoutFrames(fn: Function, frames: number): void;
 
+  setIntervalFrames(fn: Function, frames: number): string;
+
+  clearIntervalFrames(id: string): boolean;
+
   getUUID(): string;
 
   cloneBuffer(buf: Buffer): Buffer;

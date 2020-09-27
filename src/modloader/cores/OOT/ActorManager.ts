@@ -99,6 +99,7 @@ export class ActorManager implements IActorManager {
             if (addr > 0) {
                 if (this.actors_pointers_this_frame.indexOf(addr) > -1) {
                     let actor = new ActorBase(this.emulator, addr);
+                    actor.isTransitionActor = category === 1;
                     let uuid =
                         actor.actorID.toString(16) +
                         '-' +

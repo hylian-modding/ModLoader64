@@ -225,11 +225,13 @@ class BottomRightWidget {
     }
 
     loadResources() {
-        try {
-            this.font = this.ModLoader.Gfx.createFont();
-            this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
-        } catch (err) {
-            this.ModLoader.logger.error(err);
+        if (this.font === undefined){
+            try {
+                this.font = this.ModLoader.Gfx.createFont();
+                this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
+            } catch (err) {
+                this.ModLoader.logger.error(err);
+            }
         }
     }
 

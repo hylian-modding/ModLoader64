@@ -7,6 +7,7 @@ export interface IActor extends IMemory {
   actorUUID: string;
   actorID: number; // 0x00 uInt16 Should probably replace with enum later.
   actorType: ActorCategory; // 0x02 UInt8
+  isTransitionActor: boolean;
   room: number; // 0x03 UInt8 If 0xFF this actor is global.
   renderingFlags: number; // 0x04 s32. This is a bitfield.
   variable: number; // 0x1C uInt16 Actor's spawn variable.

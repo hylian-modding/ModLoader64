@@ -71,6 +71,10 @@ class pluginLoader {
         string,
         frameTimeoutContainer
     >();
+    frameIntervals: Map<string, frameTimeoutContainer> = new Map<
+        string,
+        frameTimeoutContainer
+    >();
     payloadManager!: PayloadManager;
     injector!: Function;
     lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
@@ -470,6 +474,20 @@ class pluginLoader {
             }
             this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
         };
+        utils.setIntervalFrames = (fn: Function, frames: number): string => {
+            if (frames <= 0) {
+                frames = 1;
+            }
+            let id = ML_UUID.getUUID();
+            this.frameIntervals.set(id, new frameTimeoutContainer(fn, frames));
+            return id;
+        };
+        utils.clearIntervalFrames = (id: string): boolean => {
+            if (this.frameIntervals.has(id)) {
+                return this.frameIntervals.delete(id);
+            }
+            return false;
+        };
         utils.getUUID = () => { return ML_UUID.getUUID(); };
 
         // Backwards compatibility is arse.
@@ -615,20 +633,22 @@ class pluginLoader {
                     value(frame);
                 });
                 net.onTick();
-                this.frameTimeouts.forEach(
-                    (
-                        value: frameTimeoutContainer,
-                        key: string,
-                        map: Map<string, frameTimeoutContainer>
-                    ) => {
-                        if (value.frames <= 0) {
-                            value.fn();
-                            this.frameTimeouts.delete(key);
-                        } else {
-                            value.frames--;
-                        }
+                for (const [key, value] of this.frameTimeouts.entries()) {
+                    if (value.frames <= 0) {
+                        value.fn();
+                        this.frameTimeouts.delete(key);
+                    } else {
+                        value.frames--;
                     }
-                );
+                }
+                for (const [key, value] of this.frameIntervals.entries()) {
+                    if (value.frames <= 0) {
+                        value.fn();
+                        value.frames = value.originalFrames;
+                    } else {
+                        value.frames--;
+                    }
+                }
                 this.curFrame = frame;
             } catch (err) {
                 this.logger.error("onTick error");
@@ -638,9 +658,9 @@ class pluginLoader {
         };
         this.onViHandle = () => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
-                try{
+                try {
                     value();
-                }catch(err){
+                } catch (err) {
                     this.logger.error("vi update error");
                     this.logger.error(err.stack);
                 }
@@ -648,9 +668,9 @@ class pluginLoader {
         };
         this.onResourceHandle = () => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.forEach((value: Function) => {
-                try{
+                try {
                     value();
-                }catch(err){
+                } catch (err) {
                     this.logger.error("create resources error");
                     this.logger.error(err.stack);
                 }

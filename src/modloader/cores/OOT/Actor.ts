@@ -174,6 +174,8 @@ export class ActorBase extends JSONTemplate implements IActor {
         this.position = new Position(this);
     }
 
+    isTransitionActor: boolean = false;
+
     getRdramBuffer(): Buffer {
         return this.emulator.getRdramBuffer();
     }
