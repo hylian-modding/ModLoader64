@@ -82,18 +82,21 @@ function bump() {
 
 function getEmulator() {
     let platformkey = '';
-    if (process.env.PROCESSOR_ARCHITECTURE === undefined) {
+    if (process.arch === undefined) {
         platformkey = process.platform.trim() + 'x64';
     } else {
-        platformkey = process.platform.trim() + process.env.PROCESSOR_ARCHITECTURE;
+        platformkey = process.platform.trim() + process.arch;
     }
     if (!fs.existsSync("./Mupen64Plus")) {
         fs.mkdirSync("./Mupen64Plus");
     }
+    console.log(platformkey);
     if (platformkey.indexOf("win32") > -1) {
-        if (platformkey.indexOf("64")){
+        if (platformkey.indexOf("64") > -1){
+            console.log("./node_modules/modloader64-platform-deps/Windows64/emulator.pak");
             fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./Mupen64Plus/emulator.pak");
         }else{
+            console.log("./node_modules/modloader64-platform-deps/Windows/emulator.pak");
             fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
         }
     } else if (platformkey.indexOf("linux") > -1) {
