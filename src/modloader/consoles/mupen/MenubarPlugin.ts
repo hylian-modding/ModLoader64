@@ -5,7 +5,7 @@ import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
 import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
+import { number_ref, string_ref, bool_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification, NotificationEvents } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
@@ -326,6 +326,13 @@ class MenubarPlugin implements IPlugin {
     highres: boolean = false;
     ScreenWidth: number_ref = [0];
     ScreenHeight: number_ref = [0];
+    fxaa: boolean = false;
+    ms: number_ref = [0];
+    ani: number_ref = [0];
+    ms_options = [0, 2, 4, 8, 16];
+    ani_options =  [0, 2, 4, 8, 16];
+    htc: boolean = false;
+    hts: boolean = false;
 
     preinit(): void {
         this.menubar = new MenubarWidget(this.ModLoader);
@@ -370,6 +377,11 @@ class MenubarPlugin implements IPlugin {
             this.highres = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').getBoolOr('txHiresEnable', false);
             this.ScreenWidth[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenWidth", 800);
             this.ScreenHeight[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").getIntOr("ScreenHeight", 600);
+            this.fxaa = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getBoolOr("FXAA", false);
+            this.htc = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getBoolOr("txHiresTextureFileStorage", false);
+            this.hts = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getBoolOr("txHiresTextureFileStorage", false);
+            this.ms[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("MultiSampling", 0);
+            this.ani[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("MaxAnisotropy", 0);
             let volumeAdjust = (this.Binding as any).mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
             this.Binding.on('core-event', (event: CoreEvent, v: number) => {
                 if (event == CoreEvent.VolumeDown)
@@ -443,10 +455,65 @@ class MenubarPlugin implements IPlugin {
                     let w = Math.floor(this.ScreenHeight[0]);
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-General").setInt("ScreenHeight", w);
                 }
-                if (this.ModLoader.ImGui.menuItem("Enable High Res Texture Packs", undefined, this.highres, true)) {
-                    this.highres = !this.highres;
-                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', this.highres);
+                if (this.ModLoader.ImGui.beginMenu("Enable High Res Texture Packs")) {
+                    if (this.ModLoader.ImGui.menuItem("Rice/HTC", undefined, this.htc, true)) {
+                        this.htc = !this.htc;
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', true);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('txCacheSize', 1000);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresFullAlphaChannel', true);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txEnhancedTextureFileStorage', false);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresTextureFileStorage', false);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txSaveCache', true);
+                    }
+                    if (this.ModLoader.ImGui.menuItem("HTS", undefined, this.hts, true)) {
+                        this.hts = !this.hts;
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresEnable', true);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('txCacheSize', 1000);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresFullAlphaChannel', true);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txEnhancedTextureFileStorage', true);
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('txHiresTextureFileStorage', true);
+                    }
+                    this.ModLoader.ImGui.endMenu();
                 }
+                if (this.ModLoader.ImGui.menuItem("FXAA",undefined, this.fxaa, true)) {
+                    this.fxaa = !this.fxaa;
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('FXAA', true);
+                }
+                if (this.ModLoader.ImGui.combo("Max Anisotropy", this.ani, this.ani_options)) {
+                    if (this.ani[0] === 0) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MaxAnisotropy', 0);
+                    }
+                    if (this.ani[0] === 1) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MaxAnisotropy', 2);
+                    }
+                    if (this.ani[0] === 2) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MaxAnisotropy', 4);
+                    }
+                    if (this.ani[0] === 3) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MaxAnisotropy', 8);
+                    }
+                    if (this.ani[0] === 4) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MaxAnisotropy', 16);
+                    }
+                }
+                if (this.ModLoader.ImGui.combo("MultiSampling", this.ms, this.ms_options)) {
+                    if (this.ms[0] === 0) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 0);
+                    }
+                    if (this.ms[0] === 1) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 2);
+                    }
+                    if (this.ms[0] === 2) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 4);
+                    }
+                    if (this.ms[0] === 3) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 8);
+                    }
+                    if (this.ms[0] === 4) {
+                        ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 16);
+                    }
+                }
+
                 this.ModLoader.ImGui.text("These settings require a restart to take effect.");
                 this.ModLoader.ImGui.endMenu();
             }
