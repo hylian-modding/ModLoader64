@@ -205,7 +205,6 @@ class N64 implements IConsole {
             rom_r.romWriteBuffer(0x0, buf);
         }
         this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
-        this.fixSoundLag();
         this.mupen.Frontend.execute();
         return this.mupen.M64p.Memory as IMemory;
     }
@@ -285,12 +284,6 @@ class N64 implements IConsole {
 
     getSaveStateManager(): ISaveState {
         return this.mupen.M64p as ISaveState;
-    }
-
-    private fixSoundLag() {
-        let section = this.mupen.M64p.Config.openSection('Audio-SDL');
-        section.setString('RESAMPLE', 'trivial');
-        section.save();
     }
 }
 
