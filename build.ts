@@ -216,6 +216,7 @@ function pushToServer() {
 }
 
 function pushToLiveServer() {
+    child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
     let Client = require('ssh2-sftp-client');
     let sftp = new Client();
     sftp.connect({
@@ -229,13 +230,23 @@ function pushToLiveServer() {
     }).then(data => {
         console.log(data);
         console.log("Updating OotO server files.")
-        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
         return sftp.uploadDir("./dist/dedi", "/OotO_200")
     }).then(data => {
         console.log(data);
         console.log("Updating MMO server files.")
-        child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
         return sftp.uploadDir("./dist/dedi", "/MMARO")
+    }).then(data => {
+        console.log(data);
+        console.log("Updating BKO server files.")
+        return sftp.uploadDir("./dist/dedi", "/ML64_Servers/BKO")
+    }).then(data => {
+        console.log(data);
+        console.log("Updating SM64O server files.")
+        return sftp.uploadDir("./dist/dedi", "/ML64_Servers/SM64O")
+    }).then(data => {
+        console.log(data);
+        console.log("Updating Mischief Makers server files.")
+        return sftp.uploadDir("./dist/dedi", "/ML64_Servers/Mischief")
     }).then(data => {
         console.log(data);
         fse.removeSync("./dist/dedi");
