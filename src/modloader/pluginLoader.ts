@@ -629,10 +629,10 @@ class pluginLoader {
                 this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
                     value(frame);
                 });
+                net.onTick();
                 this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
                     value(frame);
                 });
-                net.onTick();
                 for (const [key, value] of this.frameTimeouts.entries()) {
                     if (value.frames <= 0) {
                         value.fn();
