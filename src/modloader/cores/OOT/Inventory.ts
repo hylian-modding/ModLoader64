@@ -749,6 +749,7 @@ export class Inventory extends JSONTemplate implements IInventory {
       return this.getItemInSlot(InventorySlots.CHILD_TRADE_ITEM);
   }
   set childTradeItem(item: InventoryItem) {
+    if (item < InventoryItem.WEIRD_EGG || item > InventoryItem.SOLD_OUT) return;
       this.setItemInSlot(item, InventorySlots.CHILD_TRADE_ITEM);
   }
 
