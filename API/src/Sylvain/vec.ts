@@ -1,4 +1,5 @@
 export type vec2 = { x: number; y: number; };
+export type vec3 = { x: number, y: number, z: number};
 export type vec4 = { x: number; y: number; z: number; w: number; };
 
 export function xy(x: number, y: number): vec2 {

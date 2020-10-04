@@ -335,6 +335,9 @@ class MenubarPlugin implements IPlugin {
     ani_options =  [0, 2, 4, 8, 16];
     htc: boolean = false;
     hts: boolean = false;
+    audio_options = ["trivial", "speex-fixed-4", "speex-fixed-10"];
+    audio_options_display = ["Fast", "Normal", "Best"];
+    audio_selection: number_ref = [0];
 
     preinit(): void {
         this.menubar = new MenubarWidget(this.ModLoader);
@@ -384,7 +387,14 @@ class MenubarPlugin implements IPlugin {
             this.hts = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getBoolOr("txHiresTextureFileStorage", false);
             this.ms[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("MultiSampling", 0);
             this.ani[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("MaxAnisotropy", 0);
+            let audio = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Audio-SDL").getStringOr("RESAMPLE", "trivial");
             let volumeAdjust = (this.Binding as any).mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
+            for (let i = 0; i < this.audio_options.length; i++){
+                if (audio === this.audio_options[i]){
+                    this.audio_selection[0] = i;
+                    break;
+                }
+            }
             this.Binding.on('core-event', (event: CoreEvent, v: number) => {
                 if (event == CoreEvent.VolumeDown)
                     (this.Binding as any).mupen.M64p.setAudioVolume((this.Binding as any).mupen.M64p.getAudioVolume() - volumeAdjust);
@@ -445,7 +455,7 @@ class MenubarPlugin implements IPlugin {
         this.bottomRight.update();
         this.achievements.update();
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
-            if (this.ModLoader.ImGui.beginMenu("Video")) {
+            if (this.ModLoader.ImGui.beginMenu("Emulation")) {
                 if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('AspectRatio', this.aspect[0]);
                 }
@@ -514,6 +524,9 @@ class MenubarPlugin implements IPlugin {
                     if (this.ms[0] === 4) {
                         ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 16);
                     }
+                }
+                if (this.ModLoader.ImGui.combo("Audio", this.audio_selection, this.audio_options_display)){
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Audio-SDL").setString("RESAMPLE", this.audio_options[this.audio_selection[0]]);
                 }
 
                 this.ModLoader.ImGui.text("These settings require a restart to take effect.");
