@@ -152,9 +152,9 @@ export const enum Tunic {
 
 export const enum Sword {
   NONE,
-  KOKIRI,
-  MASTER,
-  BIGGORON,
+  KOKIRI = 0x3B,
+  MASTER = 0x3C,
+  BIGGORON = 0x3D,
 }
 
 export const enum Shield {
@@ -490,6 +490,8 @@ export interface IGlobalContext {
   getSaveDataForCurrentScene(): Buffer;
   writeSaveDataForCurrentScene(buf: Buffer): void;
   viewStruct: IViewStruct;
+  fogDistance: number;
+  fogColor: number;
 }
 
 export interface IViewStruct {

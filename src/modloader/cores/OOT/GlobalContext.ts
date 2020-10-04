@@ -25,6 +25,22 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
       this.viewStruct = new viewStruct(ModLoader);
   }
 
+  get fogDistance(): number{
+      return this.emulator.rdramReadPtr16(global.ModLoader.global_context_pointer, 0xD4);
+  }
+
+  set fogDistance(fog: number){
+    this.emulator.rdramWritePtr16(global.ModLoader.global_context_pointer, 0xD4, fog);
+  }
+
+  get fogColor(){
+      return 0;
+  }
+
+  set fogColor(color: number){
+      
+  }  
+
   get scene(): number {
       return this.emulator.rdramReadPtr16(
           global.ModLoader.global_context_pointer,

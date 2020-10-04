@@ -51,6 +51,10 @@ export class Position extends JSONTemplate implements IPosition {
     setRawPos(pos: Buffer){
         this.parent.rdramWriteBuffer(POSITION_OFFSET, pos);
     }
+
+    getVec3(): Vector3{
+        return new Vector3(this.x, this.y, this.z);
+    }
 }
 
 export class Rotation extends JSONTemplate implements IRotation {
@@ -89,6 +93,10 @@ export class Rotation extends JSONTemplate implements IRotation {
 
     setRawRot(rot: Buffer){
         this.parent.rdramWriteBuffer(ROTATION_OFFSET, rot);
+    }
+
+    getVec3(): Vector3{
+        return new Vector3(this.x, this.y, this.z);
     }
 }
 
@@ -385,10 +393,10 @@ export class ActorBase extends JSONTemplate implements IActor {
         );
     }
     rdramReadF32(addr: number): number {
-        return this.emulator.rdramReadF32(addr);
+        return this.emulator.rdramReadF32(this.instance + addr);
     }
     rdramReadPtrF32(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtrF32(addr, offset);
+        return this.emulator.rdramReadPtrF32(this.instance + addr, offset);
     }
     rdramWriteF32(addr: number, value: number): void {
         this.emulator.rdramWriteF32(this.instance + addr, value);

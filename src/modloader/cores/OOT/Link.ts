@@ -30,7 +30,7 @@ export class Link extends JSONTemplate implements ILink {
     private mask_addr: number = this.instance + 0x014f;
     private pos_addr: number = this.instance + 0x24;
     private rot_addr: number = this.instance + 0xb4;
-    private sword_addr: number = global.ModLoader.save_context + 0x0070 + 0x1;
+    private sword_addr: number = this.instance + 0x13D;
     /*This is provided by OotCore's ASM.
       Anim data is safely copied into this space at the end of each rendering cycle.
       This helps prevent jittering.*/
