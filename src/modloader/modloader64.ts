@@ -367,8 +367,7 @@ class ModLoader64 {
                             instance.logger.info('Patching rom...');
                             let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data.slice(0, instance.emulator.getRomOriginalSize()), p);
                             if (nbuf !== undefined) {
-                                rom_data = nbuf;
-                                evt.rom = nbuf;
+                                nbuf.copy(rom_data);
                             }
                             let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info(hash);
@@ -403,6 +402,8 @@ class ModLoader64 {
                 );
                 internal_event_bus.emit('onPostInitDone', {});
                 instance.done = true;
+            }).catch(function () {
+                process.exit(1);
             });
         }
     }
