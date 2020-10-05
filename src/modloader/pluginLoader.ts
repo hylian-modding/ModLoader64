@@ -52,6 +52,7 @@ import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
+import { setupDateProxy } from 'modloader64_api/SidedProxy/DateProxy';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -136,7 +137,7 @@ class pluginLoader {
         this.plugins.push(plugin);
     }
 
-    private processInternalPlugin(pluginPath: string, console: IConsole) {
+    private processInternalPlugin(pluginPath: string, iconsole: IConsole) {
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
         if (parse.ext.indexOf('js') > -1) {
@@ -145,7 +146,7 @@ class pluginLoader {
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
-            plugin["Binding"] = console;
+            plugin["Binding"] = iconsole;
             Object.defineProperty(plugin, 'pluginName', {
                 value: pluginPath,
                 writable: false,
@@ -193,12 +194,20 @@ class pluginLoader {
                     }
                 });
                 let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                for (let i = 0; i < children2.length; i++) {
+                    children.push(children2[i]);
+                }
                 for (let i = 0; i < children.length; i++) {
                     fn(children[i], plugin);
                 }
                 markPrototypeProcessed(instance);
             };
             let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children2.length; i++) {
+                children.push(children2[i]);
+            }
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
@@ -347,12 +356,20 @@ class pluginLoader {
                     }
                 });
                 let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
+                for (let i = 0; i < children2.length; i++) {
+                    children.push(children2[i]);
+                }
                 for (let i = 0; i < children.length; i++) {
                     fn(children[i], plugin);
                 }
                 markPrototypeProcessed(instance);
             };
             let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            for (let i = 0; i < children2.length; i++){
+                children.push(children2[i]);
+            }
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
