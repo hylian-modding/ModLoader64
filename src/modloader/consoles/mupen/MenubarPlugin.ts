@@ -489,7 +489,7 @@ class MenubarPlugin implements IPlugin {
                 }
                 if (this.ModLoader.ImGui.menuItem("FXAA",undefined, this.fxaa, true)) {
                     this.fxaa = !this.fxaa;
-                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('FXAA', true);
+                    ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('FXAA', this.fxaa);
                 }
                 if (this.ModLoader.ImGui.combo("Max Anisotropy", this.ani, this.ani_options)) {
                     if (this.ani[0] === 0) {
