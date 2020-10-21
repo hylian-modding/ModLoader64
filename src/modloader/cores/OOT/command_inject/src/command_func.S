@@ -149,7 +149,8 @@ b       cmd_loop_latch
 
 /* init actor */
 cmd_init_actor:
-move    $a1, $v1
+lw      $a0, 0x0000($v1)
+lw      $a1, 0x0004($v1)
 jal     z64_InitActor
 sw      $v0, 0x0004($s1)
 b       cmd_loop_latch
