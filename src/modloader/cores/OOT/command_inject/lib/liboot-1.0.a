@@ -1,5 +1,6 @@
 z64_SpawnActor                    = 0x80025110 ;
 z64_SpawnActorIndirect            = 0x800255C4 ;
+z64_InitActor                     = 0x8002D678 ;
 z64_UpdateButtonIcon              = 0x8006FB50 ;
 z64_PlaySound                     = 0x800C806C ;
 z64_DoRelocation                  = 0x800CC8F0 ;

@@ -30,6 +30,8 @@ li      $t0, COMMAND_PLAY_MUSIC
 beq     $v0, $t0, cmd_play_music
 li      $t0, COMMAND_RELOCATE
 beq     $v0, $t0, cmd_relocate
+li      $t0, COMMAND_INIT_ACTOR
+beq     $v0, $t0, cmd_init_actor
 b       cmd_loop_latch
 
 /* spawn actor */
@@ -143,6 +145,13 @@ lw      $a0, 0x0000($v1)
 lw      $a1, 0x0004($v1)
 lw      $a2, 0x0008($v1)
 jal     z64_DoRelocation
+b       cmd_loop_latch
+
+/* init actor */
+cmd_init_actor:
+move    $a1, $v1
+jal     z64_InitActor
+sw      $v0, 0x0004($s1)
 b       cmd_loop_latch
 
 /* loop */
