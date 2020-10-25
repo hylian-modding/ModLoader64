@@ -220,8 +220,8 @@ function pushToLiveServer() {
     fs.readdirSync("./dist/dedi/node_modules").forEach((file: string)=>{
         let f = path.resolve("./dist/dedi/node_modules", file);
         if (f.indexOf("modloader64_api") === -1){
-            console.log("Removing " + file + ".");
-            fs.removeSync(f);
+            //console.log("Removing " + file + ".");
+            //fs.removeSync(f);
         }
     });
     let Client = require('ssh2-sftp-client');

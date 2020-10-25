@@ -28,6 +28,7 @@ class N64 implements IConsole {
     lobby: string;
     isPaused: boolean = false;
     callbacks: Map<string, Array<Function>> = new Map<string, Array<Function>>();
+    texPath: string = "";
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
@@ -69,6 +70,7 @@ class N64 implements IConsole {
 
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
+        this.texPath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txPath", "");
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
         const _64_MB = 64 * 1024 * 1024;
 
@@ -79,7 +81,6 @@ class N64 implements IConsole {
         }
         section.setString("ScreenshotPath", screenshot_dir);
         this.mupen.M64p.Config.saveFile();
-
         this.registerCallback('window-closing', () => {
             if (this.mupen.M64p.getEmuState() === EmuState.Paused) {
                 this.mupen.M64p.resume();
@@ -95,7 +96,7 @@ class N64 implements IConsole {
             setTimeout(() => {
                 process.exit(0);
             }, 3000);
-        })
+        });
         this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
                 this.logger.info("Soft reset detected. Sending alert to plugins.");
@@ -107,8 +108,12 @@ class N64 implements IConsole {
                 this.mupen.Frontend.takeNextScreenshot();
             } else if (event == CoreEvent.VolumeUp) {
                 this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() + 1);
+                global.ModLoader["GLOBAL_VOLUME"] = this.mupen.M64p.getAudioVolume();
+                bus.emit(ModLoaderEvents.ON_VOLUME_CHANGE, global.ModLoader["GLOBAL_VOLUME"]);
             } else if (event == CoreEvent.VolumeDown) {
                 this.mupen.M64p.setAudioVolume(this.mupen.M64p.getAudioVolume() - 1);
+                global.ModLoader["GLOBAL_VOLUME"] = this.mupen.M64p.getAudioVolume();
+                bus.emit(ModLoaderEvents.ON_VOLUME_CHANGE, global.ModLoader["GLOBAL_VOLUME"]);
             } else if (event == CoreEvent.VolumeMute) {
                 this.mupen.M64p.setAudioMuted(!this.mupen.M64p.isAudioMuted());
             } else if (event == CoreEvent.SetFastForward) {
@@ -160,6 +165,16 @@ class N64 implements IConsole {
         bus.on('toggleFullScreen', () => {
             this.mupen.Frontend.toggleFullScreen();
         });
+        bus.on(ModLoaderEvents.OVERRIDE_TEXTURE_PATH, (p: string) => {
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", p);
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", path.resolve(path.parse(p).dir, "cache"));
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txHiresEnable", true);
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txHiresFullAlphaChannel", true);
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txEnhancedTextureFileStorage", false);
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txHiresTextureFileStorage", false);
+            this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txSaveCache", true);
+            this.mupen.M64p.Config.saveFile();
+        });
     }
 
     private registerCallback(type: string, callback: Function) {
@@ -206,6 +221,16 @@ class N64 implements IConsole {
         }
         this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
         this.mupen.Frontend.execute();
+        internal_event_bus.on('emulator_started', () => {
+            global.ModLoader["GLOBAL_VOLUME"] = this.mupen.M64p.getAudioVolume();
+        });
+        internal_event_bus.on('emulator_started', () => {
+            if (this.texPath !== "") {
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", this.texPath);
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", path.resolve(path.parse(this.texPath).dir, "cache"));
+            }
+            this.mupen.M64p.Config.saveFile();
+        });
         return this.mupen.M64p.Memory as IMemory;
     }
 

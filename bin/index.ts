@@ -223,6 +223,7 @@ function install(url: string) {
                     if (!tsconfig["compilerOptions"].hasOwnProperty("paths")) {
                         tsconfig["compilerOptions"]["paths"] = {};
                     }
+                    console.log(tsconfig);
                     tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path.join("./libs", meta2.name) + "/*"];
                     saveTSConfig();
                 }
@@ -243,7 +244,7 @@ function install(url: string) {
                         fse.symlinkSync(f, path.resolve(path.join("./libs", path.parse(f).name)), 'junction');
                     } catch (err) {
                         if (err) {
-                            //console.log(err);
+                            console.log(err);
                         }
                     }
                 }

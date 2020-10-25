@@ -8,7 +8,7 @@ interface IUtils {
 
   clearBuffer(buf: Buffer): Buffer;
 
-  setTimeoutFrames(fn: Function, frames: number): void;
+  setTimeoutFrames(fn: Function, frames: number): string;
 
   setIntervalFrames(fn: Function, frames: number): string;
 

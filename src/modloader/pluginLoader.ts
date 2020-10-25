@@ -489,7 +489,9 @@ class pluginLoader {
             if (frames <= 0) {
                 frames = 1;
             }
-            this.frameTimeouts.set(ML_UUID.getUUID(), new frameTimeoutContainer(fn, frames));
+            let id = ML_UUID.getUUID();
+            this.frameTimeouts.set(id, new frameTimeoutContainer(fn, frames));
+            return id;
         };
         utils.setIntervalFrames = (fn: Function, frames: number): string => {
             if (frames <= 0) {

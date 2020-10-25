@@ -265,6 +265,7 @@ function install(url) {
                                 if (!tsconfig["compilerOptions"].hasOwnProperty("paths")) {
                                     tsconfig["compilerOptions"]["paths"] = {};
                                 }
+                                console.log(tsconfig);
                                 tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1["default"].join("./libs", meta2.name) + "/*"];
                                 saveTSConfig();
                             }
@@ -286,7 +287,7 @@ function install(url) {
                                 }
                                 catch (err) {
                                     if (err) {
-                                        //console.log(err);
+                                        console.log(err);
                                     }
                                 }
                             }
