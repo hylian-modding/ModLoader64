@@ -5,7 +5,9 @@ export class AnalyticsDB {
     file: string = "";
 
     constructor(file: string) {
-        this.db = JSON.parse(file);
+        if (fs.existsSync(file)){
+            this.db = JSON.parse(fs.readFileSync(file).toString());
+        }
         this.file = file;
     }
     store(key: string, data: any): boolean {
