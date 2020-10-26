@@ -1,25 +1,23 @@
 import fs from 'fs';
-import { Pak } from 'modloader64_api/PakFormat';
 
 export class AnalyticsDB {
     db: any = {};
-    pak: Pak;
+    file: string = "";
+
     constructor(file: string) {
-        if (!fs.existsSync(file)) {
-            this.pak = new Pak(file);
-        }
-        else {
-            this.pak = new Pak(file);
-            this.db = JSON.parse(this.pak.load(0).toString());
-        }
+        this.db = JSON.parse(file);
+        this.file = file;
     }
     store(key: string, data: any): boolean {
         this.db[key] = data;
-        this.pak.overwriteFileAtIndex(0, this.db);
-        this.pak.update();
+        fs.writeFileSync(this.file, JSON.stringify(this.db, null, 2));
         return true;
     }
     retrieve(key: string): any {
-        return this.db[key];
+        if (this.db.hasOwnProperty(key)){
+            return this.db[key];
+        }else{
+            return {};
+        }
     }
 }

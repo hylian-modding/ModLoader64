@@ -14,7 +14,6 @@ import { ILogger } from 'modloader64_api/IModLoaderAPI';
 export class AnalyticsServer {
 
     private io: any;
-    private encrypt = require('socket.io-encrypt');
     private config!: AnalyticsConfig;
     private fakePlayer!: INetworkPlayer;
     private db!: AnalyticsDB;
@@ -28,13 +27,12 @@ export class AnalyticsServer {
         if (!fs.existsSync("./analytics-config.json")) {
             fs.writeFileSync("./analytics-config.json", JSON.stringify({ port: "7999", enabled: true } as AnalyticsConfig, null, 2));
         }
-        this.db = new AnalyticsDB("./ModLoader64_AnalyticsDB.pak");
+        this.db = new AnalyticsDB("./ModLoader64_AnalyticsDB.json");
         this.config = JSON.parse(fs.readFileSync("./analytics-config.json").toString());
         this.fakePlayer = new FakeAnaPlayer();
         const server = require('http').createServer();
         this.io = require('socket.io')(server);
         server.listen(this.config.port);
-        this.io.use(this.encrypt('MELONSUCKS'));
         this.io.on('connection', (socket: SocketIO.Socket) => {
             this.send(new Analytics_ConnectionPacket(new NetworkPlayer("AnalyticsClient", socket.id)));
             socket.on('Analytics_StorePacket', (packet: Analytics_StorePacket) => {

@@ -13,7 +13,6 @@ export class AnalyticsClient {
     
     private io: any = require('socket.io-client');
     private socket: SocketIO.Socket = {} as SocketIO.Socket;
-    private encrypt = require('socket.io-encrypt');
     private config: AnalyticsConfig;
     private me!: INetworkPlayer;
     private packetCallback: (packet: Analytics_StorePacket) => void;
@@ -34,7 +33,6 @@ export class AnalyticsClient {
             return;
         }
         this.socket = this.io.connect('http://' + "127.0.0.1" + ':' + this.config.port);
-        this.encrypt('MELONSUCKS')(this.socket);
         this.socket.on('Analytics_ConnectionPacket', (packet: Analytics_ConnectionPacket) => {
             this.me = packet.to;
             this.send(new Analytics_StorePacket(this.me, "test", { fake: true }));

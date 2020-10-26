@@ -372,6 +372,8 @@ class ModLoader64 {
                             let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
                             instance.logger.info(hash);
                             instance.logger.info(newHash);
+                            evt["hash"] = newHash;
+                            evt["oldhash"] = hash;
                         } catch (err) {
                             if (err) {
                                 instance.logger.error(err);
