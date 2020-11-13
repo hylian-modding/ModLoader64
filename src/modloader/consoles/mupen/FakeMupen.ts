@@ -14,6 +14,7 @@ import { Mouse, MouseButtons } from 'modloader64_api/Sylvain/Mouse';
 import { Gfx, Texture, FlipFlags, Font } from 'modloader64_api/Sylvain/Gfx';
 import { Input, Axis, Button, FilterFlags } from 'modloader64_api/Sylvain/Input';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
+import { BpFlags, BpStruct, BpTriggerInfo, Debugger, MemFlags, MemType, Register, RunState } from 'modloader64_api/Sylvain/Debugger';
 
 export class FakeMupen implements IConsole {
     rom: string;
@@ -24,6 +25,10 @@ export class FakeMupen implements IConsole {
         this.rom = rom;
         this.rom_data = Buffer.alloc(1);
         this.ram = new FakeN64Memory();
+    }
+
+    getDebuggerAccess(): Debugger {
+        return new FakeDebugger();
     }
 
     getRomOriginalSize(): number {
@@ -1196,6 +1201,112 @@ class FakeYaz0 implements IYaz0 {
     }
     decode(buf: Buffer): Buffer {
         return Buffer.alloc(1);
+    }
+
+}
+
+class FakeDebugger implements Debugger {
+    isSupported(): boolean {
+        throw new Error('Method not implemented.');
+    }
+    isEnabled(): boolean {
+        throw new Error('Method not implemented.');
+    }
+    isInitialized(): boolean {
+        throw new Error('Method not implemented.');
+    }
+    getRunState(): RunState {
+        throw new Error('Method not implemented.');
+    }
+    setRunState(state: RunState): void {
+        throw new Error('Method not implemented.');
+    }
+    step(): void {
+        throw new Error('Method not implemented.');
+    }
+    decodeOp(inst: number, pc: number): string {
+        throw new Error('Method not implemented.');
+    }
+    memRead64(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    memRead32(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    memRead16(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    memRead8(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    memWrite64(addr: number, val: number): void {
+        throw new Error('Method not implemented.');
+    }
+    memWrite32(addr: number, val: number): void {
+        throw new Error('Method not implemented.');
+    }
+    memWrite16(addr: number, val: number): void {
+        throw new Error('Method not implemented.');
+    }
+    memWrite8(addr: number, val: number): void {
+        throw new Error('Method not implemented.');
+    }
+    bpCount(): number {
+        throw new Error('Method not implemented.');
+    }
+    bpLookup(addr: number, size: number, flags: BpFlags): number {
+        throw new Error('Method not implemented.');
+    }
+    bpAddAddress(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    bpAddStruct(bp: BpStruct): number {
+        throw new Error('Method not implemented.');
+    }
+    bpReplace(index: number, bp: BpStruct): void {
+        throw new Error('Method not implemented.');
+    }
+    bpRemoveAddress(addr: number): void {
+        throw new Error('Method not implemented.');
+    }
+    bpRemoveIndex(index: number): void {
+        throw new Error('Method not implemented.');
+    }
+    bpEnable(index: number): void {
+        throw new Error('Method not implemented.');
+    }
+    bpDisable(index: number): void {
+        throw new Error('Method not implemented.');
+    }
+    bpCheck(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    bpTriggeredBy(): BpTriggerInfo {
+        throw new Error('Method not implemented.');
+    }
+    getPrevPC(): number {
+        throw new Error('Method not implemented.');
+    }
+    readPC(): number {
+        throw new Error('Method not implemented.');
+    }
+    writePC(pc: number): void {
+        throw new Error('Method not implemented.');
+    }
+    readRegister(reg: Register): number {
+        throw new Error('Method not implemented.');
+    }
+    writeRegister(reg: Register, val: number): void {
+        throw new Error('Method not implemented.');
+    }
+    virtualToPhysical(addr: number): number {
+        throw new Error('Method not implemented.');
+    }
+    getMemType(addr: number): MemType {
+        throw new Error('Method not implemented.');
+    }
+    getMemFlags(addr: number): MemFlags {
+        throw new Error('Method not implemented.');
     }
 
 }

@@ -19,6 +19,7 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
+import { Debugger } from 'modloader64_api/Sylvain/Debugger';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -309,6 +310,10 @@ class N64 implements IConsole {
 
     getSaveStateManager(): ISaveState {
         return this.mupen.M64p as ISaveState;
+    }
+
+    getDebuggerAccess(): Debugger {
+        return this.mupen.M64p.Debugger;
     }
 }
 

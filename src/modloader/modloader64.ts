@@ -29,7 +29,6 @@ import zip from 'adm-zip';
 import moduleAlias from 'module-alias';
 import { RomPatchType, registerPatchType, PatchTypes } from 'modloader64_api/Patchers/PatchManager';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
-import { AnalyticsServer } from '../analytics/AnalyticsServer';
 import { ModLoaderRPC } from './rpc/ModLoaderRPC';
 import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
@@ -57,7 +56,6 @@ class ModLoader64 {
     Server: NetworkEngine.Server;
     Client: NetworkEngine.Client;
     RPC: ModLoaderRPC;
-    Analytics_Server: AnalyticsServer;
     rom_path!: string;
     emulator!: IConsole;
     tunnel!: IGUITunnel;
@@ -90,7 +88,6 @@ class ModLoader64 {
             this.config,
             this.logger.getLogger("PluginLoader")
         );
-        this.Analytics_Server = new AnalyticsServer(this.logger.getLogger("Analytics"));
         this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
         this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config, discord);
         this.RPC = new ModLoaderRPC();
@@ -169,7 +166,6 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'patch', '');
         this.config.setData('ModLoader64', 'isServer', true);
         this.config.setData('ModLoader64', 'isClient', true);
-        this.config.setData('ModLoader64', 'isAnalyticsServer', false);
         this.config.setData(
             'ModLoader64',
             'supportedConsoles',
@@ -321,9 +317,6 @@ class ModLoader64 {
         });
         if (this.data.isServer) {
             this.Server.setup();
-            if (this.data.isAnalyticsServer) {
-                this.Analytics_Server.setup();
-            }
         }
         if (this.data.isClient) {
             this.Client.setup();

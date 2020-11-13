@@ -42,8 +42,6 @@ import { AddressInfo } from 'net';
 import path from 'path';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { ML_UUID } from './uuid/mluuid';
-import { AnalyticsClient } from '../analytics/AnalyticsClient';
-import { Analytics_StorePacket } from 'modloader64_api/analytics/Analytics_StorePacket';
 import { getAllFiles } from './getAllFiles';
 import { IClientConfig } from './IClientConfig';
 import { IServerConfig } from './IServerConfig';
@@ -138,7 +136,6 @@ namespace NetworkEngine {
         udpPort = -1;
         plugins: any = {};
         core: string = "";
-        analytics!: AnalyticsClient;
         lobby_names: Array<string> = [];
         lobbyStorage: any = {};
 
@@ -235,11 +232,6 @@ namespace NetworkEngine {
             this.logger.info(
                 'NetworkEngine.Server set up on port ' + this.config.port + '.'
             );
-
-            this.analytics = new AnalyticsClient((packet: Analytics_StorePacket) => {
-                NetworkBusServer.emit(packet.packet_id, packet);
-                NetworkChannelBusServer.emit(packet.channel, packet);
-            });
 
             if (!this.modLoaderconfig.isClient) {
                 internal_event_bus.emit('onNetworkConnect', {
@@ -613,7 +605,7 @@ namespace NetworkEngine {
                     NetworkBus.emit(data.packet_id, data);
                     NetworkChannelBus.emit(data.channel, data);
                 } catch (err) {
-                    this.logger.error(err);
+                    this.logger.error(err.stack);
                 }
             }
         }

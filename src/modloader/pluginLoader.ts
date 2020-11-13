@@ -42,8 +42,6 @@ import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
-import { AnalyticsManager } from 'modloader64_api/analytics/Analytics';
-import { Analytics } from 'modloader64_api/analytics/Analytics';
 import { MonkeyPatch_Yaz0Encode, MonkeyPatch_Yaz0Decode } from '../monkeypatches/Utils';
 import { ModLoadOrder } from './ModLoadOrder';
 import { setupSidedProxy, setupParentReference } from 'modloader64_api/SidedProxy/SidedProxy';
@@ -53,6 +51,7 @@ import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 import { setupDateProxy } from 'modloader64_api/SidedProxy/DateProxy';
+import { AnalyticsManager } from '../analytics/AnalyticsManager';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -367,7 +366,7 @@ class pluginLoader {
             };
             let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
             let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-            for (let i = 0; i < children2.length; i++){
+            for (let i = 0; i < children2.length; i++) {
                 children.push(children2[i]);
             }
             for (let i = 0; i < children.length; i++) {
@@ -549,7 +548,6 @@ class pluginLoader {
             return this.core_plugins.hasOwnProperty(modid);
         };
         fn = Object.freeze(fn);
-
         // Monkey patch Yaz0Encode to have a cache.
         let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils, iconsole.getYaz0Encoder());
         monkeypatch.patch();
@@ -561,7 +559,6 @@ class pluginLoader {
         Object.freeze(lobby);
         let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
         let rom: IRomMemory = Object.freeze((iconsole.getMemoryAccess() as unknown as IRomMemory));
-        let analytics: Analytics = Object.freeze(AnalyticsManager);
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
@@ -571,6 +568,8 @@ class pluginLoader {
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
+        let analytics = Object.freeze(new AnalyticsManager());
+        let debug = Object.freeze(iconsole.getDebuggerAccess());
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -578,11 +577,12 @@ class pluginLoader {
             this.loaded_core.ModLoader.clientLobby = lobby;
             this.loaded_core.ModLoader.lobbyManager = lma;
             this.loaded_core.ModLoader.rom = rom;
-            this.loaded_core.ModLoader.analytics = analytics;
             this.loaded_core.ModLoader.isClient = mlconfig.isClient;
             this.loaded_core.ModLoader.isServer = mlconfig.isServer;
             this.loaded_core.ModLoader.isModLoaded = fn;
             this.loaded_core.ModLoader.sound = ss;
+            this.loaded_core.ModLoader.analytics = analytics;
+            this.loaded_core.ModLoader.debugger = debug;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -601,11 +601,12 @@ class pluginLoader {
             plugin.ModLoader.clientLobby = lobby;
             plugin.ModLoader.lobbyManager = lma;
             plugin.ModLoader.rom = rom;
-            plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.isClient = mlconfig.isClient;
             plugin.ModLoader.isServer = mlconfig.isServer;
             plugin.ModLoader.sound = ss;
             plugin.ModLoader.isModLoaded = fn;
+            plugin.ModLoader.analytics = analytics;
+            plugin.ModLoader.debugger = debug;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             try {
@@ -781,12 +782,6 @@ class pluginLoader {
             }
         });
         this.injector = () => {
-            let testBuffer: Buffer = Buffer.from("MODLOADER64");
-            emu.rdramWriteBuffer(0x80800000, testBuffer);
-            if (testBuffer.toString() === emu.rdramReadBuffer(0x80800000, testBuffer.byteLength).toString()) {
-                this.logger.info("16MB Expansion verified.");
-                emu.rdramWriteBuffer(0x80800000, this.loaded_core.ModLoader.utils.clearBuffer(testBuffer));
-            }
             this.logger.debug("Starting injection...");
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(

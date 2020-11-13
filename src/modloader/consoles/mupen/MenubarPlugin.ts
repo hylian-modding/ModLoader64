@@ -225,10 +225,11 @@ class BottomRightWidget {
     }
 
     loadResources() {
-        if (this.font === undefined){
+        if (this.font === undefined) {
             try {
                 this.font = this.ModLoader.Gfx.createFont();
                 this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
+                this.ModLoader.logger.debug("Loading default font.");
             } catch (err) {
                 this.ModLoader.logger.error(err);
             }
@@ -264,14 +265,14 @@ class BottomRightWidget {
                     return;
                 }
             }
-            try{
+            try {
                 if (this.currentNotif.icon !== undefined) {
                     let f = this.ModLoader.Gfx.calcTextSize(this.font, "Test", xy(1, 1));
                     let dst = xywh(this.pos.x - 32, this.pos.y, f.y, f.y);
                     this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
                 }
                 this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
-            }catch(err){
+            } catch (err) {
                 this.ModLoader.logger.error(err.stack);
             }
         }
@@ -332,7 +333,7 @@ class MenubarPlugin implements IPlugin {
     ms: number_ref = [0];
     ani: number_ref = [0];
     ms_options = [0, 2, 4, 8, 16];
-    ani_options =  [0, 2, 4, 8, 16];
+    ani_options = [0, 2, 4, 8, 16];
     htc: boolean = false;
     hts: boolean = false;
     audio_options = ["trivial", "speex-fixed-4", "speex-fixed-10"];
@@ -389,8 +390,8 @@ class MenubarPlugin implements IPlugin {
             this.ani[0] = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Video-GLideN64").getIntOr("MaxAnisotropy", 0);
             let audio = ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Audio-SDL").getStringOr("RESAMPLE", "trivial");
             let volumeAdjust = (this.Binding as any).mupen.M64p.Config.openSection('Audio-SDL').getIntOr('VOLUME_ADJUST', 5);
-            for (let i = 0; i < this.audio_options.length; i++){
-                if (audio === this.audio_options[i]){
+            for (let i = 0; i < this.audio_options.length; i++) {
+                if (audio === this.audio_options[i]) {
                     this.audio_selection[0] = i;
                     break;
                 }
@@ -441,15 +442,15 @@ class MenubarPlugin implements IPlugin {
 
     @onCreateResources()
     onResourceLoad() {
+    }
+
+    @onViUpdate()
+    onViUpdate() {
         if (!this.resourcesLoaded) {
             this.bottomRight.loadResources();
             this.achievements.loadResources();
             this.resourcesLoaded = true;
         }
-    }
-
-    @onViUpdate()
-    onViUpdate() {
         this.menubar.update();
         this.topNotifications.update();
         this.bottomRight.update();
@@ -487,7 +488,7 @@ class MenubarPlugin implements IPlugin {
                     }
                     this.ModLoader.ImGui.endMenu();
                 }
-                if (this.ModLoader.ImGui.menuItem("FXAA",undefined, this.fxaa, true)) {
+                if (this.ModLoader.ImGui.menuItem("FXAA", undefined, this.fxaa, true)) {
                     this.fxaa = !this.fxaa;
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setBool('FXAA', this.fxaa);
                 }
@@ -525,7 +526,7 @@ class MenubarPlugin implements IPlugin {
                         ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection('Video-GLideN64').setInt('MultiSampling', 16);
                     }
                 }
-                if (this.ModLoader.ImGui.combo("Audio", this.audio_selection, this.audio_options_display)){
+                if (this.ModLoader.ImGui.combo("Audio", this.audio_selection, this.audio_options_display)) {
                     ((this.Binding as any)["mupen"] as IMupen).M64p.Config.openSection("Audio-SDL").setString("RESAMPLE", this.audio_options[this.audio_selection[0]]);
                 }
 
@@ -537,7 +538,7 @@ class MenubarPlugin implements IPlugin {
     }
 
     @EventHandler(NotificationEvents.CHANGE_FONT)
-    onFontChange(font: Font){
+    onFontChange(font: Font) {
         this.bottomRight.font = font;
     }
 

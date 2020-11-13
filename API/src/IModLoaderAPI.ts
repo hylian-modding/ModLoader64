@@ -7,12 +7,13 @@ import { IGUIAPI } from './GUITunnel';
 import { IPayloadManager } from './PayloadType';
 import { IMath } from './math/IMath';
 import { IRomMemory } from './IRomMemory';
-import { IAnalytics } from './analytics/IAnalytics';
 import { ISoundSystem } from './Sound/ISoundSystem';
 import { IImGui } from './Sylvain/ImGui';
 import { SDL } from './Sylvain/SDL';
 import { Gfx } from './Sylvain/Gfx';
 import { Input } from './Sylvain/Input';
+import { IAnalyticsManager } from './analytics/IAnalyticsManager';
+import { Debugger } from './Sylvain/Debugger';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -56,7 +57,6 @@ export interface IModLoaderAPI {
   payloadManager: IPayloadManager;
   math: IMath;
   rom: IRomMemory;
-  analytics: IAnalytics;
   isClient: boolean;
   isServer: boolean;
   sound: ISoundSystem;
@@ -65,6 +65,8 @@ export interface IModLoaderAPI {
   SDL: SDL;
   Gfx: Gfx;
   Input: Input;
+  analytics: IAnalyticsManager;
+  debugger: Debugger;
 }
 
 export interface IPlugin {

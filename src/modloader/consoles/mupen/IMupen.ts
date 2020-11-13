@@ -5,6 +5,7 @@ import { SDL, WindowRef } from 'modloader64_api/Sylvain/SDL';
 import { Gfx, Texture } from 'modloader64_api/Sylvain/Gfx';
 import { Input } from 'modloader64_api/Sylvain/Input';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
+import { Debugger } from 'modloader64_api/Sylvain/Debugger';
 
 export interface IMupen {
     Frontend: IFrontend;
@@ -93,6 +94,7 @@ export interface IM64p {
     Memory: IMemory;
     Input: Input;
     Config: Config;
+    Debugger: Debugger;
 }
 
 export const enum EmuState {

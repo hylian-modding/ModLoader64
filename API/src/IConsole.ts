@@ -7,6 +7,7 @@ import { SDL } from './Sylvain/SDL';
 import { Gfx } from './Sylvain/Gfx';
 import { Input } from './Sylvain/Input';
 import { IYaz0 } from './Sylvain/Yaz0';
+import { Debugger } from './Sylvain/Debugger';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -58,6 +59,8 @@ interface IConsole {
   getInputAccess(): Input;
 
   getYaz0Encoder(): IYaz0;
+
+  getDebuggerAccess(): Debugger;
 
 }
 
