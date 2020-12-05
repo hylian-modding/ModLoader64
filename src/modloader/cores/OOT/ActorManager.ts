@@ -47,6 +47,10 @@ export class ActorManager implements IActorManager {
         }
     }
 
+    getActors(category: ActorCategory): IActor[] {
+        return this.actors_this_frame.get(category)!;
+    }
+
     createIActorFromPointer(pointer: number): IActor {
         return new ActorBase(this.emulator, pointer);
     }

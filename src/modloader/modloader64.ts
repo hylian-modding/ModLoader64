@@ -384,7 +384,7 @@ class ModLoader64 {
                     if (instance.emulator.isEmulatorReady()) {
                         clearInterval(wait);
                         internal_event_bus.emit('emulator_started', {});
-                        resolve();
+                        resolve(undefined);
                     }
                 }, 1);
             });

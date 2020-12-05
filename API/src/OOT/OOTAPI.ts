@@ -4,6 +4,7 @@ import { IActor } from './IActor';
 import { IDungeonItemManager } from './IDungeonItemManager';
 import Vector3 from '../math/Vector3';
 import { throws } from 'assert';
+import { ActorCategory } from './ActorCategory';
 
 export const enum LinkState {
   UNKNOWN,
@@ -492,6 +493,7 @@ export interface IGlobalContext {
   viewStruct: IViewStruct;
   fogDistance: number;
   fogColor: number;
+  lastOrCurrentEntrance: number;
 }
 
 export interface IViewStruct {
@@ -585,6 +587,7 @@ export class OotFlagEventImpl implements OotFlagEvent {
 export interface IActorManager {
   // Returns IActor if the actor exists or undefined if the pointer doesn't lead to an actor.
   createIActorFromPointer(pointer: number): IActor;
+  getActors(category: ActorCategory): IActor[];
 }
 
 export const NO_KEYS = 0xff;

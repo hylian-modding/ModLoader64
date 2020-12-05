@@ -143,6 +143,11 @@ export class GlobalContext extends JSONTemplate implements IGlobalContext {
           ) === 1
       );
   }
+
+  get lastOrCurrentEntrance(): number{
+      return this.emulator.rdramReadPtr16(global.ModLoader.global_context_pointer, 0x11E1A);
+  }
+
   getSaveDataForCurrentScene(): Buffer {
       return this.emulator.rdramReadBuffer(
           global.ModLoader.save_context + 0x00d4 + this.scene * 0x1c,
