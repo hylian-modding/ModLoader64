@@ -401,10 +401,8 @@ namespace NetworkEngine {
                                 socket.id
                             );
                             bus.emit(EventsServer.ON_LOBBY_CREATE, lj.lobbyData.name);
-                            bus.emit(
-                                EventsServer.ON_LOBBY_JOIN,
-                                new EventServerJoined(lj.player, lj.lobbyData.name)
-                            );
+                            bus.emit(EventsServer.ON_LOBBY_DATA, storage.config);
+                            bus.emit(EventsServer.ON_LOBBY_JOIN, new EventServerJoined(lj.player, lj.lobbyData.name));
                             //@ts-ignore
                             socket['ModLoader64'] = {
                                 lobby: storage.config.name,

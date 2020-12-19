@@ -38,7 +38,8 @@ export enum EventsServer {
   ON_LOBBY_JOIN = 'lobbyJoin_server',
   ON_LOBBY_LEAVE = 'lobbyLeave_server',
   ON_PLUGIN_READY = 'pluginReady_server',
-  ON_VERSION_CHECK = 'versioncheck_server'
+  ON_VERSION_CHECK = 'versioncheck_server',
+  ON_LOBBY_DATA = "lobbyData_server"
 }
 
 export enum EventsClient {

@@ -59,12 +59,9 @@ class MenubarWidget {
                         bus.emit('openMemViewer', {});
                     }
                 }
-                /* if (this.ModLoader.ImGui.menuItem("Player List")) {
-                    this.openPlayerList = true;
-                }
                 if (this.ModLoader.ImGui.menuItem("Script Editor")) {
                     this.openScriptEditor = true;
-                } */
+                }
                 this.ModLoader.ImGui.endMenu();
             }
 

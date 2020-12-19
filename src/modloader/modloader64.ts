@@ -102,21 +102,6 @@ class ModLoader64 {
                 // @ts-ignore
                 process.emit('SIGINT');
             });
-
-            if (fs.existsSync('./storage')) {
-                fs.readdirSync('./storage').forEach((key: string) => {
-                    let file: string = path.join('./storage', key);
-                    if (fs.existsSync(file)) {
-                        let seconds =
-                            (new Date().getTime() -
-                                new Date(fs.statSync(file).mtime).getTime()) /
-                            1000;
-                        if (seconds > 2592000) {
-                            fs.unlinkSync(file);
-                        }
-                    }
-                });
-            }
         }
 
         process.on('SIGINT', function () {
@@ -352,7 +337,11 @@ class ModLoader64 {
                     let rom_data: Buffer = instance.emulator.getLoadedRom();
                     let evt: any = { rom: rom_data };
                     if (instance.data.isClient) {
-                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
+                        try {
+                            bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
+                        } catch (err) {
+                            throw err;
+                        }
                     }
                     if (p.byteLength > 1 && rom_data.byteLength > 1) {
                         try {
@@ -375,8 +364,12 @@ class ModLoader64 {
                         }
                     }
                     if (instance.data.isClient) {
-                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
-                        bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
+                        try {
+                            bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
+                            bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
+                        } catch (err) {
+                            throw err;
+                        }
                     }
                     return evt.rom;
                 }) as IMemory;
