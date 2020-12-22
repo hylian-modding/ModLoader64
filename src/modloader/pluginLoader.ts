@@ -545,7 +545,7 @@ class pluginLoader {
                     return true;
                 }
             }
-            return this.core_plugins.hasOwnProperty(modid);
+            return this.selected_core === modid;
         };
         fn = Object.freeze(fn);
         // Monkey patch Yaz0Encode to have a cache.
