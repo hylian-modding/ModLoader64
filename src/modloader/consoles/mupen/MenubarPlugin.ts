@@ -22,8 +22,8 @@ class TopNotification {
 
     constructor(text: string) {
         this.text = text;
-        this.offscreen = (text.length * 10);
-        this.pos = xy(this.offscreen / -1, 0);
+        this.offscreen = (text.length * 50) / -1;
+        this.pos = xy(500, 0);
         this.color = rgba(255, 255, 255, 255);
     }
 }
@@ -59,9 +59,9 @@ class MenubarWidget {
                         bus.emit('openMemViewer', {});
                     }
                 }
-                if (this.ModLoader.ImGui.menuItem("Script Editor")) {
+                /* if (this.ModLoader.ImGui.menuItem("Script Editor")) {
                     this.openScriptEditor = true;
-                }
+                } */
                 this.ModLoader.ImGui.endMenu();
             }
 
@@ -154,7 +154,7 @@ class TopBarWidget {
             this.ModLoader.ImGui.getWindowDrawList().addRectFilled(xy(0, 0), xy(this.ModLoader.ImGui.getWindowWidth(), this.topBarHeight), rgba(0, 0, 0, 255));
         }
         if (this.currentTopNotification !== undefined) {
-            if (this.currentTopNotification.pos.x > this.ModLoader.ImGui.getWindowWidth() + this.currentTopNotification.offscreen) {
+            if (this.currentTopNotification.pos.x < this.ModLoader.ImGui.getWindowWidth() + this.currentTopNotification.offscreen) {
                 this.currentTopNotification = undefined;
                 this.retracttopBar = true;
             } else {
@@ -162,7 +162,7 @@ class TopBarWidget {
                     this.topBarHeight++;
                 } else {
                     this.ModLoader.ImGui.getWindowDrawList().addTextEx(this.ModLoader.ImGui.getFont(), 36, this.currentTopNotification.pos, this.currentTopNotification.color, this.currentTopNotification.text);
-                    this.currentTopNotification.pos.x += 1;
+                    this.currentTopNotification.pos.x -= 1;
                 }
             }
         } else {
