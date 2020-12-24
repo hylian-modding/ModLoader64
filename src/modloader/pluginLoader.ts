@@ -52,6 +52,7 @@ import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 import { setupDateProxy } from 'modloader64_api/SidedProxy/DateProxy';
 import { AnalyticsManager } from '../analytics/AnalyticsManager';
+import { setupBindVar } from 'modloader64_api/BindVar';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -170,6 +171,7 @@ class pluginLoader {
                     setupEventHandlers((plugin as any)[key]);
                     setupNetworkHandlers((plugin as any)[key]);
                     setupLifecycle((plugin as any)[key]);
+                    setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
                     markPrototypeProcessed((plugin as any)[key]);
                 }
             });
@@ -189,6 +191,7 @@ class pluginLoader {
                         setupEventHandlers((instance as any)[key]);
                         setupNetworkHandlers((instance as any)[key]);
                         setupLifecycle((instance as any)[key]);
+                        setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
                         markPrototypeProcessed((instance as any)[key]);
                     }
                 });
@@ -219,7 +222,7 @@ class pluginLoader {
         }
     }
 
-    private processFolder(dir: string) {
+    private processFolder(dir: string, iconsole: IConsole) {
         if (!fs.existsSync(dir)) {
             return;
         }
@@ -324,6 +327,7 @@ class pluginLoader {
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
             setupLifecycle(plugin);
+            setupBindVar(plugin, iconsole.getMemoryAccess());
             Object.keys(plugin).forEach((key: string) => {
                 if (plugin[key] !== null && plugin[key] !== undefined) {
                     setupParentReference((plugin as any)[key], plugin);
@@ -332,6 +336,7 @@ class pluginLoader {
                     setupEventHandlers((plugin as any)[key]);
                     setupNetworkHandlers((plugin as any)[key]);
                     setupLifecycle((plugin as any)[key]);
+                    setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
                     markPrototypeProcessed((plugin as any)[key]);
                 }
             });
@@ -351,6 +356,7 @@ class pluginLoader {
                         setupEventHandlers((instance as any)[key]);
                         setupNetworkHandlers((instance as any)[key]);
                         setupLifecycle((instance as any)[key]);
+                        setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
                         markPrototypeProcessed((instance as any)[key]);
                     }
                 });
@@ -419,6 +425,7 @@ class pluginLoader {
                 setupEventHandlers((this.loaded_core as any)[key]);
                 setupLifecycle((this.loaded_core as any)[key]);
                 setupNetworkHandlers((this.loaded_core as any)[key]);
+                setupBindVar((this.loaded_core as any)[key], this.loaded_core.ModLoader.emulator);
                 markPrototypeProcessed((this.loaded_core as any)[key]);
             }
         });
@@ -441,7 +448,7 @@ class pluginLoader {
                 for (let i = 0; i < files.length; i++) {
                     let p = path.parse(files[i]).base;
                     if (p === key && order.loadOrder[key] === true) {
-                        this.processFolder(path.resolve(files[i]));
+                        this.processFolder(path.resolve(files[i]), console);
                         break;
                     }
                 }
@@ -452,7 +459,7 @@ class pluginLoader {
                     let temp1 = path.resolve(path.join(dir));
                     fs.readdirSync(temp1).forEach((file: string) => {
                         let temp2 = path.join(temp1, file);
-                        this.processFolder(temp2);
+                        this.processFolder(temp2, console);
                     });
                 }
             });
