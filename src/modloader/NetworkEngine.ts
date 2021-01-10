@@ -424,6 +424,7 @@ namespace NetworkEngine {
                         );
                     });
                     socket.on('msg', function (data: IPacketHeader) {
+                        Object.freeze(data);
                         try {
                             NetworkBusServer.emit(data.packet_id, data);
                             NetworkChannelBusServer.emit(data.channel, data);
@@ -469,6 +470,7 @@ namespace NetworkEngine {
                             return;
                         }
                         let data: IPacketHeader = JSON.parse(msg);
+                        Object.freeze(data);
                         if (data.packet_id === 'UDPTestPacket') {
                             let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
                             reply.player = inst.fakePlayer;
@@ -757,7 +759,7 @@ namespace NetworkEngine {
                     }
                 });
                 inst.socket.on('msg', (data: IPacketHeader) => {
-                    inst.packetBuffer.push(data);
+                    inst.packetBuffer.push(Object.freeze(data));
                 });
                 inst.socket.on('udpTest', (data: IPacketHeader) => {
                     inst.isUDPEnabled = true;
