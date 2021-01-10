@@ -64,7 +64,7 @@ export class Link extends JSONTemplate implements ILink {
         this.math = math;
     }
 
-    getRdramBuffer(): Buffer {
+    getRdramBuffer(): ArrayBuffer {
         return this.emulator.getRdramBuffer();
     }
     

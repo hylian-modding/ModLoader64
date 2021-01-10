@@ -184,7 +184,7 @@ export class ActorBase extends JSONTemplate implements IActor {
 
     isTransitionActor: boolean = false;
 
-    getRdramBuffer(): Buffer {
+    getRdramBuffer(): ArrayBuffer {
         return this.emulator.getRdramBuffer();
     }
 
