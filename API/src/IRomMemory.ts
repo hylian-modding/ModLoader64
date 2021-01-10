@@ -15,5 +15,5 @@ export interface IRomMemory {
 
   romWriteBuffer(addr: number, buf: Buffer): void;
   
-  getRomBuffer(): Buffer;
+  getRomBuffer(): ArrayBuffer;
 }
