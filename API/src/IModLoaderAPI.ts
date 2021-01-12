@@ -14,6 +14,7 @@ import { Gfx } from './Sylvain/Gfx';
 import { Input } from './Sylvain/Input';
 import { IAnalyticsManager } from './analytics/IAnalyticsManager';
 import { Debugger } from './Sylvain/Debugger';
+import { Heap } from './heap';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -67,6 +68,7 @@ export interface IModLoaderAPI {
   Input: Input;
   analytics: IAnalyticsManager;
   debugger: Debugger;
+  heap: Heap | undefined;
 }
 
 export interface IPlugin {
@@ -87,6 +89,8 @@ export interface ICore {
   init(): void;
   postinit(): void;
   onTick(frame?: number): void;
+  heap_start: number;
+  heap_size: number;
 }
 
 export interface IPluginServerConfig {
@@ -108,12 +112,12 @@ export enum ModLoaderEvents {
   OVERRIDE_TEXTURE_PATH = "OVERRIDE_TEXTURE_PATH"
 }
 
-export class VersionCheckEvent{
+export class VersionCheckEvent {
   ModLoader: string;
   plugins: any;
   canceled: boolean = false;
 
-  constructor(ModLoader: string, plugins: any){
+  constructor(ModLoader: string, plugins: any) {
     this.ModLoader = ModLoader;
     this.plugins = plugins;
   }

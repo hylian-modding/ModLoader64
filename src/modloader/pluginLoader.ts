@@ -53,6 +53,7 @@ import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 import { setupDateProxy } from 'modloader64_api/SidedProxy/DateProxy';
 import { AnalyticsManager } from '../analytics/AnalyticsManager';
 import { setupBindVar } from 'modloader64_api/BindVar';
+import { Heap } from 'modloader64_api/heap';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -705,7 +706,6 @@ class pluginLoader {
         };
         Object.freeze(this.onTickHandle);
         Object.freeze(this.onViHandle);
-        let emu: IMemory = iconsole.getMemoryAccess();
         iconsole.on(Emulator_Callbacks.core_started, () => {
             this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
                 this.injector();
@@ -753,6 +753,7 @@ class pluginLoader {
         Object.freeze(sdl);
         Object.freeze(gfx);
         Object.freeze(input);
+
         this.loaded_core.ModLoader.ImGui = imgui;
         this.loaded_core.ModLoader.SDL = sdl;
         this.loaded_core.ModLoader.Gfx = gfx;
@@ -789,6 +790,14 @@ class pluginLoader {
             }
         });
         this.injector = () => {
+            let heap: Heap | undefined = undefined;
+            if (this.loaded_core.heap_size > 0) {
+                heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
+            }
+            this.loaded_core.ModLoader.heap = heap;
+            this.plugins.forEach((plugin: IPlugin) => {
+                plugin.ModLoader.heap = heap;
+            });
             this.logger.debug("Starting injection...");
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
