@@ -495,7 +495,7 @@ export class OverlayPayload extends PayloadType {
             }
         });
         return {
-            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, spawn: (obj: any, cb?: Function) => {
+            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, spawn: (obj: any, cb?: Function): void => {
                 if (cb !== undefined) {
                     this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"], cb);
                 } else {
