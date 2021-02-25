@@ -8,9 +8,11 @@ var commander_1 = __importDefault(require("commander"));
 var PakFormat_1 = require("modloader64_api/PakFormat");
 var path_1 = __importDefault(require("path"));
 var adm_zip_1 = __importDefault(require("adm-zip"));
+var fs_extra_1 = __importDefault(require("fs-extra"));
 commander_1["default"].option('-d --dir <dir>', 'base directory');
 commander_1["default"].option('-i --input <pak>', 'pak to unpak');
 commander_1["default"].option('-o, --output <dir>', 'output dir');
+commander_1["default"].option("-j, --json <file>", "input json");
 commander_1["default"].option("-a, --algo <algo>", "compression algo");
 commander_1["default"].parse(process.argv);
 if (commander_1["default"].dir !== undefined) {
@@ -37,6 +39,10 @@ if (commander_1["default"].dir !== undefined) {
             pak.update();
         }
     });
+}
+if (commander_1["default"].json) {
+    var pak = new PakFormat_1.Pak(commander_1["default"].output + "/" + path_1["default"].parse(commander_1["default"].dir).name + '.pak');
+    pak.overwriteFileAtIndex(0, fs_extra_1["default"].readJSONSync(commander_1["default"].json), { enabled: true, algo: "DEFL" });
 }
 if (commander_1["default"].input !== undefined) {
     var pak = new PakFormat_1.Pak(commander_1["default"].input);

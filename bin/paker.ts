@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
 import program from 'commander';
-import {Pak} from 'modloader64_api/PakFormat';
+import {IPakFileCompressionOptions, Pak} from 'modloader64_api/PakFormat';
 import path from 'path';
 import zip from 'adm-zip';
+import fse from 'fs-extra';
 
 program.option('-d --dir <dir>', 'base directory');
 program.option('-i --input <pak>', 'pak to unpak');
 program.option('-o, --output <dir>', 'output dir');
+program.option("-j, --json <file>", "input json");
 program.option("-a, --algo <algo>", "compression algo");
 
 program.parse(process.argv);
@@ -35,6 +37,11 @@ if (program.dir !== undefined) {
             pak.update();
         }
     });
+}
+
+if (program.json){
+    let pak: Pak = new Pak(program.output + "/" + path.parse(program.dir).name + '.pak');
+    pak.overwriteFileAtIndex(0, fse.readJSONSync(program.json), {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions);
 }
 
 if (program.input !== undefined) {
