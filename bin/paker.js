@@ -41,7 +41,7 @@ if (commander_1["default"].dir !== undefined) {
     });
 }
 if (commander_1["default"].json) {
-    var pak = new PakFormat_1.Pak(commander_1["default"].output + "/" + path_1["default"].parse(commander_1["default"].dir).name + '.pak');
+    var pak = new PakFormat_1.Pak(commander_1["default"].output);
     pak.overwriteFileAtIndex(0, fs_extra_1["default"].readJSONSync(commander_1["default"].json), { enabled: true, algo: "DEFL" });
 }
 if (commander_1["default"].input !== undefined) {

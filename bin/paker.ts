@@ -40,7 +40,7 @@ if (program.dir !== undefined) {
 }
 
 if (program.json){
-    let pak: Pak = new Pak(program.output + "/" + path.parse(program.dir).name + '.pak');
+    let pak: Pak = new Pak(program.output);
     pak.overwriteFileAtIndex(0, fse.readJSONSync(program.json), {enabled: true, algo: "DEFL"} as IPakFileCompressionOptions);
 }
 
