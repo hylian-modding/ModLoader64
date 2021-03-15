@@ -440,7 +440,7 @@ export class OverlayPayload extends PayloadType {
     }
 
     parse(file: string, buf: Buffer, dest: IMemory) {
-        this.logger.debug('Trying to allocate actor...');
+        //this.logger.debug('Trying to allocate actor...');
         let overlay_start: number = global.ModLoader['overlay_table'];
         let size = 0x01d6;
         let empty_slots: number[] = new Array<number>();
@@ -453,7 +453,7 @@ export class OverlayPayload extends PayloadType {
                 empty_slots.push(i);
             }
         }
-        this.logger.debug(empty_slots.length + ' empty actor slots found.');
+        //this.logger.debug(empty_slots.length + ' empty actor slots found.');
         let finder: find_init = new find_init();
         let meta: ovl_meta = JSON.parse(
             fs
@@ -474,13 +474,16 @@ export class OverlayPayload extends PayloadType {
         let slot: number = empty_slots.shift() as number;
         if (meta.forceSlot !== undefined) {
             slot = parseInt(meta.forceSlot);
+            for (let i = 0; i < (8 * 4); i++){
+                dest.rdramWrite8(slot * 0x20 + overlay_start + i, 0);
+            }
         }
         this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
         let final: number = this.start + OverlayPayload.ovl_offset;
         dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, final + offset);
-        buf.writeUInt8(slot, offset + 0x1);
+        buf.writeUInt16BE(slot, offset);
         dest.rdramWriteBuffer(final, buf);
         OverlayPayload.ovl_offset += buf.byteLength;
         let relocate_final: number = this.start + OverlayPayload.ovl_offset;
