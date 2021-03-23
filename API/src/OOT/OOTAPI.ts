@@ -723,7 +723,7 @@ export interface IOvlPayloadResult {
   buf: Buffer;
   relocate: number;
 
-  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number) => {}): void;
+  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number) => void): void;
 }
 
 export class SceneStruct {
