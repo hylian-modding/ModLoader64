@@ -470,14 +470,16 @@ export class OverlayPayload extends PayloadType {
         this.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
+        // Clean anything in here out first.
+        for (let i = 0; i < 0x20; i++){
+            dest.rdramWrite8(slot * 0x20 + overlay_start + i, 0);
+        }
         let final: number = this.core.ModLoader.heap!.malloc(buf.byteLength + (0x10 * 2));
-        this.logger.debug(final.toString(16));
         dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, final + offset);
         buf.writeUInt16BE(slot, offset);
         let alloc = new SmartBuffer();
         alloc.writeBuffer(buf);
         let relocate_final: number = final + buf.byteLength;
-        this.logger.debug(relocate_final.toString(16));
         alloc.writeUInt32BE(final);
         alloc.writeUInt32BE(final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)));
         alloc.writeUInt32BE(0x80800000);
