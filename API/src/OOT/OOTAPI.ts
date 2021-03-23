@@ -459,6 +459,7 @@ export interface ISaveContext {
   keyManager: IKeyManager;
   dungeonItemManager: IDungeonItemManager;
   double_defense: number;
+  bButton: number;
 }
 
 export interface ILink extends IActor {

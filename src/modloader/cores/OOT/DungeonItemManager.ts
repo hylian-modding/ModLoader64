@@ -2,6 +2,7 @@ import IMemory from 'modloader64_api/IMemory';
 import { VANILLA_DUNGEON_ITEM_INDEXES } from 'modloader64_api/OOT/OOTAPI';
 import { IDungeonItemManager } from 'modloader64_api/OOT/IDungeonItemManager';
 import { IDungeonItemContainer } from 'modloader64_api/OOT/IDungeonItemContainer';
+import { JSONTemplate } from 'API/build/JSONTemplate';
 
 export class DungeonItemManager implements IDungeonItemManager {
   emulator: IMemory;
@@ -66,7 +67,7 @@ export class DungeonItemManager implements IDungeonItemManager {
   }
 }
 
-export class DungeonItemContainer implements IDungeonItemContainer {
+export class DungeonItemContainer implements IDungeonItemContainer{
   private addr: number = global.ModLoader.save_context + 0xa8;
   private emulator: IMemory;
   private index: number;

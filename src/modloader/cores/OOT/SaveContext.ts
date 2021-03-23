@@ -277,4 +277,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
           this.emulator.rdramWrite8(this.double_defense_addr_2, 0x0);
       }
   }
+
+  get bButton(): number{
+      return this.emulator.rdramRead8(this.instance + 0x68);
+  }
 }
