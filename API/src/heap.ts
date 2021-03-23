@@ -3,9 +3,12 @@ import IMemory from './IMemory'
 const HEAP_BLOCK_HEADER_SIZE: number = 0x20
 const HEAP_BLOCK_ALIGNMENT: number = 16
 
+function get_aligned(input: number, alignment: number): number {
+    return input + (alignment - input % alignment)
+}
+
 function Heap_Align(lhs: number) {
-    //return ((lhs + HEAP_BLOCK_ALIGNMENT - 1) & ~(HEAP_BLOCK_ALIGNMENT - 1))
-    return lhs
+    return get_aligned(lhs, HEAP_BLOCK_ALIGNMENT);
 }
 
 interface IHeapBlock {
@@ -22,7 +25,7 @@ class HeapBlock implements IHeapBlock {
     pointer: number
     emulator: IMemory
 
-    constructor(emulator: IMemory, pointer: number = 0) {
+    constructor(emulator: IMemory, pointer: number) {
         this.emulator = emulator
         this.pointer = pointer
     }
@@ -88,13 +91,13 @@ export class Heap {
     emulator!: IMemory
 
     constructor(emulator: IMemory, start: number = 0, size: number = 0) {
-        let block: HeapBlock = new HeapBlock(emulator)
+        let block: HeapBlock
 
         this.emulator = emulator
         this.start = start
         this.size = size
 
-        block.pointer = Heap_Align(this.start)
+        block = new HeapBlock(emulator, Heap_Align(this.start))
         size -= (block.pointer - this.start)
         size = Heap_Align(size)
 
@@ -119,7 +122,7 @@ export class Heap {
         size = Heap_Align(size) + HEAP_BLOCK_HEADER_SIZE
         block = new HeapBlock(this.emulator, this.free_head)
 
-        while (block) {
+        while (block.pointer) {
             // does block have space?
             if (block.free >= size) {
                 new_block = new HeapBlock(this.emulator, block.pointer + block.used)
@@ -160,14 +163,11 @@ export class Heap {
 
                 if (block.used_next) new HeapBlock(this.emulator, new_block.used_next).used_last = new_block.pointer
                 block.used_next = new_block.pointer
-
                 return (new_block.pointer + HEAP_BLOCK_HEADER_SIZE)
             }
 
             block.pointer = block.free_next
         }
-
-
         return 0
     }
 
@@ -253,7 +253,7 @@ export class Heap {
         let block: HeapBlock
 
         block = new HeapBlock(this.emulator, this.free_head)
-        while(block) {
+        while (block) {
             total += block.free
             block = new HeapBlock(this.emulator, block.free_next)
         }
@@ -269,8 +269,7 @@ export class Heap {
         block = new HeapBlock(this.emulator, this.start)
         largest_block = new HeapBlock(this.emulator, this.start)
 
-        while (block.pointer)
-        {
+        while (block.pointer) {
             if (block.free >= largest) {
                 largest = block.free
                 largest_block = new HeapBlock(this.emulator, block.pointer)
@@ -282,5 +281,3 @@ export class Heap {
         return largest_block.pointer
     }
 }
-
-
