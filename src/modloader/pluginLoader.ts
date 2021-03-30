@@ -822,7 +822,9 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                bus.emit(EventsClient.ON_HEAP_READY, {});
+                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                    bus.emit(EventsClient.ON_HEAP_READY, {});
+                }, 1);
             }
             this.logger.debug("Injection finished.");
         };
