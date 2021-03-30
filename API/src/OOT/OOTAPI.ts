@@ -538,7 +538,9 @@ export enum OotEvents {
   ON_ROOM_CHANGE_PRE = 'onPreRoomChange',
   ON_AGE_CHANGE = 'onAgeChange',
   ON_SAVE_FLAG_CHANGE = "onSaveFlagChange",
-  ON_LOCAL_FLAG_CHANGE = "onLocalFlagChange"
+  ON_LOCAL_FLAG_CHANGE = "onLocalFlagChange",
+  ON_DAY_TRANSITION = "onDayTransition",
+  ON_NIGHT_TRANSITION = "onNightTransition"
 }
 
 export enum OotFlagTypes {

@@ -69,6 +69,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     permFlagsSceneHash: string = "";
     heap_start: number = 0x80700000;
     heap_size: number = 0x00900000;
+    isNight: boolean = false;
 
     applyVersionPatch(msg: string, bps: string, target: ROM_VERSIONS) {
         this.ModLoader.logger.info(msg);
@@ -209,6 +210,15 @@ export class OcarinaofTime implements ICore, IOOTCore {
             if (doorState === 1 && !this.doorcheck) {
                 bus.emit(OotEvents.ON_ROOM_CHANGE_PRE, doorState);
                 this.doorcheck = true;
+            }
+        });
+        this.eventTicks.set('nightTick', () => {
+            if (!this.isNight && this.save.world_night_flag) {
+                this.isNight = true;
+                bus.emit(OotEvents.ON_NIGHT_TRANSITION, this.isNight);
+            } else if (this.isNight && !this.save.world_night_flag) {
+                this.isNight = false;
+                bus.emit(OotEvents.ON_DAY_TRANSITION, this.isNight);
             }
         });
         /*         this.eventTicks.set("waitingForLocalFlagChange", () => {
@@ -471,7 +481,7 @@ export class OverlayPayload extends PayloadType {
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
         // Clean anything in here out first.
-        for (let i = 0; i < 0x20; i++){
+        for (let i = 0; i < 0x20; i++) {
             dest.rdramWrite8(slot * 0x20 + overlay_start + i, 0);
         }
         let final: number = this.core.ModLoader.heap!.malloc(buf.byteLength + (0x10 * 2));

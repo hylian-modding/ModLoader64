@@ -55,7 +55,8 @@
     "socket.io-encrypt": "^0.1.1",
     "source-map-support": "^0.5.16",
     "sync-fetch": "^0.2.0",
-    "universalify": "^1.0.0"
+    "universalify": "^1.0.0",
+    "require-from-string": "^2.0.2"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.32",
@@ -78,7 +79,6 @@
     "modloader64-platform-deps": "github:hylian-modding/ModLoader64-Platform-Deps",
     "patch-package": "^6.2.1",
     "recursive-readdir": "^2.2.2",
-    "require-from-string": "^2.0.2",
     "ssh2-sftp-client": "^5.2.1",
     "strip-json-comments": "^3.0.1",
     "tar": "^6.0.1",
