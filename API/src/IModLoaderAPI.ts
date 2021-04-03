@@ -15,6 +15,7 @@ import { Input } from './Sylvain/Input';
 import { IAnalyticsManager } from './analytics/IAnalyticsManager';
 import { Debugger } from './Sylvain/Debugger';
 import { Heap } from './heap';
+import { EventBus } from './EventHandler';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -69,6 +70,8 @@ export interface IModLoaderAPI {
   analytics: IAnalyticsManager;
   debugger: Debugger;
   heap: Heap | undefined;
+  publicBus: EventBus;
+  privateBus: EventBus
 }
 
 export interface IPlugin {

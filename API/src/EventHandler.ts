@@ -3,7 +3,7 @@ import { EventEmitter2 } from 'eventemitter2';
 
 export class EventBus extends EventEmitter2 {}
 
-const bus: EventBus = new EventBus();
+const bus: EventBus = Object.freeze(new EventBus());
 
 function EventHandler(key: string) {
     return function(
@@ -18,6 +18,22 @@ function EventHandler(key: string) {
             target.ModLoader['eventHandlers'] = new Map<string, string>();
         }
         target.ModLoader.eventHandlers.set(key, propertyKey);
+    };
+}
+
+function PrivateEventHandler(key: string) {
+    return function(
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        if (target.ModLoader === undefined) {
+            target['ModLoader'] = {};
+        }
+        if (target.ModLoader.PrivateEventHandler === undefined) {
+            target.ModLoader['PrivateEventHandler'] = new Map<string, string>();
+        }
+        target.ModLoader.PrivateEventHandler.set(key, propertyKey);
     };
 }
 
@@ -55,7 +71,7 @@ export enum EventsClient {
   ON_HEAP_READY = "ON_HEAP_READY"
 }
 
-export function setupEventHandlers(instance: any) {
+export function setupEventHandlers(instance: any, _bus: EventBus) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
         if (p.ModLoader.hasOwnProperty("hasBeenProcessed")){
@@ -64,7 +80,22 @@ export function setupEventHandlers(instance: any) {
         if (p.ModLoader.hasOwnProperty('eventHandlers')) {
             p.ModLoader.eventHandlers.forEach(function(value: string, key: string) {
                 let a = (instance as any)[value].bind(instance);
-                bus.addListener(key, a);
+                _bus.addListener(key, a);
+            });
+        }
+    }
+}
+
+export function setupPrivateEventHandlers(instance: any, _bus: EventBus) {
+    let p = Object.getPrototypeOf(instance);
+    if (p.hasOwnProperty('ModLoader')) {
+        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")){
+            return;
+        }
+        if (p.ModLoader.hasOwnProperty('PrivateEventHandler')) {
+            p.ModLoader.PrivateEventHandler.forEach(function(value: string, key: string) {
+                let a = (instance as any)[value].bind(instance);
+                _bus.addListener(key, a);
             });
         }
     }
@@ -78,4 +109,4 @@ export function markPrototypeProcessed(instance: any){
     p['ModLoader']['hasBeenProcessed'] = true;
 }
 
-export { bus, EventHandler };
+export { bus, EventHandler, PrivateEventHandler };

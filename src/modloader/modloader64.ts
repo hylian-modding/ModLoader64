@@ -190,7 +190,7 @@ class ModLoader64 {
                 let f = path.join(p, file);
                 if (!fs.lstatSync(f).isDirectory()) {
                     let parse = path.parse(file);
-                    if (parse.ext === '.js') {
+                    if (parse.ext === '.mls' || parse.ext === ".js") {
                         try {
                             let p = require(path.resolve(f))[parse.name];
                             this.plugins.registerCorePlugin(parse.name, new p() as ICore);
@@ -251,6 +251,7 @@ class ModLoader64 {
     }
 
     private init() {
+        global.ModLoader["startupDelay"] = 0;
         let loaded_rom_header: IRomHeader = this.emulator.getRomHeader();
         let core_match: any = null;
         let core_key = '';
@@ -298,7 +299,16 @@ class ModLoader64 {
         internal_event_bus.emit('onPreInitDone', {});
         // Set up networking.
         internal_event_bus.on('onNetworkConnect', (evt: any) => {
-            this.postinit(evt);
+            let nextStage = new Promise((resolve, reject)=>{
+                let wait = setInterval(()=>{
+                    if (global.ModLoader.startupDelay === 0){
+                        clearInterval(wait);
+                        resolve(undefined);
+                    }
+                }, 1);
+            }).then(()=>{
+                this.postinit(evt);
+            });
         });
         if (this.data.isServer) {
             this.Server.setup();

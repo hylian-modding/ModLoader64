@@ -3,10 +3,10 @@ import program from 'commander';
 import path from 'path';
 import findRemoveSync from 'find-remove';
 var recursive = require("recursive-readdir");
-import crypto from 'crypto';
 import child_process from 'child_process';
 import zip from 'adm-zip';
 import fse from 'fs-extra';
+import crypto from 'crypto';
 
 var isWin = process.platform === "win32";
 
@@ -56,6 +56,10 @@ switch (program.step) {
         pushToLiveServer();
         break;
     }
+    case "sign": {
+        sign();
+        break;
+    }
 }
 
 function clean() {
@@ -92,10 +96,10 @@ function getEmulator() {
     }
     console.log(platformkey);
     if (platformkey.indexOf("win32") > -1) {
-        if (platformkey.indexOf("64") > -1){
+        if (platformkey.indexOf("64") > -1) {
             console.log("./node_modules/modloader64-platform-deps/Windows64/emulator.pak");
             fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./Mupen64Plus/emulator.pak");
-        }else{
+        } else {
             console.log("./node_modules/modloader64-platform-deps/Windows/emulator.pak");
             fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
         }
@@ -217,9 +221,9 @@ function pushToServer() {
 
 function pushToLiveServer() {
     child_process.execSync("paker --input ./dist/dedi.pak --output ./dist");
-    fs.readdirSync("./dist/dedi/node_modules").forEach((file: string)=>{
+    fs.readdirSync("./dist/dedi/node_modules").forEach((file: string) => {
         let f = path.resolve("./dist/dedi/node_modules", file);
-        if (f.indexOf("modloader64_api") === -1){
+        if (f.indexOf("modloader64_api") === -1) {
             //console.log("Removing " + file + ".");
             //fs.removeSync(f);
         }
@@ -330,15 +334,26 @@ function postbuild() {
     if (!fs.existsSync("./build2")) {
         fs.mkdirSync("./build2");
     }
-    let hashes = [];
+}
+
+function sign() {
     recursive("./build", function (err, files) {
         for (let i = 0; i < files.length; i++) {
             let _path = path.resolve(files[i]);
             let _parse = path.parse(files[i]);
-            let hash = crypto.createHash('md5').update(fs.readFileSync(_path)).digest('hex');
-            hashes.push({ file: _parse.base, hash: hash });
+            if (_parse.ext === ".js" && _parse.name !== "index" && _parse.name !== "publicKey") {
+                let data = fs.readFileSync(_path);
+                const private_key = fse.readFileSync('./privateKey.pem', 'utf-8')
+                const signer = crypto.createSign('sha256');
+                signer.update(data);
+                signer.end();
+                const signature = signer.sign(private_key)
+                fs.writeFileSync(_path.replace(".js", ".mls"), JSON.stringify({ sig: signature.toString('base64'), code: data.toString('base64') }));
+                fs.unlinkSync(_path);
+            } else if (_path.indexOf(".js.map") > -1 || _parse.ext === ".ts") {
+                fs.unlinkSync(_path)
+            }
         }
-        fs.writeFileSync("./build/hashes.json", JSON.stringify(hashes, null, 2));
     });
 }
 

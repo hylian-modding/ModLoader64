@@ -15,6 +15,8 @@ import {
     EventsServer,
     setupEventHandlers,
     markPrototypeProcessed,
+    EventBus,
+    setupPrivateEventHandlers,
 } from 'modloader64_api/EventHandler';
 import {
     INetworkPlayer,
@@ -141,12 +143,14 @@ class pluginLoader {
     private processInternalPlugin(pluginPath: string, iconsole: IConsole) {
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
-        if (parse.ext.indexOf('js') > -1) {
+        if (parse.ext.indexOf('js') > -1 || parse.ext.indexOf("mls")) {
             let p = require(file);
             let plugin: any = new p();
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
+            plugin['ModLoader']['publicBus'] = bus;
+            plugin['ModLoader']['privateBus'] = new EventBus();
             plugin["Binding"] = iconsole;
             Object.defineProperty(plugin, 'pluginName', {
                 value: pluginPath,
@@ -159,7 +163,8 @@ class pluginLoader {
             let mlconfig = this.config.registerConfigCategory(
                 'ModLoader64'
             ) as IModLoaderConfig;
-            setupEventHandlers(plugin);
+            setupEventHandlers(plugin, bus);
+            setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
@@ -169,7 +174,8 @@ class pluginLoader {
                     setupParentReference((plugin as any)[key], plugin);
                     setupMLInjects((plugin as any)[key], plugin.ModLoader);
                     setupCoreInject((plugin as any)[key], this.loaded_core);
-                    setupEventHandlers((plugin as any)[key]);
+                    setupEventHandlers((plugin as any)[key], bus);
+                    setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
                     setupNetworkHandlers((plugin as any)[key]);
                     setupLifecycle((plugin as any)[key]);
                     setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
@@ -181,7 +187,8 @@ class pluginLoader {
                 setupParentReference(instance, parent);
                 setupMLInjects(instance, parent.ModLoader);
                 setupCoreInject(instance, this.loaded_core);
-                setupEventHandlers(instance);
+                setupEventHandlers(instance, bus);
+                setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
                 setupNetworkHandlers(instance);
                 setupLifecycle(instance);
                 Object.keys(instance).forEach((key: string) => {
@@ -189,7 +196,8 @@ class pluginLoader {
                         setupParentReference((instance as any)[key], parent);
                         setupMLInjects((instance as any)[key], plugin.ModLoader);
                         setupCoreInject((instance as any)[key], this.loaded_core);
-                        setupEventHandlers((instance as any)[key]);
+                        setupEventHandlers((instance as any)[key], bus);
+                        setupPrivateEventHandlers((instance as any)[key], parent.ModLoader.privateBus);
                         setupNetworkHandlers((instance as any)[key]);
                         setupLifecycle((instance as any)[key]);
                         setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
@@ -312,6 +320,8 @@ class pluginLoader {
             plugin['ModLoader'] = {} as IModLoaderAPI;
             plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
             plugin['ModLoader']['config'] = this.config;
+            plugin['ModLoader']['publicBus'] = bus;
+            plugin['ModLoader']['privateBus'] = new EventBus();
             Object.defineProperty(plugin, 'pluginName', {
                 value: pkg.name,
                 writable: false,
@@ -323,7 +333,8 @@ class pluginLoader {
             let mlconfig = this.config.registerConfigCategory(
                 'ModLoader64'
             ) as IModLoaderConfig;
-            setupEventHandlers(plugin);
+            setupEventHandlers(plugin, bus);
+            setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
             setupNetworkHandlers(plugin);
             setupCoreInject(plugin, this.loaded_core);
             setupLifecycle_IPlugin(plugin);
@@ -334,7 +345,8 @@ class pluginLoader {
                     setupParentReference((plugin as any)[key], plugin);
                     setupMLInjects((plugin as any)[key], plugin.ModLoader);
                     setupCoreInject((plugin as any)[key], this.loaded_core);
-                    setupEventHandlers((plugin as any)[key]);
+                    setupEventHandlers((plugin as any)[key], bus);
+                    setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
                     setupNetworkHandlers((plugin as any)[key]);
                     setupLifecycle((plugin as any)[key]);
                     setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
@@ -346,7 +358,8 @@ class pluginLoader {
                 setupParentReference(instance, parent);
                 setupMLInjects(instance, parent.ModLoader);
                 setupCoreInject(instance, this.loaded_core);
-                setupEventHandlers(instance);
+                setupEventHandlers(instance, bus);
+                setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
                 setupNetworkHandlers(instance);
                 setupLifecycle(instance);
                 Object.keys(instance).forEach((key: string) => {
@@ -354,7 +367,8 @@ class pluginLoader {
                         setupParentReference((instance as any)[key], parent);
                         setupMLInjects((instance as any)[key], plugin.ModLoader);
                         setupCoreInject((instance as any)[key], this.loaded_core);
-                        setupEventHandlers((instance as any)[key]);
+                        setupEventHandlers((instance as any)[key], bus);
+                        setupPrivateEventHandlers((instance as any)[key], plugin.ModLoader.privateBus);
                         setupNetworkHandlers((instance as any)[key]);
                         setupLifecycle((instance as any)[key]);
                         setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
@@ -403,6 +417,8 @@ class pluginLoader {
         core['ModLoader'] = {};
         core['ModLoader']['logger'] = this.logger.getLogger(this.selected_core);
         core['ModLoader']['config'] = this.config;
+        core['ModLoader']['publicBus'] = bus;
+        core['ModLoader']['privateBus'] = new EventBus();
         this.loaded_core = core;
 
         Object.defineProperty(this.loaded_core, 'rom_header', {
@@ -415,7 +431,8 @@ class pluginLoader {
             writable: false,
         });
 
-        setupEventHandlers(this.loaded_core);
+        setupEventHandlers(this.loaded_core, bus);
+        setupPrivateEventHandlers(this.loaded_core, this.loaded_core.ModLoader.privateBus);
         setupNetworkHandlers(this.loaded_core);
         setupLifecycle(this.loaded_core);
         markPrototypeProcessed(this.loaded_core);
@@ -423,7 +440,8 @@ class pluginLoader {
             if ((this.loaded_core as any)[key] !== null && (this.loaded_core as any)[key] !== undefined) {
                 setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
                 setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
-                setupEventHandlers((this.loaded_core as any)[key]);
+                setupEventHandlers((this.loaded_core as any)[key], bus);
+                setupPrivateEventHandlers((this.loaded_core as any)[key], this.loaded_core.ModLoader.privateBus);
                 setupLifecycle((this.loaded_core as any)[key]);
                 setupNetworkHandlers((this.loaded_core as any)[key]);
                 setupBindVar((this.loaded_core as any)[key], this.loaded_core.ModLoader.emulator);
@@ -434,8 +452,12 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
-
+        try{
+            this.processInternalPlugin('./consoles/mupen/MenubarPlugin.mls', console);
+        }catch(err){
+            this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
+        }
+ 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
             let order: ModLoadOrder = new ModLoadOrder();

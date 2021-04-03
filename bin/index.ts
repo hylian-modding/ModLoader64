@@ -2,9 +2,10 @@
 
 import program from 'commander';
 import path from 'path';
-import fs, { fdatasync, lstatSync } from 'fs';
+import fs, { lstatSync } from 'fs';
 import child_process from 'child_process';
 import fse from 'fs-extra';
+import crypto from 'crypto';
 const isElevated = require('is-elevated');
 const stripJsonComments = require('strip-json-comments');
 
@@ -31,6 +32,7 @@ program.option("-z, --rebuildsdk", "rebuild sdk");
 program.option("-t, --template <template>", "make project from template");
 program.option("-e, --external <tool>");
 program.option("-w, --window gui window");
+program.option("-f, --sign <dir>", "sign files in a directory");
 
 program.allowUnknownOption(true);
 program.parse(process.argv);
@@ -368,12 +370,40 @@ if (!WAITING_ON_EXTERNAL) {
         });
         let meta: string = path.join(process.cwd(), "package.json");
         let m = JSON.parse(fs.readFileSync(meta).toString());
+        if (m.hasOwnProperty("official")){
+
+        }
         if (m.hasOwnProperty("scripts")) {
             if (m.scripts.hasOwnProperty("ML64Postbuild")) {
                 console.log("Executing postbuild script...");
                 console.log(child_process.execSync("npm run ML64Postbuild").toString());
             }
         }
+        process.chdir(original_dir);
+    }
+
+    if (program.sign){
+        var recursive = require("recursive-readdir");
+        let original_dir: string = process.cwd();
+        recursive(program.sign, function (err, files) {
+            for (let i = 0; i < files.length; i++) {
+                let _path = path.resolve(files[i]);
+                let _parse = path.parse(files[i]);
+                if (_parse.dir.indexOf("node_modules") > -1) continue;
+                if (_parse.ext === ".js") {
+                    let data = fs.readFileSync(_path);
+                    const private_key = fse.readFileSync(path.resolve(__dirname, "..", "privateKey.pem"), 'utf-8')
+                    const signer = crypto.createSign('sha256');
+                    signer.update(data);
+                    signer.end();
+                    const signature = signer.sign(private_key)
+                    fs.writeFileSync(_path.replace(".js", ".mls"), JSON.stringify({ sig: signature.toString('base64'), code: data.toString('base64') }));
+                    fs.unlinkSync(_path);
+                } else if (_path.indexOf(".js.map") > -1 || _parse.ext === ".ts") {
+                    fs.unlinkSync(_path)
+                }
+            }
+        });
         process.chdir(original_dir);
     }
 

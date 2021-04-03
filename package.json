@@ -18,15 +18,17 @@
     "dist": "npm run modules && npm run clean && npm install",
     "publish": "npm run bump && npm run dist",
     "postinstall": "npm install typescript --global && npm install typedoc --global && tsc ./bin/postinstall.ts --esModuleInterop && npx patch-package && npm run build_api && npm link modloader64_api && npm run build_api && npm link modloader64_api && tsc ./build.ts --esModuleInterop && node ./build.js --step=installEmulator && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop && node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus && npm run build && node ./bin/postinstall.js && typedoc --out ./docs ./src && typedoc --out ./API/docs ./API/src",
-    "build_bin": "tsc ./build.ts --esModuleInterop && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/postinstall.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop",
+    "build_bin": "tsc ./build.ts --esModuleInterop && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/postinstall.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop && tsc ./bin/bintots.ts --esModuleInterop",
     "push": "node ./build.js --step=push",
     "pushLive": "node ./build.js --step=pushLive",
     "docker_build": "node ./build.js --step=docker && docker build -t denoflions/modloader64_server .",
-    "docker_run": "docker run denoflions/modloader64_server"
+    "docker_run": "docker run denoflions/modloader64_server",
+    "sign": "node ./build.js --step=sign"
   },
   "bin": {
     "modloader64": "bin/index.js",
-    "paker": "bin/paker.js"
+    "paker": "bin/paker.js",
+    "bintots": "bin/bintots.js"
   },
   "author": "Team-Ooto",
   "dependencies": {
@@ -47,6 +49,7 @@
     "module-alias": "^2.2.2",
     "nat-upnp": "^1.1.1",
     "node-fetch": "^2.6.1",
+    "pirates": "^4.0.1",
     "request": "^2.88.2",
     "require-from-string": "^2.0.2",
     "slash": "^3.0.0",
