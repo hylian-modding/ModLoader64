@@ -322,6 +322,11 @@ if (!WAITING_ON_EXTERNAL) {
             process.chdir("./src/" + meta.name);
             child_process_1["default"].execSync("npm init --yes");
         }
+        try {
+            process.chdir("./src/" + meta.name);
+            child_process_1["default"].execSync("npm install");
+        }
+        catch (err) { }
         process.chdir(original_dir_3);
         var mod_pkg_1 = JSON.parse(fs_1["default"].readFileSync(path_1["default"].join(".", "package.json")).toString());
         if (mod_pkg_1.hasOwnProperty("dependencies")) {

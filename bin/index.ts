@@ -275,6 +275,10 @@ if (!WAITING_ON_EXTERNAL) {
             process.chdir("./src/" + meta.name);
             child_process.execSync("npm init --yes");
         }
+        try {
+            process.chdir("./src/" + meta.name);
+            child_process.execSync("npm install");
+        } catch (err) { }
         process.chdir(original_dir);
         let mod_pkg: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
         if (mod_pkg.hasOwnProperty("dependencies")) {
@@ -370,7 +374,7 @@ if (!WAITING_ON_EXTERNAL) {
         });
         let meta: string = path.join(process.cwd(), "package.json");
         let m = JSON.parse(fs.readFileSync(meta).toString());
-        if (m.hasOwnProperty("official")){
+        if (m.hasOwnProperty("official")) {
 
         }
         if (m.hasOwnProperty("scripts")) {
@@ -382,7 +386,7 @@ if (!WAITING_ON_EXTERNAL) {
         process.chdir(original_dir);
     }
 
-    if (program.sign){
+    if (program.sign) {
         var recursive = require("recursive-readdir");
         let original_dir: string = process.cwd();
         recursive(program.sign, function (err, files) {
