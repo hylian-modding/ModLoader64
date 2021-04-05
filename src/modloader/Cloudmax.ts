@@ -4,7 +4,7 @@ export class Cloudmax implements RomPatchType {
 
     patch(rom: Buffer, patch: Buffer): Buffer {
         let str: string = patch.toString();
-        let lines: Array<string> = str.split("\r\n");
+        let lines: Array<string> = str.split("\n");
         for (let i = 0; i < lines.length; i++) {
             try {
                 if (lines[i].trim() === '') {
