@@ -22,7 +22,7 @@ export class Cloudmax implements RomPatchType {
                 //     [0-9A-Fa-f ] Match a single character present in the list
                 //     + matches the previous token between one and unlimited times, as many times as possible
                 let [m, m1, m2] = lines[i].match(/^(0x[0-9A-Fa-f]+(?:\+0x[0-9A-Fa-f]+)*),([0-9A-Fa-f ]+)/);
-                Buffer.from(m2, "hex").copy(rom, Number.parseInt(m1.trim()));
+                Buffer.from(m2.replace(" ", ""), "hex").copy(rom, Function(`return ${m1}`)());
             } catch {}
         }
         return rom;
