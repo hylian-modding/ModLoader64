@@ -18,7 +18,7 @@
     "received_events_url": "https://api.github.com/users/denoflionsx/received_events",
     "type": "User",
     "site_admin": false,
-    "contributions": 561
+    "contributions": 566
   },
   {
     "login": "SpiceyWolf",
@@ -124,6 +124,27 @@
     "type": "Bot",
     "site_admin": false,
     "contributions": 4
+  },
+  {
+    "login": "JerryWester",
+    "id": 15377985,
+    "node_id": "MDQ6VXNlcjE1Mzc3OTg1",
+    "avatar_url": "https://avatars.githubusercontent.com/u/15377985?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/JerryWester",
+    "html_url": "https://github.com/JerryWester",
+    "followers_url": "https://api.github.com/users/JerryWester/followers",
+    "following_url": "https://api.github.com/users/JerryWester/following{/other_user}",
+    "gists_url": "https://api.github.com/users/JerryWester/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/JerryWester/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/JerryWester/subscriptions",
+    "organizations_url": "https://api.github.com/users/JerryWester/orgs",
+    "repos_url": "https://api.github.com/users/JerryWester/repos",
+    "events_url": "https://api.github.com/users/JerryWester/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/JerryWester/received_events",
+    "type": "User",
+    "site_admin": false,
+    "contributions": 3
   },
   {
     "login": "PapaSmurf-ML64",

@@ -70,6 +70,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     heap_start: number = 0x80700000;
     heap_size: number = 0x00900000;
     isNight: boolean = false;
+    lastHealth: number = 0;
 
     applyVersionPatch(msg: string, bps: string, target: ROM_VERSIONS) {
         this.ModLoader.logger.info(msg);
@@ -127,6 +128,9 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 global.ModLoader['overlay_table'] = 0x0e8530;
                 global.ModLoader['link_instance'] = 0x1daa30;
                 global.ModLoader['gui_isShown'] = global.ModLoader['save_context'] + 0xbe613;
+                global.ModLoader["SCENE_TABLE"] = 0x800FB4E0;
+                global.ModLoader["ENTRANCE_TABLE"] = 0x800F9C90;
+                global.ModLoader["RESTRICTION_TABLE"] = 0x800F7350;
                 offsets.state = 0x066c;
                 offsets.state2 = 0x0670;
                 offsets.paused = 0x1c6fa0;
@@ -219,6 +223,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
             } else if (this.isNight && !this.save.world_night_flag) {
                 this.isNight = false;
                 bus.emit(OotEvents.ON_DAY_TRANSITION, this.isNight);
+            }
+        });
+        this.eventTicks.set('healthTick', () => {
+            if (this.lastHealth !== this.save.health){
+                this.lastHealth = this.save.health;
+                bus.emit(OotEvents.ON_HEALTH_CHANGE, this.lastHealth);
             }
         });
         /*         this.eventTicks.set("waitingForLocalFlagChange", () => {
@@ -507,7 +517,7 @@ export class OverlayPayload extends PayloadType {
             }
         });
         return {
-            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, spawn: (obj: any, cb?: Function): void => {
+            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, overlay_table_entry: (slot * 0x20 + overlay_start), spawn: (obj: any, cb?: Function): void => {
                 if (cb !== undefined) {
                     this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"], cb);
                 } else {

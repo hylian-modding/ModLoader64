@@ -29,7 +29,7 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
       return this.save.checksum === 0;
   }
   isSceneNumberValid(): boolean {
-      return this.global.scene <= 101;
+      return this.global.scene <= 0xFF;
   }
   isLinkEnteringLoadingZone(): boolean {
       let r = this.link.rawStateValue;

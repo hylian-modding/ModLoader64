@@ -341,7 +341,7 @@ function sign() {
         for (let i = 0; i < files.length; i++) {
             let _path = path.resolve(files[i]);
             let _parse = path.parse(files[i]);
-            if (_parse.ext === ".js" && _parse.name !== "index" && _parse.name !== "publicKey") {
+            if (_parse.ext === ".js" && _parse.name !== "index" && _parse.name !== "publicKey" && _parse.name !== "version") {
                 let data = fs.readFileSync(_path);
                 const private_key = fse.readFileSync('./privateKey.pem', 'utf-8')
                 const signer = crypto.createSign('sha256');

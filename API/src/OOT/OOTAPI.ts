@@ -540,7 +540,8 @@ export enum OotEvents {
   ON_SAVE_FLAG_CHANGE = "onSaveFlagChange",
   ON_LOCAL_FLAG_CHANGE = "onLocalFlagChange",
   ON_DAY_TRANSITION = "onDayTransition",
-  ON_NIGHT_TRANSITION = "onNightTransition"
+  ON_NIGHT_TRANSITION = "onNightTransition",
+  ON_HEALTH_CHANGE = "onHealthChange"
 }
 
 export enum OotFlagTypes {

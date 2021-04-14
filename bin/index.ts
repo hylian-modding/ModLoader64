@@ -346,9 +346,17 @@ if (!WAITING_ON_EXTERNAL) {
 
     if (program.build) {
         let original_dir: string = process.cwd();
+        let meta: string = path.join(process.cwd(), "package.json");
+        let m = JSON.parse(fs.readFileSync(meta).toString());
         console.log("Building mod. Please wait...");
         if (!fs.existsSync("./cores")) {
             fs.mkdirSync("./cores");
+        }
+        if (m.hasOwnProperty("scripts")) {
+            if (m.scripts.hasOwnProperty("ML64Prebuild")) {
+                console.log("Executing prebuild script...");
+                console.log(child_process.execSync("npm run ML64Prebuild").toString());
+            }
         }
         try {
             child_process.execSync("npx tsc");
@@ -372,11 +380,6 @@ if (!WAITING_ON_EXTERNAL) {
                 child_process.execSync("npm link --local " + p);
             }
         });
-        let meta: string = path.join(process.cwd(), "package.json");
-        let m = JSON.parse(fs.readFileSync(meta).toString());
-        if (m.hasOwnProperty("official")) {
-
-        }
         if (m.hasOwnProperty("scripts")) {
             if (m.scripts.hasOwnProperty("ML64Postbuild")) {
                 console.log("Executing postbuild script...");
