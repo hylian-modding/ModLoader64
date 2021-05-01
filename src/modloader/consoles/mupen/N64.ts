@@ -224,6 +224,7 @@ class N64 implements IConsole {
         this.mupen.Frontend.execute();
         internal_event_bus.on('emulator_started', () => {
             global.ModLoader["GLOBAL_VOLUME"] = this.mupen.M64p.getAudioVolume();
+            bus.emit(ModLoaderEvents.ON_VOLUME_CHANGE, global.ModLoader["GLOBAL_VOLUME"]);
         });
         internal_event_bus.on('emulator_started', () => {
             if (this.texPath !== "") {
