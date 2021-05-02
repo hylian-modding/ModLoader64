@@ -359,6 +359,7 @@ if (!WAITING_ON_EXTERNAL) {
             }
         }
         if (fs.existsSync("gulpfile.ts") || fs.existsSync("gulpfile.js")){
+            console.log("Using custom gulpfile.");
             child_process.execSync("gulp");
         }else{
             try {
