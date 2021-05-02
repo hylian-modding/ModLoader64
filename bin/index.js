@@ -354,12 +354,17 @@ if (!WAITING_ON_EXTERNAL) {
                 console.log(child_process_1.default.execSync("npm run ML64Prebuild").toString());
             }
         }
-        try {
-            child_process_1.default.execSync("npx tsc");
+        if (fs_1.default.existsSync("gulpfile.ts") || fs_1.default.existsSync("gulpfile.js")) {
+            child_process_1.default.execSync("gulp");
         }
-        catch (err) {
-            if (err) {
-                throw Error(err.stdout.toString());
+        else {
+            try {
+                child_process_1.default.execSync("npx tsc");
+            }
+            catch (err) {
+                if (err) {
+                    throw Error(err.stdout.toString());
+                }
             }
         }
         fs_extra_1.default.copySync("./src", "./build/src");

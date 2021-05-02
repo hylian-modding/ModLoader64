@@ -358,11 +358,15 @@ if (!WAITING_ON_EXTERNAL) {
                 console.log(child_process.execSync("npm run ML64Prebuild").toString());
             }
         }
-        try {
-            child_process.execSync("npx tsc");
-        } catch (err) {
-            if (err) {
-                throw Error(err.stdout.toString());
+        if (fs.existsSync("gulpfile.ts") || fs.existsSync("gulpfile.js")){
+            child_process.execSync("gulp");
+        }else{
+            try {
+                child_process.execSync("npx tsc");
+            } catch (err) {
+                if (err) {
+                    throw Error(err.stdout.toString());
+                }
             }
         }
         fse.copySync("./src", "./build/src");

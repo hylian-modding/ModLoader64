@@ -60,6 +60,7 @@ gulp.task('emulator', function () {
     } else if (platformkey.indexOf("linux") > -1) {
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./Mupen64Plus/emulator.pak");
     }
+    child_process.execSync('node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus');
     return gulp.src('.');
 });
 
@@ -172,13 +173,11 @@ gulp.task('prebuild', function () {
     }
     (async () => {
         const fetch = require('node-fetch');
-        console.log("Getting commit data...");
         const response = await fetch('https://api.github.com/repos/hylian-modding/ModLoader64/contributors?anon=1');
         const body = await response.arrayBuffer();
         const buf = Buffer.from(body);
         const j = JSON.parse(buf.toString());
         fs.writeFileSync("./src/contributors1.json", JSON.stringify(j, null, 2));
-        console.log("Done.");
     })();
     return gulp.src('.');
 });
@@ -200,13 +199,24 @@ gulp.task('postbuild', function () {
 
 gulp.task("build", gulp.series(['prebuild', '_build', 'postbuild']));
 
-gulp.task('api', function () {
+gulp.task('_api', function () {
     fs.copySync("./API/src", "./API/build");
     fs.copySync("./API/package.json", "./API/build/package.json");
     return gulp.src('API/src/**/*.ts')
         .pipe(tsProject())
         .pipe(gulp.dest('API/build'));
 });
+
+gulp.task("api_link", function () {
+    let original_dir: string = process.cwd();
+    process.chdir("./API/build");
+    child_process.execSync("npm link");
+    process.chdir(original_dir);
+    child_process.execSync("npm link modloader64_api");
+    return gulp.src('.');
+});
+
+gulp.task("api", gulp.series(['_api', 'api_link']));
 
 gulp.task('player2', function () {
     fs.copySync("./build", "./build2");
@@ -246,3 +256,22 @@ gulp.task('build_bin', function () {
         .pipe(tsProject())
         .pipe(gulp.dest('./bin'));
 });
+
+gulp.task('postinstall', function () {
+    let original_dir: string = process.cwd();
+    let rom_dir = path.join(original_dir, "roms");
+    let cfg: any = {
+        ModLoader64: {
+            SDK: {
+                roms_dir: rom_dir
+            }
+        }
+    };
+
+    if (!fs.existsSync(path.join(original_dir, "SDK-config.json"))) {
+        fs.writeFileSync(path.join(original_dir, "SDK-config.json"), JSON.stringify(cfg, null, 2));
+    }
+    return gulp.src('.');
+});
+
+gulp.task("install", gulp.series(['api', 'emulator', 'build_bin', 'build', 'postinstall']));
