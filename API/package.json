@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "./src/index.js",
-  "scripts": {
-    "tsc": "tsc --listEmittedFiles",
-    "build": "npm install && tsc ./build.ts --esModuleInterop && node ./build.js --step=prebuild && node ./build.js --step=build && npm run tsc && node ./build.js --step=postbuild"
-  },
+  "scripts": {},
   "author": "Team-Ooto",
   "dependencies": {},
   "devDependencies": {
