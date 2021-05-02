@@ -18,14 +18,17 @@ if (commander_1.default.input) {
     fs_1.default.writeFileSync(path_1.default.resolve(path_1.default.parse(commander_1.default.input).dir, path_1.default.parse(commander_1.default.input).name.split(" ").join("_").split("-").join("_").replace(/[0-9]/, '') + ".ts"), str);
 }
 else if (commander_1.default.dir) {
+    var recursive = require("recursive-readdir");
     let dir = path_1.default.resolve(commander_1.default.dir);
     let str = "";
-    fs_1.default.readdirSync(dir).forEach((file) => {
-        let f = path_1.default.resolve(commander_1.default.dir, file);
-        str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_").replace(/[0-9]/, '') + ": Buffer = Buffer.from(\"";
-        let buf = fs_1.default.readFileSync(f);
-        str += buf.toString('base64');
-        str += "\", 'base64');\n";
+    recursive(dir, (err, files) => {
+        for (let i = 0; i < files.length; i++) {
+            let f = path_1.default.resolve(files[i]);
+            str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_").replace(/[0-9]/, '') + ": Buffer = Buffer.from(\"";
+            let buf = fs_1.default.readFileSync(f);
+            str += buf.toString('base64');
+            str += "\", 'base64');\n";
+        }
+        fs_1.default.writeFileSync(path_1.default.resolve(dir, path_1.default.parse(dir).name.split(" ").join("_").split("-").join("_").replace(/[0-9]/, '') + ".ts"), str);
     });
-    fs_1.default.writeFileSync(path_1.default.resolve(dir, path_1.default.parse(dir).name.split(" ").join("_").split("-").join("_").replace(/[0-9]/, '') + ".ts"), str);
 }
