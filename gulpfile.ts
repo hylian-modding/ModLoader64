@@ -11,6 +11,7 @@ import path from 'path';
 
 var ts = require('gulp-typescript');
 var tsProject = ts.createProject('tsconfig.json');
+var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('clean', function () {
     if (fs.existsSync("./build")) {
@@ -45,22 +46,27 @@ gulp.task('emulator', function () {
     } else {
         platformkey = process.platform.trim() + process.arch;
     }
+    let mupenAlreadyExists: boolean = false;
     if (!fs.existsSync("./Mupen64Plus")) {
         fs.mkdirSync("./Mupen64Plus");
+    } else {
+        mupenAlreadyExists = true;
     }
-    console.log(platformkey);
-    if (platformkey.indexOf("win32") > -1) {
-        if (platformkey.indexOf("64") > -1) {
-            console.log("./node_modules/modloader64-platform-deps/Windows64/emulator.pak");
-            fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./Mupen64Plus/emulator.pak");
-        } else {
-            console.log("./node_modules/modloader64-platform-deps/Windows/emulator.pak");
-            fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
+    if (!mupenAlreadyExists) {
+        console.log(platformkey);
+        if (platformkey.indexOf("win32") > -1) {
+            if (platformkey.indexOf("64") > -1) {
+                console.log("./node_modules/modloader64-platform-deps/Windows64/emulator.pak");
+                fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./Mupen64Plus/emulator.pak");
+            } else {
+                console.log("./node_modules/modloader64-platform-deps/Windows/emulator.pak");
+                fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./Mupen64Plus/emulator.pak");
+            }
+        } else if (platformkey.indexOf("linux") > -1) {
+            fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./Mupen64Plus/emulator.pak");
         }
-    } else if (platformkey.indexOf("linux") > -1) {
-        fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./Mupen64Plus/emulator.pak");
+        child_process.execSync('node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus');
     }
-    child_process.execSync('node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus');
     return gulp.src('.');
 });
 
@@ -166,8 +172,8 @@ gulp.task('prebuild', function () {
     }
 
     if (!fs.existsSync("./build/emulator")) {
-        if (fs.existsSync("./Mupen64Plus/emulator.tar.gz")) {
-            fs.unlink("./Mupen64Plus/emulator.tar.gz");
+        if (fs.existsSync("./Mupen64Plus/emulator.pak")) {
+            fs.unlink("./Mupen64Plus/emulator.pak");
         }
         fs.copySync("./Mupen64Plus", "./build");
     }
@@ -184,8 +190,11 @@ gulp.task('prebuild', function () {
 
 gulp.task('_build', function () {
     fs.copySync("./src", "./build/src");
-    return gulp.src('src/**/*.ts')
+
+    return gulp.src("src/**/*.ts")
+        .pipe(sourcemaps.init())
         .pipe(tsProject())
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('build/src'));
 });
 
