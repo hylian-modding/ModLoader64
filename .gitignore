@@ -35,3 +35,7 @@ src/modloader/cores/OOT/command_inject/obj/
 src/modloader/cores/OOT/command_inject/all-oot-1.0.gsc
 src/modloader/cores/OOT/command_inject/all-oot-debug.gsc
 privateKey.pem
+bin/paker.js
+bin/index.js
+bin/bintots.js
+bin/postinstall.js

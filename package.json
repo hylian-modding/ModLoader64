@@ -16,8 +16,8 @@
     "fix": "npx eslint src/**/*.ts --fix",
     "dist": "gulp dist && gulp clean && npm install",
     "publish": "npm run bump && npm run dist",
-    "postinstall": "tsc ./bin/postinstall.ts --esModuleInterop && npx patch-package && npm run build_api && npm link modloader64_api && gulp emulator && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop && node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus && npm run build && node ./bin/postinstall.js",
-    "build_bin": "tsc ./build.ts --esModuleInterop && tsc ./bin/index.ts --esModuleInterop && tsc ./bin/postinstall.ts --esModuleInterop && tsc ./bin/paker.ts --esModuleInterop && tsc ./bin/bintots.ts --esModuleInterop",
+    "postinstall": "npx patch-package && npm run build_api && npm link modloader64_api && gulp emulator && npm run build_bin && node ./bin/paker.js -i ./Mupen64Plus/emulator.pak -o ./Mupen64Plus && npm run build && node ./bin/postinstall.js",
+    "build_bin": "gulp build_bin",
     "push": "node ./build.js --step=push",
     "pushLive": "node ./build.js --step=pushLive",
     "sign": "gulp sign"

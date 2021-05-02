@@ -49,7 +49,7 @@ interface SDKCFG {
     ModLoader64: ModLoader64_Cat;
 }
 
-function makeSymlink(src, dest) {
+function makeSymlink(src: string, dest: string) {
     try {
         let p = path.parse(dest);
         if (!fs.existsSync(p.dir)) {
@@ -392,7 +392,7 @@ if (!WAITING_ON_EXTERNAL) {
     if (program.sign) {
         var recursive = require("recursive-readdir");
         let original_dir: string = process.cwd();
-        recursive(program.sign, function (err, files) {
+        recursive(program.sign, function (err: any, files: any) {
             for (let i = 0; i < files.length; i++) {
                 let _path = path.resolve(files[i]);
                 let _parse = path.parse(files[i]);
@@ -464,12 +464,15 @@ if (!WAITING_ON_EXTERNAL) {
         } else {
             process.chdir(path.join(__dirname, "../"));
             let ml = child_process.exec("npm run start -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
+            //@ts-ignore
             ml.stdout.on('data', function (data) {
                 console.log(data);
             });
+            //@ts-ignore
             ml.on('error', (err: Error) => {
                 console.log(err);
             });
+            //@ts-ignore
             ml.stderr.on('data', (data) => {
                 console.log(data);
             });
@@ -515,12 +518,15 @@ if (!WAITING_ON_EXTERNAL) {
         process.chdir(path.join(__dirname, "../"));
         let ml = child_process.exec("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
         console.log("npm run start_2 -- --mods=" + path.join(original_dir, "build", "src") + " --roms=" + path.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path.join(original_dir, "libs") + " --config=" + path.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+        //@ts-ignore
         ml.stdout.on('data', function (data) {
             console.log(data);
         });
+        //@ts-ignore
         ml.on('error', (err: Error) => {
             console.log(err);
         });
+        //@ts-ignore
         ml.stderr.on('data', (data) => {
             console.log(data);
         });
@@ -542,6 +548,7 @@ if (!WAITING_ON_EXTERNAL) {
             fse.removeSync("./build2");
         }
         let ml = child_process.exec("npm install");
+        //@ts-ignore
         ml.stdout.on('data', function (data) {
             console.log(data);
         });

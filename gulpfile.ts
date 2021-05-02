@@ -240,3 +240,9 @@ gulp.task('sign', function () {
     });
     return gulp.src('.');
 });
+
+gulp.task('build_bin', function () {
+    return gulp.src('./bin/*.ts')
+        .pipe(tsProject())
+        .pipe(gulp.dest('./bin'));
+});
