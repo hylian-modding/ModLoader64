@@ -22,7 +22,9 @@ Requirement - NodeJS:
 * (LINUX) A reasonably sane distro and a graphics card capable of OpenGL 3.3 support.
 
 npm install -g typescript
+
 npm install -g gulp-cli
+
 npm link
 
 ## Testing
