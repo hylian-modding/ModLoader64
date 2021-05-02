@@ -183,6 +183,7 @@ gulp.task('prebuild', function () {
 });
 
 gulp.task('_build', function () {
+    fs.copySync("./src", "./build/src");
     return gulp.src('src/**/*.ts')
         .pipe(tsProject())
         .pipe(gulp.dest('build/src'));
