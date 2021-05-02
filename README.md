@@ -21,6 +21,8 @@ Requirement - NodeJS:
 * (WINDOWS) Windows 10 and a graphics card capable of OpenGL 3.3 support.
 * (LINUX) A reasonably sane distro and a graphics card capable of OpenGL 3.3 support.
 
+npm install -g yarn
+
 npm install -g typescript
 
 npm install -g gulp-cli
