@@ -72,7 +72,6 @@ gulp.task('emulator', function () {
 
 gulp.task('_dist', function () {
     let original_dir: string = process.cwd();
-    child_process.execSync("npm run build_dist");
     fs.removeSync("./build/roms");
     const srcDir = '.';
     const dstDir = './build';
@@ -124,10 +123,6 @@ gulp.task('_dist', function () {
         process.chdir(original_dir);
         console.log("Building dedi tarball...");
         fs.copySync("./build", "./dist/dedi");
-        process.chdir("./dist/dedi");
-        child_process.execSync("tar -zcvf ./ModLoader64-server.tar.gz .");
-        process.chdir(original_dir);
-        fs.copyFileSync("./dist/dedi/ModLoader64-server.tar.gz", "./dist/ModLoader64-server.tar.gz");
         process.chdir("./dist");
         child_process.execSync("paker --dir ./dedi --output ./");
         process.chdir(original_dir);
@@ -137,7 +132,7 @@ gulp.task('_dist', function () {
     return gulp.src('.');
 });
 
-gulp.task('dist', gulp.series(['clean', '_dist']));
+gulp.task('dist', gulp.series(['_dist']));
 
 gulp.task('prebuild', function () {
     if (!fs.existsSync("./cores")) {

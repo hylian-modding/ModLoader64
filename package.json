@@ -1,6 +1,6 @@
 {
   "name": "modloader64",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "",
   "main": "./src/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "start_1": "node ./build/src/index.js --max_old_space_size=4096 --dir=build",
     "start_2": "gulp player2 && node ./build2/src/index.js -max_old_space_size=4096 --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",
-    "dist": "gulp dist && gulp clean && npm install",
+    "dist": "gulp clean && gulp _build && gulp dist && yarn",
     "publish": "npm run bump && npm run dist",
     "postinstall": "npx patch-package && gulp install",
     "build_bin": "gulp build_bin",

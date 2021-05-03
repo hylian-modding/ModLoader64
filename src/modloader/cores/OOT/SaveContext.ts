@@ -39,6 +39,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
   private magic_limit_addr: number = this.instance + 0x13f4;
   private magic_flag_1_addr: number = this.instance + 0x003a;
   private magic_flag_2_addr: number = this.instance + 0x003c;
+  private magic_fill_cap_addr: number = 0x8011B9C7;
   private rupees_address: number = this.instance + 0x0034;
   private navi_timer_addr: number = this.instance + 0x0038;
   private checksum_addr: number = this.instance + 0x1352;
@@ -177,26 +178,21 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
       case Magic.NONE: {
           this.emulator.rdramWrite8(this.magic_flag_1_addr, 0);
           this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-          this.emulator.rdramWrite16(this.magic_limit_addr, MagicQuantities.NONE);
-          this.magic_current = MagicQuantities.NONE;
+          this.emulator.rdramWrite8(this.magic_meter_size, 0);
           break;
       }
       case Magic.NORMAL: {
           this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
           this.emulator.rdramWrite8(this.magic_flag_2_addr, 0);
-          this.emulator.rdramWrite16(
-              this.magic_limit_addr,
-              MagicQuantities.NORMAL
-          );
+          this.emulator.rdramWrite8(this.magic_fill_cap_addr, MagicQuantities.NORMAL);
+          this.emulator.rdramWrite8(this.magic_meter_size, 0);
           break;
       }
       case Magic.EXTENDED: {
           this.emulator.rdramWrite8(this.magic_flag_1_addr, 1);
           this.emulator.rdramWrite8(this.magic_flag_2_addr, 1);
-          this.emulator.rdramWrite16(
-              this.magic_limit_addr,
-              MagicQuantities.EXTENDED
-          );
+          this.emulator.rdramWrite8(this.magic_fill_cap_addr, MagicQuantities.EXTENDED);
+          this.emulator.rdramWrite8(this.magic_meter_size, 0);
           break;
       }
       }
