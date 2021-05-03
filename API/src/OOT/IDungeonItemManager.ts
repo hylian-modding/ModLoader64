@@ -11,4 +11,7 @@ export interface IDungeonItemManager {
   BOTTOM_OF_THE_WELL: IDungeonItemContainer;
   ICE_CAVERN: IDungeonItemContainer;
   GANONS_CASTLE: IDungeonItemContainer;
+
+  getRawBuffer(): Buffer;
+  setRawBuffer(buf: Buffer): void;
 }

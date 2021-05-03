@@ -260,7 +260,7 @@ if (!WAITING_ON_EXTERNAL) {
         console.log("Rebuilding SDK...");
         let original_dir: string = process.cwd();
         process.chdir(path.join(__dirname, "../"));
-        child_process.execSync("npm install");
+        child_process.execSync("yarn");
         process.chdir(original_dir);
     }
 
