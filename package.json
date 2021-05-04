@@ -10,7 +10,7 @@
     "build": "gulp build",
     "build_dist": "gulp build",
     "build_api": "gulp api",
-    "start": "node --inspect --expose-gc ./build/src/index.js --max_old_space_size=4096 --dir=build",
+    "start": "node ./build/src/index.js --max_old_space_size=4096 --dir=build",
     "start_1": "node ./build/src/index.js --max_old_space_size=4096 --dir=build",
     "start_2": "gulp player2 && node ./build2/src/index.js -max_old_space_size=4096 --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",

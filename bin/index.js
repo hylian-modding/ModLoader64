@@ -163,97 +163,62 @@ function installCores() {
         mod_meta["modloader64_deps"] = {};
     }
     Object.keys(mod_meta["modloader64_deps"]).forEach((key) => {
-        child_process_1.default.execSync("modloader64 -i " + mod_meta["modloader64_deps"][key]);
+        install(mod_meta["modloader64_deps"][key]);
     });
 }
 function install(url) {
-    (async () => {
-        let elv = await isElevated();
-        /*         if (!elv && platformkey.indexOf("win32") > -1) {
-                    console.log("Install must be run as administrator on Windows!");
-                    return;
-                } */
-        console.log("Installing " + url + "...");
-        let original_dir = process.cwd();
-        let deps_dir = path_1.default.join("./", "external_cores");
-        if (!fs_1.default.existsSync(deps_dir)) {
-            fs_1.default.mkdirSync(deps_dir);
-        }
-        let meta = JSON.parse(fs_1.default.readFileSync("./package.json").toString());
-        if (!meta.hasOwnProperty("modloader64_deps")) {
-            meta["modloader64_deps"] = {};
-        }
-        let mod_meta = JSON.parse(fs_1.default.readFileSync(path_1.default.join(".", "src", meta.name, "package.json")).toString());
-        if (!mod_meta.hasOwnProperty("modloader64_deps")) {
-            mod_meta["modloader64_deps"] = {};
-        }
-        let temp = fs_extra_1.default.mkdtempSync("ModLoader64SDK_");
-        process.chdir(temp);
-        try {
-            child_process_1.default.execSync("git clone " + url);
-        }
-        catch (err) {
-            if (err) {
-                console.log("This core is already installed!");
-            }
-        }
-        let gitdir = "";
-        fs_extra_1.default.readdirSync(".").forEach((file) => {
-            let p = path_1.default.join(".", file);
-            if (fs_1.default.lstatSync(p).isDirectory()) {
-                gitdir = path_1.default.resolve(p);
+    console.log("Installing " + url + "...");
+    let original_dir = process.cwd();
+    process.chdir(path_1.default.join(__dirname, "../"));
+    if (!fs_1.default.existsSync("./core_links")) {
+        fs_1.default.mkdirSync("./core_links");
+        process.chdir("./core_links");
+        child_process_1.default.execSync("npm init --yes");
+        child_process_1.default.execSync("npx tsc --init");
+        child_process_1.default.execSync("yarn");
+        process.chdir("../");
+    }
+    process.chdir("./cores");
+    let dir = path_1.default.parse(url).name;
+    if (fs_1.default.existsSync(`./${dir}`)) {
+        console.log(`This core is already installed at ${path_1.default.resolve(`./${dir}`)}. Linking...`);
+        process.chdir(`./${dir}`);
+        process.chdir("./build");
+        process.chdir("./cores");
+        let dir_to_link = ".";
+        fs_1.default.readdirSync(".").forEach((file) => {
+            let p = path_1.default.resolve(".", file);
+            if (fs_1.default.lstatSync(p)) {
+                dir_to_link = p;
             }
         });
+        process.chdir(dir_to_link);
+        dir = path_1.default.parse(dir_to_link).name;
+    }
+    else {
+        child_process_1.default.execSync(`git clone ${url} ${dir}`);
+        process.chdir(`./${dir}`);
+        child_process_1.default.execSync("modloader64 -ncbd");
+        child_process_1.default.execSync("yarn");
+        process.chdir("./build");
+        process.chdir("./cores");
+        let dir_to_link = ".";
+        fs_1.default.readdirSync(".").forEach((file) => {
+            let p = path_1.default.resolve(".", file);
+            if (fs_1.default.lstatSync(p)) {
+                dir_to_link = p;
+            }
+        });
+        process.chdir(dir_to_link);
+        dir = path_1.default.parse(dir_to_link).name;
+        child_process_1.default.execSync("yarn link");
         process.chdir(original_dir);
-        let target = path_1.default.join(deps_dir, path_1.default.parse(gitdir).name);
-        fs_extra_1.default.moveSync(gitdir, target);
-        fs_extra_1.default.removeSync(temp);
-        let cores = [];
-        if (fs_1.default.lstatSync(target).isDirectory()) {
-            process.chdir(target);
-            child_process_1.default.execSync("modloader64 --init --build");
-            cores.push(path_1.default.resolve("./build/cores"));
-            fs_1.default.readdirSync("./build/cores").forEach((file) => {
-                let meta2 = JSON.parse(fs_1.default.readFileSync("./package.json").toString());
-                if (!meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
-                    meta["modloader64_deps"][meta2.name] = url;
-                }
-                if (!mod_meta["modloader64_deps"].hasOwnProperty(meta2.name)) {
-                    mod_meta["modloader64_deps"][meta2.name] = url;
-                }
-                if (tsconfig !== undefined) {
-                    if (!tsconfig["compilerOptions"].hasOwnProperty("paths")) {
-                        tsconfig["compilerOptions"]["paths"] = {};
-                    }
-                    console.log(tsconfig);
-                    tsconfig["compilerOptions"]["paths"][meta2.name + "/*"] = [path_1.default.join("./libs", meta2.name) + "/*"];
-                    saveTSConfig();
-                }
-            });
-        }
-        process.chdir(original_dir);
-        fs_1.default.writeFileSync("./package.json", JSON.stringify(meta, null, 2));
-        fs_1.default.writeFileSync(path_1.default.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
-        if (!fs_1.default.existsSync("./libs")) {
-            fs_1.default.mkdirSync("./libs");
-        }
-        for (let i = 0; i < cores.length; i++) {
-            let c = cores[i];
-            fs_1.default.readdirSync(c).forEach((dir) => {
-                let f = path_1.default.join(c, dir);
-                if (fs_1.default.lstatSync(f).isDirectory()) {
-                    try {
-                        fs_extra_1.default.symlinkSync(f, path_1.default.resolve(path_1.default.join("./libs", path_1.default.parse(f).name)), 'junction');
-                    }
-                    catch (err) {
-                        if (err) {
-                            console.log(err);
-                        }
-                    }
-                }
-            });
-        }
-    })();
+        process.chdir(path_1.default.join(__dirname, "../"));
+        process.chdir("./core_links");
+        child_process_1.default.execSync(`yarn link ${dir}`);
+    }
+    process.chdir(original_dir);
+    child_process_1.default.execSync(`yarn link ${dir}`);
 }
 if (!WAITING_ON_EXTERNAL) {
     if (commander_1.default.rebuildsdk) {
@@ -276,7 +241,7 @@ if (!WAITING_ON_EXTERNAL) {
         }
         try {
             process.chdir("./src/" + meta.name);
-            child_process_1.default.execSync("npm install");
+            child_process_1.default.execSync("yarn");
         }
         catch (err) { }
         process.chdir(original_dir);
@@ -292,7 +257,7 @@ if (!WAITING_ON_EXTERNAL) {
             });
         }
         fs_1.default.writeFileSync(path_1.default.join(".", "package.json"), JSON.stringify(mod_pkg, null, 2));
-        child_process_1.default.execSync("npm install");
+        child_process_1.default.execSync("yarn");
         if (!fs_1.default.existsSync("./node_modules")) {
             fs_1.default.mkdirSync("./node_modules");
         }
@@ -372,17 +337,7 @@ if (!WAITING_ON_EXTERNAL) {
         if (!fs_1.default.existsSync("./build/cores")) {
             fs_1.default.mkdirSync("./build/cores");
         }
-        if (!fs_1.default.existsSync("./libs")) {
-            fs_1.default.mkdirSync("./libs");
-        }
         fs_extra_1.default.copySync("./cores", "./build/cores");
-        fs_extra_1.default.copySync("./build/cores", "./libs");
-        fs_1.default.readdirSync("./libs").forEach((file) => {
-            let p = path_1.default.join("./libs", file);
-            if (fs_1.default.lstatSync(p).isDirectory()) {
-                child_process_1.default.execSync("npm link --local " + p);
-            }
-        });
         if (m.hasOwnProperty("scripts")) {
             if (m.scripts.hasOwnProperty("ML64Postbuild")) {
                 console.log("Executing postbuild script...");
@@ -467,7 +422,7 @@ if (!WAITING_ON_EXTERNAL) {
         }
         else {
             process.chdir(path_1.default.join(__dirname, "../"));
-            let ml = child_process_1.default.exec("npm run start -- --mods=" + path_1.default.join(original_dir, "build", "src") + " --roms=" + path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1.default.join(original_dir, "libs") + " --config=" + path_1.default.join(original_dir, "modloader64-config.json") + " --startdir " + original_dir);
+            let ml = child_process_1.default.exec(`npm run start -- --mods=${path_1.default.join(original_dir, "build", "src")} --cores=${path_1.default.resolve(".", "core_links", "node_modules")} --roms=${path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir)} --config=${path_1.default.join(original_dir, "modloader64-config.json")} --startdir ${original_dir}`);
             //@ts-ignore
             ml.stdout.on('data', function (data) {
                 console.log(data);
@@ -548,7 +503,7 @@ if (!WAITING_ON_EXTERNAL) {
         if (fs_extra_1.default.existsSync("./build2")) {
             fs_extra_1.default.removeSync("./build2");
         }
-        let ml = child_process_1.default.exec("npm install");
+        let ml = child_process_1.default.exec("yarn");
         //@ts-ignore
         ml.stdout.on('data', function (data) {
             console.log(data);

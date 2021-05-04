@@ -39,3 +39,4 @@ bin/paker.js
 bin/index.js
 bin/bintots.js
 bin/postinstall.js
+core_links/

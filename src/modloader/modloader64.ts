@@ -186,6 +186,7 @@ class ModLoader64 {
         }
 
         let auto_wire_cores: Function = (p: string) => {
+            if (fs.lstatSync(p).isFile()) return;
             fs.readdirSync(p).forEach(file => {
                 let f = path.join(p, file);
                 if (!fs.lstatSync(f).isDirectory()) {
