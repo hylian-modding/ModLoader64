@@ -199,6 +199,13 @@ gulp.task('postbuild', function () {
     if (!fs.existsSync("./build2")) {
         fs.mkdirSync("./build2");
     }
+    if (!fs.existsSync("./core_links")){
+        fs.mkdirSync("./core_links");
+        process.chdir("./core_links");
+        child_process.execSync("npm init --yes");
+        child_process.execSync("npx tsc --init");
+        child_process.execSync("yarn");
+    }
     return gulp.src('.');
 });
 
