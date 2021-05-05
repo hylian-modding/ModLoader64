@@ -200,11 +200,18 @@ gulp.task('postbuild', function () {
         fs.mkdirSync("./build2");
     }
     if (!fs.existsSync("./core_links")){
+        console.log("Creating core links folder...");
+        let original_dir: string = process.cwd();
         fs.mkdirSync("./core_links");
         process.chdir("./core_links");
+        console.log("invoking npm...");
         child_process.execSync("npm init --yes");
+        console.log("invoking tsc...");
         child_process.execSync("npx tsc --init");
+        console.log("invoking yarn...");
         child_process.execSync("yarn");
+        process.chdir(original_dir);
+        console.log("done.");
     }
     return gulp.src('.');
 });
