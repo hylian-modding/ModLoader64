@@ -2,7 +2,7 @@ import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { ICore, IModLoaderAPI, ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
-    IGlobalContext, ILink, IOOTCore, IOotHelper, OotEvents, IOvlPayloadResult
+    IGlobalContext, ILink, IOOTCore, IOotHelper, OotEvents, IOvlPayloadResult, Tunic
 } from 'modloader64_api/OOT/OOTAPI';
 import { ActorManager } from './OOT/ActorManager';
 import { CommandBuffer } from './OOT/CommandBuffer';
@@ -71,6 +71,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     heap_size: number = 0x00900000;
     isNight: boolean = false;
     lastHealth: number = 0;
+    lastTunic: Tunic = Tunic.KOKIRI;
 
     applyVersionPatch(msg: string, bps: string, target: ROM_VERSIONS) {
         this.ModLoader.logger.info(msg);
@@ -229,6 +230,12 @@ export class OcarinaofTime implements ICore, IOOTCore {
             if (this.lastHealth !== this.save.health){
                 this.lastHealth = this.save.health;
                 bus.emit(OotEvents.ON_HEALTH_CHANGE, this.lastHealth);
+            }
+        });
+        this.eventTicks.set('tunicTick', ()=>{
+            if (this.lastTunic !== this.link.tunic){
+                this.lastTunic = this.link.tunic;
+                bus.emit(OotEvents.ON_TUNIC_CHANGE, this.lastTunic);
             }
         });
         /*         this.eventTicks.set("waitingForLocalFlagChange", () => {
