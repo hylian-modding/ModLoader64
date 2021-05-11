@@ -20,9 +20,6 @@ gulp.task('clean', function () {
     if (fs.existsSync("./build2")) {
         fs.removeSync("./build2");
     }
-    if (fs.existsSync("./dist")) {
-        fs.removeSync("./dist");
-    }
     return gulp.src('.');
 });
 
@@ -124,7 +121,9 @@ gulp.task('_dist', function () {
         console.log("Building dedi tarball...");
         fs.copySync("./build", "./dist/dedi");
         process.chdir("./dist");
-        child_process.execSync("paker --dir ./dedi --output ./");
+        let zipFile3: zip = new zip();
+        zipFile3.addLocalFolder("./dedi", "");
+        zipFile3.writeZip("./ModLoader-dedi.zip");
         process.chdir(original_dir);
         fs.removeSync("./dist/dedi");
         fs.copyFileSync("./update.json", "./dist/update.json");

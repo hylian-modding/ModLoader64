@@ -164,6 +164,8 @@ stringify.patch();
 let parse = new MonkeyPatch_Parse();
 parse.patch();
 
+global.ModLoader["FIRST_RUN"] = !fs.existsSync("./ModLoader64-config.json");
+
 setInterval(() => {
     try {
         global.gc();

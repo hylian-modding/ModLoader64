@@ -60,6 +60,7 @@ class ModLoader64 {
     emulator!: IConsole;
     tunnel!: IGUITunnel;
     done = false;
+    isFirstRun: boolean = false;
 
     constructor(logger: any, discord: string) {
         moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
@@ -160,6 +161,10 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'selectedConsole', 'N64');
         this.config.setData('ModLoader64', 'coreOverride', '');
         this.config.setData('ModLoader64', 'disableVIUpdates', false);
+
+        if (global.ModLoader["FIRST_RUN"]) {
+            process.exit(0);
+        }
 
         let roms = getAllFiles(this.rom_folder, []);
         for (let i = 0; i < roms.length; i++) {
@@ -300,14 +305,14 @@ class ModLoader64 {
         internal_event_bus.emit('onPreInitDone', {});
         // Set up networking.
         internal_event_bus.on('onNetworkConnect', (evt: any) => {
-            let nextStage = new Promise((resolve, reject)=>{
-                let wait = setInterval(()=>{
-                    if (global.ModLoader.startupDelay === 0){
+            let nextStage = new Promise((resolve, reject) => {
+                let wait = setInterval(() => {
+                    if (global.ModLoader.startupDelay === 0) {
                         clearInterval(wait);
                         resolve(undefined);
                     }
                 }, 1);
-            }).then(()=>{
+            }).then(() => {
                 this.postinit(evt);
             });
         });
