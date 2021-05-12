@@ -82,6 +82,9 @@ gulp.task('_dist', function () {
             fs.mkdirSync("./build/node_modules/modloader64_api");
         }
         fs.copySync("./API/build", "./build/node_modules/modloader64_api");
+        if (fs.existsSync("./dist")){
+            fs.removeSync("./dist");
+        }
         fs.mkdirSync("./dist");
         console.log("Putting together platform specific files...");
         fs.copySync("./build", "./dist/windows");
