@@ -306,13 +306,6 @@ class pluginLoader {
         let file: string = path.resolve(path.join(dir, pkg.main));
 
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
-        if (pkg.hasOwnProperty("modloader64_aliases")) {
-            let aliases: any = pkg.modloader64_aliases;
-            Object.keys(aliases).forEach((key: string) => {
-                this.logger.debug("Aliasing " + aliases[key][0] + " as " + key + ".");
-                moduleAlias.addAlias(key, path.resolve(dir, aliases[key][0]));
-            });
-        }
         parse = path.parse(file);
         if (parse.ext.indexOf('js') > -1) {
             let p = require(file);

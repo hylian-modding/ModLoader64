@@ -34,6 +34,7 @@ import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
 import { PakPatch } from './PakPatch';
 import { IClientConfig } from './IClientConfig';
+import { ExternalAPIData } from 'API/build/ExternalAPIProvider';
 
 const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
@@ -190,6 +191,13 @@ class ModLoader64 {
             });
         }
 
+        bus.on(ModLoaderEvents.ON_EXTERNAL_API_REGISTER, (data: ExternalAPIData)=>{
+            if (!data.processed){
+                data.processed = true;
+                this.logger.debug(`Loading API: ${data.name}@${data.version}`);
+            }
+        });
+
         let auto_wire_cores: Function = (p: string) => {
             if (fs.lstatSync(p).isFile()) return;
             fs.readdirSync(p).forEach(file => {
@@ -241,6 +249,7 @@ class ModLoader64 {
                 }
             }
         });
+
         switch (this.data.selectedConsole) {
             case 'N64': {
                 if (this.data.isServer) {
