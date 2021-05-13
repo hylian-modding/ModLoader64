@@ -7,15 +7,15 @@ export const enum ProxySide {
 
 export class ProxySideContainer {
     side: ProxySide;
-    backing: new () => any;
+    backing: (new () => any) | string;
 
-    constructor(side: ProxySide, backing: new () => any) {
+    constructor(side: ProxySide, backing: (new () => any) | string) {
         this.side = side;
         this.backing = backing;
     }
 }
 
-export function SidedProxy(side: ProxySide, inst: new () => any) {
+export function SidedProxy(side: ProxySide, inst: (new () => any) | string) {
     return function (
         target: any,
         propertyKey: string
@@ -40,10 +40,20 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
         if (p.ModLoader.hasOwnProperty('sidedproxies')) {
             p.ModLoader.sidedproxies.forEach(function (value: string, key: ProxySideContainer) {
                 if (isClient && key.side === ProxySide.CLIENT) {
-                    instance[value] = new key.backing();
+                    if (typeof (key.backing) === 'string') {
+                        let c = require(key.backing).default;
+                        instance[value] = new c();
+                    } else {
+                        instance[value] = new key.backing();
+                    }
                     arr.push(instance[value]);
                 } else if (isServer && key.side === ProxySide.SERVER) {
-                    instance[value] = new key.backing();
+                    if (typeof (key.backing) === 'string') {
+                        let c = require(key.backing).default;
+                        instance[value] = new c();
+                    } else {
+                        instance[value] = new key.backing();
+                    }
                     arr.push(instance[value]);
                 }
             });
