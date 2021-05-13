@@ -190,11 +190,12 @@ class ModLoader64 {
                 this.rom_path = path.resolve(path.join(temp, p.base));
             });
         }
-
+        
         bus.on(ModLoaderEvents.ON_EXTERNAL_API_REGISTER, (data: ExternalAPIData)=>{
             if (!data.processed){
                 data.processed = true;
                 this.logger.debug(`Loading API: ${data.name}@${data.version}`);
+                moduleAlias.addAlias(data.name, data.path);
             }
         });
 
