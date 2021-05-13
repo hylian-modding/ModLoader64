@@ -1,0 +1,15 @@
+diff --git a/node_modules/socket.io-parser/index.js b/node_modules/socket.io-parser/index.js
+index ff613cc..5483067 100644
+--- a/node_modules/socket.io-parser/index.js
++++ b/node_modules/socket.io-parser/index.js
+@@ -252,7 +252,9 @@ Decoder.prototype.add = function(obj) {
+     }
+   } else if (isBuf(obj) || obj.base64) { // raw binary data
+     if (!this.reconstructor) {
+-      throw new Error('got binary data when not reconstructing a packet');
++      try{
++		throw new Error('got binary data when not reconstructing a packet');
++	  }catch(err){ console.log(err); return;};
+     } else {
+       packet = this.reconstructor.takeBinaryData(obj);
+       if (packet) { // received final buffer
