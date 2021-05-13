@@ -368,11 +368,9 @@ namespace NetworkEngine {
                         }
                     });
                     socket.on('LobbyRequest', function (lj: LobbyJoin) {
-                        if (inst.doesLobbyExist(lj.lobbyData.name)) {
+                        if (inst.doesLobbyExist(lj.lobbyData.name) && inst.getLobbyStorage_internal(lj.lobbyData.name) !== null) {
                             // Lobby already exists.
-                            let storage: ILobbyStorage = inst.getLobbyStorage_internal(
-                                lj.lobbyData.name
-                            ) as ILobbyStorage;
+                            let storage: ILobbyStorage = inst.getLobbyStorage_internal(lj.lobbyData.name) as ILobbyStorage;
                             if (storage.config.key === lj.lobbyData.key) {
                                 socket.join(storage.config.name);
                                 bus.emit(
