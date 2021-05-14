@@ -16,7 +16,8 @@
       "@sound/*": [
         "./build/emulator/*"
       ]
-    }
+    },
+    "noImplicitAny": false
   },
   "include": [
     "src/**/*.ts",

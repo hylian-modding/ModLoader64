@@ -187,12 +187,8 @@ gulp.task('prebuild', function () {
 
 gulp.task('_build', function () {
     fs.copySync("./src", "./build/src");
-
-    return gulp.src("src/**/*.ts")
-        .pipe(sourcemaps.init())
-        .pipe(tsProject())
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest('build/src'));
+    child_process.execSync("npx tsc");
+    return gulp.src('.');
 });
 
 gulp.task('postbuild', function () {
@@ -223,9 +219,11 @@ gulp.task("build", gulp.series(['prebuild', '_build', 'postbuild']));
 gulp.task('_api', function () {
     fs.copySync("./API/src", "./API/build");
     fs.copySync("./API/package.json", "./API/build/package.json");
-    return gulp.src('API/src/**/*.ts')
-        .pipe(tsProject())
-        .pipe(gulp.dest('API/build'));
+    let original_dir: string = process.cwd();
+    process.chdir("./API");
+    child_process.execSync("npx tsc");
+    process.chdir(original_dir);
+    return gulp.src('.');
 });
 
 gulp.task("api_link", function () {

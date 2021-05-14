@@ -64,7 +64,7 @@ export class MonkeyPatch_rdramWriteBits8 extends MonkeyPatch
 
   patch(): void {
       this.replacement = (addr: number, buf: Buffer) => {
-          let arr = [];
+          let arr: number[] = [];
           for (let i = 0; i < buf.byteLength; i++) {
               arr.push(buf[i]);
           }

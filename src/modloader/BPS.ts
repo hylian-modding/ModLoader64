@@ -14,7 +14,7 @@ class BPS {
     applyBps(rom: any, patch: Uint8Array) {
         function crc32(bytes: Uint8Array) {
             let c;
-            let crcTable = [];
+            let crcTable: number[] = [];
             for (let n = 0; n < 256; n++) {
                 c = n;
                 for (let k = 0; k < 8; k++) {
