@@ -43,6 +43,11 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
           this.emu.rdramRead8(global.ModLoader['gui_isShown']) === 0xff
       );
   }
+  Player_InBlockingCsMode(): boolean{
+    return ((this.link.rdramRead32(0x66C) & 0x20000080) !== 0) || (this.link.rdramRead8(0x0434) !== 0) || (this.emu.rdramReadPtr8(global.ModLoader['global_context_pointer'], 0x11E15) !== 0) ||
+            ((this.link.rdramRead32(0x66C) & 1) !== 0) || ((this.link.rdramRead8(0x0682) & 0x80) !== 0) ||
+            (this.emu.rdramRead16(global.ModLoader['save_context'] + 0x13F0) !== 0)
+  }
 
   toJSON() {
       let jsonObj: any = {};
