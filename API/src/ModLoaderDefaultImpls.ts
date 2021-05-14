@@ -1,3 +1,4 @@
+import { RemoteInfo } from 'dgram';
 import { INetworkPlayer, IPacketHeader, SocketType } from './NetworkHandler';
 
 export class NetworkPlayer implements INetworkPlayer {
@@ -34,6 +35,9 @@ export class Packet implements IPacketHeader {
 }
 
 export class UDPPacket extends Packet {
+
+    rinfo: RemoteInfo | undefined;
+
     constructor(
         packet_id: string,
         channel: string,

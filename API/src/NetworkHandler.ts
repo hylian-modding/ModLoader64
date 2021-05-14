@@ -106,13 +106,18 @@ export interface INetwork {
   sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer): void;
 }
 
+export interface IToPlayer{
+    packet: IPacketHeader;
+    player: INetworkPlayer;
+}
+
 export class Server implements INetwork {
     sendPacket(packet: IPacketHeader) {
         NetworkSendBusServer.emit('msg', packet);
     }
 
     sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer) {
-        NetworkSendBusServer.emit('toPlayer', { packet, player: dest });
+        NetworkSendBusServer.emit('toPlayer', { packet, player: dest } as IToPlayer);
     }
 }
 

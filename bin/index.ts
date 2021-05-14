@@ -26,8 +26,6 @@ program.option("-q, --bumpversion", "bump version number");
 program.option("-i, --install <url>", "install dependency");
 program.option("-s, --setroms <path>", "set rom directory");
 program.option("-c, --clean", "cleans build dirs");
-program.option("-a, --modulealias <alias>", "alias a module path");
-program.option("-p, --modulealiaspath <path>", "alias a module path");
 program.option("-z, --rebuildsdk", "rebuild sdk");
 program.option("-t, --template <template>", "make project from template");
 program.option("-e, --external <tool>");
@@ -538,51 +536,21 @@ if (!WAITING_ON_EXTERNAL) {
         }
     }
 
-    if (program.modulealiaspath !== undefined) {
-        (async () => {
-            let elv: boolean = await isElevated();
-            if (!elv && platformkey.indexOf("win32") > -1) {
-                console.log("Alias must be run as administrator on Windows!");
-                return;
-            }
-            if (!fs.existsSync("./libs")) {
-                fs.mkdirSync("./libs");
-            }
-            let p: string = path.resolve(program.modulealiaspath);
-            let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
-            if (fs.lstatSync(p).isDirectory()) {
-                fse.symlinkSync(p, p2);
-            }
-            console.log("Created alias for " + program.modulealiaspath + " -> " + program.modulealias);
-            if (program.modulealias !== undefined) {
-                let p: string = path.resolve(program.modulealiaspath);
-                let p2: string = path.resolve(path.join("./libs", path.parse(p).name));
-                let meta: any = JSON.parse(fs.readFileSync("./package.json").toString());
-                let mod_meta: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta.name, "package.json")).toString());
-                if (!mod_meta.hasOwnProperty("modloader64_aliases")) {
-                    mod_meta["modloader64_aliases"] = {};
-                }
-                //mod_meta["modloader64_aliases"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
-                //fs.writeFileSync(path.join(".", "src", meta.name, "package.json"), JSON.stringify(mod_meta, null, 2));
-                // TSConfig.
-                tsconfig["compilerOptions"]["paths"]["@" + program.modulealias + "/*"] = [path.relative("./", p2) + "/*"];
-                saveTSConfig();
-            }
-        })();
-    }
-
     if (program.template !== undefined) {
-        if (fse.existsSync("./external_cores/" + program.template)) {
-            let t_path: string = path.join("./", "external_cores", program.template);
+        let original_dir: string = process.cwd();
+        process.chdir(path.join(__dirname, "../"));
+        if (fse.existsSync("./cores/" + program.template)) {
+            let t_path: string = path.join("./", "cores", program.template);
             let meta: any = JSON.parse(fs.readFileSync(path.join(t_path, "package.json")).toString());
             let m_path: string = path.join(t_path, "src", meta.name);
             let meta2: any = JSON.parse(fs.readFileSync(path.join(".", "package.json")).toString());
-            fse.copySync(m_path, path.join(".", "src", meta2.name), {});
-            let meta3: any = JSON.parse(fs.readFileSync(path.join(".", "src", meta2.name, "package.json")).toString());
+            fse.copySync(m_path, path.join(original_dir, "src", meta2.name));
+            let meta3: any = JSON.parse(fs.readFileSync(path.join(original_dir, "src", meta2.name, "package.json")).toString());
             meta3.name = meta2.name;
-            fse.writeFileSync(path.join(".", "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
+            fse.writeFileSync(path.join(original_dir, "src", meta2.name, "package.json"), JSON.stringify(meta3, null, 2));
         } else {
             console.log("Install the template first.");
         }
+        process.chdir(original_dir);
     }
 }

@@ -27,10 +27,12 @@ import {
     ILobbyStorage,
     ILobbyManager,
     SocketType,
+    IToPlayer
 } from 'modloader64_api/NetworkHandler';
 import crypto from 'crypto';
 import {
     NetworkPlayer,
+    Packet,
     UDPPacket,
 } from 'modloader64_api/ModLoaderDefaultImpls';
 import IModLoaderConfig from './IModLoaderConfig';
@@ -124,6 +126,45 @@ export class LobbyManagerAbstract implements ILobbyManager {
     }
 }
 
+export class PingPacket extends UDPPacket {
+    timestamp: number = Date.now();
+
+    constructor(lobby: string) {
+        super('PingPacket', 'CORE', lobby, false);
+    }
+
+    setType(type: SocketType): PingPacket {
+        this.socketType = type;
+        return this;
+    }
+}
+
+export class PongPacket extends UDPPacket {
+    serverTime: number;
+    timestamp: number = Date.now();
+
+    constructor(serverTime: number, lobby: string) {
+        super('PongPacket', 'CORE', lobby, false);
+        this.serverTime = serverTime;
+    }
+
+    setType(type: SocketType): PingPacket {
+        this.socketType = type;
+        return this;
+    }
+}
+
+export class LatencyInfoPacket extends Packet{
+    ping: number;
+    roundtrip: number;
+
+    constructor(lobby: string, ping: number, roundtrip: number){
+        super('LatencyInfoPacket', 'CORE', lobby, false);
+        this.ping = ping;
+        this.roundtrip = roundtrip;
+    }
+}
+
 namespace NetworkEngine {
     export class Server implements ILobbyManager {
         io: any;
@@ -214,6 +255,14 @@ namespace NetworkEngine {
             return null;
         }
 
+        getPlayerRinfo(player: INetworkPlayer | string): RemoteInfo | undefined {
+            if (typeof (player) === 'string') {
+                return this.io.sockets.sockets[player].ModLoader64["rinfo"];
+            } else {
+                return this.io.sockets.sockets[player.uuid].ModLoader64["rinfo"];
+            }
+        }
+
         sendToTarget(target: string, internalChannel: string, packet: any) {
             this.io.to(target).emit(internalChannel, packet);
         }
@@ -263,6 +312,15 @@ namespace NetworkEngine {
                     }
                 }
                 fs.writeFile("./lobbies.json", JSON.stringify(lobbies), () => { });
+
+                Object.keys(this.io.sockets.sockets).forEach((player: string) => {
+                    let rinfo = this.getPlayerRinfo(player);
+                    if (rinfo !== undefined) {
+                        this.udpServer.send(JSON.stringify(new PingPacket(player)), rinfo.port, rinfo.address);
+                    } else {
+                        this.sendToTarget(player, 'msg', new PingPacket(player).setType(SocketType.TCP));
+                    }
+                });
             }, 60 * 1000);
 
             (function (inst) {
@@ -300,10 +358,46 @@ namespace NetworkEngine {
                     if (data.player === undefined) {
                         data.player = inst.fakePlayer;
                     }
-                    inst.sendToTarget(data.lobby, 'msg', data);
+                    if (data.socketType === SocketType.TCP) {
+                        inst.sendToTarget(data.lobby, 'msg', data);
+                    } else {
+                        let uuids = Object.keys(inst.io.sockets.adapter.rooms[data.lobby]);
+                        for (let i = 0; i < uuids.length; i++) {
+                            let mlo = inst.io.sockets.sockets[uuids[i]].ModLoader64;
+                            if (mlo.hasOwnProperty("rinfo")) {
+                                let rinfo: RemoteInfo = mlo.rinfo;
+                                inst.udpServer.send(JSON.stringify(data), rinfo.port, rinfo.address);
+                            }
+                        }
+                    }
                 });
-                NetworkSendBusServer.addListener('toPlayer', (data: any) => {
-                    inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+                NetworkSendBusServer.addListener('toPlayer', (data: IToPlayer) => {
+                    if (data.packet.socketType === SocketType.TCP) {
+                        inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+                    } else {
+                        let rinfo = inst.getPlayerRinfo(data.player);
+                        if (rinfo !== undefined) {
+                            inst.udpServer.send(JSON.stringify(data.packet), rinfo.port, rinfo.address);
+                        } else {
+                            inst.sendToTarget(data.player.uuid, 'msg', data.packet);
+                        }
+                    }
+                });
+                NetworkBusServer.on('UDPTestPacket', (packet: UDPPacket) => {
+                    let reply: UDPPacket = JSON.parse(JSON.stringify(packet));
+                    reply.player = inst.fakePlayer;
+                    inst.udpServer.send(JSON.stringify(reply), packet.rinfo!.port, packet.rinfo!.address);
+                });
+                NetworkBusServer.on('UDPModeOnPacket', (packet: UDPModeOnPacket) => {
+                    inst.io.sockets.sockets[packet.player.uuid].ModLoader64["rinfo"] = packet.rinfo;
+                });
+                NetworkBusServer.on('UDPModeOffPacket', (packet: UDPModeOffPacket) => {
+                    delete inst.io.sockets.sockets[packet.player.uuid].ModLoader64["rinfo"];
+                });
+                NetworkBusServer.on('PongPacket', (packet: PongPacket) => {
+                    let ping = packet.timestamp - packet.serverTime;
+                    let roundtrip = Date.now() - packet.serverTime;
+                    inst.sendToTarget(packet.player.uuid, 'msg', new LatencyInfoPacket(packet.lobby, ping, roundtrip));
                 });
                 inst.io.on('connection', function (socket: SocketIO.Socket) {
                     inst.logger.info('Client ' + socket.id + ' connected.');
@@ -380,7 +474,7 @@ namespace NetworkEngine {
                                 //@ts-ignore
                                 socket['ModLoader64'] = {
                                     lobby: storage.config.name,
-                                    player: lj.player,
+                                    player: lj.player
                                 };
                                 inst.sendToTarget(socket.id, 'LobbyReady', {
                                     storage: storage.config,
@@ -468,26 +562,28 @@ namespace NetworkEngine {
                             return;
                         }
                         let data: IPacketHeader = JSON.parse(msg);
+                        Object.defineProperty(data, "rinfo", {
+                            value: rinfo,
+                            writable: false,
+                        });
                         Object.freeze(data);
-                        if (data.packet_id === 'UDPTestPacket') {
-                            let reply: IPacketHeader = JSON.parse(JSON.stringify(data));
-                            reply.player = inst.fakePlayer;
-                            inst.sendToTarget(data.player.uuid, 'udpTest', reply);
-                            return;
-                        }
                         if (inst.getLobbyStorage_internal(data.lobby) === null) {
                             return;
                         }
                         NetworkBusServer.emit(data.packet_id, data);
                         NetworkChannelBusServer.emit(data.channel, data);
                         if (data.forward) {
-                            Object.keys(
-                                inst.io.sockets.adapter.rooms[data.lobby].sockets
-                            ).forEach((key: string) => {
-                                if (key !== data.player.uuid) {
-                                    inst.sendToTarget(key, 'msg', data);
+                            let json = JSON.stringify(data);
+                            let players = Object.keys(inst.io.sockets.adapter.rooms[data.lobby].sockets);
+                            for (let i = 0; i < players.length; i++) {
+                                if (players[i] === data.player.uuid) continue;
+                                let rinfo = inst.getPlayerRinfo(players[i]);
+                                if (rinfo !== undefined) {
+                                    inst.udpServer.send(json, rinfo.port, rinfo.address);
+                                } else {
+                                    inst.sendToTarget(players[i], 'msg', data);
                                 }
-                            });
+                            }
                         }
                     } catch (err) {
                         inst.logger.error(err);
@@ -523,6 +619,18 @@ namespace NetworkEngine {
         }
     }
 
+    class UDPModeOnPacket extends UDPPacket {
+        constructor(lobby: string) {
+            super('UDPModeOnPacket', 'CORE', lobby, false);
+        }
+    }
+
+    class UDPModeOffPacket extends Packet {
+        constructor(lobby: string) {
+            super('UDPModeOffPacket', 'CORE', lobby, false);
+        }
+    }
+
     export class Client {
         private io: any = require('socket.io-client');
         socket: SocketIO.Socket = {} as SocketIO.Socket;
@@ -535,6 +643,8 @@ namespace NetworkEngine {
         serverUDPPort = -1;
         isUDPEnabled = false;
         udpTestHandle!: any;
+        udpPingHandle!: any;
+        lastReceivedPing: PingPacket | undefined;
         packetBuffer: IPacketHeader[] = new Array<IPacketHeader>();
         plugins: any = {};
         core: string = "";
@@ -585,12 +695,6 @@ namespace NetworkEngine {
                     this.config.ip = "127.0.0.1";
                     this.config.port = parseInt("8082");
                 }
-            });
-            internal_event_bus.on(ModLoaderEvents.ON_CRASH, (args: any[]) => {
-                /* this.logger.info("Sending crashlog...");
-                this.socket.emit('onCrash', {
-                    dump: JSON.stringify({dump: args[0]})
-                }); */
             });
         }
 
@@ -644,6 +748,34 @@ namespace NetworkEngine {
                     data.packet.lobby = inst.config.lobby;
                     inst.socket.emit('toSpecificPlayer', data);
                 });
+                NetworkBus.on('UDPTestPacket', () => {
+                    clearInterval(inst.udpTestHandle);
+                    inst.logger.info("UDP test passed.");
+                    let packet = new UDPModeOnPacket(inst.config.lobby);
+                    packet.player = inst.me;
+                    inst.udpClient.send(JSON.stringify(packet), inst.serverUDPPort, inst.config.ip);
+                    if (inst.udpPingHandle === undefined) {
+                        inst.udpPingHandle = setInterval(() => {
+                            if (inst.lastReceivedPing === undefined) {
+                                inst.isUDPEnabled = false;
+                                inst.logger.error('UDP disabled.');
+                                NetworkSendBus.emit('msg', new UDPModeOffPacket(inst.config.lobby));
+                                clearInterval(inst.udpPingHandle);
+                            }
+                        }, 70 * 1000);
+                    }
+                });
+                NetworkBus.on('PingPacket', (packet: PingPacket) => {
+                    inst.lastReceivedPing = packet;
+                    if (packet.socketType === SocketType.TCP) {
+                        NetworkSendBus.emit('msg', new PongPacket(packet.timestamp, inst.config.lobby).setType(SocketType.TCP));
+                    } else {
+                        NetworkSendBus.emit('msg', new PongPacket(packet.timestamp, inst.config.lobby).setType(SocketType.UDP));
+                    }
+                });
+                NetworkBus.on('LatencyInfoPacket', (packet: LatencyInfoPacket)=>{
+                    inst.me.data["ninfo"] = {ping: packet.ping, rt: packet.roundtrip};
+                });
                 inst.socket.on('connect', () => {
                     inst.logger.info('Connected.');
                     clearTimeout(inst.connectionTimer);
@@ -684,7 +816,7 @@ namespace NetworkEngine {
                             }
                         }
                         if (patch_path !== "") {
-                            let gzip = zlib.gzipSync(fs.readFileSync(path.resolve(patch_path)));
+                            let gzip = zlib.deflateSync(fs.readFileSync(path.resolve(patch_path)));
                             if (gzip.byteLength > (data.patchLimit * 1024 * 1024)) {
                                 inst.logger.error("Patch file " + patch_path + " too large.");
                                 process.exit(ModLoaderErrorCodes.BPS_FAILED);
@@ -711,7 +843,7 @@ namespace NetworkEngine {
                     internal_event_bus.emit("DISCORD_INVITE_SETUP", inst.config);
                     let p: Buffer = Buffer.alloc(1);
                     if (ld.data.hasOwnProperty('patch')) {
-                        p = zlib.gunzipSync(ld.data.patch);
+                        p = zlib.inflateSync(ld.data.patch);
                     }
                     let udpTest = new UDPTestPacket();
                     udpTest.player = inst.me;
@@ -759,10 +891,9 @@ namespace NetworkEngine {
                 inst.socket.on('msg', (data: IPacketHeader) => {
                     inst.packetBuffer.push(Object.freeze(data));
                 });
-                inst.socket.on('udpTest', (data: IPacketHeader) => {
-                    inst.isUDPEnabled = true;
-                    clearTimeout(inst.udpTestHandle);
-                    inst.logger.info('UDP test passed.');
+                inst.udpClient.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
+                    let packet: UDPPacket = JSON.parse(msg.toString());
+                    inst.packetBuffer.push(Object.freeze(packet));
                 });
             })(this);
         }
