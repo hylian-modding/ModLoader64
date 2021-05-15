@@ -1,6 +1,5 @@
 import IMemory from './IMemory';
 import { IRomHeader } from './IRomHeader';
-import IUtils from './IUtils';
 import ISaveState from './ISaveState';
 import { IImGui } from './Sylvain/ImGui';
 import { SDL } from './Sylvain/SDL';
@@ -8,6 +7,7 @@ import { Gfx } from './Sylvain/Gfx';
 import { Input } from './Sylvain/Input';
 import { IYaz0 } from './Sylvain/Yaz0';
 import { Debugger } from './Sylvain/Debugger';
+import IUtils from './IUtils';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -49,22 +49,46 @@ interface IConsole {
   on(which: string, callback: any): void;
 }
 
+// #ifdef HAS_SAVESTATES
 interface IConsole{
   getSaveStateManager(): ISaveState;
 }
+// #endif
 
+// #ifdef HAS_IMGUI
 interface IConsole{
   getImGuiAccess(): IImGui;
+}
+// #endif
 
+// #ifdef HAS_SDL
+interface IConsole{
   getSDLAccess(): SDL;
+}
+// #endif
 
+// #ifdef HAS_GFX
+interface IConsole{
   getGfxAccess(): Gfx;
+}
+// #endif
 
+// #ifdef HAS_INPUT
+interface IConsole{
   getInputAccess(): Input;
+}
+// #endif
 
+// #ifdef HAS_YAZ0
+interface IConsole{
   getYaz0Encoder(): IYaz0;
+}
+// #endif
 
+// #ifdef IS_MUPEN
+interface IConsole{
   getDebuggerAccess(): Debugger;
 }
+// #endif
 
 export default IConsole;

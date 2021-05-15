@@ -1,5 +1,5 @@
 {
-  "rootDir": ".",
+  "rootDir": "./build",
   "outDir": "build",
   "compilerOptions": {
     "rootDir": "./src",
@@ -20,6 +20,7 @@
   "exclude": [
     "node_modules",
     "build.ts",
-    "build"
+    "build",
+    "src/Preprocess_*.ts"
   ]
 }

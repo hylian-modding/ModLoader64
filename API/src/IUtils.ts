@@ -2,10 +2,6 @@ interface IUtils {
   
   hashBuffer(buf: Buffer): string;
 
-  yaz0Encode(buf: Buffer): Buffer;
-
-  yaz0Decode(buf: Buffer): Buffer;
-
   clearBuffer(buf: Buffer): Buffer;
 
   setTimeoutFrames(fn: Function, frames: number): string;
@@ -31,5 +27,13 @@ interface IUtils {
   utilBitCountBuffer(buf: Buffer, offset: number, length: number): number;
   
 }
+
+// #ifdef HAS_YAZ0
+interface IUtils{
+  yaz0Encode(buf: Buffer): Buffer;
+
+  yaz0Decode(buf: Buffer): Buffer;
+}
+// #endif
 
 export default IUtils;

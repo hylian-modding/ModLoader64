@@ -13,6 +13,26 @@ var ts = require('gulp-typescript');
 var tsProject = ts.createProject('tsconfig.json');
 var sourcemaps = require('gulp-sourcemaps');
 
+function getAllFiles(dir: string, arr: string[]){
+    fs.readdirSync(dir).forEach((f: string)=>{
+        let file = path.resolve(dir, f);
+        if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()){
+            arr.push(file);
+        }
+    });
+    return arr;
+}
+
+function getAllFolders(dir: string, arr: string[]){
+    fs.readdirSync(dir).forEach((f: string)=>{
+        let file = path.resolve(dir, f);
+        if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()){
+            arr.push(file);
+        }
+    });
+    return arr;
+}
+
 gulp.task('clean', function () {
     if (fs.existsSync("./build")) {
         fs.removeSync("./build");
@@ -82,7 +102,7 @@ gulp.task('_dist', function () {
             fs.mkdirSync("./build/node_modules/modloader64_api");
         }
         fs.copySync("./API/build", "./build/node_modules/modloader64_api");
-        if (fs.existsSync("./dist")){
+        if (fs.existsSync("./dist")) {
             fs.removeSync("./dist");
         }
         fs.mkdirSync("./dist");
@@ -197,7 +217,7 @@ gulp.task('postbuild', function () {
     if (!fs.existsSync("./build2")) {
         fs.mkdirSync("./build2");
     }
-    if (!fs.existsSync("./core_links")){
+    if (!fs.existsSync("./core_links")) {
         console.log("Creating core links folder...");
         let original_dir: string = process.cwd();
         fs.mkdirSync("./core_links");
@@ -217,10 +237,31 @@ gulp.task('postbuild', function () {
 gulp.task("build", gulp.series(['prebuild', '_build', 'postbuild']));
 
 gulp.task('_api', function () {
-    fs.copySync("./API/src", "./API/build");
-    fs.copySync("./API/package.json", "./API/build/package.json");
     let original_dir: string = process.cwd();
     process.chdir("./API");
+    fs.copySync("./package.json", "./build/package.json");
+    var uprocess = require("uprocess");
+    var defines = {
+        HAS_SAVESTATES: true,
+        HAS_IMGUI: true,
+        HAS_SDL: true,
+        HAS_GFX: true,
+        HAS_INPUT: true,
+        HAS_YAZ0: true,
+        IS_MUPEN: true
+    };
+    getAllFiles("./src", []).forEach((file: string)=>{
+        console.log(`Preprocess: ${file} -> ${path.resolve("./build", path.parse(file).base)}`);
+        fs.writeFileSync(path.resolve("./build", path.parse(file).base), uprocess.processFile(file, defines));
+    });
+    getAllFolders("./src", []).forEach((folder: string)=>{
+        getAllFiles(folder, []).forEach((file: string)=>{
+            let fuck = path.resolve(`./build/${path.parse(folder).name}`, path.parse(file).base);
+            console.log(`Preprocess: ${file} -> ${fuck}`);
+            fs.copySync(file, path.resolve(`./build/${path.parse(folder).name}`, path.parse(file).base));
+            fs.writeFileSync(path.resolve(`./build/${path.parse(folder).name}`, path.parse(file).base), uprocess.processFile(file, defines));
+        });
+    });
     child_process.execSync("npx tsc");
     process.chdir(original_dir);
     return gulp.src('.');

@@ -1,6 +1,5 @@
 import IMemory from './IMemory';
 import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
-import IUtils from './IUtils';
 import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
@@ -16,6 +15,7 @@ import { IAnalyticsManager } from './analytics/IAnalyticsManager';
 import { Debugger } from './Sylvain/Debugger';
 import { Heap } from './heap';
 import { EventBus } from './EventHandler';
+import IUtils from './IUtils';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -68,17 +68,41 @@ export interface IModLoaderAPI {
   privateBus: EventBus
 }
 
-export interface IModLoaderAPI{
+// #ifdef HAS_SAVESTATES
+export interface IModLoaderAPI {
   savestates: ISaveState;
 }
+// #endif
 
+// #ifdef HAS_IMGUI
 export interface IModLoaderAPI {
   ImGui: IImGui;
+}
+// #endif
+
+// #ifdef HAS_SDL
+export interface IModLoaderAPI {
   SDL: SDL;
+}
+// #endif
+
+// #ifdef HAS_GFX
+export interface IModLoaderAPI {
   Gfx: Gfx;
+}
+// #endif
+
+// #ifdef HAS_INPUT
+export interface IModLoaderAPI {
   Input: Input;
+}
+// #endif
+
+// #ifdef IS_MUPEN
+export interface IModLoaderAPI {
   debugger: Debugger;
 }
+// #endif
 
 export interface IPlugin {
   ModLoader: IModLoaderAPI;
