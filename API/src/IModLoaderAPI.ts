@@ -54,7 +54,6 @@ export interface IModLoaderAPI {
   serverSide: INetwork;
   clientLobby: string;
   utils: IUtils;
-  savestates: ISaveState;
   gui: IGUIAPI;
   payloadManager: IPayloadManager;
   math: IMath;
@@ -63,15 +62,22 @@ export interface IModLoaderAPI {
   isServer: boolean;
   sound: ISoundSystem;
   isModLoaded(modid: string): boolean;
+  analytics: IAnalyticsManager;
+  heap: Heap | undefined;
+  publicBus: EventBus;
+  privateBus: EventBus
+}
+
+export interface IModLoaderAPI{
+  savestates: ISaveState;
+}
+
+export interface IModLoaderAPI {
   ImGui: IImGui;
   SDL: SDL;
   Gfx: Gfx;
   Input: Input;
-  analytics: IAnalyticsManager;
   debugger: Debugger;
-  heap: Heap | undefined;
-  publicBus: EventBus;
-  privateBus: EventBus
 }
 
 export interface IPlugin {
