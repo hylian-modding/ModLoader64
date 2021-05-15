@@ -42,14 +42,18 @@ interface IConsole {
 
   getUtils(): IUtils;
 
-  getSaveStateManager(): ISaveState;
-
   getFrameCount(): number;
 
   setFrameCount(num: number): void;
 
   on(which: string, callback: any): void;
+}
 
+interface IConsole{
+  getSaveStateManager(): ISaveState;
+}
+
+interface IConsole{
   getImGuiAccess(): IImGui;
 
   getSDLAccess(): SDL;
@@ -61,7 +65,6 @@ interface IConsole {
   getYaz0Encoder(): IYaz0;
 
   getDebuggerAccess(): Debugger;
-
 }
 
 export default IConsole;
