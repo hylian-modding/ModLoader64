@@ -14,9 +14,9 @@ const authors: string[] = ['denoflions', 'Sylvain'];
 const contributors: string[] = [];
 let data: Array<any> = JSON.parse(fs.readFileSync(path.resolve(__dirname, "contributors1.json")).toString());
 let dontdisplay: Array<string> = ["denoflionsx", "dependabot[bot]"];
-for (let i = 0; i < data.length; i++){
+for (let i = 0; i < data.length; i++) {
     let p = data[i];
-    if (dontdisplay.indexOf(p.login) === -1){
+    if (dontdisplay.indexOf(p.login) === -1) {
         contributors.push(p.login);
     }
 }
@@ -61,7 +61,7 @@ if (program.devmode) {
     global.ModLoader["DEVFLAG"] = false;
 }
 let discord_id: string = "";
-if (program.discord){
+if (program.discord) {
     discord_id = program.discord;
 }
 
@@ -75,11 +75,11 @@ if (program.startdir) {
     global.ModLoader['startdir'] = process.cwd();
 }
 
-if (program.ScreenWidth){
+if (program.ScreenWidth) {
     global.ModLoader["ScreenWidth"] = parseInt(program.ScreenWidth);
 }
 
-if (program.ScreenHeight){
+if (program.ScreenHeight) {
     global.ModLoader["ScreenHeight"] = parseInt(program.ScreenHeight);
 }
 
@@ -165,6 +165,9 @@ let parse = new MonkeyPatch_Parse();
 parse.patch();
 
 global.ModLoader["FIRST_RUN"] = !fs.existsSync("./ModLoader64-config.json");
+if (global.ModLoader["OVERRIDE_CONFIG_FILE"]) {
+    global.ModLoader["FIRST_RUN"] = !fs.existsSync(global.ModLoader["OVERRIDE_CONFIG_FILE"]);
+}
 
 setInterval(() => {
     try {
