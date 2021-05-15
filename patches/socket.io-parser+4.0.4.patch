@@ -1,0 +1,13 @@
+diff --git a/node_modules/socket.io-parser/dist/index.js b/node_modules/socket.io-parser/dist/index.js
+index 0ef9f80..c7ecacb 100644
+--- a/node_modules/socket.io-parser/dist/index.js
++++ b/node_modules/socket.io-parser/dist/index.js
+@@ -120,7 +120,7 @@ class Decoder extends Emitter {
+         else if (is_binary_1.isBinary(obj) || obj.base64) {
+             // raw binary data
+             if (!this.reconstructor) {
+-                throw new Error("got binary data when not reconstructing a packet");
++                try{throw new Error("got binary data when not reconstructing a packet");}catch(err){console.log(err)};
+             }
+             else {
+                 packet = this.reconstructor.takeBinaryData(obj);
