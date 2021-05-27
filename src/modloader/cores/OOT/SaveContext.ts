@@ -45,6 +45,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     private navi_timer_addr: number = this.instance + 0x0038;
     private checksum_addr: number = this.instance + 0x1352;
     private magic_beans_addr: number = this.instance + 0x009b;
+    private poe_score_addr: number = this.instance + 0x0ebc;
     private scene_data_addr: number = this.instance + 0x00d4;
     private event_data_addr: number = this.instance + 0x0ed4;
     private item_flag_addr: number = this.instance + 0x0ef0;
@@ -87,6 +88,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
         'inventory',
         'questStatus',
         'magic_beans_purchased',
+        'poe_collector_score',
     ];
     constructor(ModLoader: IModLoaderAPI, log: ILogger) {
         super();
@@ -233,6 +235,12 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     }
     set magic_beans_purchased(amt: number) {
         this.emulator.rdramWrite8(this.magic_beans_addr, amt);
+    }
+    get poe_collector_score(): number {
+        return this.emulator.rdramRead32(this.poe_score_addr);
+    }
+    set poe_collector_score(pts: number) {
+        this.emulator.rdramWrite32(this.poe_score_addr, pts);
     }
     get permSceneData(): Buffer {
         return this.emulator.rdramReadBuffer(this.scene_data_addr, 0xb0c);
