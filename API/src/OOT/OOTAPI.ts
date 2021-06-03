@@ -451,6 +451,7 @@ export interface ISaveContext {
   checksum: number;
   age: Age;
   magic_beans_purchased: number;
+  poe_collector_score: number;
   permSceneData: Buffer;
   eventFlags: Buffer;
   itemFlags: Buffer;
