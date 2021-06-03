@@ -52,7 +52,6 @@ import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
-import { setupDateProxy } from 'modloader64_api/SidedProxy/DateProxy';
 import { AnalyticsManager } from '../analytics/AnalyticsManager';
 import { setupBindVar } from 'modloader64_api/BindVar';
 import { Heap } from 'modloader64_api/heap';
@@ -204,21 +203,13 @@ class pluginLoader {
                         markPrototypeProcessed((instance as any)[key]);
                     }
                 });
-                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
-                let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
-                for (let i = 0; i < children2.length; i++) {
-                    children.push(children2[i]);
-                }
+                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer, this.selected_core);
                 for (let i = 0; i < children.length; i++) {
                     fn(children[i], plugin);
                 }
                 markPrototypeProcessed(instance);
             };
-            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-            let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-            for (let i = 0; i < children2.length; i++) {
-                children.push(children2[i]);
-            }
+            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer, this.selected_core);
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
@@ -308,15 +299,15 @@ class pluginLoader {
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
         parse = path.parse(file);
         let p: any;
-        try{
+        try {
             if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".js"));
-        }catch(err){}
-        try{
+        } catch (err) { }
+        try {
             if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mls"));
-        }catch(err){}
-        try{
+        } catch (err) { }
+        try {
             if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mlz"));
-        }catch(err){}
+        } catch (err) { }
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
@@ -376,21 +367,13 @@ class pluginLoader {
                     markPrototypeProcessed((instance as any)[key]);
                 }
             });
-            let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
-            let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
-            for (let i = 0; i < children2.length; i++) {
-                children.push(children2[i]);
-            }
+            let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer, this.selected_core);
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
             markPrototypeProcessed(instance);
         };
-        let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-        let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-        for (let i = 0; i < children2.length; i++) {
-            children.push(children2[i]);
-        }
+        let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer, this.selected_core);
         for (let i = 0; i < children.length; i++) {
             fn(children[i], plugin);
         }
@@ -676,13 +659,13 @@ class pluginLoader {
             try {
                 let frame = iconsole.getFrameCount();
                 this.loaded_core.onTick(frame);
-                this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.forEach((value: Function) => {
+                for (const [key, value] of this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.entries()) {
                     value(frame);
-                });
+                }
                 net.onTick();
-                this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.forEach((value: Function) => {
+                for (const [key, value] of this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.entries()) {
                     value(frame);
-                });
+                }
                 for (const [key, value] of this.frameTimeouts.entries()) {
                     if (value.frames <= 0) {
                         value.fn();

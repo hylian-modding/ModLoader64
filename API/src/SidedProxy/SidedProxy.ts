@@ -3,20 +3,23 @@ import path from 'path';
 
 export const enum ProxySide {
     CLIENT,
-    SERVER
+    SERVER,
+    UNIVERSAL
 }
 
 export class ProxySideContainer {
     side: ProxySide;
     backing: (new () => any) | string;
+    core?: string;
 
-    constructor(side: ProxySide, backing: (new () => any) | string) {
+    constructor(side: ProxySide, backing: (new () => any) | string, core?: string) {
         this.side = side;
         this.backing = backing;
+        this.core = core;
     }
 }
 
-export function SidedProxy(side: ProxySide, inst: (new () => any) | string) {
+export function SidedProxy(side: ProxySide, inst: (new () => any) | string, core?: string) {
     return function (
         target: any,
         propertyKey: string
@@ -27,11 +30,11 @@ export function SidedProxy(side: ProxySide, inst: (new () => any) | string) {
         if (target.ModLoader.sidedproxies === undefined) {
             target.ModLoader['sidedproxies'] = new Map<string, string>();
         }
-        target.ModLoader.sidedproxies.set(new ProxySideContainer(side, inst), propertyKey);
+        target.ModLoader.sidedproxies.set(new ProxySideContainer(side, inst, core), propertyKey);
     };
 }
 
-export function setupSidedProxy(instance: any, isClient: boolean, isServer: boolean): Array<any> {
+export function setupSidedProxy(instance: any, isClient: boolean, isServer: boolean, core: string): Array<any> {
     let p = Object.getPrototypeOf(instance);
     let arr: Array<any> = [];
     if (p.hasOwnProperty('ModLoader')) {
@@ -40,7 +43,12 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
         }
         if (p.ModLoader.hasOwnProperty('sidedproxies')) {
             p.ModLoader.sidedproxies.forEach(function (value: string, key: ProxySideContainer) {
-                if (isClient && key.side === ProxySide.CLIENT) {
+                if (key.core !== undefined){
+                    if (key.core !== '*'){
+                        if (key.core !== core) return;
+                    }
+                }
+                if ((isClient && key.side === ProxySide.CLIENT) || key.side === ProxySide.UNIVERSAL) {
                     if (typeof (key.backing) === 'string') {
                         let c: any;
                         try{
