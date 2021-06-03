@@ -1,14 +1,7 @@
-export function Deprecated() {
+export function Deprecated(msg?: string) {
     return function(target: any, key: string) {
-        if (target.ModLoader === undefined) {
-            target['ModLoader'] = {};
+        if (msg !== undefined){
+            console.log(`[Deprecation]: ${msg}`);
         }
-        if (target.ModLoader.Deprecated === undefined) {
-            target.ModLoader['Deprecated'] = {};
-        }
-        if (target.ModLoader.Deprecated.Targets === undefined) {
-            target.ModLoader.Deprecated['Targets'] = new Map<string,string>();
-        }
-        target.ModLoader.Deprecated.Targets.set(key, "yes");
     };
 }

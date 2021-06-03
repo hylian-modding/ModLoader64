@@ -96,7 +96,7 @@ const logConfig: any = {
 
 configure(logConfig);
 
-const logger_ovl = getLogger("STOP_USING_CONSOLE_LOG_YOU_PLEBS");
+const logger_ovl = getLogger("console.log");
 
 console.log = (message?: any, ...optionalParams: any[]) => {
     logger_ovl.debug(message);
