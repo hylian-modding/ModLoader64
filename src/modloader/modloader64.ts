@@ -205,7 +205,7 @@ class ModLoader64 {
                 let f = path.join(p, file);
                 if (!fs.lstatSync(f).isDirectory()) {
                     let parse = path.parse(file);
-                    if (parse.ext === '.mls' || parse.ext === ".js") {
+                    if (parse.ext === '.mls' || parse.ext === ".js" || parse.ext === ".mlz") {
                         try {
                             let p = require(path.resolve(f))[parse.name];
                             this.plugins.registerCorePlugin(parse.name, new p() as ICore);

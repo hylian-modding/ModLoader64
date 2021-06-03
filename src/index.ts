@@ -16,4 +16,11 @@ addHook((code: string, filename: string) => {
     }
 }, { exts: ['.mls'] });
 
+addHook((code: string, filename: string) => {
+    let lzma: any = require("lzma");
+    let d = Buffer.from(code, 'base64');
+    let c = Buffer.from(lzma.decompress(d)).toString();
+    return c;
+}, { exts: ['.mlz'] });
+
 require('./loader');

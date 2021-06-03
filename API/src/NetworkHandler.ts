@@ -11,6 +11,7 @@ export const NetworkSendBus: NetworkEventBus = new NetworkEventBus();
 export const NetworkBusServer: NetworkEventBus = new NetworkEventBus();
 export const NetworkChannelBusServer: NetworkEventBus = new NetworkEventBus();
 export const NetworkSendBusServer: NetworkEventBus = new NetworkEventBus();
+export const NetworkQueryBusServer: NetworkEventBus = new NetworkEventBus();
 
 export function NetworkHandler(key: string) {
     return function(
@@ -104,11 +105,19 @@ export function ServerNetworkChannelHandler(key: string) {
 export interface INetwork {
   sendPacket(packet: IPacketHeader): void;
   sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer): void;
+  isPlayerConnected(player: INetworkPlayer): boolean;
 }
+
+export interface INetworkClient extends Omit<INetwork, 'isPlayerConnected'>{}
 
 export interface IToPlayer{
     packet: IPacketHeader;
     player: INetworkPlayer;
+}
+
+export interface IConnectionCheckEvt{
+    player: INetworkPlayer;
+    connected: boolean;
 }
 
 export class Server implements INetwork {
@@ -119,9 +128,15 @@ export class Server implements INetwork {
     sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer) {
         NetworkSendBusServer.emit('toPlayer', { packet, player: dest } as IToPlayer);
     }
+
+    isPlayerConnected(player: INetworkPlayer){
+        let evt: IConnectionCheckEvt = {player, connected: true};
+        NetworkQueryBusServer.emit('isPlayerConnected', evt);
+        return evt.connected;
+    }
 }
 
-export class Client implements INetwork {
+export class Client implements INetworkClient {
     sendPacket(packet: IPacketHeader) {
         NetworkSendBus.emit('msg', packet);
     }
@@ -132,7 +147,7 @@ export class Client implements INetwork {
 }
 
 export const ServerController: INetwork = new Server();
-export const ClientController: INetwork = new Client();
+export const ClientController: INetworkClient = new Client();
 
 export interface INetworkPlayer {
   nickname: string;

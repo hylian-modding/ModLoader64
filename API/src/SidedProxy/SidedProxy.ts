@@ -1,4 +1,5 @@
 import { IPlugin } from "../IModLoaderAPI";
+import path from 'path';
 
 export const enum ProxySide {
     CLIENT,
@@ -41,7 +42,22 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
             p.ModLoader.sidedproxies.forEach(function (value: string, key: ProxySideContainer) {
                 if (isClient && key.side === ProxySide.CLIENT) {
                     if (typeof (key.backing) === 'string') {
-                        let c = require(key.backing).default;
+                        let c: any;
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
+                            }
+                        }catch(err){}
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
+                            }
+                        }catch(err){}
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
+                            }
+                        }catch(err){}
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();
@@ -49,7 +65,22 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                     arr.push(instance[value]);
                 } else if (isServer && key.side === ProxySide.SERVER) {
                     if (typeof (key.backing) === 'string') {
-                        let c = require(key.backing).default;
+                        let c: any;
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
+                            }
+                        }catch(err){}
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
+                            }
+                        }catch(err){}
+                        try{
+                            if (c === undefined){
+                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
+                            }
+                        }catch(err){}
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();

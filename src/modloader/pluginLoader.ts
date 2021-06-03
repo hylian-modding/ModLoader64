@@ -307,95 +307,102 @@ class pluginLoader {
 
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
         parse = path.parse(file);
-        if (parse.ext.indexOf('js') > -1) {
-            let p = require(file);
-            let plugin: any = new p();
-            plugin['ModLoader'] = {} as IModLoaderAPI;
-            plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
-            plugin['ModLoader']['config'] = this.config;
-            plugin['ModLoader']['publicBus'] = bus;
-            plugin['ModLoader']['privateBus'] = new EventBus();
-            Object.defineProperty(plugin, 'pluginName', {
-                value: pkg.name,
-                writable: false,
-            });
-            Object.defineProperty(plugin, 'pluginHash', {
-                value: hash,
-                writable: false,
-            });
-            let mlconfig = this.config.registerConfigCategory(
-                'ModLoader64'
-            ) as IModLoaderConfig;
-            setupEventHandlers(plugin, bus);
-            setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
-            setupNetworkHandlers(plugin);
-            setupCoreInject(plugin, this.loaded_core);
-            setupLifecycle_IPlugin(plugin);
-            setupLifecycle(plugin);
-            setupBindVar(plugin, iconsole.getMemoryAccess());
-            Object.keys(plugin).forEach((key: string) => {
-                if (plugin[key] !== null && plugin[key] !== undefined) {
-                    setupParentReference((plugin as any)[key], plugin);
-                    setupMLInjects((plugin as any)[key], plugin.ModLoader);
-                    setupCoreInject((plugin as any)[key], this.loaded_core);
-                    setupEventHandlers((plugin as any)[key], bus);
-                    setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
-                    setupNetworkHandlers((plugin as any)[key]);
-                    setupLifecycle((plugin as any)[key]);
-                    setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
-                    markPrototypeProcessed((plugin as any)[key]);
-                }
-            });
+        let p: any;
+        try{
+            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".js"));
+        }catch(err){}
+        try{
+            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mls"));
+        }catch(err){}
+        try{
+            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mlz"));
+        }catch(err){}
+        let plugin: any = new p();
+        plugin['ModLoader'] = {} as IModLoaderAPI;
+        plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
+        plugin['ModLoader']['config'] = this.config;
+        plugin['ModLoader']['publicBus'] = bus;
+        plugin['ModLoader']['privateBus'] = new EventBus();
+        Object.defineProperty(plugin, 'pluginName', {
+            value: pkg.name,
+            writable: false,
+        });
+        Object.defineProperty(plugin, 'pluginHash', {
+            value: hash,
+            writable: false,
+        });
+        let mlconfig = this.config.registerConfigCategory(
+            'ModLoader64'
+        ) as IModLoaderConfig;
+        setupEventHandlers(plugin, bus);
+        setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
+        setupNetworkHandlers(plugin);
+        setupCoreInject(plugin, this.loaded_core);
+        setupLifecycle_IPlugin(plugin);
+        setupLifecycle(plugin);
+        setupBindVar(plugin, iconsole.getMemoryAccess());
+        Object.keys(plugin).forEach((key: string) => {
+            if (plugin[key] !== null && plugin[key] !== undefined) {
+                setupParentReference((plugin as any)[key], plugin);
+                setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                setupCoreInject((plugin as any)[key], this.loaded_core);
+                setupEventHandlers((plugin as any)[key], bus);
+                setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
+                setupNetworkHandlers((plugin as any)[key]);
+                setupLifecycle((plugin as any)[key]);
+                setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
+                markPrototypeProcessed((plugin as any)[key]);
+            }
+        });
 
-            let fn = (instance: any, parent: any) => {
-                setupParentReference(instance, parent);
-                setupMLInjects(instance, parent.ModLoader);
-                setupCoreInject(instance, this.loaded_core);
-                setupEventHandlers(instance, bus);
-                setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
-                setupNetworkHandlers(instance);
-                setupLifecycle(instance);
-                Object.keys(instance).forEach((key: string) => {
-                    if (instance[key] !== null && instance[key] !== undefined) {
-                        setupParentReference((instance as any)[key], parent);
-                        setupMLInjects((instance as any)[key], plugin.ModLoader);
-                        setupCoreInject((instance as any)[key], this.loaded_core);
-                        setupEventHandlers((instance as any)[key], bus);
-                        setupPrivateEventHandlers((instance as any)[key], plugin.ModLoader.privateBus);
-                        setupNetworkHandlers((instance as any)[key]);
-                        setupLifecycle((instance as any)[key]);
-                        setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
-                        markPrototypeProcessed((instance as any)[key]);
-                    }
-                });
-                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
-                let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
-                for (let i = 0; i < children2.length; i++) {
-                    children.push(children2[i]);
+        let fn = (instance: any, parent: any) => {
+            setupParentReference(instance, parent);
+            setupMLInjects(instance, parent.ModLoader);
+            setupCoreInject(instance, this.loaded_core);
+            setupEventHandlers(instance, bus);
+            setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
+            setupNetworkHandlers(instance);
+            setupLifecycle(instance);
+            Object.keys(instance).forEach((key: string) => {
+                if (instance[key] !== null && instance[key] !== undefined) {
+                    setupParentReference((instance as any)[key], parent);
+                    setupMLInjects((instance as any)[key], plugin.ModLoader);
+                    setupCoreInject((instance as any)[key], this.loaded_core);
+                    setupEventHandlers((instance as any)[key], bus);
+                    setupPrivateEventHandlers((instance as any)[key], plugin.ModLoader.privateBus);
+                    setupNetworkHandlers((instance as any)[key]);
+                    setupLifecycle((instance as any)[key]);
+                    setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
+                    markPrototypeProcessed((instance as any)[key]);
                 }
-                for (let i = 0; i < children.length; i++) {
-                    fn(children[i], plugin);
-                }
-                markPrototypeProcessed(instance);
-            };
-            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
-            let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+            });
+            let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer);
+            let children2 = setupDateProxy(instance, mlconfig.isClient, mlconfig.isServer);
             for (let i = 0; i < children2.length; i++) {
                 children.push(children2[i]);
             }
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
-            markPrototypeProcessed(plugin);
-            Object.defineProperty(plugin, 'metadata', {
-                value: pkg,
-                writable: false,
-            });
-            this.logger.info("Registered plugin " + pkg.name + ".");
-            this.registerPlugin(plugin);
-            this.plugin_folders.push(parse.dir);
-            internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
+            markPrototypeProcessed(instance);
+        };
+        let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+        let children2 = setupDateProxy(plugin, mlconfig.isClient, mlconfig.isServer);
+        for (let i = 0; i < children2.length; i++) {
+            children.push(children2[i]);
         }
+        for (let i = 0; i < children.length; i++) {
+            fn(children[i], plugin);
+        }
+        markPrototypeProcessed(plugin);
+        Object.defineProperty(plugin, 'metadata', {
+            value: pkg,
+            writable: false,
+        });
+        this.logger.info("Registered plugin " + pkg.name + ".");
+        this.registerPlugin(plugin);
+        this.plugin_folders.push(parse.dir);
+        internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
     }
 
     loadPluginsConstruct(header: IRomHeader, console: IConsole, overrideCore = '') {
@@ -445,12 +452,12 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        try{
+        try {
             this.processInternalPlugin('./consoles/mupen/MenubarPlugin.mls', console);
-        }catch(err){
+        } catch (err) {
             this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
         }
- 
+
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
             let order: ModLoadOrder = new ModLoadOrder();

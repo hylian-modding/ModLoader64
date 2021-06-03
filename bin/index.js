@@ -445,7 +445,10 @@ if (!WAITING_ON_EXTERNAL) {
         }
         let f1 = path_1.default.join(__dirname, "../");
         fs_extra_1.default.copySync("./build/src", "./dist");
-        fs_extra_1.default.copySync("./build/cores", "./dist");
+        try {
+            fs_extra_1.default.copySync("./build/cores", "./dist");
+        }
+        catch (err) { }
         process.chdir(path_1.default.join(".", "dist"));
         fs_1.default.readdirSync(".").forEach((file) => {
             let p = path_1.default.join(".", file);

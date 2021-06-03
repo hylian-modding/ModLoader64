@@ -1,5 +1,5 @@
 import IMemory from './IMemory';
-import { ILobbyManager, INetworkPlayer, INetwork } from './NetworkHandler';
+import { ILobbyManager, INetworkPlayer, INetwork, INetworkClient } from './NetworkHandler';
 import ISaveState from './ISaveState';
 import { IRomHeader } from './IRomHeader';
 import { IGUIAPI } from './GUITunnel';
@@ -50,7 +50,7 @@ export interface IModLoaderAPI {
   emulator: IMemory;
   lobbyManager: ILobbyManager;
   me: INetworkPlayer;
-  clientSide: INetwork;
+  clientSide: INetworkClient;
   serverSide: INetwork;
   clientLobby: string;
   utils: IUtils;

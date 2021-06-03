@@ -27,7 +27,9 @@ import {
     ILobbyStorage,
     ILobbyManager,
     SocketType,
-    IToPlayer
+    IToPlayer,
+    NetworkQueryBusServer,
+    IConnectionCheckEvt
 } from 'modloader64_api/NetworkHandler';
 import crypto from 'crypto';
 import {
@@ -212,6 +214,11 @@ namespace NetworkEngine {
                     this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
                 }
             );
+
+            NetworkQueryBusServer.on('isPlayerConnected', (evt: IConnectionCheckEvt)=>{
+                evt.connected = this.io.sockets.sockets[evt.player.uuid] !== undefined;
+            });
+            
         }
 
         getLobbies() {

@@ -448,7 +448,9 @@ if (!WAITING_ON_EXTERNAL) {
         }
         let f1: string = path.join(__dirname, "../");
         fse.copySync("./build/src", "./dist");
-        fse.copySync("./build/cores", "./dist");
+        try{
+            fse.copySync("./build/cores", "./dist");
+        }catch(err){}
         process.chdir(path.join(".", "dist"));
         fs.readdirSync(".").forEach((file: string) => {
             let p: string = path.join(".", file);
