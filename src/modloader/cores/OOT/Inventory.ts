@@ -661,48 +661,27 @@ export class Inventory extends JSONTemplate implements IInventory {
       return this.getItemInSlot(InventorySlots.BOTTLE1);
   }
   set bottle_1(content: InventoryItem) {
-      if (
-          content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE
-      ) {
-          return;
-      }
       this.setItemInSlot(content, InventorySlots.BOTTLE1);
   }
+
   get bottle_2(): InventoryItem {
       return this.getItemInSlot(InventorySlots.BOTTLE2);
   }
   set bottle_2(content: InventoryItem) {
-      if (
-          content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE
-      ) {
-          return;
-      }
       this.setItemInSlot(content, InventorySlots.BOTTLE2);
   }
+
   get bottle_3(): InventoryItem {
       return this.getItemInSlot(InventorySlots.BOTTLE3);
   }
   set bottle_3(content: InventoryItem) {
-      if (
-          content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE
-      ) {
-          return;
-      }
       this.setItemInSlot(content, InventorySlots.BOTTLE3);
   }
+
   get bottle_4(): InventoryItem {
       return this.getItemInSlot(InventorySlots.BOTTLE4);
   }
   set bottle_4(content: InventoryItem) {
-      if (
-          content < InventoryItem.EMPTY_BOTTLE ||
-      content > InventoryItem.BOTTLED_POE
-      ) {
-          return;
-      }
       this.setItemInSlot(content, InventorySlots.BOTTLE4);
   }
 
@@ -749,7 +728,6 @@ export class Inventory extends JSONTemplate implements IInventory {
       return this.getItemInSlot(InventorySlots.CHILD_TRADE_ITEM);
   }
   set childTradeItem(item: InventoryItem) {
-    if (item < InventoryItem.WEIRD_EGG || item > InventoryItem.SOLD_OUT) return;
       this.setItemInSlot(item, InventorySlots.CHILD_TRADE_ITEM);
   }
 
