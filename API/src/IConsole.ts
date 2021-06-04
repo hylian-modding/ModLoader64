@@ -8,6 +8,9 @@ import { Input } from './Sylvain/Input';
 import { IYaz0 } from './Sylvain/Yaz0';
 import { Debugger } from './Sylvain/Debugger';
 import IUtils from './IUtils';
+import { ProxySide } from './SidedProxy/SidedProxy';
+import { ILogger } from './IModLoaderAPI';
+import { IRomMemory } from './IRomMemory';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -90,5 +93,15 @@ interface IConsole{
   getDebuggerAccess(): Debugger;
 }
 // #endif
+
+interface IConsole{
+  getInternalPlugin(): string;
+  getRomAccess(): IRomMemory;
+}
+
+export interface IConsoleDescriptor{
+  constructConsole(side: ProxySide, rom: string, logger: ILogger, lobby: string): IConsole;
+  getConsoleLabel(): string;
+}
 
 export default IConsole;

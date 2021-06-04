@@ -140,8 +140,21 @@ class pluginLoader {
     }
 
     private processInternalPlugin(pluginPath: string, iconsole: IConsole) {
+        if (pluginPath === "") return;
         let file: string = pluginPath;
         let parse = path.parse(pluginPath);
+        if (!fs.existsSync(pluginPath)) {
+            // Try all combos.
+            let np = path.resolve(parse.dir, parse.name + ".mls");
+            if (fs.existsSync(np)) {
+                pluginPath = np;
+            } else {
+                np = path.resolve(parse.dir, parse.name + ".mlz");
+                if (fs.existsSync(np)) {
+                    pluginPath = np;
+                }
+            }
+        }
         if (parse.ext.indexOf('js') > -1 || parse.ext.indexOf("mls")) {
             let p = require(file);
             let plugin: any = new p();
@@ -435,11 +448,7 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        try {
-            this.processInternalPlugin('./consoles/mupen/MenubarPlugin.mls', console);
-        } catch (err) {
-            this.processInternalPlugin('./consoles/mupen/MenubarPlugin.js', console);
-        }
+        this.processInternalPlugin(console.getInternalPlugin(), console);
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
@@ -561,6 +570,7 @@ class pluginLoader {
             return this.selected_core === modid;
         };
         fn = Object.freeze(fn);
+        
         // Monkey patch Yaz0Encode to have a cache.
         let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils, iconsole.getYaz0Encoder());
         monkeypatch.patch();
@@ -571,7 +581,7 @@ class pluginLoader {
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
         let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
-        let rom: IRomMemory = Object.freeze((iconsole.getMemoryAccess() as unknown as IRomMemory));
+        let rom: IRomMemory = Object.freeze(iconsole.getRomAccess());
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
@@ -740,6 +750,7 @@ class pluginLoader {
         );
         this.loaded_core.ModLoader.payloadManager = this.payloadManager;
         this.loaded_core.ModLoader.math = math;
+        
         let imgui = iconsole.getImGuiAccess();
         let sdl = iconsole.getSDLAccess();
         let gfx = iconsole.getGfxAccess();
@@ -763,6 +774,7 @@ class pluginLoader {
         this.loaded_core.ModLoader.SDL = sdl;
         this.loaded_core.ModLoader.Gfx = gfx;
         this.loaded_core.ModLoader.Input = input;
+
         this.loaded_core.postinit();
         this.plugins.forEach((plugin: IPlugin) => {
             plugin.ModLoader.emulator = emu;

@@ -10,10 +10,8 @@ import {
 } from 'modloader64_api/IModLoaderAPI';
 import IModLoaderConfig from './IModLoaderConfig';
 import NetworkEngine from './NetworkEngine';
-import N64 from './consoles/mupen/N64';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
-import { FakeMupen } from './consoles/mupen/FakeMupen';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
@@ -35,8 +33,10 @@ import { getAllFiles } from './getAllFiles';
 import { PakPatch } from './PakPatch';
 import { IClientConfig } from './IClientConfig';
 import { ExternalAPIData } from 'API/build/ExternalAPIProvider';
+import ConsoleManager from './ConsoleManager';
+import { MupenDescriptor } from './consoles/mupen/MupenDescriptor';
+import { ProxySide } from 'modloader64_api/SidedProxy/SidedProxy';
 
-const SUPPORTED_CONSOLES: string[] = ['N64'];
 export const internal_event_bus = new EventBus();
 
 class ModLoader64 {
@@ -62,10 +62,12 @@ class ModLoader64 {
     tunnel!: IGUITunnel;
     done = false;
     isFirstRun: boolean = false;
+    consoleDescManager: ConsoleManager;
 
     constructor(logger: any, discord: string) {
-        moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
+        // TODO: Move this?
         moduleAlias.addAlias("@sound", path.join(process.cwd(), "/emulator"));
+
         global.ModLoader["logger"] = logger;
         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
             this.mods_folder = global.ModLoader.OVERRIDE_MODS_FOLDER;
@@ -81,6 +83,7 @@ class ModLoader64 {
         }
         this.roms = fs.readdirSync(this.rom_folder);
         this.logger = logger as ILogger;
+        this.consoleDescManager = new ConsoleManager(this.logger.getLogger("BindingManager"));
         let mods_folder_array = [path.resolve(path.join(process.cwd(), 'mods'))];
         if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
             mods_folder_array.push(this.mods_folder);
@@ -144,6 +147,19 @@ class ModLoader64 {
     }
 
     private preinit() {
+        // Figure out what consoles we have available.
+        this.consoleDescManager.registerConsole(new MupenDescriptor());
+        let bindings_dir: string = "./bindings";
+        fs.readdirSync(bindings_dir).forEach((d: string)=>{
+            let dir: string = path.resolve(bindings_dir, d);
+            let meta: string = path.resolve(dir, "package.json");
+            if (!fs.existsSync(meta)) return;
+            let data: any = JSON.parse(fs.readFileSync(meta).toString());
+            let main: string = path.resolve(dir, data.main);
+            let constr: any = require(main).default;
+            this.consoleDescManager.registerConsole(new constr());
+        });
+
         // Set up config.
         this.config.setData(
             'ModLoader64',
@@ -153,13 +169,8 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'patch', '');
         this.config.setData('ModLoader64', 'isServer', true);
         this.config.setData('ModLoader64', 'isClient', true);
-        this.config.setData(
-            'ModLoader64',
-            'supportedConsoles',
-            SUPPORTED_CONSOLES,
-            true
-        );
-        this.config.setData('ModLoader64', 'selectedConsole', 'N64');
+        this.config.setData('ModLoader64', 'supportedConsoles', this.consoleDescManager.getAllConsoleTags(), true);
+        this.config.setData('ModLoader64', 'selectedConsole', 'Mupen64Plus');
         this.config.setData('ModLoader64', 'coreOverride', '');
         this.config.setData('ModLoader64', 'disableVIUpdates', false);
 
@@ -190,9 +201,9 @@ class ModLoader64 {
                 this.rom_path = path.resolve(path.join(temp, p.base));
             });
         }
-        
-        bus.on(ModLoaderEvents.ON_EXTERNAL_API_REGISTER, (data: ExternalAPIData)=>{
-            if (!data.processed){
+
+        bus.on(ModLoaderEvents.ON_EXTERNAL_API_REGISTER, (data: ExternalAPIData) => {
+            if (!data.processed) {
                 data.processed = true;
                 this.logger.debug(`Loading API: ${data.name}@${data.version}`);
                 moduleAlias.addAlias(data.name, data.path);
@@ -251,17 +262,11 @@ class ModLoader64 {
             }
         });
 
-        switch (this.data.selectedConsole) {
-            case 'N64': {
-                if (this.data.isServer) {
-                    this.emulator = new FakeMupen(this.rom_path);
-                }
-                if (this.data.isClient) {
-                    this.emulator = new N64(this.rom_path, this.logger, this.clientConfig.lobby);
-                }
-                break;
-            }
-        }
+        let side: ProxySide = ProxySide.UNIVERSAL;
+        if (this.data.isServer) side = ProxySide.SERVER;
+        if (this.data.isClient) side = ProxySide.CLIENT;
+        this.emulator = this.consoleDescManager.getConsole(this.data.selectedConsole).constructConsole(side, this.rom_path, this.logger, this.clientConfig.lobby);
+
         internal_event_bus.emit('preinit_done', {});
         this.init();
     }
@@ -343,7 +348,7 @@ class ModLoader64 {
         }
         if (fs.existsSync(this.rom_path) || this.data.isServer) {
             this.plugins.loadPluginsInit(result[0].me, this.emulator, this.Client);
-            this.logger.info('Setting up Mupen...');
+            this.logger.info(`Setting up ${this.data.selectedConsole}...`);
             let instance = this;
             let mupen: IMemory;
             let load_mupen = new Promise(function (resolve, reject) {

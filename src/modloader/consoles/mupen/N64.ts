@@ -20,6 +20,7 @@ import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { Debugger } from 'modloader64_api/Sylvain/Debugger';
+import moduleAlias from 'module-alias';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -34,6 +35,7 @@ class N64 implements IConsole {
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
         this.lobby = lobby;
+        moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
 
@@ -283,6 +285,10 @@ class N64 implements IConsole {
         return this.mupen.M64p.Memory;
     }
 
+    getRomAccess(): IRomMemory {
+        return this.mupen.M64p.Memory as any;
+    }
+
     softReset(): void {
         this.mupen.M64p.softReset();
     }
@@ -315,6 +321,10 @@ class N64 implements IConsole {
 
     getDebuggerAccess(): Debugger {
         return this.mupen.M64p.Debugger;
+    }
+
+    getInternalPlugin(): string {
+        return path.resolve(__dirname, "MenubarPlugin.js");
     }
 }
 
