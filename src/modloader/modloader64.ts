@@ -150,6 +150,9 @@ class ModLoader64 {
         // Figure out what consoles we have available.
         this.consoleDescManager.registerConsole(new MupenDescriptor());
         let bindings_dir: string = "./bindings";
+        if (!fs.existsSync(bindings_dir)){
+            fs.mkdirSync(bindings_dir);
+        }
         fs.readdirSync(bindings_dir).forEach((d: string)=>{
             let dir: string = path.resolve(bindings_dir, d);
             let meta: string = path.resolve(dir, "package.json");
