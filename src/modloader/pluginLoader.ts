@@ -312,15 +312,18 @@ class pluginLoader {
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
         parse = path.parse(file);
         let p: any;
-        try {
-            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".js"));
-        } catch (err) { }
-        try {
-            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mls"));
-        } catch (err) { }
-        try {
-            if (p === undefined) p = require(path.resolve(parse.dir, parse.name + ".mlz"));
-        } catch (err) { }
+        if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".js"))) {
+            p = require(path.resolve(parse.dir, parse.name + ".js"));
+        }
+        if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mls"))) {
+            p = require(path.resolve(parse.dir, parse.name + ".mls"));
+        }
+        if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mlz"))) {
+            p = require(path.resolve(parse.dir, parse.name + ".mlz"));
+        }
+        if (p["default"] !== undefined){
+            p = p["default"];
+        }
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
@@ -570,7 +573,7 @@ class pluginLoader {
             return this.selected_core === modid;
         };
         fn = Object.freeze(fn);
-        
+
         // Monkey patch Yaz0Encode to have a cache.
         let monkeypatch: MonkeyPatch_Yaz0Encode = new MonkeyPatch_Yaz0Encode(utils, iconsole.getYaz0Encoder());
         monkeypatch.patch();
@@ -750,7 +753,7 @@ class pluginLoader {
         );
         this.loaded_core.ModLoader.payloadManager = this.payloadManager;
         this.loaded_core.ModLoader.math = math;
-        
+
         let imgui = iconsole.getImGuiAccess();
         let sdl = iconsole.getSDLAccess();
         let gfx = iconsole.getGfxAccess();
