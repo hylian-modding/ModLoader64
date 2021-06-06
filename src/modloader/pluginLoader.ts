@@ -321,8 +321,10 @@ class pluginLoader {
         if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mlz"))) {
             p = require(path.resolve(parse.dir, parse.name + ".mlz"));
         }
-        if (p["default"] !== undefined){
-            p = p["default"];
+        if (p.hasOwnProperty("default")){
+            if (p["default"] !== undefined){
+                p = p["default"];
+            }
         }
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
