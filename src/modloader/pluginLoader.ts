@@ -321,11 +321,11 @@ class pluginLoader {
         if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mlz"))) {
             p = require(path.resolve(parse.dir, parse.name + ".mlz"));
         }
-        if (p.hasOwnProperty("default")){
+        try{
             if (p["default"] !== undefined){
                 p = p["default"];
             }
-        }
+        }catch(err){}
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
