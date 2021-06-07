@@ -459,6 +459,8 @@ export interface ISaveContext {
   skulltulaFlags: Buffer;
   keyManager: IKeyManager;
   dungeonItemManager: IDungeonItemManager;
+  scarecrowsSongChildFlag: boolean;
+  scarecrowsSong: Buffer;
   double_defense: number;
   bButton: number;
 }
@@ -765,5 +767,77 @@ export class SceneStruct {
 
   get visited_floors(): Buffer {
     return this.buf.slice(0x18, 0x1C);
+  }
+}
+
+export const enum SongNotes {
+  NONE = 0,
+  A_FLAT = 1,
+  A_NOTE = 2,
+  A_SHARP = 3,
+  C_DOWN_FLAT = 4,
+  C_DOWN_NOTE = 5,
+  C_DOWN_SHARP = 6,
+  C_RIGHT_FLAT = 8,
+  C_RIGHT_NOTE = 9,
+  C_RIGHT_SHARP = 10,
+  C_LEFT_FLAT = 10,
+  C_LEFT_NOTE = 11,
+  C_LEFT_SHARP = 12,
+  C_UP_FLAT = 13,
+  C_UP_NOTE = 14,
+  C_UP_SHARP = 15,
+  SILENCE = 0xFF,
+}
+
+export const enum SongFlags {
+  NONE = 0,
+  FLATTENED_NOTE = 0x40,
+  SHARPENED_NOTE = 0x80,
+  CONTINUE_SILENCE = 0xC0,
+}
+
+export interface IScarecrowSongNote {
+  note: SongNotes;
+  duration: number;
+  volume: number;
+  vibrato: number;
+  pitch: number;
+  special: SongFlags;
+}
+
+export class ScarecrowSongNoteStruct {
+  buf: Buffer;
+
+  constructor(buf: Buffer) {
+    this.buf = buf;
+  }
+
+  get note(): Buffer {
+    return this.buf.slice(0x0, 0x1);
+  }
+
+  get unused(): Buffer {
+    return this.buf.slice(0x1, 0x2);
+  }
+
+  get duration(): Buffer {
+    return this.buf.slice(0x2, 0x4);
+  }
+
+  get volume(): Buffer {
+    return this.buf.slice(0x4, 0x5);
+  }
+
+  get vibrato(): Buffer {
+    return this.buf.slice(0x5, 0x6);
+  }
+
+  get pitch(): Buffer {
+    return this.buf.slice(0x6, 0x7);
+  }
+
+  get special(): Buffer {
+    return this.buf.slice(0x7, 0x8);
   }
 }
