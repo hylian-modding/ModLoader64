@@ -259,7 +259,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
         );
     }
 
-    onTick(): void {
+    onTick(frame: number): void {
         if (this.map_select_enabled) {
             this.mapSelectCode();
         }
@@ -274,6 +274,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     @onPostTick()
     onPostTick() {
         this.link.current_sound_id = 0;
+        if (this.commandBuffer !== undefined) this.commandBuffer.onTick()
     }
 
     @EventHandler(EventsClient.ON_INJECT_FINISHED)
