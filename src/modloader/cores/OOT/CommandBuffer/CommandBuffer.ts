@@ -1,4 +1,4 @@
-import { IModLoaderAPI } from "API/build/IModLoaderAPI";
+import { IModLoaderAPI } from "modloader64_api/IModLoaderAPI";
 import Vector3 from "API/build/math/Vector3";
 import { IActor } from "API/build/OOT/IActor";
 import { Command, ICommandBuffer } from "API/build/OOT/ICommandBuffer";
@@ -8,7 +8,7 @@ import { SmartBuffer } from "smart-buffer";
 import { DecodeImmediate, DecodeOpcode, EncodeImmediate, JAL_DECODE, JAL_ENCODE, J_ENCODE, OPCODEINDEXTYPE, OPCODE_DEFAULT } from "./OpcodeBullshit";
 import { Deprecated } from "modloader64_api/Deprecated";
 import { ActorBase } from "../Actor";
-import { bus, EventBus } from "modloader64_api/EventHandler";
+import { bus } from "modloader64_api/EventHandler";
 
 export const Actor_DestroyCave: Buffer = Buffer.from("PAgSNI0IVngAAFAlAAAQJSULDQQkCQDIAAI4wAEHMCGMww0ELGMABRRgAAgkQgABjMMNBCxjAAYQYAAEAAAAAIzDDQhQgwABAWdQIRRJ//MAAjjAFUAAESQCAAUAABglJQkNBCQHAMgkYgGgAAIQwAECECGMQgAEAAMwwBRAAAIkYwABASZQIRRn//gkYgGgUUAABYyZASwkAgAFrUIAAK1EAASMmQEsAyAACAAAAAA=", 'base64');
 export const Actor_InitCave: Buffer = Buffer.from("PAgSNI0IVngAAFAlAAAQJSULDQQkCQDIAAIwwAEGGCGMZw0EEOAACCRCAAGMZw0ELOcAAhDgAAQAAAAAjGMNCFCDAAEBZlAhFEn/9AACMMAVQAAQJAIAAQAAGCUlCQ0EJAcAyCRiAaAAAhDAAQIQIYxCAAQAAzDAFEAAAiRjAAEAyVAhFGf/+CRiAaARQAADJAIAAa1CAACtRAAECACD9wAAAAA=", 'base64');
@@ -320,7 +320,6 @@ export class CommandBuffer implements ICommandBuffer {
             if (type !== CommandBuffer_CommandActorType.NONE) {
                 let actor = this.ModLoader.emulator.rdramRead32(offset + 4);
                 bus.emit("Actor_" + CommandBuffer_CommandActorType[type], actor);
-                if (type !== CommandBuffer_CommandActorType.UPDATE) console.log("Actor_" + CommandBuffer_CommandActorType[type] + " invoked! Actor is " + actor.toString(16));
                 this.ModLoader.emulator.rdramWrite32(offset, 0);
             }
         }

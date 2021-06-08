@@ -247,13 +247,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.link,
             this.ModLoader.emulator
         );
-        this.actorManager = new ActorManager(
-            this.ModLoader.emulator,
-            this.ModLoader.logger,
-            this.helper,
-            this.global,
-            this.ModLoader.utils
-        );
+        this.actorManager = new ActorManager();
         this.ModLoader.payloadManager.registerPayloadType(
             new OverlayPayload('.ovl', this.ModLoader, this)
         );
@@ -264,7 +258,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.mapSelectCode();
         }
         if (!this.helper.isTitleScreen()) {
-            this.actorManager.onTick();
+            if (this.commandBuffer !== undefined) this.commandBuffer.onTick();
             this.eventTicks.forEach((value: Function, key: string) => {
                 value();
             });
@@ -274,7 +268,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
     @onPostTick()
     onPostTick() {
         this.link.current_sound_id = 0;
-        if (this.commandBuffer !== undefined) this.commandBuffer.onTick()
     }
 
     @EventHandler(EventsClient.ON_INJECT_FINISHED)
