@@ -5,7 +5,6 @@ import {
     IGlobalContext, ILink, IOOTCore, IOotHelper, OotEvents, IOvlPayloadResult, Tunic
 } from 'modloader64_api/OOT/OOTAPI';
 import { ActorManager } from './OOT/ActorManager';
-import { CommandBuffer } from './OOT/CommandBuffer';
 import { GlobalContext } from './OOT/GlobalContext';
 import { Link } from './OOT/Link';
 import { OotHelper } from './OOT/OotHelper';
@@ -15,10 +14,11 @@ import fs from 'fs';
 import path from 'path';
 import IMemory from 'modloader64_api/IMemory';
 import { PatchTypes } from 'modloader64_api/Patchers/PatchManager';
-import { Command } from 'modloader64_api/OOT/ICommandBuffer';
 import { onPostTick } from 'modloader64_api/PluginLifecycle';
 import { SmartBuffer } from 'smart-buffer';
-import { Heap } from 'modloader64_api/heap';
+import { CommandBuffer } from './OOT/CommandBuffer/CommandBuffer';
+import { IActor } from 'modloader64_api/OOT/IActor';
+import Vector3 from 'modloader64_api/math/Vector3';
 
 export enum ROM_VERSIONS {
     N0 = 0x00,
@@ -43,7 +43,6 @@ export interface OOT_Offsets {
 export class OcarinaofTime implements ICore, IOOTCore {
     header = [ROM_REGIONS.NTSC, ROM_REGIONS.PAL];
     ModLoader!: IModLoaderAPI;
-    payloads: string[] = new Array<string>();
     link!: ILink;
     save!: SaveContext;
     global!: IGlobalContext;
@@ -121,7 +120,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 offsets.raw_anim = 0x0200;
                 offsets.dma_rom = 0x00012F70;
                 global.ModLoader['isDebugRom'] = true;
-                this.payloads.push(__dirname + '/OOT/OcarinaofTime_debug.payload');
                 break;
             default:
                 global.ModLoader['save_context'] = 0x11a5d0;
@@ -138,7 +136,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 offsets.raw_anim = 0x01F0;
                 offsets.dma_rom = 0x00007430;
                 global.ModLoader['isDebugRom'] = false;
-                this.payloads.push(__dirname + '/OOT/OcarinaofTime.payload');
                 break;
         }
     }
@@ -227,133 +224,17 @@ export class OcarinaofTime implements ICore, IOOTCore {
             }
         });
         this.eventTicks.set('healthTick', () => {
-            if (this.lastHealth !== this.save.health){
+            if (this.lastHealth !== this.save.health) {
                 this.lastHealth = this.save.health;
                 bus.emit(OotEvents.ON_HEALTH_CHANGE, this.lastHealth);
             }
         });
-        this.eventTicks.set('tunicTick', ()=>{
-            if (this.lastTunic !== this.link.tunic){
+        this.eventTicks.set('tunicTick', () => {
+            if (this.lastTunic !== this.link.tunic) {
                 this.lastTunic = this.link.tunic;
                 bus.emit(OotEvents.ON_TUNIC_CHANGE, this.lastTunic);
             }
         });
-        /*         this.eventTicks.set("waitingForLocalFlagChange", () => {
-                    let live_scene_chests: Buffer = this.global.liveSceneData_chests;
-                    let live_scene_switches: Buffer = this.global.liveSceneData_switch;
-                    let live_scene_collect: Buffer = this.global.liveSceneData_collectable;
-                    let live_scene_clear: Buffer = this.global.liveSceneData_clear;
-                    let live_scene_temp: Buffer = this.global.liveSceneData_temp;
-                    let save_scene_data: Buffer = this.global.getSaveDataForCurrentScene();
-                    live_scene_chests.copy(this.localFlagsTemp, 0x0); // Chests
-                    live_scene_switches.copy(this.localFlagsTemp, 0x4); // Switches
-                    live_scene_clear.copy(this.localFlagsTemp, 0x8); // Room Clear
-                    live_scene_collect.copy(this.localFlagsTemp, 0xc); // Collectables
-                    live_scene_temp.copy(this.localFlagsTemp, 0x10); // Unused space.
-                    save_scene_data.copy(this.localFlagsTemp, 0x14, 0x14, 0x18); // Visited Rooms.
-                    save_scene_data.copy(this.localFlagsTemp, 0x18, 0x18, 0x1c); // Visited Rooms.
-                    let hash1: string = this.ModLoader.utils.hashBuffer(this.localFlagsTemp);
-                    if (hash1 !== this.localFlagsHash) {
-                        let ss: SceneStruct = new SceneStruct(this.localFlagsTemp);
-                        let ss2: SceneStruct = new SceneStruct(this.localFlags);
-                        let flagBlockPos: number = 0;
-                        for (let i = 0; i < ss.chests.byteLength; i++) {
-                            let byte: number = ss.chests.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.chests.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.CHEST, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.collectible.byteLength; i++) {
-                            let byte: number = ss.collectible.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.collectible.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.COLLECT, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.room_clear.byteLength; i++) {
-                            let byte: number = ss.room_clear.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.room_clear.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.ROOM_CLEAR, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.switches.byteLength; i++) {
-                            let byte: number = ss.switches.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.switches.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.SWITCH, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.unused.byteLength; i++) {
-                            let byte: number = ss.unused.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.unused.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.UNUSED, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.visited_floors.byteLength; i++) {
-                            let byte: number = ss.visited_floors.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.visited_floors.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.VISITED_FLOOR, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        for (let i = 0; i < ss.visited_rooms.byteLength; i++) {
-                            let byte: number = ss.visited_rooms.readUInt8(i);
-                            let bits = bitwise.byte.read(byte as any);
-                            let byte2: number = ss2.visited_rooms.readUInt8(i);
-                            let bits2 = bitwise.byte.read(byte2 as any);
-                            for (let j = 0; j < bits.length; j++) {
-                                if (bits[j] !== bits2[j]) {
-                                    bus.emit(OotEvents.ON_LOCAL_FLAG_CHANGE, new OotFlagEventImpl(OotFlagTypes.SCENE, OotFlagSubTypes.VISITED_ROOM, this.global.scene, flagBlockPos, bits[j] === 1));
-                                }
-                                flagBlockPos++;
-                            }
-                        }
-                        this.localFlagsTemp.copy(this.localFlags);
-                        this.localFlagsHash = this.ModLoader.utils.hashBuffer(this.localFlags);
-                    }
-                });
-                this.eventTicks.set("waitingForSaveFlagChange", () => {
-                    let saveBuf: Buffer = this.save.permSceneData;
-                    let hash: string = this.ModLoader.utils.hashBuffer(saveBuf);
-                    if (hash !== this.permFlagsSceneHash){
-                        
-                        saveBuf.copy(this.permFlagsScene);
-                        this.permFlagsSceneHash = this.ModLoader.utils.hashBuffer(this.permFlagsScene);
-                    }
-                }); */
     }
 
     postinit(): void {
@@ -366,7 +247,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.link,
             this.ModLoader.emulator
         );
-        this.commandBuffer = new CommandBuffer(this.ModLoader.emulator);
         this.actorManager = new ActorManager(
             this.ModLoader.emulator,
             this.ModLoader.logger,
@@ -375,12 +255,11 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.ModLoader.utils
         );
         this.ModLoader.payloadManager.registerPayloadType(
-            new OverlayPayload('.ovl', this.ModLoader.logger.getLogger("OverlayPayload"), this)
+            new OverlayPayload('.ovl', this.ModLoader, this)
         );
     }
 
     onTick(): void {
-        this.commandBuffer.onTick();
         if (this.map_select_enabled) {
             this.mapSelectCode();
         }
@@ -399,13 +278,32 @@ export class OcarinaofTime implements ICore, IOOTCore {
 
     @EventHandler(EventsClient.ON_INJECT_FINISHED)
     onInject(evt: any) {
-        for (let i = 0; i < this.payloads.length; i++) {
-            this.ModLoader.payloadManager.parseFile(this.payloads[i]);
-        }
         if (this.ModLoader.config.data["OcarinaofTime"]["skipN64Logo"]) {
             this.ModLoader.logger.info("Skipping N64 logo screen...");
             this.ModLoader.emulator.rdramWritePtr8(global.ModLoader['global_context_pointer'], 0x1E1, 0x1);
         }
+    }
+
+    @EventHandler(EventsClient.ON_HEAP_SETUP)
+    onHeapSetup(evt: any) {
+        // Scan memory.
+        let mb_1: Buffer = Buffer.alloc(0x100000);
+        let start: number = 0x80000000;
+        let scan: Buffer = Buffer.alloc(0x100000, 0xFF);
+        let skipped: number = 0;
+        while (!scan.equals(mb_1)) {
+            start += (0x100000);
+            skipped += (0x100000);
+            scan = this.ModLoader.emulator.rdramReadBuffer(start, 0x100000);
+        }
+        this.heap_start = start;
+        this.heap_size = (0x1000000 - skipped);
+        this.ModLoader.logger.debug(`Oot Core Context: ${start.toString(16)}. Size: 0x${this.heap_size.toString(16)}`);
+    }
+
+    @EventHandler(EventsClient.ON_HEAP_READY)
+    onHeapReady(evt: any) {
+        this.commandBuffer = new CommandBuffer(this.ModLoader, this.rom_header.revision);
     }
 
     mapSelectCode(): void {
@@ -447,19 +345,42 @@ interface ovl_meta {
     forceSlot: string;
 }
 
+class OvlPayloadResult implements IOvlPayloadResult {
+    slot: number;
+    core: IOOTCore;
+
+    constructor(core: IOOTCore, slot: number) {
+        this.slot = slot;
+        this.core = core;
+    }
+
+    spawnActorRXYZ(params: number, rotX: number, rotY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor> {
+        return this.core.commandBuffer.spawnActorRXYZ(this.slot, params, rotX, rotY, rotZ, pos, address);
+    }
+
+    spawnActorRXY_Z(params: number, rotXY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor> {
+        return this.core.commandBuffer.spawnActorRXY_Z(this.slot, params, rotXY, rotZ, pos, address);
+    }
+
+    spawn(params: number, rot: Vector3, pos: Vector3, address?: number): Promise<IActor> {
+        return this.core.commandBuffer.spawnActor(this.slot, params, rot, pos, address);
+    }
+
+}
+
 export class OverlayPayload extends PayloadType {
 
-    private logger: ILogger;
+    private ModLoader: IModLoaderAPI;
     private core: IOOTCore;
 
-    constructor(ext: string, logger: ILogger, core: IOOTCore) {
+    constructor(ext: string, ModLoader: IModLoaderAPI, core: IOOTCore) {
         super(ext);
-        this.logger = logger;
+        this.ModLoader = ModLoader;
         this.core = core;
     }
 
     parse(file: string, buf: Buffer, dest: IMemory) {
-        this.logger.debug('Trying to allocate actor...');
+        this.ModLoader.logger.debug('Trying to allocate actor...');
         let overlay_start: number = global.ModLoader['overlay_table'];
         let size = 0x01d6;
         let empty_slots: number[] = new Array<number>();
@@ -472,7 +393,7 @@ export class OverlayPayload extends PayloadType {
                 empty_slots.push(i);
             }
         }
-        this.logger.debug(empty_slots.length + ' empty actor slots found.');
+        this.ModLoader.logger.debug(empty_slots.length + ' empty actor slots found.');
         let finder: find_init = new find_init();
         let meta: ovl_meta = JSON.parse(
             fs
@@ -483,7 +404,7 @@ export class OverlayPayload extends PayloadType {
         );
         let offset: number = finder.find(buf, meta.init);
         if (offset === -1) {
-            this.logger.debug(
+            this.ModLoader.logger.debug(
                 'Failed to find spawn parameters for actor ' +
                 path.parse(file).base +
                 '.'
@@ -494,43 +415,33 @@ export class OverlayPayload extends PayloadType {
         if (meta.forceSlot !== undefined) {
             slot = parseInt(meta.forceSlot);
         }
-        this.logger.debug(
+        this.ModLoader.logger.debug(
             'Assigning ' + path.parse(file).base + ' to slot ' + slot + '.'
         );
         // Clean anything in here out first.
         for (let i = 0; i < 0x20; i++) {
             dest.rdramWrite8(slot * 0x20 + overlay_start + i, 0);
         }
-        let final: number = this.core.ModLoader.heap!.malloc(buf.byteLength + (0x10 * 2));
+        let final: number = this.core.ModLoader.heap!.malloc(buf.byteLength + 0x10);
         dest.rdramWrite32(slot * 0x20 + overlay_start + 0x14, final + offset);
         buf.writeUInt16BE(slot, offset);
         let alloc = new SmartBuffer();
         alloc.writeBuffer(buf);
-        let relocate_final: number = final + buf.byteLength;
         alloc.writeUInt32BE(final);
         alloc.writeUInt32BE(final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)));
         alloc.writeUInt32BE(0x80800000);
         alloc.writeUInt32BE(buf.byteLength);
-        let params: Buffer = Buffer.from("00014600C50046000000000000000000", 'hex');
-        let params_addr: number = relocate_final + 0x10;
-        params.writeUInt16BE(slot, 0);
-        alloc.writeBuffer(params);
-        let hash: string = this.core.ModLoader.utils.hashBuffer(buf);
         dest.rdramWriteBuffer(final, alloc.toBuffer());
-        this.core.commandBuffer.runCommand(Command.RELOCATE_OVL, relocate_final, () => {
-            let hash2: string = this.core.ModLoader.utils.hashBuffer(dest.rdramReadBuffer(final, buf.byteLength));
+        let hash: string = this.ModLoader.utils.hashBuffer(buf);
+        this.core.commandBuffer.relocateOverlay(final, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)), 0x80800000);
+        this.ModLoader.utils.setTimeoutFrames(() => {
+            let hash2 = this.ModLoader.utils.hashBuffer(this.ModLoader.emulator.rdramReadBuffer(final, buf.byteLength));
             if (hash !== hash2) {
-                this.logger.debug("ovl " + path.parse(file).base + " relocated successfully!");
+                this.ModLoader.logger.info(`${path.parse(file).base} relocated.`);
+            } else {
+                this.ModLoader.logger.error(`${path.parse(file).base} failed`);
             }
-        });
-        return {
-            file: file, slot: slot, addr: final, params: params_addr, buf: buf, relocate: relocate_final, overlay_table_entry: (slot * 0x20 + overlay_start), spawn: (obj: any, cb?: Function): void => {
-                if (cb !== undefined) {
-                    this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"], cb);
-                } else {
-                    this.core.commandBuffer.runCommand(Command.SPAWN_ACTOR, obj["params"]);
-                }
-            }
-        } as IOvlPayloadResult;
+        }, 5);
+        return new OvlPayloadResult(this.core, slot);
     }
 }

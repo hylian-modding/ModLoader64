@@ -3,7 +3,6 @@ import { ICore } from '../IModLoaderAPI';
 import { IActor } from './IActor';
 import { IDungeonItemManager } from './IDungeonItemManager';
 import Vector3 from '../math/Vector3';
-import { throws } from 'assert';
 import { ActorCategory } from './ActorCategory';
 
 export const enum LinkState {
@@ -547,50 +546,6 @@ export enum OotEvents {
   ON_TUNIC_CHANGE = "onTunicChanged"
 }
 
-export enum OotFlagTypes {
-  SCENE,
-  SKULLTULA,
-  ITEM,
-  INF,
-  EVENT
-}
-
-export enum OotFlagSubTypes {
-  NONE,
-  CHEST,
-  SWITCH,
-  ROOM_CLEAR,
-  COLLECT,
-  UNUSED,
-  VISITED_ROOM,
-  VISITED_FLOOR
-}
-
-export interface OotFlagEvent {
-  type: OotFlagTypes;
-  subtype: OotFlagSubTypes;
-  scene: Scene;
-  flagNumber: number;
-  state: boolean;
-}
-
-export class OotFlagEventImpl implements OotFlagEvent {
-  type: OotFlagTypes;
-  subtype: OotFlagSubTypes;
-  scene: Scene;
-  flagNumber: number;
-  state: boolean;
-
-  constructor(type: OotFlagTypes, subtype: OotFlagSubTypes, scene: Scene, flagNumber: number, state: boolean) {
-    this.type = type;
-    this.subtype = subtype;
-    this.scene = scene;
-    this.flagNumber = flagNumber;
-    this.state = state;
-  }
-
-}
-
 export interface IActorManager {
   // Returns IActor if the actor exists or undefined if the pointer doesn't lead to an actor.
   createIActorFromPointer(pointer: number): IActor;
@@ -722,14 +677,10 @@ export function UpgradeCountLookup(
 }
 
 export interface IOvlPayloadResult {
-  file: string;
   slot: number;
-  addr: number;
-  params: number;
-  buf: Buffer;
-  relocate: number;
-
-  spawn(obj: IOvlPayloadResult, callback?: (success: boolean, result: number) => void): void;
+  spawn(params: number, rot: Vector3, pos: Vector3, address?: number): Promise<IActor>;
+  spawnActorRXYZ(params: number, rotX: number, rotY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>;
+  spawnActorRXY_Z(params: number, rotXY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>
 }
 
 export class SceneStruct {

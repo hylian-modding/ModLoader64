@@ -126,7 +126,7 @@ export class ActorManager implements IActorManager {
         }
         this.actors_this_frame.forEach((value: ActorBase[], key: ActorCategory) => {
             for (let i = 0; i < value.length; i++) {
-                if (this.actors_pointers_this_frame.indexOf(value[i].instance) === -1) {
+                if (this.actors_pointers_this_frame.indexOf(value[i].pointer) === -1) {
                     value[i].exists = false;
                     let removed: ActorBase = value.splice(i, 1)[0];
                     bus.emit(OotEvents.ON_ACTOR_DESPAWN, removed);

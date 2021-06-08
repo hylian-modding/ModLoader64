@@ -5,6 +5,7 @@ import { ActorCategory } from './ActorCategory';
 
 export interface IActor extends IMemory {
   actorUUID: string;
+  pointer: number;
   actorID: number; // 0x00 uInt16 Should probably replace with enum later.
   actorType: ActorCategory; // 0x02 UInt8
   isTransitionActor: boolean;

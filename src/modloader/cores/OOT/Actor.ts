@@ -163,7 +163,7 @@ export function getActorBehavior(
 export class ActorBase extends JSONTemplate implements IActor {
     actorUUID = '';
     private readonly emulator: IMemory;
-    instance: number;
+    pointer: number;
     exists = true;
     rotation: IRotation;
     position: IPosition;
@@ -177,7 +177,7 @@ export class ActorBase extends JSONTemplate implements IActor {
     constructor(emulator: IMemory, pointer: number) {
         super();
         this.emulator = emulator;
-        this.instance = pointer;
+        this.pointer = pointer;
         this.rotation = new Rotation(this);
         this.position = new Position(this);
     }
@@ -270,114 +270,114 @@ export class ActorBase extends JSONTemplate implements IActor {
     }
 
     rdramRead8(addr: number): number {
-        return this.emulator.rdramRead8(this.instance + addr);
+        return this.emulator.rdramRead8(this.pointer + addr);
     }
     rdramWrite8(addr: number, value: number): void {
-        this.emulator.rdramWrite8(this.instance + addr, value);
+        this.emulator.rdramWrite8(this.pointer + addr, value);
     }
     rdramRead16(addr: number): number {
-        return this.emulator.rdramRead16(this.instance + addr);
+        return this.emulator.rdramRead16(this.pointer + addr);
     }
     rdramWrite16(addr: number, value: number): void {
-        this.emulator.rdramWrite16(this.instance + addr, value);
+        this.emulator.rdramWrite16(this.pointer + addr, value);
     }
     rdramWrite32(addr: number, value: number): void {
-        this.emulator.rdramWrite32(this.instance + addr, value);
+        this.emulator.rdramWrite32(this.pointer + addr, value);
     }
     rdramRead32(addr: number): number {
-        return this.emulator.rdramRead32(this.instance + addr);
+        return this.emulator.rdramRead32(this.pointer + addr);
     }
     rdramReadBuffer(addr: number, size: number): Buffer {
-        return this.emulator.rdramReadBuffer(this.instance + addr, size);
+        return this.emulator.rdramReadBuffer(this.pointer + addr, size);
     }
     rdramWriteBuffer(addr: number, buf: Buffer): void {
-        this.emulator.rdramWriteBuffer(this.instance + addr, buf);
+        this.emulator.rdramWriteBuffer(this.pointer + addr, buf);
     }
     dereferencePointer(addr: number): number {
-        return this.emulator.dereferencePointer(this.instance + addr);
+        return this.emulator.dereferencePointer(this.pointer + addr);
     }
     rdramReadS8(addr: number): number {
-        return this.emulator.rdramReadS8(this.instance + addr);
+        return this.emulator.rdramReadS8(this.pointer + addr);
     }
     rdramReadS16(addr: number): number {
-        return this.emulator.rdramReadS16(this.instance + addr);
+        return this.emulator.rdramReadS16(this.pointer + addr);
     }
     rdramReadS32(addr: number): number {
-        return this.emulator.rdramReadS32(this.instance + addr);
+        return this.emulator.rdramReadS32(this.pointer + addr);
     }
     rdramReadBitsBuffer(addr: number, bytes: number): Buffer {
-        return this.emulator.rdramReadBitsBuffer(this.instance + addr, bytes);
+        return this.emulator.rdramReadBitsBuffer(this.pointer + addr, bytes);
     }
     rdramReadBits8(addr: number): Buffer {
-        return this.emulator.rdramReadBits8(this.instance + addr);
+        return this.emulator.rdramReadBits8(this.pointer + addr);
     }
     rdramReadBit8(addr: number, bitoffset: number): boolean {
-        return this.emulator.rdramReadBit8(this.instance + addr, bitoffset);
+        return this.emulator.rdramReadBit8(this.pointer + addr, bitoffset);
     }
     rdramWriteBitsBuffer(addr: number, buf: Buffer): void {
-        this.emulator.rdramWriteBitsBuffer(this.instance + addr, buf);
+        this.emulator.rdramWriteBitsBuffer(this.pointer + addr, buf);
     }
     rdramWriteBits8(addr: number, buf: Buffer): void {
-        this.emulator.rdramWriteBits8(this.instance + addr, buf);
+        this.emulator.rdramWriteBits8(this.pointer + addr, buf);
     }
     rdramWriteBit8(addr: number, bitoffset: number, bit: boolean): void {
-        this.emulator.rdramWriteBit8(this.instance + addr, bitoffset, bit);
+        this.emulator.rdramWriteBit8(this.pointer + addr, bitoffset, bit);
     }
     rdramReadPtr8(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtr8(this.instance + addr, offset);
+        return this.emulator.rdramReadPtr8(this.pointer + addr, offset);
     }
     rdramWritePtr8(addr: number, offset: number, value: number): void {
-        this.emulator.rdramWritePtr8(this.instance + addr, offset, value);
+        this.emulator.rdramWritePtr8(this.pointer + addr, offset, value);
     }
     rdramReadPtr16(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtr16(this.instance + addr, offset);
+        return this.emulator.rdramReadPtr16(this.pointer + addr, offset);
     }
     rdramWritePtr16(addr: number, offset: number, value: number): void {
-        this.emulator.rdramWritePtr16(this.instance + addr, offset, value);
+        this.emulator.rdramWritePtr16(this.pointer + addr, offset, value);
     }
     rdramWritePtr32(addr: number, offset: number, value: number): void {
-        this.emulator.rdramWritePtr32(this.instance + addr, offset, value);
+        this.emulator.rdramWritePtr32(this.pointer + addr, offset, value);
     }
     rdramReadPtr32(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtr32(this.instance + addr, offset);
+        return this.emulator.rdramReadPtr32(this.pointer + addr, offset);
     }
     rdramReadPtrBuffer(addr: number, offset: number, size: number): Buffer {
-        return this.emulator.rdramReadPtrBuffer(this.instance + addr, offset, size);
+        return this.emulator.rdramReadPtrBuffer(this.pointer + addr, offset, size);
     }
     rdramWritePtrBuffer(addr: number, offset: number, buf: Buffer): void {
-        this.emulator.rdramWritePtrBuffer(this.instance + addr, offset, buf);
+        this.emulator.rdramWritePtrBuffer(this.pointer + addr, offset, buf);
     }
     rdramReadPtrS8(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtrS8(this.instance + addr, offset);
+        return this.emulator.rdramReadPtrS8(this.pointer + addr, offset);
     }
     rdramReadPtrS16(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtrS16(this.instance + addr, offset);
+        return this.emulator.rdramReadPtrS16(this.pointer + addr, offset);
     }
     rdramReadPtrS32(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtrS32(this.instance + addr, offset);
+        return this.emulator.rdramReadPtrS32(this.pointer + addr, offset);
     }
     rdramReadPtrBitsBuffer(addr: number, offset: number, bytes: number): Buffer {
         return this.emulator.rdramReadPtrBitsBuffer(
-            this.instance + addr,
+            this.pointer + addr,
             offset,
             bytes
         );
     }
     rdramReadPtrBits8(addr: number, offset: number): Buffer {
-        return this.emulator.rdramReadPtrBits8(this.instance + addr, offset);
+        return this.emulator.rdramReadPtrBits8(this.pointer + addr, offset);
     }
     rdramReadPtrBit8(addr: number, offset: number, bitoffset: number): boolean {
         return this.emulator.rdramReadPtrBit8(
-            this.instance + addr,
+            this.pointer + addr,
             offset,
             bitoffset
         );
     }
     rdramWritePtrBitsBuffer(addr: number, offset: number, buf: Buffer): void {
-        this.emulator.rdramWritePtrBitsBuffer(this.instance + addr, offset, buf);
+        this.emulator.rdramWritePtrBitsBuffer(this.pointer + addr, offset, buf);
     }
     rdramWritePtrBits8(addr: number, offset: number, buf: Buffer): void {
-        this.emulator.rdramWritePtrBits8(this.instance + addr, offset, buf);
+        this.emulator.rdramWritePtrBits8(this.pointer + addr, offset, buf);
     }
     rdramWritePtrBit8(
         addr: number,
@@ -386,23 +386,23 @@ export class ActorBase extends JSONTemplate implements IActor {
         bit: boolean
     ): void {
         this.emulator.rdramWritePtrBit8(
-            this.instance + addr,
+            this.pointer + addr,
             offset,
             bitoffset,
             bit
         );
     }
     rdramReadF32(addr: number): number {
-        return this.emulator.rdramReadF32(this.instance + addr);
+        return this.emulator.rdramReadF32(this.pointer + addr);
     }
     rdramReadPtrF32(addr: number, offset: number): number {
-        return this.emulator.rdramReadPtrF32(this.instance + addr, offset);
+        return this.emulator.rdramReadPtrF32(this.pointer + addr, offset);
     }
     rdramWriteF32(addr: number, value: number): void {
-        this.emulator.rdramWriteF32(this.instance + addr, value);
+        this.emulator.rdramWriteF32(this.pointer + addr, value);
     }
     rdramWritePtrF32(addr: number, offset: number, value: number): void {
-        this.emulator.rdramWritePtrF32(this.instance + addr, offset, value);
+        this.emulator.rdramWritePtrF32(this.pointer + addr, offset, value);
     }
 
     memoryDebugLogger(bool: boolean): void { }

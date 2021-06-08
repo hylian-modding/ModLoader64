@@ -813,6 +813,7 @@ class pluginLoader {
         });
         this.injector = () => {
             let heap: Heap | undefined = undefined;
+            bus.emit(EventsClient.ON_HEAP_SETUP, {});
             if (this.loaded_core.heap_size > 0) {
                 heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
             }
@@ -820,6 +821,9 @@ class pluginLoader {
             this.plugins.forEach((plugin: IPlugin) => {
                 plugin.ModLoader.heap = heap;
             });
+            if (config.isClient) {
+                bus.emit(EventsClient.ON_HEAP_READY, {});
+            }
             this.logger.debug("Starting injection...");
             this.plugin_folders.forEach((dir: string) => {
                 let test = path.join(
@@ -844,9 +848,6 @@ class pluginLoader {
             iconsole.finishInjects();
             if (config.isClient) {
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
-                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                    bus.emit(EventsClient.ON_HEAP_READY, {});
-                }, 1);
             }
             this.logger.debug("Injection finished.");
         };
