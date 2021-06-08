@@ -19,12 +19,12 @@ export interface ICommandBuffer {
   spawnActor(actorId: number, params: number, rot: Vector3, pos: Vector3, address?: number): Promise<IActor>;
   spawnActorRXYZ(actorId: number, params: number, rotX: number, rotY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>;
   spawnActorRXY_Z(actorId: number, params: number, rotXY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>
-  runWarp(entrance: number, cutscene: number, callback?: Function): void;
+  runWarp(entranceIndex: number, cutsceneIndex: number, callback?: Function): Promise<boolean>;
   relocateOverlay(allocatedVRamAddress: number, overlayInfoPointer: number, vRamAddress: number): void;
   updateButton(button: number): void;
   playSound(sfxId: number, a1: Vector3, a2: number, a3: number, a4: number, a5: number): void;
-  arbitraryFunctionCall(functionAddress: number, argsPointer: number): Promise<Buffer>;
   // #ifdef DANGEROUS_FUNCTIONS
+  arbitraryFunctionCall(functionAddress: number, argsPointer: number): Promise<Buffer>;
   movePlayerActorToAddress(address: number): Promise<boolean>;
   // #endif
 }

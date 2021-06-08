@@ -17,7 +17,7 @@ export const Actor_SpawnEntryCave: Buffer = Buffer.from("J73/6K+/ABQMAJVxAAAAADw
 export const Actor_SpawnTransitionActorCave: Buffer = Buffer.from("J73/0IeiAFLHoABEr6IAIIeiAFbnoAAUr6IAJIeiAE7HoABAr6IAHIeiAErnoAAQr6IAGK+/ACwMAJREAAAAADwHEjSM51Z4AABIJQAAGCUk6g0EJAgAyAADMMAA5ighjKQNBCyEAAIUgAAIJGMAAYykDQQshAAFEIAABAAAAACMpA0IUEQAAQFGSCFUaP/zAAMwwBUgABEkAwAEAAAgJSToDQQkBgDIJIMBoAADGMAA4xghjGMABAAEKMAUYAACJIQAAQCoSCEUhv/4JIMBoBEgAAWPvwAsJAMABK0jAACtIgAEj78ALAPgAAgnvQAw", 'base64');
 export const Actor_SpawnWithAddress: Buffer = Buffer.from("J73/wK++ADivtwA0AAXxQDwXgA4294Uwr7EAHAL+iCGOIgAIr7UALK+0ACivswAkr7AAGK+/ADyPsABUr7YAMK+yACAAgJglAMCoJRBAACgA4KAljiMAEFRgACYC/pAhliMAHDBkAAFQgAAKjiQADI5iHWAUQAAFAv4YIQwBmw4kBCegrmIdYAL+GCEQAAALrGIAEDBjAAIQYAAFAIIgIwwBmw4AAAAAEAAABK4iABAMAZsEAAAAAK4iABAUQAAFAv6IITwC3q0kQgutEAAAXK4CAACOJwAMjiYACI4lAASOJAAADAMy7q+iABCiIAAeAv6QIY5CABQQQABPPAYAAY5DABCOUQAIAEMQIQBRiCMkxBekhiUACAwCBYoCZCAhAECwJQRBAAc8BgABDACUKwJAICU8At6tNELerRAAAECuAgAAkiQAAiQCAAUUggAHAv4oIQJmMCGAxRy8DACBkAJgICUUQP/xAv4oIZCiAB4CACAlJEIAAaCiAB6OJQAMDAGNjAAAMCWWJwAAjiYABKIWAB6OIgAcjiUAEI4kABSOIwAYrgIBNDwCAAGuEgE4pgcAAK4FASiuBAEsrgMBMK4GAAQCYhAhkEIcvAIAKCWiAgADj6IAUMaEAACERAAAhEMAAsaCAATGgAAIhEIABKYEABSmAwAWpgIAGOYEAAjmAgAM5gAAEKYVABySJgACPBGAEjYxDDgMAJPmJmQcJI4yABgCYCglDACD9wIAICUQAAADrjIAGJQCAAgAAAA0j78API++ADiPtwA0j7YAMI+1ACyPtAAoj7MAJI+yACCPsQAcj7AAGAPgAAgnvQBA", 'base64');
 export const Actor_UpdateCave: Buffer = Buffer.from("PAgSNI0IVngAAFAlAAAQJSULDQQkCQDIAAI4wAEHMCGMww0ELGMABhRgAAgkQgABjMMNBCxjAAcQYAAEAAAAAIzDDQhQgwABAWdQIRRJ//MAAjjAFUAAESQCAAYAABglJQkNBCQHAMgkYgGgAAIQwAECECGMQgAEAAMwwBRAAAIkYwABASZQIRRn//gkYgGgUUAABYyZATAkAgAGrUIAAK1EAASMmQEwAyAACAAAAAA=", 'base64');
-export const commandbuffer: Buffer = Buffer.from("J73/qIyCAAQ8A4AcNGOEoK+2AEivsgA4r78AVK++AFCvtwBMr7UARK+0AECvswA8r7EANK+wADCMchxEAED4Ca+jACw8FhI0jtZWeI7CAAAQQADtAACoJSQXAEAkEQADEAAAAiQTAAQAgLAlAAAYJQADEEAAQxAhAAIQgALCgCGOBAoEFIAACyRjAAEAFfCAA9UYIQADGMACw1AhjUUABCQEAAEUpABIJrQAARAAAAUAAAAAFHf/7wADEEAQAADjABXwgI1CAASuAgoEjUIACK4CCgiNQgAkEEAAGQAAAACVRQAMlUYADiRiABCNRAAkAsIQISRjABgABjQAAAUsAK+kABSvogAQPASAHDSEhKACwzghAAY0AwAFLAMMyESNr6oAKI+qACg8BBI0jIRWeI1CACSuAgoMEAAAqgPV8CGVRgAMjUcAGMVAABzFQgAglUIAEJVDABKVRAAUlUUADgACFAAAAxwAAAQkAAAFLAAAAhQDAAMcAwAEJAMABSwDAAY0AK+lACSvpAAgr6MAHDwEgBw0hKDEr6IAGOeiABTnoAAQPAWAHDSlhKAMAJREAAY0AzwEEjSMhFZ4rgIKDBAAAIgD1fAhJEIKBALCgCED1RAhAAIQwALCGCGMZAAEFJEACgAAAACMZAAMjGUAEIxmABQMAzI8A9XwITwEEjSMhFZ4EAAAeAAe8MCMZAAEFJMACgAAAACUZQAMPASAHDSEhKAMAb7UA9XwITwEEjSMhFZ4EAAAbAAe8MCMZAAEJAUABRSFABMAFCiAALQoISRKACQABSjAlGQADCRHACCQZgAcJEIAEALFGCECyighr6UAEK+jABQCxzghDAMgGwLCKCE8BBI0jIRWeBAAAFUD1fAhjGQABCQCAAgUggAzAAAAABIAAGYAAAAAjGIADBBSAEsCwCAljGsADI5CBnyGRgAchkUAACZKADCuQAEwrkABNCZHACSsQAEwrEABNDwEgBw0hISgr6sAFK+qABAMyESNr6MAKDwFgBw0paDEPASAHDSEhKAMAJP4jkYGfDwFgBw0paDEPASAHDSEhKAMAJP4AkAwJQwBmySORAZ8DAGbJAJAICWPowAoPAQSNIyEVniMcgAMjGIABK4CAACMYgAIrgIABI+iACyuEgAIrFICcBAAAB6sUgKIjGUABCQCAAkUogAaAsAgJVIAABkD1fAhjGIABK4CAACMYgAIrgIABIxqAAyMZQAQjGcAFIxiABiMYwAcAAInwwADN8OvpgAYr6QAEK+jABwABSfDr6IAFAFA+AkABzfDrgMACDwEEjSMhFZ4EAAAAgPV8CED1fAhAB7wwALesCGuwAAEjIIAAAKCECsUQP8bAoCoJRAAAAOPvwBUAsAgJY+/AFSPvgBQj7cATI+2AEiPtQBEj7QAQI+zADyPsgA4j7EANI+wADCsgAAAA+AACCe9AFiMYgAEEAD/5gLAICUD1RAhAAIQwALCECGMQgAEJrQAARAA/1sAAIAlAAAAAAAAAAA=", 'base64');
+export const commandbuffer: Buffer = Buffer.from("J73/oIyCAAQ8A4AcNGOEoK+1AEyvsgBAr78AXK++AFivtwBUr7YAUK+0AEivswBEr7EAPK+wADiMchxEAED4Ca+jACw8FRI0jrVWeI6iAAAQQAENPBMQACZiAP8AAPAlJBYAQCQRAAMQAAACr6IAKACAqCUAABglAAMQQABDECEAAhCAAqKAIY4ECgQUgAALJGMAAQAeuIAC/hghAAMYwAKjoCGOhQAEJAQAARSkAEYn0wABEAAABQAAAAAUdv/vAAMQQBAAAQEAHriAjoIABK4CCgSOggAIrgIKCI6CACQQQAAXAAAAAJaFAAyWhgAOJGIAEI6EACQCohAhJGMAGAAGNAAABSwAr6QAFK+iABA8BIAcNISEoAKjOCEABjQDDMhEjQAFLAOOggAkPAQSNIyEVniuAgoMEAAAygL+uCGWhgAMjocAGMaAABzGggAgloIAEJaDABKWhAAUloUADgACFAAAAxwAAAQkAAAFLAAAAhQDAAMcAwAEJAMABSwDAAY0AK+lACSvpAAgr6MAHDwEgBw0hKDEr6IAGOeiABTnoAAQPAWAHDSlhKAMAJREAAY0AzwEEjSMhFZ4rgIKDBAAAKgC/rghJEIKBAKigCEC/hAhAAIQwAKiGCGMZAAEFJEACgAAAACMZAAMjGUAEIxmABQMAzI8Av64ITwEEjSMhFZ4EAAAmAAXuMCMZQAEJAQABBSkAAoAAAAAlGUADDwEgBw0hISgDAG+1AL+uCE8BBI0jIRWeBAAAIsAF7jAjGUABCQEAAUUpAATABMogACzKCEkSQAkAAUowJRkAAwkRwAgkGYAHCRCABACpRghAqkoIa+lABCvowAUAqc4IQwDIBsCoighPAQSNIyEVngQAAB0Av64IYxkAAQkAgAHFIIAHI+kACivowAwPAGAEqQgubI8AYASrCC5tDwBgBKsILm4PAGAEgwDKpykILm8j6MAMDwQgBE2EKXQJAL//4xlAAymAhPgPAGAEqAguZeMYwAQPAQSNIyEVniuBQAAPAGAEqwguTSmAhN4EAAAVK4DAAiMZAAEJAIACBSCADMAAAAAEgAAZgAAAACMYgAMEFIASwKgICWMagAMjkIGfIZGAByGRQAAJkkAMK5AATCuQAE0JkcAJKxAATCsQAE0PASAHDSEhKCvqgAUr6kAEAzIRI2vowAwPAWAHDSloMQ8BIAcNISEoAwAk/iORgZ8PAWAHDSloMQ8BIAcNISEoAwAk/gCQDAlDAGbJI5EBnwMAZskAkAgJY+jADA8BBI0jIRWeIxyAAyMYgAErgIAAIxiAAiuAgAEj6IALK4SAAisUgJwEAAAHqxSAoiMZQAEJAIACRSiABoCoCAlUgAAGQL+uCGMYgAErgIAAIxiAAiuAgAEjGkADIxlABCMZwAUjGIAGIxjABwAAifDAAM3w6+mABivpAAQr6MAHAAFJ8OvogAUASD4CQAHN8OuAwAIPAQSNIyEVngQAAACAv64IQL+uCEAF7jAAreoIa6gAASMggAAAmIQKxRA/v0CYPAlEAAAA4+/AFwCoCAlj78AXI++AFiPtwBUj7YAUI+1AEyPtABIj7MARI+yAECPsQA8j7AAOKyAAAAD4AAIJ70AYIxiAAQQAP/mAqAgJQL+ECEAAhDAAqIQIYxCAAQn0wABEAD/OwAAgCUAAAAAAAAAAA==", 'base64');
 export const Sfx_Cave: Buffer = Buffer.from("PAKAHYxCoOQURAAYAAAYJTwGEjSMxlZ4AABIJSQIAAokygoEJAcAQAADEEAAQxAhAAIQgADCICGMhAoEFIgAAiRjAAEASkghFGf/+AADEEARIAAGMKP/ACQCaAAQYgADJAIACq0iAAClJQAIA+AACAAAAAA=", 'base64');
 export const SkelAnime_DrawFlexLodCave: Buffer = Buffer.from("A+AACAAAAAA=", 'base64');
 
@@ -42,7 +42,7 @@ enum CommandBuffer_CommandActorType {
     SPAWNENTRY,
     SPAWNTRANSITION,
     DESTROY,
-    UPDATE,
+    UPDATE
 }
 
 const COMMAND_MAX = 64;
@@ -159,18 +159,12 @@ export class CommandBuffer implements ICommandBuffer {
         let myUUID = this.uuid++;
 
         this.ModLoader.emulator.rdramWrite32(this.cmdbuf, count + 1);
-        this.ModLoader.emulator.rdramWrite32(
-            offset,
-            CommandBuffer_CommandType.ACTORSPAWN
-        );
+        this.ModLoader.emulator.rdramWrite32(offset, CommandBuffer_CommandType.ACTORSPAWN);
         this.ModLoader.emulator.rdramWrite32(offset + 4, myUUID);
         this.ModLoader.emulator.rdramWrite16(offset + 8, actorId);
         this.ModLoader.emulator.rdramWrite16(offset + 8 + 2, params);
         this.ModLoader.emulator.rdramWrite32(offset + 8 + 4, Math.floor(rotXY));
-        this.ModLoader.emulator.rdramWrite16(
-            offset + 8 + 8,
-            Math.floor(rotZ) % 32768
-        );
+        this.ModLoader.emulator.rdramWrite16(offset + 8 + 8, Math.floor(rotZ) % 32768);
         this.ModLoader.emulator.rdramWriteF32(offset + 8 + 0xc, pos.x);
         this.ModLoader.emulator.rdramWriteF32(offset + 8 + 0x10, pos.y);
         this.ModLoader.emulator.rdramWriteF32(offset + 8 + 0x14, pos.z);
@@ -184,10 +178,8 @@ export class CommandBuffer implements ICommandBuffer {
                     if (type === 0) continue;
                     let uuid = this.ModLoader.emulator.rdramRead32(offset + 4);
 
-                    console.log(`type: ${type}, uuid: ${uuid}`);
                     if (type === CommandBuffer_CommandType.ACTORSPAWN && uuid === myUUID) {
                         let addr = this.ModLoader.emulator.rdramRead32(offset + 8);
-                        this.ModLoader.logger.warn("ACTOR SPAWNED POG: " + addr.toString(16));
                         this.ModLoader.emulator.rdramWrite32(offset, 0); // free return slot
                         if (addr === 0) {
                             reject("Actor pointer was zero.");
@@ -238,9 +230,19 @@ export class CommandBuffer implements ICommandBuffer {
         this.ModLoader.emulator.rdramWriteF32(offset + 8 + 0x1c, a5);
     }
 
-    runWarp(engntrance: number, cutscene: number, callback?: Function): Promise<boolean> {
-        throw new Error("Method not implemented.");
-        return new Promise((accept, reject) => {});
+    runWarp(entranceIndex: number, cutsceneIndex: number, callback?: Function): Promise<boolean> {
+        let count = this.ModLoader.emulator.rdramRead32(this.cmdbuf);
+        let offset = this.cmdbuf + COMMAND_OFFSET + COMMAND_SIZEOF * count;
+
+        this.ModLoader.emulator.rdramWrite32(this.cmdbuf, count + 1);
+        this.ModLoader.emulator.rdramWrite32(offset, CommandBuffer_CommandType.WARP);
+        this.ModLoader.emulator.rdramWrite32(offset + 8, entranceIndex);
+        this.ModLoader.emulator.rdramWrite32(offset + 8 + 4, cutsceneIndex);
+
+        return new Promise((accept, reject) => {
+            if (callback !== undefined) callback()
+            accept(true)
+        });
     }
 
     movePlayerActorToAddress(address: number): Promise<boolean> {
