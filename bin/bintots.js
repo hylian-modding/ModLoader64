@@ -9,6 +9,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 commander_1.default.option('-i, --input <file>', 'input file');
 commander_1.default.option('-d, --dir <dir>', 'directory');
+commander_1.default.option('-r, --remove <str>', 'remove string from output');
 commander_1.default.parse(process.argv);
 if (commander_1.default.input) {
     let str = "export const " + path_1.default.parse(commander_1.default.input).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
@@ -24,7 +25,12 @@ else if (commander_1.default.dir) {
     recursive(dir, (err, files) => {
         for (let i = 0; i < files.length; i++) {
             let f = path_1.default.resolve(files[i]);
-            str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
+            if (commander_1.default.remove) {
+                str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_").replace(commander_1.default.remove, "") + ": Buffer = Buffer.from(\"";
+            }
+            else {
+                str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
+            }
             let buf = fs_1.default.readFileSync(f);
             str += buf.toString('base64');
             str += "\", 'base64');\n";
