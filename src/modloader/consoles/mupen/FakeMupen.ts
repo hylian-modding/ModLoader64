@@ -18,7 +18,6 @@ export class FakeMupen implements IConsole {
     rom: string;
     rom_data: Buffer;
     ram: FakeMemory;
-    dummy: any = {};
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.rom = rom;
@@ -35,7 +34,7 @@ export class FakeMupen implements IConsole {
     }
 
     getDebuggerAccess(): Debugger {
-        return this.dummy;
+        return {} as any;
     }
 
     getRomOriginalSize(): number {
@@ -43,21 +42,21 @@ export class FakeMupen implements IConsole {
     }
 
     getYaz0Encoder(): IYaz0 {
-        return this.dummy;
+        return {} as any;
     }
 
     getInputAccess(): Input {
-        return this.dummy;
+        return {} as any;
     }
     getGfxAccess(): Gfx {
-        return this.dummy;
+        return {} as any;
     }
 
     getSDLAccess(): SDL {
-        return this.dummy;
+        return {} as any;
     }
     getImGuiAccess(): IImGui {
-        return this.dummy;
+        return {} as any;
     }
 
     on(which: string, callback: any): void {
@@ -109,10 +108,10 @@ export class FakeMupen implements IConsole {
     setSaveDir(path: string): void { }
 
     getUtils(): IUtils {
-        return this.dummy;
+        return {} as any;
     }
 
     getSaveStateManager(): ISaveState {
-        return this.dummy;
+        return {} as any;
     }
 }
