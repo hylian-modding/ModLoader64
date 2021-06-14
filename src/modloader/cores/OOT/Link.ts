@@ -189,6 +189,8 @@ export class Link extends JSONTemplate implements ILink {
             return LinkState.GETTING_ITEM;
         case 0x20010040:
             return LinkState.TALKING;
+        case 0x30010040:
+            return LinkState.TALKING; // While presenting item?
         case 0x00018000:
             return LinkState.Z_TARGETING;
         case 0x00028000:

@@ -460,6 +460,7 @@ export interface ISaveContext {
   keyManager: IKeyManager;
   dungeonItemManager: IDungeonItemManager;
   scarecrowsSongChildFlag: boolean;
+  scarecrowsSongAdultFlag: boolean;
   scarecrowsSong: Buffer;
   double_defense: number;
   bButton: number;
