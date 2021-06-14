@@ -141,7 +141,6 @@ class pluginLoader {
 
     private processInternalPlugin(pluginPath: string, iconsole: IConsole) {
         if (pluginPath === "") return;
-        let file: string = pluginPath;
         let parse = path.parse(pluginPath);
         if (!fs.existsSync(pluginPath)) {
             // Try all combos.
@@ -155,84 +154,82 @@ class pluginLoader {
                 }
             }
         }
-        if (parse.ext.indexOf('js') > -1 || parse.ext.indexOf("mls")) {
-            let p = require(file);
-            let plugin: any = new p();
-            plugin['ModLoader'] = {} as IModLoaderAPI;
-            plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
-            plugin['ModLoader']['config'] = this.config;
-            plugin['ModLoader']['publicBus'] = bus;
-            plugin['ModLoader']['privateBus'] = new EventBus();
-            plugin["Binding"] = iconsole;
-            Object.defineProperty(plugin, 'pluginName', {
-                value: pluginPath,
-                writable: false,
-            });
-            Object.defineProperty(plugin, 'pluginHash', {
-                value: "",
-                writable: false,
-            });
-            let mlconfig = this.config.registerConfigCategory(
-                'ModLoader64'
-            ) as IModLoaderConfig;
-            setupEventHandlers(plugin, bus);
-            setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
-            setupNetworkHandlers(plugin);
-            setupCoreInject(plugin, this.loaded_core);
-            setupLifecycle_IPlugin(plugin);
-            setupLifecycle(plugin);
-            Object.keys(plugin).forEach((key: string) => {
-                if (plugin[key] !== null && plugin[key] !== undefined) {
-                    setupParentReference((plugin as any)[key], plugin);
-                    setupMLInjects((plugin as any)[key], plugin.ModLoader);
-                    setupCoreInject((plugin as any)[key], this.loaded_core);
-                    setupEventHandlers((plugin as any)[key], bus);
-                    setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
-                    setupNetworkHandlers((plugin as any)[key]);
-                    setupLifecycle((plugin as any)[key]);
-                    setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
-                    markPrototypeProcessed((plugin as any)[key]);
-                }
-            });
+        let p = require(pluginPath);
+        let plugin: any = new p();
+        plugin['ModLoader'] = {} as IModLoaderAPI;
+        plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
+        plugin['ModLoader']['config'] = this.config;
+        plugin['ModLoader']['publicBus'] = bus;
+        plugin['ModLoader']['privateBus'] = new EventBus();
+        plugin["Binding"] = iconsole;
+        Object.defineProperty(plugin, 'pluginName', {
+            value: pluginPath,
+            writable: false,
+        });
+        Object.defineProperty(plugin, 'pluginHash', {
+            value: "",
+            writable: false,
+        });
+        let mlconfig = this.config.registerConfigCategory(
+            'ModLoader64'
+        ) as IModLoaderConfig;
+        setupEventHandlers(plugin, bus);
+        setupPrivateEventHandlers(plugin, plugin.ModLoader.privateBus);
+        setupNetworkHandlers(plugin);
+        setupCoreInject(plugin, this.loaded_core);
+        setupLifecycle_IPlugin(plugin);
+        setupLifecycle(plugin);
+        Object.keys(plugin).forEach((key: string) => {
+            if (plugin[key] !== null && plugin[key] !== undefined) {
+                setupParentReference((plugin as any)[key], plugin);
+                setupMLInjects((plugin as any)[key], plugin.ModLoader);
+                setupCoreInject((plugin as any)[key], this.loaded_core);
+                setupEventHandlers((plugin as any)[key], bus);
+                setupPrivateEventHandlers((plugin as any)[key], plugin.ModLoader.privateBus);
+                setupNetworkHandlers((plugin as any)[key]);
+                setupLifecycle((plugin as any)[key]);
+                setupBindVar((plugin as any)[key], iconsole.getMemoryAccess());
+                markPrototypeProcessed((plugin as any)[key]);
+            }
+        });
 
-            let fn = (instance: any, parent: any) => {
-                setupParentReference(instance, parent);
-                setupMLInjects(instance, parent.ModLoader);
-                setupCoreInject(instance, this.loaded_core);
-                setupEventHandlers(instance, bus);
-                setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
-                setupNetworkHandlers(instance);
-                setupLifecycle(instance);
-                Object.keys(instance).forEach((key: string) => {
-                    if (instance[key] !== null && instance[key] !== undefined) {
-                        setupParentReference((instance as any)[key], parent);
-                        setupMLInjects((instance as any)[key], plugin.ModLoader);
-                        setupCoreInject((instance as any)[key], this.loaded_core);
-                        setupEventHandlers((instance as any)[key], bus);
-                        setupPrivateEventHandlers((instance as any)[key], parent.ModLoader.privateBus);
-                        setupNetworkHandlers((instance as any)[key]);
-                        setupLifecycle((instance as any)[key]);
-                        setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
-                        markPrototypeProcessed((instance as any)[key]);
-                    }
-                });
-                let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer, this.selected_core);
-                for (let i = 0; i < children.length; i++) {
-                    fn(children[i], plugin);
+        let fn = (instance: any, parent: any) => {
+            setupParentReference(instance, parent);
+            setupMLInjects(instance, parent.ModLoader);
+            setupCoreInject(instance, this.loaded_core);
+            setupEventHandlers(instance, bus);
+            setupPrivateEventHandlers(instance, parent.ModLoader.privateBus);
+            setupNetworkHandlers(instance);
+            setupLifecycle(instance);
+            Object.keys(instance).forEach((key: string) => {
+                if (instance[key] !== null && instance[key] !== undefined) {
+                    setupParentReference((instance as any)[key], parent);
+                    setupMLInjects((instance as any)[key], plugin.ModLoader);
+                    setupCoreInject((instance as any)[key], this.loaded_core);
+                    setupEventHandlers((instance as any)[key], bus);
+                    setupPrivateEventHandlers((instance as any)[key], parent.ModLoader.privateBus);
+                    setupNetworkHandlers((instance as any)[key]);
+                    setupLifecycle((instance as any)[key]);
+                    setupBindVar((instance as any)[key], iconsole.getMemoryAccess());
+                    markPrototypeProcessed((instance as any)[key]);
                 }
-                markPrototypeProcessed(instance);
-            };
-            let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer, this.selected_core);
+            });
+            let children = setupSidedProxy(instance, mlconfig.isClient, mlconfig.isServer, this.selected_core);
             for (let i = 0; i < children.length; i++) {
                 fn(children[i], plugin);
             }
-            markPrototypeProcessed(plugin);
-            Object.defineProperty(plugin, 'metadata', {
-                value: {},
-                writable: false,
-            });
-            this.registerPlugin(plugin);
+            markPrototypeProcessed(instance);
+        };
+        let children = setupSidedProxy(plugin, mlconfig.isClient, mlconfig.isServer, this.selected_core);
+        for (let i = 0; i < children.length; i++) {
+            fn(children[i], plugin);
         }
+        markPrototypeProcessed(plugin);
+        Object.defineProperty(plugin, 'metadata', {
+            value: {},
+            writable: false,
+        });
+        this.registerPlugin(plugin);
     }
 
     private processFolder(dir: string, iconsole: IConsole) {
@@ -321,11 +318,11 @@ class pluginLoader {
         if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mlz"))) {
             p = require(path.resolve(parse.dir, parse.name + ".mlz"));
         }
-        try{
-            if (p["default"] !== undefined){
+        try {
+            if (p["default"] !== undefined) {
                 p = p["default"];
             }
-        }catch(err){}
+        } catch (err) { }
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
@@ -812,37 +809,37 @@ class pluginLoader {
             }
         });
         this.injector = () => {
-            let heap: Heap | undefined = undefined;
-            if (this.loaded_core.heap_size > 0) {
-                heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
-            }
-            this.loaded_core.ModLoader.heap = heap;
-            this.plugins.forEach((plugin: IPlugin) => {
-                plugin.ModLoader.heap = heap;
-            });
-            this.logger.debug("Starting injection...");
-            this.plugin_folders.forEach((dir: string) => {
-                let test = path.join(
-                    dir,
-                    'payloads',
-                    this.header.country_code + this.header.revision.toString()
-                );
-                if (fs.existsSync(test)) {
-                    if (fs.lstatSync(test).isDirectory()) {
-                        fs.readdirSync(test).forEach((payload: string) => {
-                            let result: any = this.payloadManager.parseFile(
-                                path.join(test, payload)
-                            );
-                            bus.emit(EventsClient.ON_PAYLOAD_INJECTED, {
-                                file: payload,
-                                result,
-                            });
-                        });
-                    }
-                }
-            });
-            iconsole.finishInjects();
             if (config.isClient) {
+                let heap: Heap | undefined = undefined;
+                if (this.loaded_core.heap_size > 0) {
+                    heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
+                }
+                this.loaded_core.ModLoader.heap = heap;
+                this.plugins.forEach((plugin: IPlugin) => {
+                    plugin.ModLoader.heap = heap;
+                });
+                this.logger.debug("Starting injection...");
+                this.plugin_folders.forEach((dir: string) => {
+                    let test = path.join(
+                        dir,
+                        'payloads',
+                        this.header.country_code + this.header.revision.toString()
+                    );
+                    if (fs.existsSync(test)) {
+                        if (fs.lstatSync(test).isDirectory()) {
+                            fs.readdirSync(test).forEach((payload: string) => {
+                                let result: any = this.payloadManager.parseFile(
+                                    path.join(test, payload)
+                                );
+                                bus.emit(EventsClient.ON_PAYLOAD_INJECTED, {
+                                    file: payload,
+                                    result,
+                                });
+                            });
+                        }
+                    }
+                });
+                iconsole.finishInjects();
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
                 this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
                     bus.emit(EventsClient.ON_HEAP_READY, {});
@@ -855,14 +852,14 @@ class pluginLoader {
             if (!config.disableVIUpdates) {
                 iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);
                 iconsole.on(Emulator_Callbacks.create_resources, this.onResourceHandle);
-            }
-            internal_event_bus.on('CoreEvent.SoftReset', () => {
-                this.logger.info("Reinvoking the payload injector...");
-                this.reinject(() => {
-                    this.logger.info("Soft reset complete. Sending alert to plugins.");
-                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
+                internal_event_bus.on('CoreEvent.SoftReset', () => {
+                    this.logger.info("Reinvoking the payload injector...");
+                    this.reinject(() => {
+                        this.logger.info("Soft reset complete. Sending alert to plugins.");
+                        bus.emit(ModLoaderEvents.ON_SOFT_RESET_POST, {});
+                    });
                 });
-            });
+            }
         }
     }
 

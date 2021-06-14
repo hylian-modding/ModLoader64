@@ -150,10 +150,10 @@ class ModLoader64 {
         // Figure out what consoles we have available.
         this.consoleDescManager.registerConsole(new MupenDescriptor());
         let bindings_dir: string = "./bindings";
-        if (!fs.existsSync(bindings_dir)){
+        if (!fs.existsSync(bindings_dir)) {
             fs.mkdirSync(bindings_dir);
         }
-        fs.readdirSync(bindings_dir).forEach((d: string)=>{
+        fs.readdirSync(bindings_dir).forEach((d: string) => {
             let dir: string = path.resolve(bindings_dir, d);
             let meta: string = path.resolve(dir, "package.json");
             if (!fs.existsSync(meta)) return;
@@ -317,7 +317,9 @@ class ModLoader64 {
         bus.emit(ModLoaderEvents.ON_ROM_PATH, this.rom_path);
         let evt: any = { rom: this.emulator.getLoadedRom() };
         bus.emit(ModLoaderEvents.ON_PRE_ROM_LOAD, evt);
-        (this.emulator.getMemoryAccess() as unknown as IRomMemory).romWriteBuffer(0x0, evt.rom);
+        if (this.data.isClient) {
+            this.emulator.getRomAccess().romWriteBuffer(0x0, evt.rom);
+        }
         bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
         this.plugins.loadPluginsPreInit(this.emulator);
         internal_event_bus.emit('onPreInitDone', {});
@@ -355,75 +357,81 @@ class ModLoader64 {
             let instance = this;
             let mupen: IMemory;
             let load_mupen = new Promise(function (resolve, reject) {
-                if (!fs.existsSync('./saves')) {
-                    fs.mkdirSync('./saves');
-                }
-                if (
-                    !fs.existsSync(path.join('./saves', instance.Client.config.lobby))
-                ) {
-                    fs.mkdirSync(path.join('./saves', instance.Client.config.lobby));
-                }
-                instance.emulator.setSaveDir(
-                    path.resolve(path.join('./saves', instance.Client.config.lobby)) + '/'
-                );
-                mupen = instance.emulator.startEmulator(() => {
-                    let p: Buffer = result[0].patch as Buffer;
-                    let rom_data: Buffer = instance.emulator.getLoadedRom();
-                    let evt: any = { rom: rom_data };
-                    if (instance.data.isClient) {
-                        try {
-                            bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
-                        } catch (err) {
-                            throw err;
-                        }
+                if (instance.data.isClient) {
+                    if (!fs.existsSync('./saves')) {
+                        fs.mkdirSync('./saves');
                     }
-                    if (p.byteLength > 1 && rom_data.byteLength > 1) {
-                        try {
-                            let hash = crypto.createHash('md5').update(rom_data).digest('hex');
-                            instance.logger.info('Patching rom...');
-                            let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data.slice(0, instance.emulator.getRomOriginalSize()), p);
-                            if (nbuf !== undefined) {
-                                nbuf.copy(rom_data);
-                            }
-                            let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
-                            instance.logger.info(hash);
-                            instance.logger.info(newHash);
-                            evt["hash"] = newHash;
-                            evt["oldhash"] = hash;
-                        } catch (err) {
-                            if (err) {
-                                instance.logger.error(err);
-                                process.exit(ModLoaderErrorCodes.BPS_FAILED);
+                    if (
+                        !fs.existsSync(path.join('./saves', instance.Client.config.lobby))
+                    ) {
+                        fs.mkdirSync(path.join('./saves', instance.Client.config.lobby));
+                    }
+                    instance.emulator.setSaveDir(
+                        path.resolve(path.join('./saves', instance.Client.config.lobby)) + '/'
+                    );
+                    mupen = instance.emulator.startEmulator(() => {
+                        let p: Buffer = result[0].patch as Buffer;
+                        let rom_data: Buffer = instance.emulator.getLoadedRom();
+                        let evt: any = { rom: rom_data };
+                        if (instance.data.isClient) {
+                            try {
+                                bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
+                            } catch (err) {
+                                throw err;
                             }
                         }
-                    }
-                    if (instance.data.isClient) {
+                        if (p.byteLength > 1 && rom_data.byteLength > 1) {
+                            try {
+                                let hash = crypto.createHash('md5').update(rom_data).digest('hex');
+                                instance.logger.info('Patching rom...');
+                                let nbuf: Buffer | undefined = PatchTypes.get(path.parse(result[0].patch_name).ext)!.patch(rom_data.slice(0, instance.emulator.getRomOriginalSize()), p);
+                                if (nbuf !== undefined) {
+                                    nbuf.copy(rom_data);
+                                }
+                                let newHash = crypto.createHash('md5').update(rom_data).digest('hex');
+                                instance.logger.info(hash);
+                                instance.logger.info(newHash);
+                                evt["hash"] = newHash;
+                                evt["oldhash"] = hash;
+                            } catch (err) {
+                                if (err) {
+                                    instance.logger.error(err);
+                                    process.exit(ModLoaderErrorCodes.BPS_FAILED);
+                                }
+                            }
+                        }
                         try {
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
                         } catch (err) {
                             throw err;
                         }
-                    }
-                    return evt.rom;
-                }) as IMemory;
-                let wait = setInterval(() => {
-                    if (instance.emulator.isEmulatorReady()) {
-                        clearInterval(wait);
-                        internal_event_bus.emit('emulator_started', {});
-                        resolve(undefined);
-                    }
-                }, 1);
+                        return evt.rom;
+                    }) as IMemory;
+                    let wait = setInterval(() => {
+                        if (instance.emulator.isEmulatorReady()) {
+                            clearInterval(wait);
+                            internal_event_bus.emit('emulator_started', {});
+                            resolve(undefined);
+                        }
+                    }, 1);
+                }else{
+                    resolve(undefined);
+                }
             });
             load_mupen.then(function () {
-                instance.logger.info('Finishing plugin init...');
-                instance.plugins.loadPluginsPostinit(
-                    mupen,
-                    instance.emulator,
-                    instance.data
-                );
-                internal_event_bus.emit('onPostInitDone', {});
-                instance.done = true;
+                try{
+                    instance.logger.info('Finishing plugin init...');
+                    instance.plugins.loadPluginsPostinit(
+                        mupen,
+                        instance.emulator,
+                        instance.data
+                    );
+                    internal_event_bus.emit('onPostInitDone', {});
+                    instance.done = true;
+                }catch(err){
+                    console.log(err);
+                }
             }).catch(function () {
                 process.exit(1);
             });
