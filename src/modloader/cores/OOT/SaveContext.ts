@@ -52,7 +52,6 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     private inf_table_addr: number = this.instance + 0x0ef8;
     private skulltula_table_addr: number = this.instance + 0x0e9c;
     private scarecrowsSongChildFlag_addr: number = this.instance + 0x12c4;
-    private scarecrowsSongAdultFlag_addr: number = this.instance + 0xee6;
     private scarecrowsSong_addr: number = this.instance + 0x12c6;
     private scarecrowsSong_addr_1: number = 0x801029FC;
     private scarecrowsSong_addr_2: number = 0x80102A9C;
@@ -95,7 +94,6 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
         'magic_beans_purchased',
         'poe_collector_score',
         'scarecrowsSongChildFlag',
-        'scarecrowsSongAdultFlag',
         'scarecrowsSong'
     ];
     constructor(ModLoader: IModLoaderAPI, log: ILogger) {
@@ -291,11 +289,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
             })(bool)
         );
     }
-    get scarecrowsSongAdultFlag(): boolean {
-        return this.emulator.rdramReadBit8(this.scarecrowsSongAdultFlag_addr, 4);
-    }
     get scarecrowsSong(): Buffer {
-        return this.emulator.rdramReadBuffer(this.scarecrowsSong_addr, 0x7E);
+        return this.emulator.rdramReadBuffer(this.scarecrowsSong_addr, 0x80);
     }
     set scarecrowsSong(buf: Buffer) {
         this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr, buf);
