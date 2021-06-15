@@ -40,7 +40,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     private magic_limit_addr: number = this.instance + 0x13f4;
     private magic_flag_1_addr: number = this.instance + 0x003a;
     private magic_flag_2_addr: number = this.instance + 0x003c;
-    private magic_fill_cap_addr: number = 0x8011B9C7;
+    private magic_fill_cap_addr: number = this.instance + 0x13f7;
     private rupees_address: number = this.instance + 0x0034;
     private navi_timer_addr: number = this.instance + 0x0038;
     private checksum_addr: number = this.instance + 0x1352;
@@ -51,6 +51,10 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     private item_flag_addr: number = this.instance + 0x0ef0;
     private inf_table_addr: number = this.instance + 0x0ef8;
     private skulltula_table_addr: number = this.instance + 0x0e9c;
+    private scarecrowsSongChildFlag_addr: number = this.instance + 0x12c4;
+    private scarecrowsSong_addr: number = this.instance + 0x12c6;
+    private scarecrowsSong_addr_1: number = 0x801029FC;
+    private scarecrowsSong_addr_2: number = 0x80102A9C;
     private double_defense_addr_1: number = this.instance + 0x00cf;
     private double_defense_addr_2: number = this.instance + 0x3d;
 
@@ -89,6 +93,8 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
         'questStatus',
         'magic_beans_purchased',
         'poe_collector_score',
+        'scarecrowsSongChildFlag',
+        'scarecrowsSong'
     ];
     constructor(ModLoader: IModLoaderAPI, log: ILogger) {
         super();
@@ -271,6 +277,25 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     }
     set skulltulaFlags(buf: Buffer) {
         this.emulator.rdramWriteBuffer(this.skulltula_table_addr, buf);
+    }
+    get scarecrowsSongChildFlag(): boolean {
+        return this.emulator.rdramRead16(this.scarecrowsSongChildFlag_addr) === 1;
+    }
+    set scarecrowsSongChildFlag(bool: boolean) {
+        this.emulator.rdramWrite16(
+            this.scarecrowsSongChildFlag_addr,
+            (function (bool: boolean) {
+                return bool ? 1 : 0;
+            })(bool)
+        );
+    }
+    get scarecrowsSong(): Buffer {
+        return this.emulator.rdramReadBuffer(this.scarecrowsSong_addr, 0x80);
+    }
+    set scarecrowsSong(buf: Buffer) {
+        this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr, buf);
+        this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr_1, buf);
+        this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr_2, buf);
     }
     get double_defense(): number {
         return this.emulator.rdramRead8(this.double_defense_addr_1);
