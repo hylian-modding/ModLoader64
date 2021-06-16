@@ -6,4 +6,5 @@ export interface IClientConfig {
     lobby: string;
     password: string;
     forceServerOverride: boolean;
+    forceTCPMode: boolean;
 }
