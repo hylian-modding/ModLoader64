@@ -148,6 +148,9 @@ class ModLoader64 {
 
     private preinit() {
         // Figure out what consoles we have available.
+        if (this.data.supportedConsoles.indexOf(this.data.selectedConsole) === -1){
+            this.data.selectedConsole = this.data.supportedConsoles[0];
+        }
         this.consoleDescManager.registerConsole(new MupenDescriptor());
         let bindings_dir: string = "./bindings";
         if (!fs.existsSync(bindings_dir)) {
