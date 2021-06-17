@@ -264,8 +264,12 @@ namespace NetworkEngine {
 
         getPlayerRinfo(player: INetworkPlayer | string): RemoteInfo | undefined {
             if (typeof (player) === 'string') {
+                if (this.io.sockets.sockets[player] === undefined) return undefined;
+                if (this.io.sockets.sockets[player]["ModLoader64"] === undefined) return undefined;
                 return this.io.sockets.sockets[player].ModLoader64["rinfo"];
             } else {
+                if (this.io.sockets.sockets[player.uuid] === undefined) return undefined;
+                if (this.io.sockets.sockets[player.uuid]["ModLoader64"] === undefined) return undefined;
                 return this.io.sockets.sockets[player.uuid].ModLoader64["rinfo"];
             }
         }
