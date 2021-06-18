@@ -295,7 +295,7 @@ export class SaveContext extends JSONTemplate implements ISaveContext {
     set scarecrowsSong(buf: Buffer) {
         this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr, buf);
         this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr_1, buf);
-        this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr_2, buf);
+        //this.emulator.rdramWriteBuffer(this.scarecrowsSong_addr_2, buf);
     }
     get double_defense(): number {
         return this.emulator.rdramRead8(this.double_defense_addr_1);
