@@ -13,6 +13,7 @@ import { IImGui } from 'modloader64_api//Sylvain/ImGui';
 import { FakeMemory, FakeRom } from 'modloader64_api/SidedProxy/FakeMemory';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import path from 'path';
 
 export class FakeMupen implements IConsole {
     rom: string;
@@ -30,7 +31,7 @@ export class FakeMupen implements IConsole {
     }
 
     getInternalPlugin(): string {
-        return "";
+        return path.resolve(__dirname, "MupenServerPlugin.js");
     }
 
     getDebuggerAccess(): Debugger {
