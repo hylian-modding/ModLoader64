@@ -1,4 +1,4 @@
-import { IMupen, EmuState, CoreEvent, CoreParam } from './IMupen';
+import { IMupen, EmuState, CoreEvent } from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -102,11 +102,15 @@ class N64 implements IConsole {
         });
         this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
-                this.logger.info("Soft reset detected. Sending alert to plugins.");
-                bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
-                this.logger.info("Letting the reset go through...");
-                this.softReset();
-                internal_event_bus.emit("CoreEvent.SoftReset", {});
+                try{
+                    this.logger.info("Soft reset detected. Sending alert to plugins.");
+                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+                    this.logger.info("Letting the reset go through...");
+                    this.softReset();
+                    internal_event_bus.emit("CoreEvent.SoftReset", {});
+                }catch(err){
+                    this.logger.error(err.stack);
+                }
             } else if (event == CoreEvent.TakeNextScreenshot) {
                 this.mupen.Frontend.takeNextScreenshot();
             } else if (event == CoreEvent.VolumeUp) {
