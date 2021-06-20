@@ -56,6 +56,10 @@ gulp.task('bump', function () {
     return gulp.src('.');
 });
 
+gulp.task('dummy', function(){
+    return gulp.src('.');
+});
+
 gulp.task('emulator', function () {
     let platformkey = '';
     if (process.arch === undefined) {

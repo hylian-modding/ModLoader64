@@ -14,7 +14,7 @@
     "start_1": "node ./build/src/index.js --max_old_space_size=4096 --dir=build",
     "start_2": "gulp player2 && node ./build2/src/index.js -max_old_space_size=4096 --dir=build2",
     "fix": "npx eslint src/**/*.ts --fix",
-    "dist": "gulp clean && gulp bump && gulp _build && gulp sign && gulp dist && yarn clean && yarn",
+    "dist": "gulp clean && gulp dummy && gulp _build && gulp sign && gulp dist && yarn clean && yarn",
     "postinstall": "npx patch-package && gulp install",
     "build_bin": "gulp build_bin",
     "push": "node ./build.js --step=push",
