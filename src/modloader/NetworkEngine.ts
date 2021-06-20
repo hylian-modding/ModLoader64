@@ -746,13 +746,9 @@ namespace NetworkEngine {
                         inst.isUDPEnabled &&
                         inst.isConnectionReady
                     ) {
-                        inst.udpClient.send(
-                            JSON.stringify(data),
-                            inst.serverUDPPort,
-                            inst.config.ip
-                        );
+                        inst.udpClient.send(JSON.stringify(data),inst.serverUDPPort,inst.config.ip);
                     } else {
-                        inst.socket.emit('msg', data);
+                        inst.socket.emit('msg', JSON.parse(JSON.stringify(data)));
                     }
                 });
                 NetworkSendBus.addListener('toPlayer', (data: any) => {
@@ -860,6 +856,7 @@ namespace NetworkEngine {
                     let udpTest = new UDPTestPacket();
                     udpTest.player = inst.me;
                     udpTest.lobby = inst.config.lobby;
+                    inst.isUDPEnabled = true;
                     inst.udpTestHandle = setTimeout(() => {
                         inst.isUDPEnabled = false;
                         inst.logger.error('UDP disabled.');
