@@ -839,8 +839,8 @@ class pluginLoader {
                         }
                     }
                 });
-                iconsole.finishInjects();
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
+                iconsole.finishInjects();
                 this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
                     bus.emit(EventsClient.ON_HEAP_READY, {});
                 }, 1);
