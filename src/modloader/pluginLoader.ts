@@ -848,6 +848,9 @@ class pluginLoader {
             this.logger.debug("Injection finished.");
         };
         if (config.isClient) {
+            internal_event_bus.on('REGISTER_TICK_TIMEOUT', (fn: ()=>void[])=>{
+                this.loaded_core.ModLoader.utils.setTimeoutFrames(fn[0], 1);
+            });
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
             if (!config.disableVIUpdates) {
                 iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);

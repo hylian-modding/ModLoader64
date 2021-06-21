@@ -102,13 +102,15 @@ class N64 implements IConsole {
         });
         this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
-                try{
-                    this.logger.info("Soft reset detected. Sending alert to plugins.");
-                    bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
-                    this.logger.info("Letting the reset go through...");
-                    this.softReset();
-                    internal_event_bus.emit("CoreEvent.SoftReset", {});
-                }catch(err){
+                try {
+                    internal_event_bus.emit("REGISTER_TICK_TIMEOUT", () => {
+                        this.logger.info("Soft reset detected. Sending alert to plugins.");
+                        bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+                        this.logger.info("Letting the reset go through...");
+                        this.softReset();
+                        internal_event_bus.emit("CoreEvent.SoftReset", {});
+                    });
+                } catch (err) {
                     this.logger.error(err.stack);
                 }
             } else if (event == CoreEvent.TakeNextScreenshot) {
