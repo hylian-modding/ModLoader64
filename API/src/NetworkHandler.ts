@@ -122,17 +122,14 @@ export interface IConnectionCheckEvt{
 
 export class Server implements INetwork {
     sendPacket(packet: IPacketHeader) {
-        if (packet.player === undefined) return;
         NetworkSendBusServer.emit('msg', packet);
     }
 
     sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer) {
-        if (packet.player === undefined || dest === undefined) return;
         NetworkSendBusServer.emit('toPlayer', { packet, player: dest } as IToPlayer);
     }
 
     isPlayerConnected(player: INetworkPlayer){
-        if (player === undefined) return false;
         let evt: IConnectionCheckEvt = {player, connected: true};
         NetworkQueryBusServer.emit('isPlayerConnected', evt);
         return evt.connected;
@@ -141,12 +138,10 @@ export class Server implements INetwork {
 
 export class Client implements INetworkClient {
     sendPacket(packet: IPacketHeader) {
-        if (packet.player === undefined) return;
         NetworkSendBus.emit('msg', packet);
     }
 
     sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer) {
-        if (packet.player === undefined || dest === undefined) return;
         NetworkSendBus.emit('toPlayer', { packet, player: dest });
     }
 }
