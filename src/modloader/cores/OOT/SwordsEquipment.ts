@@ -14,6 +14,7 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
   private instance: number = global.ModLoader.save_context;
   private equipment_addr: number = this.instance + 0x009c + 1;
   private biggoron_flag_addr: number = this.instance + 0x003e;
+  private biggoron_dmg_addr: number = this.instance + 0x0036;
   jsonFields: string[] = [
       'kokiriSword',
       'masterSword',
@@ -42,6 +43,7 @@ export class SwordsEquipment extends JSONTemplate implements ISwords {
   set giantKnife(bool: boolean) {
       this.emulator.rdramWriteBit8(this.equipment_addr, SwordBitMap.GIANT, bool);
       this.emulator.rdramWrite8(this.biggoron_flag_addr, 0);
+      this.emulator.rdramWrite16(this.biggoron_dmg_addr, 8);
   }
   get biggoronSword() {
       return this.emulator.rdramReadBit8(this.equipment_addr,SwordBitMap.BIGGORON) && this.emulator.rdramRead8(this.biggoron_flag_addr) === 1;
