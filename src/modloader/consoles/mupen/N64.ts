@@ -21,6 +21,7 @@ import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { Debugger } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
+import slash from 'slash';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -236,8 +237,8 @@ class N64 implements IConsole {
         });
         internal_event_bus.on('emulator_started', () => {
             if (this.texPath !== "") {
-                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", this.texPath);
-                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", path.resolve(path.parse(this.texPath).dir, "cache"));
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", slash(this.texPath));
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", slash(path.resolve(path.parse(this.texPath).dir, "cache")));
             }
             this.mupen.M64p.Config.saveFile();
         });
