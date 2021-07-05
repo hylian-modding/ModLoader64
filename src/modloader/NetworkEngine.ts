@@ -343,7 +343,7 @@ namespace NetworkEngine {
                     },
                     function (err: any) {
                         if (err) {
-                            inst.logger.error("Didn't open port for TCP server.");
+                            inst.logger.warn("Didn't open port for TCP server.");
                         } else {
                             inst.logger.info('Opened port for TCP server.');
                         }
@@ -357,7 +357,7 @@ namespace NetworkEngine {
                     },
                     function (err: any) {
                         if (err) {
-                            inst.logger.error("Didn't open port for UDP server.");
+                            inst.logger.warn("Didn't open port for UDP server.");
                         } else {
                             inst.logger.info('Opened port for UDP server.');
                         }
@@ -766,7 +766,7 @@ namespace NetworkEngine {
                         inst.udpPingHandle = setInterval(() => {
                             if (inst.lastReceivedPing === undefined || inst.config.forceTCPMode) {
                                 inst.isUDPEnabled = false;
-                                inst.logger.error('UDP disabled.');
+                                inst.logger.warn('UDP disabled.');
                                 NetworkSendBus.emit('msg', new UDPModeOffPacket(inst.config.lobby));
                                 clearInterval(inst.udpPingHandle);
                             }
@@ -859,7 +859,7 @@ namespace NetworkEngine {
                     inst.isUDPEnabled = true;
                     inst.udpTestHandle = setTimeout(() => {
                         inst.isUDPEnabled = false;
-                        inst.logger.error('UDP disabled.');
+                        inst.logger.warn('UDP disabled.');
                     }, 30 * 1000);
                     inst.udpClient.send(JSON.stringify(udpTest), udpPort, inst.config.ip);
                     inst.serverUDPPort = udpPort;
