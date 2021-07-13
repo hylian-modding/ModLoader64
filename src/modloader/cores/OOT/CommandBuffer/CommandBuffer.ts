@@ -194,7 +194,7 @@ export class CommandBuffer implements ICommandBuffer {
         });
     }
 
-    relocateOverlay(allocatedVRamAddress: number, overlayInfoPointer: number, vRamAddress: number): void {
+    relocateOverlay(allocatedVRamAddress: number, overlayInfoPointer: number, vRamAddress: number): Promise<void> {
         let count = this.ModLoader.emulator.rdramRead32(this.cmdbuf);
         let offset = this.cmdbuf + COMMAND_OFFSET + COMMAND_SIZEOF * count;
 
@@ -203,6 +203,12 @@ export class CommandBuffer implements ICommandBuffer {
         this.ModLoader.emulator.rdramWrite32(offset + 8, allocatedVRamAddress);
         this.ModLoader.emulator.rdramWrite32(offset + 8 + 4, overlayInfoPointer);
         this.ModLoader.emulator.rdramWrite32(offset + 8 + 8, vRamAddress);
+
+        return new Promise((accept, reject) => {
+            this.ModLoader.utils.setTimeoutFrames(() => {
+                accept();
+            }, 1);
+        });
     }
 
     updateButton(button: number): void {

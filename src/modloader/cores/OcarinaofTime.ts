@@ -427,15 +427,16 @@ export class OverlayPayload extends PayloadType {
         alloc.writeUInt32BE(buf.byteLength);
         dest.rdramWriteBuffer(final, alloc.toBuffer());
         let hash: string = this.ModLoader.utils.hashBuffer(buf);
-        this.core.commandBuffer.relocateOverlay(final, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)), 0x80800000);
-        this.ModLoader.utils.setTimeoutFrames(() => {
-            let hash2 = this.ModLoader.utils.hashBuffer(this.ModLoader.emulator.rdramReadBuffer(final, buf.byteLength));
-            if (hash !== hash2) {
-                this.ModLoader.logger.info(`${path.parse(file).base} relocated.`);
-            } else {
-                this.ModLoader.logger.error(`${path.parse(file).base} failed`);
-            }
-        }, 5);
+        this.ModLoader.utils.setTimeoutFrames(()=>{
+            this.core.commandBuffer.relocateOverlay(final, final + (buf.byteLength - buf.readUInt32BE(buf.byteLength - 0x4)), 0x80800000).then(()=>{
+                let hash2 = this.ModLoader.utils.hashBuffer(this.ModLoader.emulator.rdramReadBuffer(final, buf.byteLength));
+                if (hash !== hash2) {
+                    this.ModLoader.logger.info(`${path.parse(file).base} relocated.`);
+                } else {
+                    this.ModLoader.logger.error(`${path.parse(file).base} failed`);
+                }
+            });
+        }, 20);
         return new OvlPayloadResult(this.core, slot);
     }
 }

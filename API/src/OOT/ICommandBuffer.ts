@@ -20,7 +20,7 @@ export interface ICommandBuffer {
   spawnActorRXYZ(actorId: number, params: number, rotX: number, rotY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>;
   spawnActorRXY_Z(actorId: number, params: number, rotXY: number, rotZ: number, pos: Vector3, address?: number): Promise<IActor>
   runWarp(entranceIndex: number, cutsceneIndex: number, callback?: Function): Promise<boolean>;
-  relocateOverlay(allocatedVRamAddress: number, overlayInfoPointer: number, vRamAddress: number): void;
+  relocateOverlay(allocatedVRamAddress: number, overlayInfoPointer: number, vRamAddress: number): Promise<void>;
   updateButton(button: number): void;
   playSound(sfxId: number, a1: Vector3, a2: number, a3: number, a4: number, a5: number): void;
   // #ifdef DANGEROUS_FUNCTIONS
