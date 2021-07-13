@@ -5,14 +5,13 @@ import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
 import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { number_ref, string_ref, bool_ref } from "modloader64_api/Sylvain/ImGui";
+import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification, NotificationEvents } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
 import { CoreEvent, CoreParam, IMupen } from "./IMupen";
-import { Packet } from "modloader64_api/ModLoaderDefaultImpls";
 import { NetworkHandler } from "modloader64_api/NetworkHandler";
-import { ServerCommand, ServerCommandEvents } from 'modloader64_api/ServerCommand';
+import { AnnouncePacket } from "./AnnouncePacket";
 
 class TopNotification {
     text: string;
@@ -303,16 +302,6 @@ class AchievementWidget {
     }
 }
 
-class AnnouncePacket extends Packet {
-
-    text: string;
-    constructor(text: string) {
-        super('AnnouncePacket', 'MLCore', "__GLOBAL__")
-        this.text = text;
-    }
-
-}
-
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
     Binding!: IConsole;
@@ -345,28 +334,6 @@ class MenubarPlugin implements IPlugin {
     }
 
     init(): void {
-        if (this.ModLoader.isServer) {
-            setInterval(() => {
-                try {
-                    if (fs.existsSync("./announce.json")) {
-                        let data: any = JSON.parse(fs.readFileSync("./announce.json").toString());
-                        fs.unlinkSync("./announce.json");
-                        this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
-                    }
-                    if (fs.existsSync("./commands.json")) {
-                        let data: any = JSON.parse(fs.readFileSync("./commands.json").toString());
-                        fs.unlinkSync("./commands.json");
-                        let cmds: Array<string> = data.commands;
-                        for (let i = 0; i < cmds.length; i++) {
-                            let params: Array<string> = cmds[i].split(" ");
-                            bus.emit(ServerCommandEvents.RECEIVE_COMMAND, new ServerCommand(params));
-                        }
-                    }
-                } catch (err) {
-                    this.ModLoader.logger.error(err);
-                }
-            }, 30 * 1000);
-        }
     }
 
     @NetworkHandler('AnnouncePacket')

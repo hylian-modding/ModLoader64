@@ -6,6 +6,7 @@ import path from 'path';
 
 program.option('-i, --input <file>', 'input file');
 program.option('-d, --dir <dir>', 'directory');
+program.option('-r, --remove <str>', 'remove string from output')
 program.parse(process.argv);
 
 if (program.input) {
@@ -21,7 +22,11 @@ if (program.input) {
     recursive(dir, (err: any, files: Array<string>) => {
         for (let i = 0; i < files.length; i++) {
             let f = path.resolve(files[i]);
-            str += "export const " + path.parse(f).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
+            if (program.remove){
+                str += "export const " + path.parse(f).name.split(" ").join("_").split("-").join("_").replace(program.remove, "") + ": Buffer = Buffer.from(\"";
+            }else{
+                str += "export const " + path.parse(f).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
+            }
             let buf: Buffer = fs.readFileSync(f);
             str += buf.toString('base64');
             str += "\", 'base64');\n";

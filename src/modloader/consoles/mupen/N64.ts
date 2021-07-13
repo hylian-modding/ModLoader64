@@ -1,4 +1,4 @@
-import { IMupen, EmuState, CoreEvent, CoreParam } from './IMupen';
+import { IMupen, EmuState, CoreEvent } from './IMupen';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -21,6 +21,7 @@ import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { Debugger } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
+import slash from 'slash';
 
 class N64 implements IConsole {
     rawModule: any;
@@ -31,6 +32,7 @@ class N64 implements IConsole {
     isPaused: boolean = false;
     callbacks: Map<string, Array<Function>> = new Map<string, Array<Function>>();
     texPath: string = "";
+    cachePath: string = "";
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.logger = logger;
@@ -74,6 +76,7 @@ class N64 implements IConsole {
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
         this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
         this.texPath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txPath", "");
+        this.cachePath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txCachePath", "");
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
         const _64_MB = 64 * 1024 * 1024;
 
@@ -102,11 +105,17 @@ class N64 implements IConsole {
         });
         this.registerCallback('core-event', (event: CoreEvent, data: number) => {
             if (event == CoreEvent.SoftReset) {
-                this.logger.info("Soft reset detected. Sending alert to plugins.");
-                bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
-                this.logger.info("Letting the reset go through...");
-                this.softReset();
-                internal_event_bus.emit("CoreEvent.SoftReset", {});
+                try {
+                    internal_event_bus.emit("REGISTER_TICK_TIMEOUT", () => {
+                        this.logger.info("Soft reset detected. Sending alert to plugins.");
+                        bus.emit(ModLoaderEvents.ON_SOFT_RESET_PRE, {});
+                        this.logger.info("Letting the reset go through...");
+                        this.softReset();
+                        internal_event_bus.emit("CoreEvent.SoftReset", {});
+                    });
+                } catch (err) {
+                    this.logger.error(err.stack);
+                }
             } else if (event == CoreEvent.TakeNextScreenshot) {
                 this.mupen.Frontend.takeNextScreenshot();
             } else if (event == CoreEvent.VolumeUp) {
@@ -230,8 +239,9 @@ class N64 implements IConsole {
         });
         internal_event_bus.on('emulator_started', () => {
             if (this.texPath !== "") {
-                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", this.texPath);
-                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", path.resolve(path.parse(this.texPath).dir, "cache"));
+                /** @TODO rewrite all this shit. */
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txPath", slash(this.texPath));
+                this.mupen.M64p.Config.openSection("Video-GLideN64").setString("txCachePath", slash(this.cachePath));
             }
             this.mupen.M64p.Config.saveFile();
         });

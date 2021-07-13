@@ -56,6 +56,10 @@ gulp.task('bump', function () {
     return gulp.src('.');
 });
 
+gulp.task('dummy', function(){
+    return gulp.src('.');
+});
+
 gulp.task('emulator', function () {
     let platformkey = '';
     if (process.arch === undefined) {
@@ -92,6 +96,8 @@ gulp.task('_dist', function () {
     fs.removeSync("./build/roms");
     const srcDir = '.';
     const dstDir = './build';
+    fs.removeSync("./build/cores");
+    fs.removeSync("./build/API");
     console.log("Copying node_modules...");
     copyNodeModules(srcDir, dstDir, { devDependencies: false }, (err: any, results: any) => {
         if (err) {

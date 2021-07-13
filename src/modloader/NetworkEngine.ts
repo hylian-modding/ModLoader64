@@ -156,11 +156,11 @@ export class PongPacket extends UDPPacket {
     }
 }
 
-export class LatencyInfoPacket extends Packet{
+export class LatencyInfoPacket extends Packet {
     ping: number;
     roundtrip: number;
 
-    constructor(lobby: string, ping: number, roundtrip: number){
+    constructor(lobby: string, ping: number, roundtrip: number) {
         super('LatencyInfoPacket', 'CORE', lobby, false);
         this.ping = ping;
         this.roundtrip = roundtrip;
@@ -215,10 +215,10 @@ namespace NetworkEngine {
                 }
             );
 
-            NetworkQueryBusServer.on('isPlayerConnected', (evt: IConnectionCheckEvt)=>{
+            NetworkQueryBusServer.on('isPlayerConnected', (evt: IConnectionCheckEvt) => {
                 evt.connected = this.io.sockets.sockets[evt.player.uuid] !== undefined;
             });
-            
+
         }
 
         getLobbies() {
@@ -264,8 +264,12 @@ namespace NetworkEngine {
 
         getPlayerRinfo(player: INetworkPlayer | string): RemoteInfo | undefined {
             if (typeof (player) === 'string') {
+                if (this.io.sockets.sockets[player] === undefined) return undefined;
+                if (this.io.sockets.sockets[player]["ModLoader64"] === undefined) return undefined;
                 return this.io.sockets.sockets[player].ModLoader64["rinfo"];
             } else {
+                if (this.io.sockets.sockets[player.uuid] === undefined) return undefined;
+                if (this.io.sockets.sockets[player.uuid]["ModLoader64"] === undefined) return undefined;
                 return this.io.sockets.sockets[player.uuid].ModLoader64["rinfo"];
             }
         }
@@ -339,7 +343,7 @@ namespace NetworkEngine {
                     },
                     function (err: any) {
                         if (err) {
-                            inst.logger.error("Didn't open port for TCP server.");
+                            inst.logger.warn("Didn't open port for TCP server.");
                         } else {
                             inst.logger.info('Opened port for TCP server.');
                         }
@@ -353,7 +357,7 @@ namespace NetworkEngine {
                     },
                     function (err: any) {
                         if (err) {
-                            inst.logger.error("Didn't open port for UDP server.");
+                            inst.logger.warn("Didn't open port for UDP server.");
                         } else {
                             inst.logger.info('Opened port for UDP server.');
                         }
@@ -674,6 +678,7 @@ namespace NetworkEngine {
             config.setData('NetworkEngine.Client', 'lobby', ML_UUID.getLobbyName());
             config.setData('NetworkEngine.Client', 'nickname', 'Player');
             config.setData('NetworkEngine.Client', 'password', '');
+            config.setData('NetworkEngine.Client', 'forceTCPMode', false);
             this.masterConfig = config;
             if (this.config.nickname.indexOf("\n")) {
                 this.config.nickname = this.config.nickname.replace("\n", "");
@@ -741,13 +746,9 @@ namespace NetworkEngine {
                         inst.isUDPEnabled &&
                         inst.isConnectionReady
                     ) {
-                        inst.udpClient.send(
-                            JSON.stringify(data),
-                            inst.serverUDPPort,
-                            inst.config.ip
-                        );
+                        inst.udpClient.send(JSON.stringify(data),inst.serverUDPPort,inst.config.ip);
                     } else {
-                        inst.socket.emit('msg', data);
+                        inst.socket.emit('msg', JSON.parse(JSON.stringify(data)));
                     }
                 });
                 NetworkSendBus.addListener('toPlayer', (data: any) => {
@@ -763,9 +764,9 @@ namespace NetworkEngine {
                     inst.udpClient.send(JSON.stringify(packet), inst.serverUDPPort, inst.config.ip);
                     if (inst.udpPingHandle === undefined) {
                         inst.udpPingHandle = setInterval(() => {
-                            if (inst.lastReceivedPing === undefined) {
+                            if (inst.lastReceivedPing === undefined || inst.config.forceTCPMode) {
                                 inst.isUDPEnabled = false;
-                                inst.logger.error('UDP disabled.');
+                                inst.logger.warn('UDP disabled.');
                                 NetworkSendBus.emit('msg', new UDPModeOffPacket(inst.config.lobby));
                                 clearInterval(inst.udpPingHandle);
                             }
@@ -780,8 +781,8 @@ namespace NetworkEngine {
                         NetworkSendBus.emit('msg', new PongPacket(packet.timestamp, inst.config.lobby).setType(SocketType.UDP));
                     }
                 });
-                NetworkBus.on('LatencyInfoPacket', (packet: LatencyInfoPacket)=>{
-                    inst.me.data["ninfo"] = {ping: packet.ping, rt: packet.roundtrip};
+                NetworkBus.on('LatencyInfoPacket', (packet: LatencyInfoPacket) => {
+                    inst.me.data["ninfo"] = { ping: packet.ping, rt: packet.roundtrip };
                 });
                 inst.socket.on('connect', () => {
                     inst.logger.info('Connected.');
@@ -855,9 +856,10 @@ namespace NetworkEngine {
                     let udpTest = new UDPTestPacket();
                     udpTest.player = inst.me;
                     udpTest.lobby = inst.config.lobby;
+                    inst.isUDPEnabled = true;
                     inst.udpTestHandle = setTimeout(() => {
                         inst.isUDPEnabled = false;
-                        inst.logger.error('UDP disabled.');
+                        inst.logger.warn('UDP disabled.');
                     }, 30 * 1000);
                     inst.udpClient.send(JSON.stringify(udpTest), udpPort, inst.config.ip);
                     inst.serverUDPPort = udpPort;

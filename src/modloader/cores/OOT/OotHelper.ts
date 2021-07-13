@@ -3,6 +3,7 @@ import {
     IOotHelper,
     IGlobalContext,
     ILink,
+    LinkState,
 } from 'modloader64_api/OOT/OOTAPI';
 import { JSONTemplate } from 'modloader64_api/JSONTemplate';
 import IMemory from 'modloader64_api/IMemory';
@@ -33,7 +34,7 @@ export class OotHelper extends JSONTemplate implements IOotHelper {
   }
   isLinkEnteringLoadingZone(): boolean {
       let r = this.link.rawStateValue;
-      return (r & 0x000000ff) === 1;
+      return (r & 0x000000ff) === 1 || this.link.state === LinkState.LOADING_ZONE || this.link.state === LinkState.ENTERING_GROTTO;
   }
   isPaused(): boolean {
       return this.emu.rdramRead16((global.ModLoader["offsets"]["link"] as OOT_Offsets).paused) !== 0x3;

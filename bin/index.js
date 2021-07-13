@@ -152,9 +152,9 @@ function installCores() {
     if (!meta.hasOwnProperty("modloader64_deps")) {
         meta["modloader64_deps"] = {};
     }
-    let mm_path = path_1.default.join(".", "src", meta.name, "package.json");
+    let mm_path = path_1.default.resolve(".", "src", meta.name, "package.json");
     if (!fs_1.default.existsSync(mm_path)) {
-        mm_path = path_1.default.join(".", "cores", meta.name, "package.json");
+        mm_path = path_1.default.resolve(".", "cores", meta.name, "package.json");
     }
     let mod_meta = JSON.parse(fs_1.default.readFileSync(mm_path).toString());
     if (!mod_meta.hasOwnProperty("modloader64_deps")) {
@@ -229,7 +229,9 @@ if (!WAITING_ON_EXTERNAL) {
     if (commander_1.default.init) {
         let original_dir = process.cwd();
         console.log("Generating mod scaffolding...");
-        child_process_1.default.execSync("npm init --yes");
+        if (!fs_1.default.existsSync("./package.json")) {
+            child_process_1.default.execSync("npm init --yes");
+        }
         let meta = JSON.parse(fs_1.default.readFileSync("./package.json").toString());
         if (!fs_1.default.existsSync("./src")) {
             fs_1.default.mkdirSync("./src");
@@ -474,8 +476,8 @@ if (!WAITING_ON_EXTERNAL) {
         cfg["NetworkEngine.Client"]["isSinglePlayer"] = false;
         fs_1.default.writeFileSync(path_1.default.join(original_dir, "modloader64-p2-config.json"), JSON.stringify(cfg, null, 2));
         process.chdir(path_1.default.join(__dirname, "../"));
-        let ml = child_process_1.default.exec("npm run start_2 -- --mods=" + path_1.default.join(original_dir, "build", "src") + " --roms=" + path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1.default.join(original_dir, "libs") + " --config=" + path_1.default.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
-        console.log("npm run start_2 -- --mods=" + path_1.default.join(original_dir, "build", "src") + " --roms=" + path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1.default.join(original_dir, "libs") + " --config=" + path_1.default.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+        let ml = child_process_1.default.exec("npm run start_2 -- --mods=" + path_1.default.join(original_dir, "build", "src") + " --roms=" + path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1.default.resolve(".", "core_links", "node_modules") + " --config=" + path_1.default.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
+        console.log("npm run start_2 -- --mods=" + path_1.default.join(original_dir, "build", "src") + " --roms=" + path_1.default.resolve(sdk_cfg.ModLoader64.SDK.roms_dir) + " --cores=" + path_1.default.resolve(".", "core_links", "node_modules") + " --config=" + path_1.default.join(original_dir, "modloader64-p2-config.json") + " --startdir " + original_dir);
         //@ts-ignore
         ml.stdout.on('data', function (data) {
             console.log(data);

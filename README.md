@@ -29,10 +29,6 @@ npm install -g typescript
 
 npm install -g gulp-cli
 
-Installing with NPM:
-
-npm link
-
 Installing with Yarn:
 
 yarn
@@ -43,6 +39,5 @@ yarn global bin
 
 Add the path printed by the last command to your PATH
 
-
 ## Testing
-npm run start
+yarn start

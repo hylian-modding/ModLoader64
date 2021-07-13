@@ -13,12 +13,12 @@ import { IImGui } from 'modloader64_api//Sylvain/ImGui';
 import { FakeMemory, FakeRom } from 'modloader64_api/SidedProxy/FakeMemory';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
+import path from 'path';
 
 export class FakeMupen implements IConsole {
     rom: string;
     rom_data: Buffer;
     ram: FakeMemory;
-    dummy: any = {};
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.rom = rom;
@@ -31,11 +31,11 @@ export class FakeMupen implements IConsole {
     }
 
     getInternalPlugin(): string {
-        return "";
+        return path.resolve(__dirname, "MupenServerPlugin.js");
     }
 
     getDebuggerAccess(): Debugger {
-        return this.dummy;
+        return {} as any;
     }
 
     getRomOriginalSize(): number {
@@ -43,21 +43,21 @@ export class FakeMupen implements IConsole {
     }
 
     getYaz0Encoder(): IYaz0 {
-        return this.dummy;
+        return {} as any;
     }
 
     getInputAccess(): Input {
-        return this.dummy;
+        return {} as any;
     }
     getGfxAccess(): Gfx {
-        return this.dummy;
+        return {} as any;
     }
 
     getSDLAccess(): SDL {
-        return this.dummy;
+        return {} as any;
     }
     getImGuiAccess(): IImGui {
-        return this.dummy;
+        return {} as any;
     }
 
     on(which: string, callback: any): void {
@@ -109,10 +109,10 @@ export class FakeMupen implements IConsole {
     setSaveDir(path: string): void { }
 
     getUtils(): IUtils {
-        return this.dummy;
+        return {} as any;
     }
 
     getSaveStateManager(): ISaveState {
-        return this.dummy;
+        return {} as any;
     }
 }
