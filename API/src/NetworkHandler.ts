@@ -190,6 +190,7 @@ export interface ILobbyStorage {
 export interface ILobbyManager {
   getLobbyStorage(lobbyName: string, plugin: IPlugin): any;
   createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void;
+  getAllLobbies(): any;
 }
 
 export function setupNetworkHandlers(instance: any) {

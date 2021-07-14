@@ -126,6 +126,12 @@ export class LobbyManagerAbstract implements ILobbyManager {
             new createLobbyStorage_event(lobbyName, plugin, obj)
         );
     }
+
+    getAllLobbies(): any{
+        let evt = {r: {}};
+        NetworkingEventBus.emit('getAllLobbies', evt);
+        return evt.r;
+    }
 }
 
 export class PingPacket extends UDPPacket {
@@ -215,6 +221,10 @@ namespace NetworkEngine {
                 }
             );
 
+            NetworkingEventBus.on('getAllLobbies', (evt: any)=>{
+                evt["r"] = this.getAllLobbies();
+            });
+
             NetworkQueryBusServer.on('isPlayerConnected', (evt: IConnectionCheckEvt) => {
                 evt.connected = this.io.sockets.sockets[evt.player.uuid] !== undefined;
             });
@@ -251,6 +261,10 @@ namespace NetworkEngine {
                 mainStore['data'] = {};
             }
             mainStore.data[plugin.pluginName as string] = obj;
+        }
+
+        getAllLobbies(): any{
+            return this.lobbyStorage;
         }
 
         getLobbyStorage(lobbyName: string, plugin: IPlugin): Object | null {
