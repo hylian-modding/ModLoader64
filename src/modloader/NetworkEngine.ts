@@ -333,6 +333,7 @@ namespace NetworkEngine {
                         let index = this.lobby_names.indexOf(rm[i]);
                         let name = this.lobby_names.splice(index, 1)[0].trim();
                         this.logger.info("lobby " + name + " terminated.");
+                        bus.emit(EventsServer.ON_LOBBY_DESTROY, name);
                         delete this.lobbyStorage[name];
                     }
                 }
@@ -549,7 +550,8 @@ namespace NetworkEngine {
                                 socket.to(data.lobby).emit('msg', data);
                             }
                         } catch (err) {
-                            inst.logger.error(err);
+                            inst.logger.error(err.stack);
+                            inst.logger.error(JSON.stringify(data));
                         }
                     });
                     socket.on('toSpecificPlayer', function (data: any) {
