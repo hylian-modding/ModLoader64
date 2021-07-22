@@ -1,15 +1,15 @@
 import IConsole, { IConsoleDescriptor } from "API/build/IConsole";
-import { ILogger } from "API/build/IModLoaderAPI";
+import { IConfig, ILogger } from "modloader64_api/IModLoaderAPI";
 import { ProxySide } from "API/build/SidedProxy/SidedProxy";
 import { FakeMupen } from "./FakeMupen";
 import N64 from "./N64";
 
 export class MupenDescriptor implements IConsoleDescriptor {
 
-    constructConsole(side: ProxySide, rom: string, logger: ILogger, lobby: string): IConsole {
+    constructConsole(side: ProxySide, rom: string, logger: ILogger, lobby: string, config: IConfig): IConsole {
         switch (side) {
             case ProxySide.CLIENT:
-                return new N64(rom, logger, lobby);
+                return new N64(rom, logger, lobby, config);
             case ProxySide.SERVER:
                 return new FakeMupen(rom, logger, lobby);
             default:

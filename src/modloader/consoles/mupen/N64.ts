@@ -4,7 +4,7 @@ import IConsole from 'modloader64_api/IConsole';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import { N64Header } from './N64Header';
-import { ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
+import { IConfig, ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import IUtils from 'modloader64_api/IUtils';
 import ISaveState from 'modloader64_api/ISaveState';
 import path from 'path';
@@ -23,6 +23,13 @@ import { Debugger } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
 import slash from 'slash';
 
+interface MupenConfig{
+    rsp: string;
+    video: string;
+    audio: string;
+    input: string;
+}
+
 class N64 implements IConsole {
     rawModule: any;
     mupen: IMupen;
@@ -34,7 +41,7 @@ class N64 implements IConsole {
     texPath: string = "";
     cachePath: string = "";
 
-    constructor(rom: string, logger: ILogger, lobby: string) {
+    constructor(rom: string, logger: ILogger, lobby: string, config: IConfig) {
         this.logger = logger;
         this.lobby = lobby;
         moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
@@ -74,7 +81,12 @@ class N64 implements IConsole {
         size.y = global.ModLoader["ScreenHeight"];
 
         let emu_dir: string = global["module-alias"]["moduleAliases"]["@emulator"];
-        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", emu_dir + "/mupen64plus-rsp-hle", emu_dir + "/mupen64plus-video-gliden64", emu_dir + "/mupen64plus-audio-sdl", emu_dir + "/mupen64plus-input-sdl", emu_dir, emu_dir));
+        let _config: MupenConfig = config.registerConfigCategory("Mupen64Plus") as MupenConfig;
+        config.setData("Mupen64Plus", "rsp", "mupen64plus-rsp-hle");
+        config.setData("Mupen64Plus", "video", "mupen64plus-video-gliden64");
+        config.setData("Mupen64Plus", "audio", "mupen64plus-audio-sdl");
+        config.setData("Mupen64Plus", "input", "mupen64plus-input-sdl");
+        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", `${emu_dir}/${_config.rsp}`, `${emu_dir}/${_config.video}`, `${emu_dir}/${_config.audio}`, `${emu_dir}/${_config.input}`, emu_dir, emu_dir));
         this.texPath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txPath", "");
         this.cachePath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txCachePath", "");
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);

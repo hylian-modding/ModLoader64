@@ -273,7 +273,7 @@ class ModLoader64 {
         let side: ProxySide = ProxySide.UNIVERSAL;
         if (this.data.isServer) side = ProxySide.SERVER;
         if (this.data.isClient) side = ProxySide.CLIENT;
-        this.emulator = this.consoleDescManager.getConsole(this.data.selectedConsole).constructConsole(side, this.rom_path, this.logger, this.clientConfig.lobby);
+        this.emulator = this.consoleDescManager.getConsole(this.data.selectedConsole).constructConsole(side, this.rom_path, this.logger, this.clientConfig.lobby, this.config);
 
         internal_event_bus.emit('preinit_done', {});
         this.init();
