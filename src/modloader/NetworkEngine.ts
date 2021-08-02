@@ -398,6 +398,9 @@ namespace NetworkEngine {
                     }
                 });
                 NetworkSendBusServer.addListener('toPlayer', (data: IToPlayer) => {
+                    if (data.player === undefined) {
+                        data.player = inst.fakePlayer;
+                    }
                     if (data.packet.socketType === SocketType.TCP) {
                         inst.sendToTarget(data.player.uuid, 'msg', data.packet);
                     } else {

@@ -9,7 +9,7 @@ import { IYaz0 } from './Sylvain/Yaz0';
 import { Debugger } from './Sylvain/Debugger';
 import IUtils from './IUtils';
 import { ProxySide } from './SidedProxy/SidedProxy';
-import { ILogger } from './IModLoaderAPI';
+import { IConfig, ILogger } from './IModLoaderAPI';
 import { IRomMemory } from './IRomMemory';
 
 interface IConsole {
@@ -100,7 +100,7 @@ interface IConsole{
 }
 
 export interface IConsoleDescriptor{
-  constructConsole(side: ProxySide, rom: string, logger: ILogger, lobby: string): IConsole;
+  constructConsole(side: ProxySide, rom: string, logger: ILogger, lobby: string, config: IConfig): IConsole;
   getConsoleLabel(): string;
 }
 
