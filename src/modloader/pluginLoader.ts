@@ -269,6 +269,7 @@ class pluginLoader {
             this.logger.error('Plugin ' + parse.name + ' is missing package.json. Skipping.');
             return;
         }
+        console.log(pkg_file);
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
         if (typeof pkg.core === "string") {
             if (pkg.core !== this.selected_core && pkg.core !== '*') {
@@ -810,13 +811,21 @@ class pluginLoader {
         });
         this.injector = () => {
             if (config.isClient) {
+                let evt: any = {};
+                bus.emit(EventsClient.ON_HEAP_SETUP, evt);
                 let heap: Heap | undefined = undefined;
                 if (this.loaded_core.heap_size > 0) {
                     heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
                 }
+                let gfx: Heap | undefined = undefined;
+                if (evt.hasOwnProperty("gfx_heap_start")){
+                    gfx = new Heap(this.loaded_core.ModLoader.emulator, evt.gfx_heap_start, evt.gfx_heap_size);
+                }
                 this.loaded_core.ModLoader.heap = heap;
+                this.loaded_core.ModLoader.gfx_heap = gfx;
                 this.plugins.forEach((plugin: IPlugin) => {
                     plugin.ModLoader.heap = heap;
+                    plugin.ModLoader.gfx_heap = gfx;
                 });
                 this.logger.debug("Starting injection...");
                 this.plugin_folders.forEach((dir: string) => {

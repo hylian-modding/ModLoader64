@@ -545,7 +545,15 @@ export enum OotEvents {
   ON_DAY_TRANSITION = "onDayTransition",
   ON_NIGHT_TRANSITION = "onNightTransition",
   ON_HEALTH_CHANGE = "onHealthChange",
-  ON_TUNIC_CHANGE = "onTunicChanged"
+  ON_TUNIC_CHANGE = "onTunicChanged",
+  ON_ACTOR_UPDATE = "onActorUpdate",
+  ON_OBJECT_LOAD = "onObjectLoad"
+}
+
+export interface IObjectSpawn{
+  objectId: number;
+  objectCtxId: number;
+  pointer: number;
 }
 
 export interface IActorManager {

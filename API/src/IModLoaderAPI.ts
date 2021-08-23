@@ -64,6 +64,7 @@ export interface IModLoaderAPI {
   isModLoaded(modid: string): boolean;
   analytics: IAnalyticsManager;
   heap: Heap | undefined;
+  gfx_heap: Heap | undefined;
   publicBus: EventBus;
   privateBus: EventBus
 }

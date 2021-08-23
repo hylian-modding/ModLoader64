@@ -41,6 +41,7 @@
     "jsonfile": "^6.1.0",
     "log4js": "^6.3.0",
     "lzma": "^2.3.2",
+    "mips-assembler": "^2.0.1",
     "mkdir-recursive": "^0.4.0",
     "module-alias": "^2.2.2",
     "nat-upnp": "^1.1.1",

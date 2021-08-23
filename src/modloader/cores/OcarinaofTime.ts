@@ -2,9 +2,8 @@ import { bus, EventHandler, EventsClient } from 'modloader64_api/EventHandler';
 import { ICore, IModLoaderAPI, ILogger, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
 import {
-    IGlobalContext, ILink, IOOTCore, IOotHelper, OotEvents, IOvlPayloadResult, Tunic
+    IGlobalContext, ILink, IOOTCore, IOotHelper, OotEvents, IOvlPayloadResult, Tunic, IActorManager
 } from 'modloader64_api/OOT/OOTAPI';
-import { ActorManager } from './OOT/ActorManager';
 import { GlobalContext } from './OOT/GlobalContext';
 import { Link } from './OOT/Link';
 import { OotHelper } from './OOT/OotHelper';
@@ -19,6 +18,7 @@ import { SmartBuffer } from 'smart-buffer';
 import { CommandBuffer } from './OOT/CommandBuffer/CommandBuffer';
 import { IActor } from 'modloader64_api/OOT/IActor';
 import Vector3 from 'modloader64_api/math/Vector3';
+import { EventSystem } from './OOT/CommandBuffer/EventSystem';
 
 export enum ROM_VERSIONS {
     N0 = 0x00,
@@ -48,7 +48,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
     global!: IGlobalContext;
     helper!: IOotHelper;
     commandBuffer!: CommandBuffer;
-    actorManager!: ActorManager;
+    actorManager!: IActorManager;
     eventTicks: Map<string, Function> = new Map<string, Function>();
     // Client side variables
     isSaveLoaded = false;
@@ -66,8 +66,8 @@ export class OcarinaofTime implements ICore, IOOTCore {
     localFlagsHash: string = "";
     permFlagsScene: Buffer = Buffer.alloc(0xb0c);
     permFlagsSceneHash: string = "";
-    heap_start: number = 0x80700000;
-    heap_size: number = 0x00900000;
+    heap_start: number = 0x81000000;
+    heap_size: number =  16 * 1024 * 1024;
     isNight: boolean = false;
     lastHealth: number = 0;
     lastTunic: Tunic = Tunic.KOKIRI;
@@ -130,6 +130,7 @@ export class OcarinaofTime implements ICore, IOOTCore {
                 global.ModLoader["SCENE_TABLE"] = 0x800FB4E0;
                 global.ModLoader["ENTRANCE_TABLE"] = 0x800F9C90;
                 global.ModLoader["RESTRICTION_TABLE"] = 0x800F7350;
+                global.ModLoader["obj_context"] = 0x801D9C44;
                 offsets.state = 0x066c;
                 offsets.state2 = 0x0670;
                 offsets.paused = 0x1c6fa0;
@@ -247,7 +248,6 @@ export class OcarinaofTime implements ICore, IOOTCore {
             this.link,
             this.ModLoader.emulator
         );
-        this.actorManager = new ActorManager();
         this.ModLoader.payloadManager.registerPayloadType(
             new OverlayPayload('.ovl', this.ModLoader, this)
         );
@@ -257,8 +257,10 @@ export class OcarinaofTime implements ICore, IOOTCore {
         if (this.map_select_enabled) {
             this.mapSelectCode();
         }
+        if (this.commandBuffer !== undefined) this.commandBuffer.onTick();
+        //@ts-ignore
+        if (this.actorManager !== undefined) this.actorManager.onTick();
         if (!this.helper.isTitleScreen()) {
-            if (this.commandBuffer !== undefined) this.commandBuffer.onTick();
             this.eventTicks.forEach((value: Function, key: string) => {
                 value();
             });
@@ -290,14 +292,18 @@ export class OcarinaofTime implements ICore, IOOTCore {
             skipped += (0x100000);
             scan = this.ModLoader.emulator.rdramReadBuffer(start, 0x100000);
         }
-        this.heap_start = start;
-        this.heap_size = (0x1000000 - skipped);
-        this.ModLoader.logger.debug(`Oot Core Context: ${start.toString(16)}. Size: 0x${this.heap_size.toString(16)}`);
+        let gfx_heap_start = start;
+        let gfx_heap_size = (0x1000000 - skipped);
+        evt["gfx_heap_start"] = gfx_heap_start;
+        evt["gfx_heap_size"] = gfx_heap_size;
+        this.ModLoader.logger.debug(`Oot Core Context: ${this.heap_start.toString(16)}. Size: 0x${this.heap_size.toString(16)}`);
+        this.ModLoader.logger.debug(`Oot GFX Context: ${gfx_heap_start.toString(16)}. Size: 0x${gfx_heap_size.toString(16)}`);
     }
 
     @EventHandler(EventsClient.ON_HEAP_READY)
     onHeapReady(evt: any) {
         this.commandBuffer = new CommandBuffer(this.ModLoader, this.rom_header.revision);
+        this.actorManager = new EventSystem(this.ModLoader, this.commandBuffer.cmdbuf);
     }
 
     mapSelectCode(): void {
