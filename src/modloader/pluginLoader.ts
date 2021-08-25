@@ -7,6 +7,7 @@ import {
     IModLoaderAPI,
     ICore,
     ModLoaderEvents,
+    IExtendedCore,
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import {
@@ -269,7 +270,6 @@ class pluginLoader {
             this.logger.error('Plugin ' + parse.name + ' is missing package.json. Skipping.');
             return;
         }
-        console.log(pkg_file);
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
         if (typeof pkg.core === "string") {
             if (pkg.core !== this.selected_core && pkg.core !== '*') {
@@ -447,6 +447,11 @@ class pluginLoader {
                 markPrototypeProcessed((this.loaded_core as any)[key]);
             }
         });
+
+        // IExtendedCore
+        if (this.loaded_core["postconstructor"] !== undefined){
+            (this.loaded_core as any as IExtendedCore).postconstructor();
+        }
 
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 

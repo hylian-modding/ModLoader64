@@ -127,6 +127,10 @@ export interface ICore {
   heap_size: number;
 }
 
+export interface IExtendedCore{
+  postconstructor(): void;
+}
+
 export interface IPluginServerConfig {
   getServerURL(): string;
 }

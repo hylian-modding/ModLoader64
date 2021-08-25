@@ -7,19 +7,28 @@ export const enum ProxySide {
     UNIVERSAL
 }
 
+function custom_dummy(){
+    return true;
+}
+
 export class ProxySideContainer {
     side: ProxySide;
     backing: (new () => any) | string;
     core?: string;
+    custom?: () => boolean;
 
-    constructor(side: ProxySide, backing: (new () => any) | string, core?: string) {
+    constructor(side: ProxySide, backing: (new () => any) | string, core?: string, custom?: () => boolean) {
         this.side = side;
         this.backing = backing;
         this.core = core;
+        this.custom = custom;
+        if (this.custom === undefined) {
+            this.custom = custom_dummy;
+        }
     }
 }
 
-export function SidedProxy(side: ProxySide, inst: (new () => any) | string, core?: string) {
+export function SidedProxy(side: ProxySide, inst: (new () => any) | string, core?: string, custom?: () => boolean) {
     return function (
         target: any,
         propertyKey: string
@@ -30,7 +39,7 @@ export function SidedProxy(side: ProxySide, inst: (new () => any) | string, core
         if (target.ModLoader.sidedproxies === undefined) {
             target.ModLoader['sidedproxies'] = new Map<string, string>();
         }
-        target.ModLoader.sidedproxies.set(new ProxySideContainer(side, inst, core), propertyKey);
+        target.ModLoader.sidedproxies.set(new ProxySideContainer(side, inst, core, custom), propertyKey);
     };
 }
 
@@ -43,29 +52,32 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
         }
         if (p.ModLoader.hasOwnProperty('sidedproxies')) {
             p.ModLoader.sidedproxies.forEach(function (value: string, key: ProxySideContainer) {
-                if (key.core !== undefined){
-                    if (key.core !== '*'){
+                if (key.core !== undefined) {
+                    if (key.core !== '*') {
                         if (key.core !== core) return;
                     }
                 }
+                if (!key.custom!()) return;
                 if ((isClient && key.side === ProxySide.CLIENT) || key.side === ProxySide.UNIVERSAL) {
                     if (typeof (key.backing) === 'string') {
                         let c: any;
-                        try{
-                            if (c === undefined){
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
                             }
-                        }catch(err){}
-                        try{
-                            if (c === undefined){
+                        } catch (err) {
+                            console.log(err.stack);
+                        }
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
                             }
-                        }catch(err){}
-                        try{
-                            if (c === undefined){
+                        } catch (err) { }
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
                             }
-                        }catch(err){}
+                        } catch (err) { }
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();
@@ -74,21 +86,23 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                 } else if (isServer && key.side === ProxySide.SERVER) {
                     if (typeof (key.backing) === 'string') {
                         let c: any;
-                        try{
-                            if (c === undefined){
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
                             }
-                        }catch(err){}
-                        try{
-                            if (c === undefined){
+                        } catch (err) { 
+                            console.log(err.stack);
+                        }
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
                             }
-                        }catch(err){}
-                        try{
-                            if (c === undefined){
+                        } catch (err) { }
+                        try {
+                            if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
                             }
-                        }catch(err){}
+                        } catch (err) { }
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();
