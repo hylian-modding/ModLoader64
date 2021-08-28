@@ -113,4 +113,13 @@ interface IMemory extends IDynarecCache {
 
 }
 
+// Functions added by Drahsid
+interface IMemory {
+  rdramRead64(addr: number): number;
+  rdramReadS64(addr: number): number;
+  rdramReadF64(addr: number): number;
+  rdramWrite64(addr: number, val: number): void;
+  rdramWriteF64(addr: number, val: number): void;
+}
+
 export default IMemory;
