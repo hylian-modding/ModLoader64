@@ -7,7 +7,7 @@ export const enum ProxySide {
     UNIVERSAL
 }
 
-function custom_dummy(){
+function custom_dummy() {
     return true;
 }
 
@@ -66,7 +66,6 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
                             }
                         } catch (err) {
-                            console.log(err.stack);
                         }
                         try {
                             if (c === undefined) {
@@ -90,8 +89,7 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                             if (c === undefined) {
                                 c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".js")).default;
                             }
-                        } catch (err) { 
-                            console.log(err.stack);
+                        } catch (err) {
                         }
                         try {
                             if (c === undefined) {

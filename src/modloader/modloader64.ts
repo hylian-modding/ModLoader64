@@ -176,6 +176,7 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'selectedConsole', 'Mupen64Plus');
         this.config.setData('ModLoader64', 'coreOverride', '');
         this.config.setData('ModLoader64', 'disableVIUpdates', false);
+        this.config.setData('ModLoader64', 'enableDebugger', false);
 
 
         if (this.data.supportedConsoles.indexOf(this.data.selectedConsole) === -1){

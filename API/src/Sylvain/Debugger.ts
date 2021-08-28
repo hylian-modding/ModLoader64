@@ -1,3 +1,7 @@
+export const enum DebuggerEvents{
+    UPDATE = "debug-update"
+}
+
 export const enum RunState {
     Paused, Stepping, Running
 }
