@@ -2,6 +2,15 @@ import IMemory from "../IMemory";
 import { IRomMemory } from "../IRomMemory";
 
 export class FakeMemory implements IMemory{
+    rdramReadBigInt64(addr: number): BigInt {
+        throw new Error("Method not implemented.");
+    }
+    rdramReadBigIntS64(addr: number): BigInt {
+        throw new Error("Method not implemented.");
+    }
+    rdramWriteBigInt64(addr: number, val: BigInt): void {
+        throw new Error("Method not implemented.");
+    }
     rdramRead64(addr: number): number {
         throw new Error("Method not implemented.");
     }
