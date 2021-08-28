@@ -601,6 +601,7 @@ class pluginLoader {
         }
         let analytics = Object.freeze(new AnalyticsManager());
         let debug = Object.freeze(iconsole.getDebuggerAccess());
+        let hr = Object.freeze(iconsole.getHiResTextureAccess());
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -614,6 +615,7 @@ class pluginLoader {
             this.loaded_core.ModLoader.sound = ss;
             this.loaded_core.ModLoader.analytics = analytics;
             this.loaded_core.ModLoader.debugger = debug;
+            this.loaded_core.ModLoader.hires_texture_management = hr;
             this.loaded_core.preinit();
         } catch (err) {
             if (err) {
@@ -638,6 +640,7 @@ class pluginLoader {
             plugin.ModLoader.isModLoaded = fn;
             plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.debugger = debug;
+            plugin.ModLoader.hires_texture_management = hr;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             try {

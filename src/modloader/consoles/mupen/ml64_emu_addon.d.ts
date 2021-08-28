@@ -434,6 +434,8 @@ export module M64p {
 
     export function hasInputFocus(): boolean;
     export function getNumElapsedFrames(): number;
+    export function AddHiresTexturePath(path: string): void;
+    export function RemoveHiresTexturePath(path: string): void;
 }
 
 export module Yaz0 {

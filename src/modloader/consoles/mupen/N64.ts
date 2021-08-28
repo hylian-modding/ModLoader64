@@ -23,6 +23,7 @@ import { Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debu
 import moduleAlias from 'module-alias';
 import slash from 'slash';
 import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
+import { IHiResTexture } from 'API/build/IHiResTexture';
 
 interface MupenConfig {
     rsp: string;
@@ -361,6 +362,10 @@ class N64 implements IConsole {
 
     getInternalPlugin(): string {
         return path.resolve(__dirname, "MenubarPlugin.js");
+    }
+
+    getHiResTextureAccess(): IHiResTexture {
+        return this.mupen.M64p as IHiResTexture;
     }
 }
 

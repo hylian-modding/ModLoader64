@@ -11,6 +11,7 @@ import IUtils from './IUtils';
 import { ProxySide } from './SidedProxy/SidedProxy';
 import { IConfig, ILogger } from './IModLoaderAPI';
 import { IRomMemory } from './IRomMemory';
+import { IHiResTexture } from './IHiResTexture';
 
 interface IConsole {
   startEmulator(preStartCallback: Function): IMemory;
@@ -91,6 +92,12 @@ interface IConsole{
 // #ifdef IS_MUPEN
 interface IConsole{
   getDebuggerAccess(): Debugger;
+}
+// #endif
+
+// #ifdef IS_MUPEN
+interface IConsole{
+  getHiResTextureAccess(): IHiResTexture;
 }
 // #endif
 

@@ -14,6 +14,7 @@ import { FakeMemory, FakeRom } from 'modloader64_api/SidedProxy/FakeMemory';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import path from 'path';
+import { IHiResTexture } from 'API/build/IHiResTexture';
 
 export class FakeMupen implements IConsole {
     rom: string;
@@ -113,6 +114,10 @@ export class FakeMupen implements IConsole {
     }
 
     getSaveStateManager(): ISaveState {
+        return {} as any;
+    }
+
+    getHiResTextureAccess(): IHiResTexture {
         return {} as any;
     }
 }

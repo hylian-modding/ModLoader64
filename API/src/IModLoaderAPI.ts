@@ -16,6 +16,7 @@ import { Debugger } from './Sylvain/Debugger';
 import { Heap } from './heap';
 import { EventBus } from './EventHandler';
 import IUtils from './IUtils';
+import { IHiResTexture } from './IHiResTexture';
 
 export const enum ILoggerLevels {
   ALL = 'all',
@@ -67,6 +68,7 @@ export interface IModLoaderAPI {
   gfx_heap: Heap | undefined;
   publicBus: EventBus;
   privateBus: EventBus
+  hires_texture_management: IHiResTexture;
 }
 
 // #ifdef HAS_SAVESTATES
