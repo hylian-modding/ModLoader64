@@ -19,7 +19,7 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import { Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
+import { BpFlags, BpStruct, Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
 import slash from 'slash';
 import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
@@ -176,9 +176,15 @@ class N64 implements IConsole {
                 this.mupen.M64p.Debugger.setRunState(RunState.Running);
             });
             this.registerCallback("debug-update", (pc: number) => {
+                console.log(`DEBUGGER: ${pc.toString(16)}`);
                 let trig = this.mupen.M64p.Debugger.bpTriggeredBy();
                 bus.emit(DebuggerEvents.UPDATE, trig);
             });
+        }else{
+            let conf = this.mupen.M64p.Config.openSection("Core");
+            conf.setInt("R4300Emulator", 2);
+            conf.setBool("EnableDebugger", false);
+            conf.save();
         }
         logger.info("Loading rom: " + rom + ".");
         if (rom === "") {
