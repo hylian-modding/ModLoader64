@@ -23,21 +23,32 @@ Requirement - NodeJS:
 
 RUN THESE BEFORE DOING ANYTHING
 
+* (WINDOWS)
+```
 npm install -g yarn
-
 npm install -g typescript
-
 npm install -g gulp-cli
-
-Installing with Yarn:
-
 yarn
-
 yarn link
-
 yarn global bin
-
+```
 Add the path printed by the last command to your PATH
+
+* (LINUX)
+
+To avoid npm permissions issues, first run:
+```
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+source ~/.profile
+```
+```
+npm install -g yarn
+npm install -g typescript
+npm install -g gulp-cli
+yarn
+yarn link
+```
 
 ## Testing
 yarn start
