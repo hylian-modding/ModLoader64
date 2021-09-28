@@ -45,6 +45,7 @@ commander_1.default.option('-d, --dist', 'pack mod');
 commander_1.default.option("-2, --runp2", "run p2");
 commander_1.default.option("-u, --update", "update");
 commander_1.default.option("-q, --bumpversion", "bump version number");
+commander_1.default.option("-j, --jenkins", "set version number");
 commander_1.default.option("-i, --install <url>", "install dependency");
 commander_1.default.option("-s, --setroms <path>", "set rom directory");
 commander_1.default.option("-c, --clean", "cleans build dirs");
