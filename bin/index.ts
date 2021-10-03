@@ -23,7 +23,6 @@ program.option('-d, --dist', 'pack mod');
 program.option("-2, --runp2", "run p2");
 program.option("-u, --update", "update");
 program.option("-q, --bumpversion", "bump version number");
-program.option("-j, --jenkins", "set version number");
 program.option("-i, --install <url>", "install dependency");
 program.option("-s, --setroms <path>", "set rom directory");
 program.option("-c, --clean", "cleans build dirs");
