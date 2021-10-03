@@ -294,6 +294,9 @@ if (!WAITING_ON_EXTERNAL) {
         child_process_1.default.execSync("npm version --no-git-tag-version patch");
         let meta = JSON.parse(fs_1.default.readFileSync("./package.json").toString());
         let p = "./src/" + meta.name;
+        if (!fs_1.default.existsSync(p)) {
+            p = "./cores/" + meta.name;
+        }
         process.chdir(p);
         child_process_1.default.execSync("npm version --no-git-tag-version patch");
         meta = JSON.parse(fs_1.default.readFileSync("./package.json").toString());
