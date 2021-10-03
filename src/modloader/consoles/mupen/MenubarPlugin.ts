@@ -13,6 +13,77 @@ import { CoreEvent, CoreParam, IMupen } from "./IMupen";
 import { NetworkHandler } from "modloader64_api/NetworkHandler";
 import { AnnouncePacket } from "./AnnouncePacket";
 
+class TexturePackManager {
+    ModLoader: IModLoaderAPI;
+    packs: Array<string> = [];
+    names: Array<string> = [];
+    selected: Map<number, boolean> = new Map();
+    lastPack: number = -1;
+
+    constructor(ModLoader: IModLoaderAPI) {
+        this.ModLoader = ModLoader;
+        let p = path.resolve("./texture_packs");
+        if (!fs.existsSync(p)) {
+            fs.mkdirSync(p)
+        }
+        fs.readdirSync(p).forEach((f: string) => {
+            let file = path.resolve(p, f);
+            if (fs.lstatSync(file).isDirectory()) {
+                this.packs.push(file);
+                this.names.push(path.parse(file).name);
+            }
+        });
+    }
+
+    private removeAllPaths() {
+        for (let i = 0; i < this.packs.length; i++) {
+            this.ModLoader.hires_texture_management.RemoveHiresTexturePath(this.packs[i]);
+        }
+    }
+
+    private makeSelection(i: number){
+        if (this.ModLoader.ImGui.menuItem(this.names[i], undefined, this.selected.has(i))) {
+            if (this.selected.has(i)) {
+                this.selected.delete(i);
+            } else {
+                this.selected.set(i, true);
+            }
+            this.removeAllPaths();
+            this.selected.forEach((v: boolean, p: number) => {
+                this.ModLoader.hires_texture_management.AddHiresTexturePath(this.packs[p]);
+            });
+        }
+        if (this.ModLoader.ImGui.smallButton("^")){
+
+        }
+        this.ModLoader.ImGui.sameLine();
+        if (this.ModLoader.ImGui.smallButton("V")){
+
+        }
+    }
+
+    onVi() {
+        if (this.ModLoader.ImGui.beginMainMenuBar()) {
+            if (this.ModLoader.ImGui.beginMenu("Utility")) {
+                if (this.ModLoader.ImGui.beginMenu("Texture Packs")) {
+                    let ig: Array<number> = [];
+                    this.selected.forEach((v: boolean, p: number) => {
+                        ig.push(p);
+                        this.makeSelection(p);
+                    });
+                    for (let i = 0; i < this.packs.length; i++) {
+                        if (ig.indexOf(i) > -1) continue;
+                        this.makeSelection(i);
+                    }
+                }
+                this.ModLoader.ImGui.endMenu();
+            }
+            this.ModLoader.ImGui.endMenu();
+        }
+        this.ModLoader.ImGui.endMainMenuBar();
+    }
+}
+
 class TopNotification {
     text: string;
     pos: vec2;
@@ -86,7 +157,7 @@ class MenubarWidget {
                         this.scriptVi = i["onVi"].bind(i);
                         i["start"].bind(i)();
                     }
-                } catch (err) {
+                } catch (err: any) {
                     console.log(err);
                 }
             }
@@ -98,7 +169,7 @@ class MenubarWidget {
             if (this.scriptVi !== undefined) {
                 try {
                     this.scriptVi();
-                } catch (err) {
+                } catch (err: any) {
                     this.ModLoader.logger.error("Script error");
                     this.ModLoader.logger.error(err.stack);
                     this.scriptVi = undefined;
@@ -117,7 +188,7 @@ class MenubarWidget {
         if (this.scriptTick !== undefined) {
             try {
                 this.scriptTick();
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error("Script error");
                 this.ModLoader.logger.error(err.stack);
                 this.scriptVi = undefined;
@@ -226,7 +297,7 @@ class BottomRightWidget {
                 this.font = this.ModLoader.Gfx.createFont();
                 this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
                 this.ModLoader.logger.debug("Loading default font.");
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error(err);
             }
         }
@@ -268,7 +339,7 @@ class BottomRightWidget {
                     this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
                 }
                 this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error(err.stack);
             }
         }
@@ -290,7 +361,7 @@ class AchievementWidget {
             this.font = this.ModLoader.Gfx.createFont();
             this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
             this.text = "Test";
-        } catch (err) {
+        } catch (err: any) {
             this.ModLoader.logger.error(err);
         }
     }
@@ -310,6 +381,7 @@ class MenubarPlugin implements IPlugin {
     topNotifications!: TopBarWidget;
     bottomRight!: BottomRightWidget;
     achievements!: AchievementWidget;
+    texturePacks!: TexturePackManager;
     aspect: number_ref = [0];
     aspect_options = ['Stretch', 'Force 4:3', 'Force 16:9', 'Adjust'];
     highres: boolean = false;
@@ -331,6 +403,7 @@ class MenubarPlugin implements IPlugin {
         this.topNotifications = new TopBarWidget(this.ModLoader);
         this.bottomRight = new BottomRightWidget(this.ModLoader);
         this.achievements = new AchievementWidget(this.ModLoader);
+        this.texturePacks = new TexturePackManager(this.ModLoader);
     }
 
     init(): void {
@@ -375,7 +448,7 @@ class MenubarPlugin implements IPlugin {
                     }
                 }
             });
-        } catch (err) {
+        } catch (err: any) {
             this.ModLoader.logger.error(err);
         }
     }
@@ -419,6 +492,7 @@ class MenubarPlugin implements IPlugin {
         this.topNotifications.update();
         this.bottomRight.update();
         this.achievements.update();
+        this.texturePacks.onVi();
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
             if (this.ModLoader.ImGui.beginMenu("Emulation")) {
                 if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {

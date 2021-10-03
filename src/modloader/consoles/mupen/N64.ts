@@ -19,11 +19,13 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import { Debugger } from 'modloader64_api/Sylvain/Debugger';
+import { BpFlags, BpStruct, Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
 import slash from 'slash';
+import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
+import { IHiResTexture } from 'API/build/IHiResTexture';
 
-interface MupenConfig{
+interface MupenConfig {
     rsp: string;
     video: string;
     audio: string;
@@ -47,7 +49,6 @@ class N64 implements IConsole {
         moduleAlias.addAlias("@emulator", path.join(process.cwd(), "/emulator"));
         this.rawModule = require('@emulator/ml64_emu_addon.node');
         this.mupen = this.rawModule as IMupen;
-
         let size: vec2 = xy(800, 600);
         if (global.ModLoader.hasOwnProperty("ScreenWidth") && global.ModLoader.hasOwnProperty("ScreenHeight")) {
             size.x = global.ModLoader["ScreenWidth"];
@@ -165,6 +166,26 @@ class N64 implements IConsole {
                 this.mupen.Frontend.toggleFullScreen();
             }
         });
+        if ((config.registerConfigCategory("ModLoader64") as IModLoaderConfig).enableDebugger) {
+            let conf = this.mupen.M64p.Config.openSection("Core");
+            conf.setInt("R4300Emulator", 0);
+            conf.setBool("EnableDebugger", true);
+            conf.save();
+            this.registerCallback("debug-init", () => {
+                console.log("DEBUGGER INITIALIZED");
+                this.mupen.M64p.Debugger.setRunState(RunState.Running);
+            });
+            this.registerCallback("debug-update", (pc: number) => {
+                console.log(`DEBUGGER: ${pc.toString(16)}`);
+                let trig = this.mupen.M64p.Debugger.bpTriggeredBy();
+                bus.emit(DebuggerEvents.UPDATE, trig);
+            });
+        }else{
+            let conf = this.mupen.M64p.Config.openSection("Core");
+            conf.setInt("R4300Emulator", 2);
+            conf.setBool("EnableDebugger", false);
+            conf.save();
+        }
         logger.info("Loading rom: " + rom + ".");
         if (rom === "") {
             this.logger.error("No rom selected!");
@@ -347,6 +368,10 @@ class N64 implements IConsole {
 
     getInternalPlugin(): string {
         return path.resolve(__dirname, "MenubarPlugin.js");
+    }
+
+    getHiResTextureAccess(): IHiResTexture {
+        return this.mupen.M64p as IHiResTexture;
     }
 }
 

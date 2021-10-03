@@ -321,7 +321,7 @@ if (!WAITING_ON_EXTERNAL) {
         }
         if (fs_1.default.existsSync("gulpfile.ts") || fs_1.default.existsSync("gulpfile.js")) {
             console.log("Using custom gulpfile.");
-            child_process_1.default.execSync("gulp");
+            child_process_1.default.execSync("gulp", { stdio: "inherit" });
         }
         else {
             try {

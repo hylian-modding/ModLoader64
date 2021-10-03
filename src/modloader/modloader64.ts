@@ -176,6 +176,7 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'selectedConsole', 'Mupen64Plus');
         this.config.setData('ModLoader64', 'coreOverride', '');
         this.config.setData('ModLoader64', 'disableVIUpdates', false);
+        this.config.setData('ModLoader64', 'enableDebugger', false);
 
 
         if (this.data.supportedConsoles.indexOf(this.data.selectedConsole) === -1){
@@ -215,6 +216,7 @@ class ModLoader64 {
                 data.processed = true;
                 this.logger.debug(`Loading API: ${data.name}@${data.version}`);
                 moduleAlias.addAlias(data.name, data.path);
+                moduleAlias.addAlias(`@${data.name}`, data.path);
             }
         });
 
@@ -226,9 +228,14 @@ class ModLoader64 {
                     let parse = path.parse(file);
                     if (parse.ext === '.mls' || parse.ext === ".js" || parse.ext === ".mlz") {
                         try {
-                            let p = require(path.resolve(f))[parse.name];
-                            this.plugins.registerCorePlugin(parse.name, new p() as ICore);
-                            this.logger.info('Auto-wiring core: ' + parse.name);
+                            let rq = require(path.resolve(f));
+                            let p = rq[parse.name];
+                            if (rq.hasOwnProperty("default")){
+                                p = rq["default"];
+                            }
+                            let i = new p();
+                            this.plugins.registerCorePlugin(i.constructor.name, i as ICore);
+                            this.logger.info('Auto-wiring core: ' + i.constructor.name);
                         } catch (err) {
                             console.log(err);
                         }

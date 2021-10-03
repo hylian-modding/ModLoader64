@@ -6,6 +6,7 @@ import { Gfx, Texture } from 'modloader64_api/Sylvain/Gfx';
 import { Input } from 'modloader64_api/Sylvain/Input';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { Debugger } from 'modloader64_api/Sylvain/Debugger';
+import { IHiResTexture } from 'API/build/IHiResTexture';
 
 export interface IMupen {
     Frontend: IFrontend;
@@ -53,7 +54,7 @@ export interface IFrontend {
     isMemViewerOpen(): boolean;
 }
 
-export interface IM64p {
+export interface IM64p extends IHiResTexture{
     addCheat(name: string, codes: M64p.CheatCode[]): void;
     setCheatEnabled(name: string, enabled: boolean): void;
     getRomSettingsFromCRCs(crc1: number, crc2: number): M64p.RomSettings;

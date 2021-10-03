@@ -31,6 +31,7 @@
     "node_modules",
     "API",
     "build.ts",
-    "build"
+    "build",
+    "cores"
   ]
 }

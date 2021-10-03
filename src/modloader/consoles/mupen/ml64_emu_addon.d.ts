@@ -248,14 +248,21 @@ export module M64p {
         export function rdramRead8(addr: number): number;
         export function rdramRead16(addr: number): number;
         export function rdramRead32(addr: number): number;
+        export function rdramRead64(addr: number): number;
+        export function rdramReadBigInt64(addr: number): BigInt;
         export function rdramReadS8(addr: number): number;
         export function rdramReadS16(addr: number): number;
         export function rdramReadS32(addr: number): number;
+        export function rdramReadS64(addr: number): number;
+        export function rdramReadBigIntS64(addr: number): BigInt;
         export function rdramReadF32(addr: number): number;
+        export function rdramReadF64(addr: number): number;
         export function rdramReadBuffer(addr: number, len: number): Buffer;
         export function rdramWrite8(addr: number, val: number): void;
         export function rdramWrite16(addr: number, val: number): void;
         export function rdramWrite32(addr: number, val: number): void;
+        export function rdramWrite64(addr: number, val: number): void;
+        export function rdramWriteBigInt64(addr: number, val: BigInt): void;
         export function rdramWriteF32(addr: number, val: number): void;
         export function rdramWriteBuffer(addr: number, buf: Buffer): void;
         export function romRead8(addr: number): number;
@@ -427,6 +434,8 @@ export module M64p {
 
     export function hasInputFocus(): boolean;
     export function getNumElapsedFrames(): number;
+    export function AddHiresTexturePath(path: string): void;
+    export function RemoveHiresTexturePath(path: string): void;
 }
 
 export module Yaz0 {
@@ -819,6 +828,7 @@ export module ImGui {
         metricsActiveWindows: number;
         metricsActiveAllocations: number;
         mouseDelta: vec2;
+        mouseWheel: vec2;
     }
 
     export interface StyleRef {

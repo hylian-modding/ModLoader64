@@ -7,6 +7,7 @@ import {
     IModLoaderAPI,
     ICore,
     ModLoaderEvents,
+    IExtendedCore,
 } from 'modloader64_api/IModLoaderAPI';
 import IMemory from 'modloader64_api/IMemory';
 import {
@@ -269,8 +270,8 @@ class pluginLoader {
             this.logger.error('Plugin ' + parse.name + ' is missing package.json. Skipping.');
             return;
         }
-        console.log(pkg_file);
         let pkg: any = JSON.parse(fs.readFileSync(pkg_file).toString());
+        bus.emit("PLUGIN_CONSIDERATION", pkg);
         if (typeof pkg.core === "string") {
             if (pkg.core !== this.selected_core && pkg.core !== '*') {
                 this.logger.info(
@@ -278,7 +279,6 @@ class pluginLoader {
                 );
                 return;
             }
-
         } else if (pkg.core instanceof Array) {
             let possibles: Array<string> = pkg.core as Array<string>;
             let yes: boolean = false;
@@ -323,7 +323,7 @@ class pluginLoader {
             if (p["default"] !== undefined) {
                 p = p["default"];
             }
-        } catch (err) { }
+        } catch (err: any) { }
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
@@ -447,6 +447,11 @@ class pluginLoader {
                 markPrototypeProcessed((this.loaded_core as any)[key]);
             }
         });
+
+        // IExtendedCore
+        if (this.loaded_core["postconstructor"] !== undefined){
+            (this.loaded_core as any as IExtendedCore).postconstructor();
+        }
 
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
@@ -596,6 +601,7 @@ class pluginLoader {
         }
         let analytics = Object.freeze(new AnalyticsManager());
         let debug = Object.freeze(iconsole.getDebuggerAccess());
+        let hr = Object.freeze(iconsole.getHiResTextureAccess());
         try {
             this.loaded_core.ModLoader.clientSide = ClientController;
             this.loaded_core.ModLoader.serverSide = ServerController;
@@ -609,8 +615,9 @@ class pluginLoader {
             this.loaded_core.ModLoader.sound = ss;
             this.loaded_core.ModLoader.analytics = analytics;
             this.loaded_core.ModLoader.debugger = debug;
+            this.loaded_core.ModLoader.hires_texture_management = hr;
             this.loaded_core.preinit();
-        } catch (err) {
+        } catch (err: any) {
             if (err) {
                 this.logger.error(err);
                 this.logger.error("Failed to configure core!");
@@ -633,11 +640,12 @@ class pluginLoader {
             plugin.ModLoader.isModLoaded = fn;
             plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.debugger = debug;
+            plugin.ModLoader.hires_texture_management = hr;
         });
         this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.forEach((value: Function) => {
             try {
                 value();
-            } catch (err) {
+            } catch (err: any) {
                 this.logger.error("preinit error");
                 this.logger.error(err.stack);
                 process.exit(1);
@@ -662,7 +670,7 @@ class pluginLoader {
         this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.forEach((value: Function) => {
             try {
                 value();
-            } catch (err) {
+            } catch (err: any) {
                 this.logger.error("init error");
                 this.logger.error(err.stack);
                 process.exit(1);
@@ -696,7 +704,7 @@ class pluginLoader {
                     }
                 }
                 this.curFrame = frame;
-            } catch (err) {
+            } catch (err: any) {
                 this.logger.error("onTick error");
                 this.logger.error(err.stack);
                 process.exit(1);
@@ -706,7 +714,7 @@ class pluginLoader {
             this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.forEach((value: Function) => {
                 try {
                     value();
-                } catch (err) {
+                } catch (err: any) {
                     this.logger.error("vi update error");
                     this.logger.error(err.stack);
                 }
@@ -716,7 +724,7 @@ class pluginLoader {
             this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.forEach((value: Function) => {
                 try {
                     value();
-                } catch (err) {
+                } catch (err: any) {
                     this.logger.error("create resources error");
                     this.logger.error(err.stack);
                 }
@@ -795,7 +803,7 @@ class pluginLoader {
         this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.forEach((value: Function) => {
             try {
                 value();
-            } catch (err) {
+            } catch (err: any) {
                 this.logger.error("postinit error");
                 this.logger.error(err.stack);
                 process.exit(1);

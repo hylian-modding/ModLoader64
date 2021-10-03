@@ -552,7 +552,7 @@ namespace NetworkEngine {
                             if (data.forward) {
                                 socket.to(data.lobby).emit('msg', data);
                             }
-                        } catch (err) {
+                        } catch (err: any) {
                             inst.logger.error(err.stack);
                             inst.logger.error(JSON.stringify(data));
                         }
@@ -615,7 +615,7 @@ namespace NetworkEngine {
                                 }
                             }
                         }
-                    } catch (err) {
+                    } catch (err: any) {
                         inst.logger.error(err);
                     }
                 });
@@ -737,7 +737,7 @@ namespace NetworkEngine {
                     this.lastPacketBuffer.push(data);
                     NetworkBus.emit(data.packet_id, data);
                     NetworkChannelBus.emit(data.channel, data);
-                } catch (err) {
+                } catch (err: any) {
                     this.logger.error(err.stack);
                 }
             }

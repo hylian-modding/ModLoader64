@@ -261,6 +261,7 @@ export interface IoRef {
     metricsActiveWindows: number;
     metricsActiveAllocations: number;
     mouseDelta: vec2;
+    mouseWheel: vec2;
 }
 
 export interface StyleRef {
