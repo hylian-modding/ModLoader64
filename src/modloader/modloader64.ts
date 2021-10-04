@@ -405,7 +405,7 @@ class ModLoader64 {
                                 instance.logger.info(newHash);
                                 evt["hash"] = newHash;
                                 evt["oldhash"] = hash;
-                            } catch (err) {
+                            } catch (err: any) {
                                 if (err) {
                                     instance.logger.error(err);
                                     process.exit(ModLoaderErrorCodes.BPS_FAILED);

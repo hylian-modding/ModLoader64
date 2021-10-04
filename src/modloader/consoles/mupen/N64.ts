@@ -126,7 +126,7 @@ class N64 implements IConsole {
                         this.softReset();
                         internal_event_bus.emit("CoreEvent.SoftReset", {});
                     });
-                } catch (err) {
+                } catch (err: any) {
                     this.logger.error(err.stack);
                 }
             } else if (event == CoreEvent.TakeNextScreenshot) {

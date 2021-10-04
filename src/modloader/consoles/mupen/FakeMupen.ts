@@ -15,6 +15,7 @@ import { ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import path from 'path';
 import { IHiResTexture } from 'API/build/IHiResTexture';
+import fs from 'fs';
 
 export class FakeMupen implements IConsole {
     rom: string;
@@ -23,7 +24,11 @@ export class FakeMupen implements IConsole {
 
     constructor(rom: string, logger: ILogger, lobby: string) {
         this.rom = rom;
-        this.rom_data = Buffer.alloc(1);
+        this.rom_data = Buffer.alloc(0x50, 0);
+        if (fs.existsSync(rom)){
+            let temp = fs.readFileSync(this.rom);
+            temp.copy(this.rom_data, 0, 0, 0x50);
+        }
         this.ram = new FakeMemory();
     }
 
@@ -92,7 +97,7 @@ export class FakeMupen implements IConsole {
     resumeEmulator(): void { }
 
     getRomHeader(): IRomHeader {
-        return new N64Header(Buffer.alloc(0x50));
+        return new N64Header(this.rom_data);
     }
 
     getMemoryAccess(): IMemory {

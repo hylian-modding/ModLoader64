@@ -404,7 +404,7 @@ class pluginLoader {
         internal_event_bus.emit('PLUGIN_LOADED', { meta: pkg, instance: plugin, hash: hash });
     }
 
-    loadPluginsConstruct(header: IRomHeader, console: IConsole, overrideCore = '') {
+    loadPluginsConstruct(header: IRomHeader, iconsole: IConsole, overrideCore = '') {
         // Start the core plugin.
         this.header = header;
         global.ModLoader["ROM_HEADER"] = this.header;
@@ -456,7 +456,7 @@ class pluginLoader {
         internal_event_bus.emit("CORE_LOADED", { name: this.selected_core, obj: this.loaded_core });
 
         // Start internal plugins.
-        this.processInternalPlugin(console.getInternalPlugin(), console);
+        this.processInternalPlugin(iconsole.getInternalPlugin(), iconsole);
 
         // Start external plugins.
         if (fs.existsSync("./load_order.json")) {
@@ -470,8 +470,8 @@ class pluginLoader {
             Object.keys(order.loadOrder).forEach((key: string) => {
                 for (let i = 0; i < files.length; i++) {
                     let p = path.parse(files[i]).base;
-                    if (p === key && order.loadOrder[key] === true) {
-                        this.processFolder(path.resolve(files[i]), console);
+                    if (p === key && order.loadOrder[key] === "true") {
+                        this.processFolder(path.resolve(files[i]), iconsole);
                         break;
                     }
                 }
@@ -482,7 +482,7 @@ class pluginLoader {
                     let temp1 = path.resolve(path.join(dir));
                     fs.readdirSync(temp1).forEach((file: string) => {
                         let temp2 = path.join(temp1, file);
-                        this.processFolder(temp2, console);
+                        this.processFolder(temp2, iconsole);
                     });
                 }
             });
