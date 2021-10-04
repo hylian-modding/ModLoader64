@@ -114,24 +114,40 @@ gulp.task('_dist', function () {
         fs.mkdirSync("./dist");
         console.log("Putting together platform specific files...");
         fs.copySync("./build", "./dist/windows");
+        fs.copySync("./build", "./dist/windows64");
         fs.copySync("./build", "./dist/linux");
         console.log("Copying emulator files...");
+
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows/emulator.pak", "./dist/windows/emulator_windows.pak");
         process.chdir("./dist/windows");
         child_process.execSync("paker -i ./emulator_windows.pak -o ./");
         process.chdir(original_dir);
+
+        fs.copyFileSync("./node_modules/modloader64-platform-deps/Windows64/emulator.pak", "./dist/windows64/emulator_windows.pak");
+        process.chdir("./dist/windows64");
+        child_process.execSync("paker -i ./emulator_windows.pak -o ./");
+        process.chdir(original_dir);
+
         fs.copyFileSync("./node_modules/modloader64-platform-deps/Linux/emulator.pak", "./dist/linux/emulator_linux.pak");
         process.chdir("./dist/linux");
         child_process.execSync("paker -i ./emulator_linux.pak -o ./");
         process.chdir(original_dir);
+
         if (fs.existsSync("./dist/windows/emulator_windows.pak")) {
             fs.unlinkSync("./dist/windows/emulator_windows.pak");
+        }
+        if (fs.existsSync("./dist/windows64/emulator_windows.pak")) {
+            fs.unlinkSync("./dist/windows64/emulator_windows.pak");
+        }
+        if (fs.existsSync("./dist/windows64/emulator.pak")) {
+            fs.unlinkSync("./dist/windows64/emulator.pak");
         }
         if (fs.existsSync("./dist/linux/emulator_linux.pak")) {
             fs.unlinkSync("./dist/linux/emulator_linux.pak");
         }
         console.log("Building paks...");
         process.chdir("./dist");
+
         fs.renameSync("./windows", "./ModLoader");
         child_process.execSync("paker --dir ./ModLoader --output ./");
         fs.renameSync("./ModLoader.pak", "./Windows.pak");
@@ -139,6 +155,15 @@ gulp.task('_dist', function () {
         zipFile.addLocalFolder("./ModLoader", "./ModLoader");
         zipFile.writeZip("./ModLoader-win32.zip");
         fs.removeSync("./ModLoader");
+
+        fs.renameSync("./windows64", "./ModLoader");
+        child_process.execSync("paker --dir ./ModLoader --output ./");
+        fs.renameSync("./ModLoader.pak", "./Windows64.pak");
+        let zipFile4: zip = new zip();
+        zipFile4.addLocalFolder("./ModLoader", "./ModLoader");
+        zipFile4.writeZip("./ModLoader-win64.zip");
+        fs.removeSync("./ModLoader");
+
         fs.renameSync("./linux", "./ModLoader");
         child_process.execSync("paker --dir ./ModLoader --output ./");
         fs.renameSync("./ModLoader.pak", "./Linux.pak");
