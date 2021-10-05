@@ -1,11 +1,11 @@
-import { IPlugin, IModLoaderAPI } from "modloader64_api/IModLoaderAPI";
+import { IPlugin, IModLoaderAPI, ModLoaderEvents } from "modloader64_api/IModLoaderAPI";
 import { onViUpdate, onCreateResources } from "modloader64_api/PluginLifecycle";
 import { bus, EventHandler } from "modloader64_api/EventHandler";
 import { MenuEvents } from 'modloader64_api/Sylvain/MenuEvents';
 import { vec2, xy, vec4, rgba, xywh } from "modloader64_api/Sylvain/vec";
 import { Texture, FlipFlags, Font } from "modloader64_api/Sylvain/Gfx";
 import path from 'path';
-import { number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
+import { bool_ref, Dir, number_ref, string_ref } from "modloader64_api/Sylvain/ImGui";
 import fs from 'fs';
 import { addToSystemNotificationQueue, AnnouncementChannels, IKillFeedMessage, ISystemNotification, NotificationEvents } from 'modloader64_api/Announcements';
 import IConsole from "modloader64_api/IConsole";
@@ -13,12 +13,27 @@ import { CoreEvent, CoreParam, IMupen } from "./IMupen";
 import { NetworkHandler } from "modloader64_api/NetworkHandler";
 import { AnnouncePacket } from "./AnnouncePacket";
 
+class TexturePack {
+    name: string;
+    folder: string;
+    enabled: bool_ref;
+
+    constructor(name: string, folder: string) {
+        this.name = name;
+        this.folder = folder;
+        this.enabled = [false];
+    }
+}
+
+interface TexturePackConfig {
+    texturePackStatus: any;
+}
+
 class TexturePackManager {
     ModLoader: IModLoaderAPI;
-    packs: Array<string> = [];
-    names: Array<string> = [];
-    selected: Map<number, boolean> = new Map();
-    lastPack: number = -1;
+    packs: Array<TexturePack> = [];
+    isWindowOpen: boolean = false;
+    config: TexturePackConfig;
 
     constructor(ModLoader: IModLoaderAPI) {
         this.ModLoader = ModLoader;
@@ -26,54 +41,76 @@ class TexturePackManager {
         if (!fs.existsSync(p)) {
             fs.mkdirSync(p)
         }
+        bus.on(ModLoaderEvents.LOAD_HD_TEXTURES, this.onRegister.bind(this));
         fs.readdirSync(p).forEach((f: string) => {
             let file = path.resolve(p, f);
             if (fs.lstatSync(file).isDirectory()) {
-                this.packs.push(file);
-                this.names.push(path.parse(file).name);
+                bus.emit(ModLoaderEvents.LOAD_HD_TEXTURES, { name: path.parse(file).name, folder: file });
             }
         });
-    }
-
-    private removeAllPaths() {
+        this.config = this.ModLoader.config.registerConfigCategory("N64TexturePacks") as TexturePackConfig;
+        this.ModLoader.config.setData('N64TexturePacks', 'texturePackStatus', {});
         for (let i = 0; i < this.packs.length; i++) {
-            this.ModLoader.hires_texture_management.RemoveHiresTexturePath(this.packs[i]);
+            if (this.config.texturePackStatus.hasOwnProperty(this.packs[i].name)) {
+                this.packs[i].enabled[0] = Boolean(this.config.texturePackStatus[this.packs[i].name]);
+            }
+            this.config.texturePackStatus[this.packs[i].name] = this.packs[i].enabled[0];
+        }
+        this.ModLoader.config.save();
+    }
+
+    onRegister(evt: { name: string, folder: string }) {
+        console.log(evt);
+        this.packs.push(new TexturePack(evt.name, evt.folder));
+    }
+
+    clearAll() {
+        for (let i = 0; i < this.packs.length; i++) {
+            this.ModLoader.hires_texture_management.RemoveHiresTexturePath(this.packs[i].folder);
         }
     }
 
-    private makeSelection(i: number){
-        if (this.ModLoader.ImGui.menuItem(this.names[i], undefined, this.selected.has(i))) {
-            if (this.selected.has(i)) {
-                this.selected.delete(i);
-            } else {
-                this.selected.set(i, true);
+    enableSelected() {
+        this.config.texturePackStatus = {};
+        for (let i = 0; i < this.packs.length; i++) {
+            if (this.packs[i].enabled[0]) {
+                this.ModLoader.hires_texture_management.AddHiresTexturePath(this.packs[i].folder);
             }
-            this.removeAllPaths();
-            this.selected.forEach((v: boolean, p: number) => {
-                this.ModLoader.hires_texture_management.AddHiresTexturePath(this.packs[p]);
-            });
         }
-        if (this.ModLoader.ImGui.smallButton("^")){
+        for (let i = 0; i < this.packs.length; i++) {
+            this.config.texturePackStatus[this.packs[i].name] = this.packs[i].enabled[0];
+        }
+        this.ModLoader.config.save();
+    }
 
-        }
-        this.ModLoader.ImGui.sameLine();
-        if (this.ModLoader.ImGui.smallButton("V")){
+    moveItem(index: number, dir: Dir) {
+        if (dir === Dir.Up && index === 0) return;
+        if (dir === Dir.Down && index === (this.packs.length - 1)) return;
+        let itr = dir === Dir.Up ? -1 : 1;
+        let next = index + itr;
+        let item = this.packs[next];
+        let cur = this.packs[index];
+        if (item === undefined || cur === undefined) return;
+        this.packs[next] = cur;
+        this.packs[index] = item;
 
-        }
+        this.clearAll();
+        this.enableSelected();
+    }
+
+    post() {
+        this.ModLoader.utils.setTimeoutFrames(() => {
+            this.clearAll();
+            this.enableSelected();
+        }, 20);
     }
 
     onVi() {
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
             if (this.ModLoader.ImGui.beginMenu("Utility")) {
                 if (this.ModLoader.ImGui.beginMenu("Texture Packs")) {
-                    let ig: Array<number> = [];
-                    this.selected.forEach((v: boolean, p: number) => {
-                        ig.push(p);
-                        this.makeSelection(p);
-                    });
-                    for (let i = 0; i < this.packs.length; i++) {
-                        if (ig.indexOf(i) > -1) continue;
-                        this.makeSelection(i);
+                    if (this.ModLoader.ImGui.menuItem("Open Texture Pack Manager", undefined, this.isWindowOpen)) {
+                        this.isWindowOpen = !this.isWindowOpen;
                     }
                 }
                 this.ModLoader.ImGui.endMenu();
@@ -81,6 +118,25 @@ class TexturePackManager {
             this.ModLoader.ImGui.endMenu();
         }
         this.ModLoader.ImGui.endMainMenuBar();
+        if (this.isWindowOpen) {
+            if (this.ModLoader.ImGui.begin("Texture Pack Manager")) {
+                for (let i = 0; i < this.packs.length; i++) {
+                    if (this.ModLoader.ImGui.arrowButton(`up###${this.packs[i].name}_dirup`, Dir.Up)) {
+                        this.moveItem(i, Dir.Up);
+                    }
+                    this.ModLoader.ImGui.sameLine();
+                    if (this.ModLoader.ImGui.arrowButton(`down###${this.packs[i].name}_dirdown`, Dir.Down)) {
+                        this.moveItem(i, Dir.Down);
+                    }
+                    this.ModLoader.ImGui.sameLine();
+                    if (this.ModLoader.ImGui.checkbox(this.packs[i].name, this.packs[i].enabled)) {
+                        this.clearAll();
+                        this.enableSelected();
+                    }
+                }
+            }
+            this.ModLoader.ImGui.end();
+        }
     }
 }
 
@@ -451,6 +507,7 @@ class MenubarPlugin implements IPlugin {
         } catch (err: any) {
             this.ModLoader.logger.error(err);
         }
+        this.texturePacks.post();
     }
     onTick(frame?: number | undefined): void {
         this.achievements.onTick();
