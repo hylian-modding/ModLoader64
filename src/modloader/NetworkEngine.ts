@@ -251,7 +251,7 @@ namespace NetworkEngine {
         getLobbyStorage_internal(lobbyName: string): ILobbyStorage | null {
             try {
                 return this.lobbyStorage[lobbyName].ModLoader64;
-            } catch (err) { }
+            } catch (err: any) { }
             return null;
         }
 
@@ -272,7 +272,7 @@ namespace NetworkEngine {
                 return this.lobbyStorage[lobbyName].ModLoader64.data[
                     plugin.pluginName as string
                 ];
-            } catch (err) { }
+            } catch (err: any) { }
             return null;
         }
 
@@ -448,7 +448,7 @@ namespace NetworkEngine {
                                     }
                                 }
                             });
-                        } catch (err) {
+                        } catch (err: any) {
                             inst.sendToTarget(socket.id, 'versionBad', {
                                 client: { ml: packet.ml, plugins: packet.plugins, core: packet.core },
                                 server: new VersionPacket(
@@ -486,7 +486,7 @@ namespace NetworkEngine {
                             setTimeout(function () {
                                 try {
                                     socket.disconnect();
-                                } catch (err) { }
+                                } catch (err: any) { }
                             }, 1000);
                         }
                     });

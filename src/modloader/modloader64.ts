@@ -131,7 +131,7 @@ class ModLoader64 {
             ): boolean {
                 try {
                     inst.tunnel.send(event as string, values);
-                } catch (err) {
+                } catch (err: any) {
                 }
                 return ofn(event, values);
             };
@@ -236,7 +236,7 @@ class ModLoader64 {
                             let i = new p();
                             this.plugins.registerCorePlugin(i.constructor.name, i as ICore);
                             this.logger.info('Auto-wiring core: ' + i.constructor.name);
-                        } catch (err) {
+                        } catch (err: any) {
                             console.log(err);
                         }
                     }
@@ -388,7 +388,7 @@ class ModLoader64 {
                         if (instance.data.isClient) {
                             try {
                                 bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
-                            } catch (err) {
+                            } catch (err: any) {
                                 throw err;
                             }
                         }
@@ -415,7 +415,7 @@ class ModLoader64 {
                         try {
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
-                        } catch (err) {
+                        } catch (err: any) {
                             throw err;
                         }
                         return evt.rom;
