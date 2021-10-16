@@ -366,3 +366,5 @@ gulp.task('postinstall', function () {
 });
 
 gulp.task("install", gulp.series(['api', 'emulator', 'build_bin', 'build', 'postinstall']));
+
+gulp.task("default", gulp.series(['install']));
