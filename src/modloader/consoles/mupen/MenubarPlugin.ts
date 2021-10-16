@@ -86,7 +86,7 @@ class MenubarWidget {
                         this.scriptVi = i["onVi"].bind(i);
                         i["start"].bind(i)();
                     }
-                } catch (err) {
+                } catch (err: any) {
                     console.log(err);
                 }
             }
@@ -98,7 +98,7 @@ class MenubarWidget {
             if (this.scriptVi !== undefined) {
                 try {
                     this.scriptVi();
-                } catch (err) {
+                } catch (err: any) {
                     this.ModLoader.logger.error("Script error");
                     this.ModLoader.logger.error(err.stack);
                     this.scriptVi = undefined;
@@ -117,7 +117,7 @@ class MenubarWidget {
         if (this.scriptTick !== undefined) {
             try {
                 this.scriptTick();
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error("Script error");
                 this.ModLoader.logger.error(err.stack);
                 this.scriptVi = undefined;
@@ -226,7 +226,7 @@ class BottomRightWidget {
                 this.font = this.ModLoader.Gfx.createFont();
                 this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
                 this.ModLoader.logger.debug("Loading default font.");
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error(err);
             }
         }
@@ -268,7 +268,7 @@ class BottomRightWidget {
                     this.ModLoader.Gfx.addSprite(this.ModLoader.ImGui.getWindowDrawList(), this.currentNotif.icon, xywh(0, 0, this.currentNotif.icon.width, this.currentNotif.icon.height), dst, rgba(255, 255, 255, this.currentNotif.fgcolor.w * 255), FlipFlags.None);
                 }
                 this.ModLoader.Gfx.addText(this.ModLoader.ImGui.getWindowDrawList(), this.font, this.currentNotif.text, this.pos, this.currentNotif.fgcolor, this.currentNotif.bgcolor, xy(1, 1));
-            } catch (err) {
+            } catch (err: any) {
                 this.ModLoader.logger.error(err.stack);
             }
         }
@@ -290,7 +290,7 @@ class AchievementWidget {
             this.font = this.ModLoader.Gfx.createFont();
             this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
             this.text = "Test";
-        } catch (err) {
+        } catch (err: any) {
             this.ModLoader.logger.error(err);
         }
     }
@@ -375,7 +375,7 @@ class MenubarPlugin implements IPlugin {
                     }
                 }
             });
-        } catch (err) {
+        } catch (err: any) {
             this.ModLoader.logger.error(err);
         }
     }

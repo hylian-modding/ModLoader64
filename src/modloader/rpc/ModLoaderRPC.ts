@@ -17,7 +17,7 @@ export class ModLoaderRPC {
             }).listen(6500);
             this.server.on('error', (err)=>{
             });
-        } catch (err) {
+        } catch (err: any) {
         }
     }
 

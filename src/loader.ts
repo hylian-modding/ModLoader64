@@ -172,7 +172,7 @@ if (global.ModLoader["OVERRIDE_CONFIG_FILE"]) {
 setInterval(() => {
     try {
         global.gc();
-    } catch (err) { }
+    } catch (err: any) { }
 }, 60 * 1000);
 
 if (program.update) {

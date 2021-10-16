@@ -131,7 +131,7 @@ class ModLoader64 {
             ): boolean {
                 try {
                     inst.tunnel.send(event as string, values);
-                } catch (err) {
+                } catch (err: any) {
                 }
                 return ofn(event, values);
             };
@@ -229,7 +229,7 @@ class ModLoader64 {
                             let p = require(path.resolve(f))[parse.name];
                             this.plugins.registerCorePlugin(parse.name, new p() as ICore);
                             this.logger.info('Auto-wiring core: ' + parse.name);
-                        } catch (err) {
+                        } catch (err: any) {
                             console.log(err);
                         }
                     }
@@ -381,7 +381,7 @@ class ModLoader64 {
                         if (instance.data.isClient) {
                             try {
                                 bus.emit(ModLoaderEvents.ON_ROM_PATCHED_PRE, evt);
-                            } catch (err) {
+                            } catch (err: any) {
                                 throw err;
                             }
                         }
@@ -398,7 +398,7 @@ class ModLoader64 {
                                 instance.logger.info(newHash);
                                 evt["hash"] = newHash;
                                 evt["oldhash"] = hash;
-                            } catch (err) {
+                            } catch (err: any) {
                                 if (err) {
                                     instance.logger.error(err);
                                     process.exit(ModLoaderErrorCodes.BPS_FAILED);
@@ -408,7 +408,7 @@ class ModLoader64 {
                         try {
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED, evt);
                             bus.emit(ModLoaderEvents.ON_ROM_PATCHED_POST, evt);
-                        } catch (err) {
+                        } catch (err: any) {
                             throw err;
                         }
                         return evt.rom;

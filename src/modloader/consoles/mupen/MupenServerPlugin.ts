@@ -20,7 +20,7 @@ class MupenServerPlugin implements IPlugin{
                         fs.unlinkSync("./announce.json");
                         this.ModLoader.serverSide.sendPacket(new AnnouncePacket(data.text));
                     }
-                } catch (err) {
+                } catch (err: any) {
                     this.ModLoader.logger.error(err);
                 }
             }, 30 * 1000);
