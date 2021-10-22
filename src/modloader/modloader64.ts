@@ -179,7 +179,7 @@ class ModLoader64 {
         this.config.setData('ModLoader64', 'enableDebugger', false);
 
 
-        if (this.data.supportedConsoles.indexOf(this.data.selectedConsole) === -1){
+        if (this.data.supportedConsoles.indexOf(this.data.selectedConsole) === -1) {
             this.data.selectedConsole = this.data.supportedConsoles[0];
         }
 
@@ -230,7 +230,7 @@ class ModLoader64 {
                         try {
                             let rq = require(path.resolve(f));
                             let p = rq[parse.name];
-                            if (rq.hasOwnProperty("default")){
+                            if (rq.hasOwnProperty("default")) {
                                 p = rq["default"];
                             }
                             let i = new p();
@@ -427,12 +427,12 @@ class ModLoader64 {
                             resolve(undefined);
                         }
                     }, 1);
-                }else{
+                } else {
                     resolve(undefined);
                 }
             });
             load_mupen.then(function () {
-                try{
+                try {
                     instance.logger.info('Finishing plugin init...');
                     instance.plugins.loadPluginsPostinit(
                         mupen,
@@ -441,10 +441,11 @@ class ModLoader64 {
                     );
                     internal_event_bus.emit('onPostInitDone', {});
                     instance.done = true;
-                }catch(err){
+                } catch (err) {
                     console.log(err);
                 }
-            }).catch(function () {
+            }).catch((err: any) => {
+                this.logger.error(err.stack);
                 process.exit(1);
             });
         }

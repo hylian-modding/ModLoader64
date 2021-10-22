@@ -260,8 +260,8 @@ class N64 implements IConsole {
 
     startEmulator(preStartCallback: Function): IMemory {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
-        let buf: Buffer = preStartCallback();
-        if (buf !== undefined || buf !== null) {
+        let buf: Buffer = preStartCallback();;
+        if (Buffer.isBuffer(buf)) {
             rom_r.romWriteBuffer(0x0, buf);
         }
         this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
