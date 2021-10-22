@@ -165,28 +165,24 @@ export class FakeMemory implements IMemory{
 
 export class FakeRom implements IRomMemory{
     romRead8(addr: number): number {
-        throw new Error("Method not implemented.");
+        return 0;
     }
     romWrite8(addr: number, value: number): void {
-        throw new Error("Method not implemented.");
     }
     romRead16(addr: number): number {
-        throw new Error("Method not implemented.");
+        return 0;
     }
     romWrite16(addr: number, value: number): void {
-        throw new Error("Method not implemented.");
     }
     romRead32(addr: number): number {
-        throw new Error("Method not implemented.");
+        return 0;
     }
     romWrite32(addr: number, value: number): void {
-        throw new Error("Method not implemented.");
     }
     romReadBuffer(addr: number, size: number): Buffer {
-        throw new Error("Method not implemented.");
+        return Buffer.alloc(size);
     }
     romWriteBuffer(addr: number, buf: Buffer): void {
-        throw new Error("Method not implemented.");
     }
     getRomBuffer(): ArrayBuffer {
         throw new Error("Method not implemented.");
