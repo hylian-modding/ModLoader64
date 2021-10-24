@@ -105,17 +105,17 @@ class TexturePackManager {
         }, 20);
     }
 
-    onVi() {
+    update() {
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
             if (this.ModLoader.ImGui.beginMenu("Utility")) {
                 if (this.ModLoader.ImGui.beginMenu("Texture Packs")) {
                     if (this.ModLoader.ImGui.menuItem("Open Texture Pack Manager", undefined, this.isWindowOpen)) {
                         this.isWindowOpen = !this.isWindowOpen;
                     }
+                    this.ModLoader.ImGui.endMenu();
                 }
                 this.ModLoader.ImGui.endMenu();
             }
-            this.ModLoader.ImGui.endMenu();
         }
         this.ModLoader.ImGui.endMainMenuBar();
         if (this.isWindowOpen) {
@@ -549,7 +549,7 @@ class MenubarPlugin implements IPlugin {
         this.topNotifications.update();
         this.bottomRight.update();
         this.achievements.update();
-        this.texturePacks.onVi();
+        this.texturePacks.update();
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
             if (this.ModLoader.ImGui.beginMenu("Emulation")) {
                 if (this.ModLoader.ImGui.combo('Aspect ratio', this.aspect, this.aspect_options)) {
