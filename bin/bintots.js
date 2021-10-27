@@ -10,12 +10,17 @@ const path_1 = __importDefault(require("path"));
 commander_1.default.option('-i, --input <file>', 'input file');
 commander_1.default.option('-d, --dir <dir>', 'directory');
 commander_1.default.option('-r, --remove <str>', 'remove string from output');
+commander_1.default.option('-e, --encode <str>', 'encoding mode');
 commander_1.default.parse(process.argv);
+let e = "base64";
+if (commander_1.default.encode !== undefined) {
+    e = commander_1.default.encode;
+}
 if (commander_1.default.input) {
     let str = "export const " + path_1.default.parse(commander_1.default.input).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
     let buf = fs_1.default.readFileSync(commander_1.default.input);
-    str += buf.toString('base64');
-    str += "\", 'base64');\n";
+    str += buf.toString(e);
+    str += `\", '${e}');\n`;
     fs_1.default.writeFileSync(path_1.default.resolve(path_1.default.parse(commander_1.default.input).dir, path_1.default.parse(commander_1.default.input).name.split(" ").join("_").split("-").join("_") + ".ts"), str);
 }
 else if (commander_1.default.dir) {
@@ -32,8 +37,8 @@ else if (commander_1.default.dir) {
                 str += "export const " + path_1.default.parse(f).name.split(" ").join("_").split("-").join("_") + ": Buffer = Buffer.from(\"";
             }
             let buf = fs_1.default.readFileSync(f);
-            str += buf.toString('base64');
-            str += "\", 'base64');\n";
+            str += buf.toString(e);
+            str += `\", '$${e}');\n`;
         }
         fs_1.default.writeFileSync(path_1.default.resolve(dir, path_1.default.parse(dir).name.split(" ").join("_").split("-").join("_") + ".ts"), str);
     });

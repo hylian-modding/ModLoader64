@@ -81,6 +81,7 @@ class pluginLoader {
     >();
     payloadManager!: PayloadManager;
     injector!: Function;
+    heapSetup!: Function;
     lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
     processNextFrame: boolean = true;
     resetting: boolean = false;
@@ -449,7 +450,7 @@ class pluginLoader {
         });
 
         // IExtendedCore
-        if (this.loaded_core["postconstructor"] !== undefined){
+        if (this.loaded_core["postconstructor"] !== undefined) {
             (this.loaded_core as any as IExtendedCore).postconstructor();
         }
 
@@ -734,8 +735,11 @@ class pluginLoader {
         Object.freeze(this.onViHandle);
         iconsole.on(Emulator_Callbacks.core_started, () => {
             this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                this.injector();
+                this.heapSetup();
             }, 1);
+            this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                this.injector();
+            }, 20);
         });
     }
 
@@ -817,7 +821,7 @@ class pluginLoader {
                 bus.emit(EventsServer.ON_PLUGIN_READY, plugin);
             }
         });
-        this.injector = () => {
+        this.heapSetup = () => {
             if (config.isClient) {
                 let evt: any = {};
                 bus.emit(EventsClient.ON_HEAP_SETUP, evt);
@@ -826,7 +830,7 @@ class pluginLoader {
                     heap = new Heap(this.loaded_core.ModLoader.emulator, this.loaded_core.heap_start, this.loaded_core.heap_size);
                 }
                 let gfx: Heap | undefined = undefined;
-                if (evt.hasOwnProperty("gfx_heap_start")){
+                if (evt.hasOwnProperty("gfx_heap_start")) {
                     gfx = new Heap(this.loaded_core.ModLoader.emulator, evt.gfx_heap_start, evt.gfx_heap_size);
                 }
                 this.loaded_core.ModLoader.heap = heap;
@@ -835,6 +839,13 @@ class pluginLoader {
                     plugin.ModLoader.heap = heap;
                     plugin.ModLoader.gfx_heap = gfx;
                 });
+                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
+                    bus.emit(EventsClient.ON_HEAP_READY, {});
+                }, 1);
+            }
+        };
+        this.injector = () => {
+            if (config.isClient) {
                 this.logger.debug("Starting injection...");
                 this.plugin_folders.forEach((dir: string) => {
                     let test = path.join(
@@ -858,14 +869,11 @@ class pluginLoader {
                 });
                 bus.emit(EventsClient.ON_INJECT_FINISHED, {});
                 iconsole.finishInjects();
-                this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
-                    bus.emit(EventsClient.ON_HEAP_READY, {});
-                }, 1);
             }
             this.logger.debug("Injection finished.");
         };
         if (config.isClient) {
-            internal_event_bus.on('REGISTER_TICK_TIMEOUT', (fn: ()=>void[])=>{
+            internal_event_bus.on('REGISTER_TICK_TIMEOUT', (fn: () => void[]) => {
                 this.loaded_core.ModLoader.utils.setTimeoutFrames(fn[0], 1);
             });
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
@@ -884,6 +892,9 @@ class pluginLoader {
     }
 
     reinject(callback: Function) {
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(()=>{
+            this.heapSetup();
+        }, 1);
         this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
             this.injector();
             callback();
