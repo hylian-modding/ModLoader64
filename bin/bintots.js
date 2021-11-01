@@ -38,7 +38,7 @@ else if (commander_1.default.dir) {
             }
             let buf = fs_1.default.readFileSync(f);
             str += buf.toString(e);
-            str += `\", '$${e}');\n`;
+            str += `\", '${e}');\n`;
         }
         fs_1.default.writeFileSync(path_1.default.resolve(dir, path_1.default.parse(dir).name.split(" ").join("_").split("-").join("_") + ".ts"), str);
     });

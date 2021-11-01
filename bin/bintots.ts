@@ -35,7 +35,7 @@ if (program.input) {
             }
             let buf: Buffer = fs.readFileSync(f);
             str += buf.toString(e);
-            str += `\", '$${e}');\n`;
+            str += `\", '${e}');\n`;
         }
         fs.writeFileSync(path.resolve(dir, path.parse(dir).name.split(" ").join("_").split("-").join("_") + ".ts"), str);
     });
