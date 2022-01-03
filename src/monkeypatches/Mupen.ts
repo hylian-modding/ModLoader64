@@ -1,108 +1,107 @@
 import { MonkeyPatch, IMonkeyPatch } from './IMonkeyPatch';
-import {IMupen} from '../modloader/consoles/mupen/IMupen';
-import bitwise from 'bitwise';
-import { UInt8 } from 'bitwise/types';
+import { IMupen } from '../modloader/consoles/mupen/IMupen';
 
-export class MonkeyPatch_rdramWriteBit8 extends MonkeyPatch
+export class MonkeyPatch_rdramReadF32 extends MonkeyPatch
     implements IMonkeyPatch {
-  mupen: IMupen;
+    mupen: IMupen;
 
-  constructor(mupen: IMupen) {
-      super();
-      this.mupen = mupen;
-  }
+    constructor(mupen: IMupen) {
+        super();
+        this.mupen = mupen;
+    }
 
-  patch(): void {
-      this.replacement = (addr: number, bitoffset: number, bit: boolean) => {
-          let data = this.mupen.M64p.Memory.rdramRead8(addr);
-          let bits = bitwise.byte.read(data as UInt8);
-          bits[bitoffset] = bit ? 1 : 0;
-          data = bitwise.byte.write(bits);
-          this.mupen.M64p.Memory.rdramWrite8(addr, data);
-      };
-      this.original = this.mupen.M64p.Memory.rdramWriteBit8;
-      (this.mupen.M64p.Memory as any)['rdramWriteBit8'] = this.replacement;
-  }
+    patch(): void {
+        this.replacement = (addr: number) => {
+            let data = this.mupen.M64p.Memory.rdramReadBuffer(addr, 4);
+            return data.readFloatBE(0);
+        };
+        this.original = this.mupen.M64p.Memory.rdramReadF32;
+        (this.mupen.M64p.Memory as any)['rdramReadF32'] = this.replacement;
+    }
 
-  unpatch(): void {
-      (this.mupen.M64p.Memory as any)['rdramWriteBit8'] = this.original;
-  }
+    unpatch(): void {
+        (this.mupen.M64p.Memory as any)['rdramReadF32'] = this.original;
+    }
 }
 
-export class MonkeyPatch_rdramReadBit8 extends MonkeyPatch
+export class MonkeyPatch_rdramReadPtrF32 extends MonkeyPatch
     implements IMonkeyPatch {
-  mupen: IMupen;
+    mupen: IMupen;
 
-  constructor(mupen: IMupen) {
-      super();
-      this.mupen = mupen;
-  }
+    constructor(mupen: IMupen) {
+        super();
+        this.mupen = mupen;
+    }
 
-  patch(): void {
-      this.replacement = (addr: number, bitoffset: number): boolean => {
-          let data = this.mupen.M64p.Memory.rdramRead8(addr);
-          let bits = bitwise.byte.read(data as UInt8);
-          return bits[bitoffset] === 1;
-      };
-      this.original = this.mupen.M64p.Memory.rdramReadBit8;
-      (this.mupen.M64p.Memory as any)['rdramReadBit8'] = this.replacement;
-  }
+    patch(): void {
+        this.replacement = (addr: number, offset: number) => {
+            let ptr = this.mupen.M64p.Memory.rdramRead32(addr);
+            let data = this.mupen.M64p.Memory.rdramReadBuffer(ptr + offset, 4);
+            return data.readFloatBE(0);
+        };
+        this.original = this.mupen.M64p.Memory.rdramReadPtrF32;
+        (this.mupen.M64p.Memory as any)['rdramReadPtrF32'] = this.replacement;
+    }
 
-  unpatch(): void {
-      (this.mupen.M64p.Memory as any)['rdramReadBit8'] = this.original;
-  }
+    unpatch(): void {
+        (this.mupen.M64p.Memory as any)['rdramReadPtrF32'] = this.original;
+    }
 }
 
-export class MonkeyPatch_rdramWriteBits8 extends MonkeyPatch
-    implements IMonkeyPatch {
-  mupen: IMupen;
+export class MonkeyPatch_rdramWriteF32 extends MonkeyPatch implements IMonkeyPatch {
+    mupen: IMupen;
+    buf: Buffer = Buffer.alloc(4);
 
-  constructor(mupen: IMupen) {
-      super();
-      this.mupen = mupen;
-  }
+    constructor(mupen: IMupen) {
+        super();
+        this.mupen = mupen;
+    }
 
-  patch(): void {
-      this.replacement = (addr: number, buf: Buffer) => {
-          let arr: number[] = [];
-          for (let i = 0; i < buf.byteLength; i++) {
-              arr.push(buf[i]);
-          }
-          let b = bitwise.byte.write(arr as any);
-          this.mupen.M64p.Memory.rdramWrite8(addr, b);
-      };
-      this.original = this.mupen.M64p.Memory.rdramWriteBit8;
-      (this.mupen.M64p.Memory as any)['rdramWriteBits8'] = this.replacement;
-  }
+    patch(): void {
+        this.replacement = (addr: number, float: number) => {
+            this.buf.writeFloatBE(float)
+            this.mupen.M64p.Memory.rdramWriteBuffer(addr, this.buf);
+        };
+        this.original = this.mupen.M64p.Memory.rdramWriteF32;
+        (this.mupen.M64p.Memory as any)['rdramWriteF32'] = this.replacement;
+    }
 
-  unpatch(): void {
-      (this.mupen.M64p.Memory as any)['rdramWriteBits8'] = this.original;
-  }
+    unpatch(): void {
+        (this.mupen.M64p.Memory as any)['rdramWriteF32'] = this.original;
+    }
 }
 
-export class MonkeyPatch_rdramReadBits8 extends MonkeyPatch
-    implements IMonkeyPatch {
-  mupen: IMupen;
+export class MonkeyPatch_rdramWritePtrF32 extends MonkeyPatch implements IMonkeyPatch {
+    mupen: IMupen;
+    buf: Buffer = Buffer.alloc(4);
 
-  constructor(mupen: IMupen) {
-      super();
-      this.mupen = mupen;
-  }
+    constructor(mupen: IMupen) {
+        super();
+        this.mupen = mupen;
+    }
 
-  patch(): void {
-      this.replacement = (addr: number) => {
-          let b = bitwise.byte.read(this.mupen.M64p.Memory.rdramRead8(addr) as any);
-          let buf: Buffer = Buffer.alloc(0x8);
-          for (let i = 0; i < b.length; i++) {
-              buf.writeUInt8(b[i], i);
-          }
-          return buf;
-      };
-      this.original = this.mupen.M64p.Memory.rdramReadBits8;
-      (this.mupen.M64p.Memory as any)['rdramReadBits8'] = this.replacement;
-  }
+    patch(): void {
+        this.replacement = (addr: number, offset: number, float: number) => {
+            this.buf.writeFloatBE(float)
+            let ptr = this.mupen.M64p.Memory.rdramRead32(addr);
+            this.mupen.M64p.Memory.rdramWriteBuffer(ptr + offset, this.buf);
+        };
+        this.original = this.mupen.M64p.Memory.rdramWritePtrF32;
+        (this.mupen.M64p.Memory as any)['rdramWritePtrF32'] = this.replacement;
+    }
 
-  unpatch(): void {
-      (this.mupen.M64p.Memory as any)['rdramReadBits8'] = this.original;
-  }
+    unpatch(): void {
+        (this.mupen.M64p.Memory as any)['rdramWritePtrF32'] = this.original;
+    }
+}
+
+export class MupenMonkeyPatches{
+
+    static patch(mupen: IMupen){
+        new MonkeyPatch_rdramReadF32(mupen).patch();
+        new MonkeyPatch_rdramReadPtrF32(mupen).patch();
+        new MonkeyPatch_rdramWriteF32(mupen).patch();
+        new MonkeyPatch_rdramWritePtrF32(mupen).patch();
+    }
+
 }

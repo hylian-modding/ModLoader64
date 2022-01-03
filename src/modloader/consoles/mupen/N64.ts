@@ -19,11 +19,12 @@ import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { internal_event_bus } from '../../modloader64';
 import { vec2, xy } from 'modloader64_api/Sylvain/vec';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import { BpFlags, BpStruct, Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
+import { Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
 import slash from 'slash';
 import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
 import { IHiResTexture } from 'API/build/IHiResTexture';
+import { MupenMonkeyPatches } from '../../../monkeypatches/Mupen';
 
 interface MupenConfig {
     rsp: string;
@@ -220,6 +221,8 @@ class N64 implements IConsole {
             this.mupen.M64p.Config.openSection("Video-GLideN64").setBool("txSaveCache", true);
             this.mupen.M64p.Config.saveFile();
         });
+
+        MupenMonkeyPatches.patch(this.mupen);
     }
 
     private registerCallback(type: string, callback: Function) {
