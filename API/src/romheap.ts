@@ -24,10 +24,12 @@ interface IHeapBlock {
 class HeapBlock implements IHeapBlock {
     pointer: number
     emulator: IRomMemory
+    rom: Buffer;
 
-    constructor(emulator: IRomMemory, pointer: number) {
+    constructor(rom: Buffer, emulator: IRomMemory, pointer: number) {
         this.emulator = emulator
         this.pointer = pointer
+        this.rom = rom;
     }
 
     get free_last(): number {
@@ -57,26 +59,32 @@ class HeapBlock implements IHeapBlock {
 
     set free_last(value: number) {
         this.emulator.romWrite32(this.pointer, value)
+        this.rom.writeUInt32BE(value, this.pointer);
     }
 
     set free_next(value: number) {
         this.emulator.romWrite32(this.pointer + 4, value)
+        this.rom.writeUInt32BE(value, this.pointer + 4);
     }
 
     set used_last(value: number) {
         this.emulator.romWrite32(this.pointer + 8, value)
+        this.rom.writeUInt32BE(value, this.pointer + 8);
     }
 
     set used_next(value: number) {
         this.emulator.romWrite32(this.pointer + 0xC, value)
+        this.rom.writeUInt32BE(value, this.pointer + 0xC);
     }
 
     set used(value: number) {
         this.emulator.romWrite32(this.pointer + 0x10, value)
+        this.rom.writeUInt32BE(value, this.pointer + 0x10);
     }
 
     set free(value: number) {
         this.emulator.romWrite32(this.pointer + 0x14, value)
+        this.rom.writeUInt32BE(value, this.pointer + 0x14);
     }
 }
 
@@ -89,15 +97,17 @@ export class RomHeap {
     end: number = 0
     size: number = 0
     emulator!: IRomMemory
+    rom: Buffer;
 
-    constructor(emulator: IRomMemory, start: number = 0, size: number = 0) {
+    constructor(rom: Buffer, emulator: IRomMemory, start: number = 0, size: number = 0) {
         let block: HeapBlock
 
         this.emulator = emulator
+        this.rom = rom;
         this.start = start
         this.size = size
 
-        block = new HeapBlock(emulator, Heap_Align(this.start))
+        block = new HeapBlock(rom, emulator, Heap_Align(this.start))
         size -= (block.pointer - this.start)
         size = Heap_Align(size)
 
@@ -120,21 +130,21 @@ export class RomHeap {
         let new_block: HeapBlock
 
         size = Heap_Align(size) + HEAP_BLOCK_HEADER_SIZE
-        block = new HeapBlock(this.emulator, this.free_head)
+        block = new HeapBlock(this.rom, this.emulator, this.free_head)
 
         while (block.pointer) {
             // does block have space?
             if (block.free >= size) {
-                new_block = new HeapBlock(this.emulator, block.pointer + block.used)
+                new_block = new HeapBlock(this.rom, this.emulator, block.pointer + block.used)
 
                 new_block.used = size
                 new_block.free = block.free - size
 
                 if (new_block.free) {
                     new_block.free_last = block.pointer
-                    new_block.free_next = new HeapBlock(this.emulator, block.free_next).pointer
+                    new_block.free_next = new HeapBlock(this.rom, this.emulator, block.free_next).pointer
 
-                    if (block.free_next) new HeapBlock(this.emulator, new_block.free_next).free_last = new_block.pointer
+                    if (block.free_next) new HeapBlock(this.rom, this.emulator, new_block.free_next).free_last = new_block.pointer
                     block.free_next = new_block.pointer
 
                     if (this.free_tail == block.pointer) this.free_tail = new_block.pointer
@@ -146,8 +156,8 @@ export class RomHeap {
 
                 block.free = 0
 
-                if (block.free_last) new HeapBlock(this.emulator, block.free_last).free_next = block.free_next
-                if (block.free_next) new HeapBlock(this.emulator, block.free_next).free_last = block.free_last
+                if (block.free_last) new HeapBlock(this.rom, this.emulator, block.free_last).free_next = block.free_next
+                if (block.free_next) new HeapBlock(this.rom, this.emulator, block.free_next).free_last = block.free_last
 
                 if (this.free_head == block.pointer) this.free_head = block.free_next
                 if (this.free_tail == block.pointer) {
@@ -161,7 +171,7 @@ export class RomHeap {
                 new_block.used_last = block.pointer
                 new_block.used_next = block.used_next
 
-                if (block.used_next) new HeapBlock(this.emulator, new_block.used_next).used_last = new_block.pointer
+                if (block.used_next) new HeapBlock(this.rom, this.emulator, new_block.used_next).used_last = new_block.pointer
                 block.used_next = new_block.pointer
                 return (new_block.pointer + HEAP_BLOCK_HEADER_SIZE)
             }
@@ -176,18 +186,18 @@ export class RomHeap {
         let free_last: HeapBlock
         let used_last: HeapBlock
 
-        block = new HeapBlock(this.emulator, address - HEAP_BLOCK_HEADER_SIZE)
-        used_last = new HeapBlock(this.emulator, block.used_last)
+        block = new HeapBlock(this.rom, this.emulator, address - HEAP_BLOCK_HEADER_SIZE)
+        used_last = new HeapBlock(this.rom, this.emulator, block.used_last)
 
         if (!used_last.free) {
 
             // find previous free block
-            if (block.free_last) free_last = new HeapBlock(this.emulator, block.free_last)
+            if (block.free_last) free_last = new HeapBlock(this.rom, this.emulator, block.free_last)
             else {
-                free_last = new HeapBlock(this.emulator, block.used_last)
+                free_last = new HeapBlock(this.rom, this.emulator, block.used_last)
                 while (free_last.pointer) {
                     if (free_last.free) break
-                    free_last = new HeapBlock(this.emulator, free_last.used_last)
+                    free_last = new HeapBlock(this.rom, this.emulator, free_last.used_last)
                 }
             }
 
@@ -196,7 +206,7 @@ export class RomHeap {
                 used_last.free_last = free_last.pointer
                 used_last.free_next = free_last.free_next
 
-                if (free_last.free_next) new HeapBlock(this.emulator, used_last.free_next).free_last = used_last.pointer
+                if (free_last.free_next) new HeapBlock(this.rom, this.emulator, used_last.free_next).free_last = used_last.pointer
 
                 free_last.free_next = used_last.pointer
 
@@ -205,7 +215,7 @@ export class RomHeap {
             else {
                 used_last.free_next = this.free_head
 
-                if (this.free_head) new HeapBlock(this.emulator, this.free_head).free_last = used_last.pointer
+                if (this.free_head) new HeapBlock(this.rom, this.emulator, this.free_head).free_last = used_last.pointer
                 else this.free_tail = used_last.pointer
                 this.free_head = used_last.pointer
             }
@@ -213,12 +223,12 @@ export class RomHeap {
 
         used_last.free += block.used + block.free
 
-        if (block.used_next) new HeapBlock(this.emulator, block.used_next).used_last = block.used_last
-        new HeapBlock(this.emulator, block.used_last).used_next = block.used_next
+        if (block.used_next) new HeapBlock(this.rom, this.emulator, block.used_next).used_last = block.used_last
+        new HeapBlock(this.rom, this.emulator, block.used_last).used_next = block.used_next
 
         if (block.free) {
-            if (block.free_last) new HeapBlock(this.emulator, block.free_last).free_next = block.free_next
-            if (block.free_next) new HeapBlock(this.emulator, block.free_next).free_last = block.free_last
+            if (block.free_last) new HeapBlock(this.rom, this.emulator, block.free_last).free_next = block.free_next
+            if (block.free_next) new HeapBlock(this.rom, this.emulator, block.free_next).free_last = block.free_last
 
             if (this.free_tail == block.pointer) this.free_tail = block.free_last
         }
@@ -229,13 +239,13 @@ export class RomHeap {
         let new_block: HeapBlock
 
         size = Heap_Align(size)
-        block = new HeapBlock(this.emulator, address - HEAP_BLOCK_HEADER_SIZE)
+        block = new HeapBlock(this.rom, this.emulator, address - HEAP_BLOCK_HEADER_SIZE)
 
         if (size <= block.used || block.free >= size - block.used) {
             return (block.pointer + HEAP_BLOCK_HEADER_SIZE)
         }
         else {
-            new_block = new HeapBlock(this.emulator, this.malloc(size))
+            new_block = new HeapBlock(this.rom, this.emulator, this.malloc(size))
             this.emulator.romWriteBuffer(new_block.pointer, this.emulator.romReadBuffer(address, block.used))
             this.free(address)
             return new_block.pointer
@@ -243,8 +253,8 @@ export class RomHeap {
     }
 
     wipe() {
-        while (new HeapBlock(this.emulator, this.used_head).used_next) {
-            this.free((new HeapBlock(this.emulator, this.used_head).used_next) + HEAP_BLOCK_HEADER_SIZE)
+        while (new HeapBlock(this.rom, this.emulator, this.used_head).used_next) {
+            this.free((new HeapBlock(this.rom, this.emulator, this.used_head).used_next) + HEAP_BLOCK_HEADER_SIZE)
         }
     }
 
@@ -252,10 +262,10 @@ export class RomHeap {
         let total: number = 0
         let block: HeapBlock
 
-        block = new HeapBlock(this.emulator, this.free_head)
+        block = new HeapBlock(this.rom, this.emulator, this.free_head)
         while (block) {
             total += block.free
-            block = new HeapBlock(this.emulator, block.free_next)
+            block = new HeapBlock(this.rom, this.emulator, block.free_next)
         }
 
         return total
@@ -266,16 +276,16 @@ export class RomHeap {
         let block: HeapBlock
         let largest_block: HeapBlock
 
-        block = new HeapBlock(this.emulator, this.start)
-        largest_block = new HeapBlock(this.emulator, this.start)
+        block = new HeapBlock(this.rom, this.emulator, this.start)
+        largest_block = new HeapBlock(this.rom, this.emulator, this.start)
 
         while (block.pointer) {
             if (block.free >= largest) {
                 largest = block.free
-                largest_block = new HeapBlock(this.emulator, block.pointer)
+                largest_block = new HeapBlock(this.rom, this.emulator, block.pointer)
             }
 
-            block = new HeapBlock(this.emulator, block.free_next)
+            block = new HeapBlock(this.rom, this.emulator, block.free_next)
         }
 
         return largest_block.pointer
