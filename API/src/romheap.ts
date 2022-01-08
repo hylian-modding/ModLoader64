@@ -3,6 +3,73 @@ import { IRomMemory } from './IRomMemory';
 const HEAP_BLOCK_HEADER_SIZE: number = 0x20
 const HEAP_BLOCK_ALIGNMENT: number = 16
 
+class RomBubbleWrap implements IRomMemory {
+    emulator: IRomMemory;
+
+    constructor(emulator: IRomMemory) {
+        this.emulator = emulator;
+    }
+
+    romRead8(addr: number): number {
+        try {
+            return this.emulator.romRead8(addr);
+        } catch (err) { }
+        return -1;
+    }
+
+    romWrite8(addr: number, value: number): void {
+        try {
+            this.emulator.romWrite8(addr, value);
+        } catch (err) { }
+    }
+
+    romRead16(addr: number): number {
+        try {
+            return this.emulator.romRead16(addr);
+        } catch (err) { }
+        return -1;
+    }
+
+    romWrite16(addr: number, value: number): void {
+        try {
+            this.emulator.romWrite16(addr, value);
+        } catch (err) { }
+    }
+
+    romRead32(addr: number): number {
+        try {
+            return this.emulator.romRead32(addr);
+        } catch (err) { }
+        return -1;
+    }
+
+    romWrite32(addr: number, value: number): void {
+        try {
+            this.emulator.romWrite32(addr, value);
+        } catch (err) { }
+    }
+
+    romReadBuffer(addr: number, size: number): Buffer {
+        try {
+            return this.emulator.romReadBuffer(addr, size);
+        } catch (err) { }
+        return Buffer.from("01", 'hex');
+    }
+
+    romWriteBuffer(addr: number, buf: Buffer): void {
+        try {
+            this.emulator.romWriteBuffer(addr, buf);
+        } catch (err) { }
+    }
+
+    getRomBuffer(): ArrayBuffer {
+        try {
+            return this.emulator.getRomBuffer();
+        } catch (err) { }
+        return new ArrayBuffer(4);
+    }
+}
+
 function get_aligned(input: number, alignment: number): number {
     return input + (alignment - input % alignment)
 }
@@ -102,7 +169,7 @@ export class RomHeap {
     constructor(rom: Buffer, emulator: IRomMemory, start: number = 0, size: number = 0) {
         let block: HeapBlock
 
-        this.emulator = emulator
+        this.emulator = new RomBubbleWrap(emulator);
         this.rom = rom;
         this.start = start
         this.size = size
