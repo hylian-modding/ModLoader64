@@ -84,10 +84,7 @@ class ModLoader64 {
         this.roms = fs.readdirSync(this.rom_folder);
         this.logger = logger as ILogger;
         this.consoleDescManager = new ConsoleManager(this.logger.getLogger("BindingManager"));
-        let mods_folder_array = [path.resolve(path.join(process.cwd(), 'mods'))];
-        if (global.ModLoader.hasOwnProperty("OVERRIDE_MODS_FOLDER")) {
-            mods_folder_array.push(this.mods_folder);
-        }
+        let mods_folder_array = [this.mods_folder];
         this.plugins = new pluginLoader(
             mods_folder_array,
             this.config,
