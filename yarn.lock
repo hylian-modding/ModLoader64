@@ -3002,7 +3002,7 @@ mkdirp@^1.0.3:
 
 "modloader64-platform-deps@github:hylian-modding/ModLoader64-Platform-Deps":
   version "1.2.2"
-  resolved "https://codeload.github.com/hylian-modding/ModLoader64-Platform-Deps/tar.gz/d2daa885fb935d00fcb3d32ef3e3e9e7163ca502"
+  resolved "https://codeload.github.com/hylian-modding/ModLoader64-Platform-Deps/tar.gz/9e69d94239e0a7d5a3029d4f5c4e17161cb3b211"
 
 module-alias@^2.2.2:
   version "2.2.2"
