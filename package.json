@@ -1,6 +1,6 @@
 {
   "name": "modloader64",
-  "version": "2.0.37",
+  "version": "2.0.39",
   "description": "",
   "main": "./src/index.js",
   "scripts": {
@@ -84,7 +84,7 @@
     "gulp-sourcemaps": "https://github.com/gulp-sourcemaps/gulp-sourcemaps",
     "gulp-typescript": "^6.0.0-alpha.1",
     "is-elevated": "^3.0.0",
-    "modloader64-platform-deps": "github:hylian-modding/ModLoader64-Platform-Deps",
+    "modloader64-platform-deps": "https://github.com/hylian-modding/ModLoader64-Platform-Deps",
     "patch-package": "^6.4.7",
     "recursive-readdir": "^2.2.2",
     "ssh2-sftp-client": "^5.3.2",
