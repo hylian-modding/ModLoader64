@@ -196,8 +196,11 @@ function install(url: string) {
     } else {
         child_process.execSync(`git clone ${url} ${dir}`);
         process.chdir(`./${dir}`);
-        child_process.execSync("modloader64 -ncbd");
+        try{
+            child_process.execSync("modloader64 -ncbd");
+        }catch(err){}
         child_process.execSync("yarn");
+        child_process.execSync("modloader64 -cbd");
         process.chdir("./build");
         process.chdir("./cores");
         let dir_to_link: string = ".";

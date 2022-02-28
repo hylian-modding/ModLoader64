@@ -3000,9 +3000,9 @@ mkdirp@^1.0.3:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-"modloader64-platform-deps@github:hylian-modding/ModLoader64-Platform-Deps":
+"modloader64-platform-deps@https://github.com/hylian-modding/ModLoader64-Platform-Deps":
   version "1.2.2"
-  resolved "https://codeload.github.com/hylian-modding/ModLoader64-Platform-Deps/tar.gz/9e69d94239e0a7d5a3029d4f5c4e17161cb3b211"
+  resolved "https://github.com/hylian-modding/ModLoader64-Platform-Deps#9e69d94239e0a7d5a3029d4f5c4e17161cb3b211"
 
 module-alias@^2.2.2:
   version "2.2.2"
