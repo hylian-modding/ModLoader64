@@ -25,6 +25,7 @@ import slash from 'slash';
 import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
 import { IHiResTexture } from 'API/build/IHiResTexture';
 import { MupenMonkeyPatches } from '../../../monkeypatches/Mupen';
+import DynarecWrapper from './DynarecWrapper';
 
 interface MupenConfig {
     rsp: string;
@@ -43,6 +44,7 @@ class N64 implements IConsole {
     callbacks: Map<string, Array<Function>> = new Map<string, Array<Function>>();
     texPath: string = "";
     cachePath: string = "";
+    dynawrap: DynarecWrapper;
 
     constructor(rom: string, logger: ILogger, lobby: string, config: IConfig) {
         this.logger = logger;
@@ -223,6 +225,8 @@ class N64 implements IConsole {
         });
 
         MupenMonkeyPatches.patch(this.mupen);
+
+        this.dynawrap = new DynarecWrapper(this.mupen);
     }
 
     private registerCallback(type: string, callback: Function) {

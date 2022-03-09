@@ -1,3 +1,3 @@
 export default interface IDynarecCache{
-    invalidateCachedCode(): void;
+    invalidateCachedCode(address?: number, size?: number, forced?: boolean): void;
 }
