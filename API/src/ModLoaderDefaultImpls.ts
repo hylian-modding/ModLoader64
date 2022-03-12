@@ -3,19 +3,16 @@ import { INetworkPlayer, IPacketHeader, SocketType } from './NetworkHandler';
 
 export class NetworkPlayer implements INetworkPlayer {
     readonly uuid: string;
-    __nickname: () => string;
+    __nickname: () => string | undefined;
     data: any = {};
 
     constructor(nickname: string, uuid: string) {
-        var nick = nickname;
-        this.__nickname = () => {
-            return nick;
-        };
+        this.nickname = nickname;
         this.uuid = uuid;
     }
 
     get nickname(): string {
-        return this.__nickname();
+        return this.__nickname()!;
     }
 
     set nickname(s: string) {

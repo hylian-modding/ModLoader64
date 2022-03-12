@@ -699,12 +699,6 @@ namespace NetworkEngine {
             config.setData('NetworkEngine.Client', 'password', '');
             config.setData('NetworkEngine.Client', 'forceTCPMode', false);
             this.masterConfig = config;
-            if (this.config.nickname.indexOf("\n")) {
-                this.config.nickname = this.config.nickname.replace("\n", "");
-                if (this.config.nickname.length > 20) {
-                    this.config.nickname = this.config.nickname.substr(0, 20);
-                }
-            }
             this.modLoaderconfig = this.masterConfig.registerConfigCategory(
                 'ModLoader64'
             ) as IModLoaderConfig;
