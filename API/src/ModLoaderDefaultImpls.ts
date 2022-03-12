@@ -3,7 +3,7 @@ import { INetworkPlayer, IPacketHeader, SocketType } from './NetworkHandler';
 
 export class NetworkPlayer implements INetworkPlayer {
     readonly uuid: string;
-    __nickname: () => string | undefined;
+    __nickname: () => string = () => { return "" };
     data: any = {};
 
     constructor(nickname: string, uuid: string) {
@@ -12,7 +12,7 @@ export class NetworkPlayer implements INetworkPlayer {
     }
 
     get nickname(): string {
-        return this.__nickname()!;
+        return this.__nickname();
     }
 
     set nickname(s: string) {
@@ -25,8 +25,8 @@ export class NetworkPlayer implements INetworkPlayer {
         });
     }
 
-    toJSON(){
-        return {uuid: this.uuid, nickname: this.nickname, data: this.data};
+    toJSON() {
+        return { uuid: this.uuid, nickname: this.nickname, data: this.data };
     }
 
 }
