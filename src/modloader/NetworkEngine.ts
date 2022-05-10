@@ -441,7 +441,7 @@ namespace NetworkEngine {
                 NetworkQueryBusServer.on('promoteOwner', (evt: any)=>{
                     let lobby = inst.getLobbyStorage_internal(evt.lobby);
                     if (lobby === null) return;
-                    evt.owner = evt.owner;
+                    lobby.owner = evt.owner;
                     bus.emit(EventsServer.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(lobby.config.name, lobby.owner));
                     inst.sendToTarget(lobby.config.name, 'newOwner', lobby.owner);
                 });
