@@ -13,6 +13,7 @@ import {
     EventServerJoined,
     EventServerLeft,
     EventBus,
+    EventOwnerChanged,
 } from 'modloader64_api/EventHandler';
 import {
     NetworkBus,
@@ -29,7 +30,8 @@ import {
     SocketType,
     IToPlayer,
     NetworkQueryBusServer,
-    IConnectionCheckEvt
+    IConnectionCheckEvt,
+    NetworkQueryBus
 } from 'modloader64_api/NetworkHandler';
 import crypto from 'crypto';
 import {
@@ -56,13 +58,16 @@ const NetworkingEventBus: EventBus = new EventBus();
 
 class LobbyStorage implements ILobbyStorage {
     config: LobbyData;
-    owner: string;
+    owner: INetworkPlayer;
+    players: INetworkPlayer[];
     data: any;
 
-    constructor(config: LobbyData, owner: string) {
+    constructor(config: LobbyData, owner: INetworkPlayer) {
         this.config = config;
         this.owner = owner;
         this.data = {};
+        this.players = [];
+        this.players.push(owner);
     }
 }
 
@@ -127,8 +132,8 @@ export class LobbyManagerAbstract implements ILobbyManager {
         );
     }
 
-    getAllLobbies(): any{
-        let evt = {r: {}};
+    getAllLobbies(): any {
+        let evt = { r: {} };
         NetworkingEventBus.emit('getAllLobbies', evt);
         return evt.r;
     }
@@ -221,7 +226,7 @@ namespace NetworkEngine {
                 }
             );
 
-            NetworkingEventBus.on('getAllLobbies', (evt: any)=>{
+            NetworkingEventBus.on('getAllLobbies', (evt: any) => {
                 evt["r"] = this.getAllLobbies();
             });
 
@@ -239,7 +244,7 @@ namespace NetworkEngine {
             return this.getLobbies().hasOwnProperty(Lobby);
         }
 
-        createLobbyStorage_internal(ld: LobbyData, owner: string): ILobbyStorage {
+        createLobbyStorage_internal(ld: LobbyData, owner: INetworkPlayer): ILobbyStorage {
             if (this.getLobbyStorage_internal(ld.name) !== null) {
                 delete this.lobbyStorage[ld.name];
             }
@@ -263,7 +268,7 @@ namespace NetworkEngine {
             mainStore.data[plugin.pluginName as string] = obj;
         }
 
-        getAllLobbies(): any{
+        getAllLobbies(): any {
             return this.lobbyStorage;
         }
 
@@ -428,6 +433,11 @@ namespace NetworkEngine {
                     let roundtrip = Date.now() - packet.serverTime;
                     inst.sendToTarget(packet.player.uuid, 'msg', new LatencyInfoPacket(packet.lobby, ping, roundtrip));
                 });
+                NetworkQueryBusServer.on('getOwner', (evt: any)=>{
+                    let lobby = inst.getLobbyStorage_internal(evt.lobby);
+                    if (lobby === null) return;
+                    evt.owner = lobby.owner;
+                });
                 inst.io.on('connection', function (socket: SocketIO.Socket) {
                     inst.logger.info('Client ' + socket.id + ' connected.');
                     inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
@@ -505,9 +515,16 @@ namespace NetworkEngine {
                                     lobby: storage.config.name,
                                     player: lj.player
                                 };
+
+                                storage.players.push(lj.player);
+                                if (storage.owner.uuid === "null"){
+                                    storage.owner = lj.player;
+                                }
+
                                 inst.sendToTarget(socket.id, 'LobbyReady', {
                                     storage: storage.config,
                                     udp: inst.udpPort,
+                                    owner: storage.owner
                                 });
                                 inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
                             } else {
@@ -519,7 +536,7 @@ namespace NetworkEngine {
                             socket.join(lj.lobbyData.name);
                             let storage: ILobbyStorage = inst.createLobbyStorage_internal(
                                 lj.lobbyData,
-                                socket.id
+                                lj.player
                             );
                             bus.emit(EventsServer.ON_LOBBY_CREATE, lj.lobbyData.name);
                             bus.emit(EventsServer.ON_LOBBY_DATA, storage.config);
@@ -532,8 +549,11 @@ namespace NetworkEngine {
                             inst.sendToTarget(socket.id, 'LobbyReady', {
                                 storage: storage.config,
                                 udp: inst.udpPort,
+                                owner: storage.owner
                             });
                             inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
+                            bus.emit(EventsServer.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(lj.lobbyData.name, storage.owner));
+                            inst.sendToTarget(lj.lobbyData.name, 'newOwner', storage.owner);
                             inst.lobby_names.push(lj.lobbyData.name);
                         }
                     });
@@ -574,11 +594,27 @@ namespace NetworkEngine {
                         let ML = socket.ModLoader64;
                         if (ML === undefined) return;
                         if (inst.getLobbyStorage_internal(ML.lobby) === null) return;
+                        let lobby = inst.getLobbyStorage_internal(ML.lobby)!;
+                        if (lobby.owner === ML.player.uuid) {
+                            // Owner left. Reassign.
+                            let index = lobby.players.indexOf(ML.player.uuid);
+                            if (index > -1) {
+                                lobby.players.splice(index, 1);
+                                if (lobby.players.length > 0) {
+                                    lobby.owner = lobby.players[0];
+                                }else{
+                                    lobby.owner.uuid = "null";
+                                    lobby.owner.nickname = "null";
+                                }
+                            }
+                        }
                         bus.emit(
                             EventsServer.ON_LOBBY_LEAVE,
                             new EventServerLeft(ML.player, ML.lobby)
                         );
                         inst.sendToTarget(ML.lobby, 'left', ML.player as INetworkPlayer);
+                        bus.emit(EventsServer.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(lobby.config.name, lobby.owner));
+                        inst.sendToTarget(ML.lobby, 'newOwner', lobby.owner);
                     });
                 });
                 inst.udpServer.on('error', (err: any) => {
@@ -683,6 +719,7 @@ namespace NetworkEngine {
         pluginConfiguredConnection: boolean = false;
         connectionTimer: any;
         discord: string;
+        lobbyOwner!: INetworkPlayer;
 
         constructor(logger: ILogger, config: IConfig, discord: string) {
             this.discord = discord;
@@ -759,7 +796,7 @@ namespace NetworkEngine {
                         inst.isUDPEnabled &&
                         inst.isConnectionReady
                     ) {
-                        inst.udpClient.send(JSON.stringify(data),inst.serverUDPPort,inst.config.ip);
+                        inst.udpClient.send(JSON.stringify(data), inst.serverUDPPort, inst.config.ip);
                     } else {
                         inst.socket.emit('msg', JSON.parse(JSON.stringify(data)));
                     }
@@ -796,6 +833,9 @@ namespace NetworkEngine {
                 });
                 NetworkBus.on('LatencyInfoPacket', (packet: LatencyInfoPacket) => {
                     inst.me.data["ninfo"] = { ping: packet.ping, rt: packet.roundtrip };
+                });
+                NetworkQueryBus.on('getOwner', (evt: any)=>{
+                    evt.owner = inst.lobbyOwner;
                 });
                 inst.socket.on('connect', () => {
                     inst.logger.info('Connected.');
@@ -847,7 +887,8 @@ namespace NetworkEngine {
                             }
                         }
                     }
-                    inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me));
+                    //@ts-ignore
+                    inst.socket.emit('LobbyRequest', new LobbyJoin(ld, inst.me.toJSON()));
                     bus.emit(EventsClient.ON_SERVER_CONNECTION, {});
                 });
                 inst.socket.on('versionBad', (data: any) => {
@@ -861,6 +902,7 @@ namespace NetworkEngine {
                     let ld: LobbyData = data.storage as LobbyData;
                     let udpPort: number = data.udp as number;
                     inst.logger.info('Joined lobby ' + ld.name + '.');
+                    inst.lobbyOwner = data.owner;
                     internal_event_bus.emit("DISCORD_INVITE_SETUP", inst.config);
                     let p: Buffer = Buffer.alloc(1);
                     if (ld.data.hasOwnProperty('patch')) {
@@ -895,6 +937,10 @@ namespace NetworkEngine {
                 });
                 inst.socket.on('left', (player: INetworkPlayer) => {
                     bus.emit(EventsClient.ON_PLAYER_LEAVE, player);
+                });
+                inst.socket.on('newOwner', (owner: INetworkPlayer)=>{
+                    inst.lobbyOwner = owner;
+                    bus.emit(EventsClient.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(inst.config.lobby, inst.lobbyOwner));
                 });
                 inst.socket.on('playerJoined', (player: INetworkPlayer) => {
                     if (player.uuid !== inst.me.uuid) {

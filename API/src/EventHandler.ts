@@ -47,6 +47,16 @@ export class EventServerJoined {
   }
 }
 
+export class EventOwnerChanged{
+    readonly lobby: string;
+    readonly owner: INetworkPlayer;
+
+    constructor(lobby: string, owner: INetworkPlayer){
+        this.lobby = lobby;
+        this.owner = owner;
+    }
+}
+
 export class EventServerLeft extends EventServerJoined {}
 
 export enum EventsServer {
@@ -56,7 +66,8 @@ export enum EventsServer {
   ON_PLUGIN_READY = 'pluginReady_server',
   ON_VERSION_CHECK = 'versioncheck_server',
   ON_LOBBY_DATA = "lobbyData_server",
-  ON_LOBBY_DESTROY = "lobbyDestroyed_Server"
+  ON_LOBBY_DESTROY = "lobbyDestroyed_Server",
+  ON_LOBBY_OWNER_CHANGE = "lobbyOwnerChanged_server"
 }
 
 export enum EventsClient {
@@ -70,7 +81,8 @@ export enum EventsClient {
   ON_INJECT_FINISHED = 'plugins_injectFinished',
   ON_PAYLOAD_INJECTED = 'plugins_OnPayloadInjected',
   ON_HEAP_READY = "ON_HEAP_READY",
-  ON_HEAP_SETUP = "ON_HEAP_SETUP"
+  ON_HEAP_SETUP = "ON_HEAP_SETUP",
+  ON_LOBBY_OWNER_CHANGE = "lobbyOwnerChanged_client"
 }
 
 export function setupEventHandlers(instance: any, _bus: EventBus) {

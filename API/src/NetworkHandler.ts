@@ -7,6 +7,7 @@ export class NetworkEventBus extends EventEmitter {}
 export const NetworkBus: NetworkEventBus = new NetworkEventBus();
 export const NetworkChannelBus: NetworkEventBus = new NetworkEventBus();
 export const NetworkSendBus: NetworkEventBus = new NetworkEventBus();
+export const NetworkQueryBus: NetworkEventBus = new NetworkEventBus();
 // Server
 export const NetworkBusServer: NetworkEventBus = new NetworkEventBus();
 export const NetworkChannelBusServer: NetworkEventBus = new NetworkEventBus();
@@ -105,6 +106,7 @@ export function ServerNetworkChannelHandler(key: string) {
 export interface INetwork {
   sendPacket(packet: IPacketHeader): void;
   sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer): void;
+  getLobbyOwner(lobby: string): INetworkPlayer;
   isPlayerConnected(player: INetworkPlayer): boolean;
 }
 
@@ -121,6 +123,13 @@ export interface IConnectionCheckEvt{
 }
 
 export class Server implements INetwork {
+
+    getLobbyOwner(lobby: string): INetworkPlayer {
+        let evt: any = {lobby, owner: {}};
+        NetworkQueryBusServer.emit('getOwner', evt);
+        return evt.owner;
+    }
+
     sendPacket(packet: IPacketHeader) {
         NetworkSendBusServer.emit('msg', packet);
     }
@@ -137,6 +146,13 @@ export class Server implements INetwork {
 }
 
 export class Client implements INetworkClient {
+
+    getLobbyOwner(lobby: string): INetworkPlayer {
+        let evt: any = {lobby, owner: {}};
+        NetworkQueryBus.emit('getOwner', evt);
+        return evt.owner;
+    }
+
     sendPacket(packet: IPacketHeader) {
         NetworkSendBus.emit('msg', packet);
     }
@@ -183,8 +199,9 @@ export class LobbyData {
 
 export interface ILobbyStorage {
   config: LobbyData;
-  owner: string;
+  owner: INetworkPlayer;
   data: any;
+  players: INetworkPlayer[];
 }
 
 export interface ILobbyManager {
