@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { IPlugin } from './IModLoaderAPI';
 
-export class NetworkEventBus extends EventEmitter {}
+export class NetworkEventBus extends EventEmitter { }
 
 // Client
 export const NetworkBus: NetworkEventBus = new NetworkEventBus();
@@ -15,7 +15,7 @@ export const NetworkSendBusServer: NetworkEventBus = new NetworkEventBus();
 export const NetworkQueryBusServer: NetworkEventBus = new NetworkEventBus();
 
 export function NetworkHandler(key: string) {
-    return function(
+    return function (
         this: any,
         target: any,
         propertyKey: string,
@@ -29,16 +29,16 @@ export function NetworkHandler(key: string) {
         }
         if (target.ModLoader.NetworkHandler.PacketHandlers === undefined) {
             target.ModLoader.NetworkHandler['PacketHandlers'] = new Map<
-        string,
-        string
-      >();
+                string,
+                string
+            >();
         }
         target.ModLoader.NetworkHandler.PacketHandlers.set(key, propertyKey);
     };
 }
 
 export function NetworkChannelHandler(key: string) {
-    return function(
+    return function (
         target: any,
         propertyKey: string,
         descriptor: PropertyDescriptor
@@ -51,16 +51,16 @@ export function NetworkChannelHandler(key: string) {
         }
         if (target.ModLoader.NetworkHandler.ChannelHandlers === undefined) {
             target.ModLoader.NetworkHandler['ChannelHandlers'] = new Map<
-        string,
-        string
-      >();
+                string,
+                string
+            >();
         }
         target.ModLoader.NetworkHandler.ChannelHandlers.set(key, propertyKey);
     };
 }
 
 export function ServerNetworkHandler(key: string) {
-    return function(
+    return function (
         target: any,
         propertyKey: string,
         descriptor: PropertyDescriptor
@@ -73,16 +73,16 @@ export function ServerNetworkHandler(key: string) {
         }
         if (target.ModLoader.ServerNetworkHandler.PacketHandlers === undefined) {
             target.ModLoader.ServerNetworkHandler['PacketHandlers'] = new Map<
-        string,
-        string
-      >();
+                string,
+                string
+            >();
         }
         target.ModLoader.ServerNetworkHandler.PacketHandlers.set(key, propertyKey);
     };
 }
 
 export function ServerNetworkChannelHandler(key: string) {
-    return function(
+    return function (
         target: any,
         propertyKey: string,
         descriptor: PropertyDescriptor
@@ -95,37 +95,43 @@ export function ServerNetworkChannelHandler(key: string) {
         }
         if (target.ModLoader.ServerNetworkHandler.ChannelHandlers === undefined) {
             target.ModLoader.ServerNetworkHandler['ChannelHandlers'] = new Map<
-        string,
-        string
-      >();
+                string,
+                string
+            >();
         }
         target.ModLoader.ServerNetworkHandler.ChannelHandlers.set(key, propertyKey);
     };
 }
 
 export interface INetwork {
-  sendPacket(packet: IPacketHeader): void;
-  sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer): void;
-  getLobbyOwner(lobby: string): INetworkPlayer;
-  isPlayerConnected(player: INetworkPlayer): boolean;
+    sendPacket(packet: IPacketHeader): void;
+    sendPacketToSpecificPlayer(packet: IPacketHeader, dest: INetworkPlayer): void;
+    getLobbyOwner(lobby: string): INetworkPlayer;
+    promoteToOwner(lobby: string, owner: INetworkPlayer): void;
+    isPlayerConnected(player: INetworkPlayer): boolean;
 }
 
-export interface INetworkClient extends Omit<INetwork, 'isPlayerConnected'>{}
+export interface INetworkClient extends Omit<INetwork, 'isPlayerConnected' | 'promoteToOwner'> { }
 
-export interface IToPlayer{
+export interface IToPlayer {
     packet: IPacketHeader;
     player: INetworkPlayer;
 }
 
-export interface IConnectionCheckEvt{
+export interface IConnectionCheckEvt {
     player: INetworkPlayer;
     connected: boolean;
 }
 
 export class Server implements INetwork {
 
+    promoteToOwner(lobby: string, owner: INetworkPlayer): void {
+        let evt: any = { lobby, owner };
+        NetworkQueryBusServer.emit('promoteOwner', evt);
+    }
+
     getLobbyOwner(lobby: string): INetworkPlayer {
-        let evt: any = {lobby, owner: {}};
+        let evt: any = { lobby, owner: {} };
         NetworkQueryBusServer.emit('getOwner', evt);
         return evt.owner;
     }
@@ -138,8 +144,8 @@ export class Server implements INetwork {
         NetworkSendBusServer.emit('toPlayer', { packet, player: dest } as IToPlayer);
     }
 
-    isPlayerConnected(player: INetworkPlayer){
-        let evt: IConnectionCheckEvt = {player, connected: true};
+    isPlayerConnected(player: INetworkPlayer) {
+        let evt: IConnectionCheckEvt = { player, connected: true };
         NetworkQueryBusServer.emit('isPlayerConnected', evt);
         return evt.connected;
     }
@@ -148,7 +154,7 @@ export class Server implements INetwork {
 export class Client implements INetworkClient {
 
     getLobbyOwner(lobby: string): INetworkPlayer {
-        let evt: any = {lobby, owner: {}};
+        let evt: any = { lobby, owner: {} };
         NetworkQueryBus.emit('getOwner', evt);
         return evt.owner;
     }
@@ -166,54 +172,54 @@ export const ServerController: INetwork = new Server();
 export const ClientController: INetworkClient = new Client();
 
 export interface INetworkPlayer {
-  nickname: string;
-  uuid: string;
-  data: any;
+    nickname: string;
+    uuid: string;
+    data: any;
 }
 
 export const enum SocketType {
-  TCP,
-  UDP,
+    TCP,
+    UDP,
 }
 
 export interface IPacketHeader {
-  packet_id: string;
-  lobby: string;
-  channel: string;
-  player: INetworkPlayer;
-  forward: boolean;
-  socketType: SocketType;
+    packet_id: string;
+    lobby: string;
+    channel: string;
+    player: INetworkPlayer;
+    forward: boolean;
+    socketType: SocketType;
 }
 
 export class LobbyData {
-  name: string;
-  key: string;
-  data: any;
+    name: string;
+    key: string;
+    data: any;
 
-  constructor(name: string, key: string) {
-      this.name = name;
-      this.key = key;
-      this.data = {};
-  }
+    constructor(name: string, key: string) {
+        this.name = name;
+        this.key = key;
+        this.data = {};
+    }
 }
 
 export interface ILobbyStorage {
-  config: LobbyData;
-  owner: INetworkPlayer;
-  data: any;
-  players: INetworkPlayer[];
+    config: LobbyData;
+    owner: INetworkPlayer;
+    data: any;
+    players: INetworkPlayer[];
 }
 
 export interface ILobbyManager {
-  getLobbyStorage(lobbyName: string, plugin: IPlugin): any;
-  createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void;
-  getAllLobbies(): any;
+    getLobbyStorage(lobbyName: string, plugin: IPlugin): any;
+    createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void;
+    getAllLobbies(): any;
 }
 
 export function setupNetworkHandlers(instance: any) {
     let p = Object.getPrototypeOf(instance);
     if (p.hasOwnProperty('ModLoader')) {
-        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")){
+        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")) {
             return;
         }
         if (p.ModLoader.hasOwnProperty('NetworkHandler')) {
@@ -221,7 +227,7 @@ export function setupNetworkHandlers(instance: any) {
             if (
                 p.ModLoader.NetworkHandler.hasOwnProperty('PacketHandlers') !== null
             ) {
-                p.ModLoader.NetworkHandler.PacketHandlers.forEach(function(
+                p.ModLoader.NetworkHandler.PacketHandlers.forEach(function (
                     value: string,
                     key: string
                 ) {
@@ -231,7 +237,7 @@ export function setupNetworkHandlers(instance: any) {
             }
             if (p.ModLoader.NetworkHandler.hasOwnProperty('ChannelHandlers')) {
                 // Setup channel decorator handlers
-                p.ModLoader.NetworkHandler.ChannelHandlers.forEach(function(
+                p.ModLoader.NetworkHandler.ChannelHandlers.forEach(function (
                     value: string,
                     key: string
                 ) {
@@ -244,9 +250,9 @@ export function setupNetworkHandlers(instance: any) {
             // Setup server-side packet decorator handlers
             if (
                 p.ModLoader.ServerNetworkHandler.hasOwnProperty('PacketHandlers') !==
-        null
+                null
             ) {
-                p.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(function(
+                p.ModLoader.ServerNetworkHandler.PacketHandlers.forEach(function (
                     value: string,
                     key: string
                 ) {
@@ -256,7 +262,7 @@ export function setupNetworkHandlers(instance: any) {
             }
             if (p.ModLoader.ServerNetworkHandler.hasOwnProperty('ChannelHandlers')) {
                 // Setup server-side channel decorator handlers
-                p.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(function(
+                p.ModLoader.ServerNetworkHandler.ChannelHandlers.forEach(function (
                     value: string,
                     key: string
                 ) {

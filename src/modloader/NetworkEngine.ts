@@ -438,6 +438,13 @@ namespace NetworkEngine {
                     if (lobby === null) return;
                     evt.owner = lobby.owner;
                 });
+                NetworkQueryBusServer.on('promoteOwner', (evt: any)=>{
+                    let lobby = inst.getLobbyStorage_internal(evt.lobby);
+                    if (lobby === null) return;
+                    evt.owner = evt.owner;
+                    bus.emit(EventsServer.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(lobby.config.name, lobby.owner));
+                    inst.sendToTarget(lobby.config.name, 'newOwner', lobby.owner);
+                });
                 inst.io.on('connection', function (socket: SocketIO.Socket) {
                     inst.logger.info('Client ' + socket.id + ' connected.');
                     inst.sendToTarget(socket.id, 'uuid', { uuid: socket.id });
