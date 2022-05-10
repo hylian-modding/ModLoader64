@@ -553,7 +553,6 @@ namespace NetworkEngine {
                             });
                             inst.sendToTarget(lj.lobbyData.name, 'playerJoined', lj.player);
                             bus.emit(EventsServer.ON_LOBBY_OWNER_CHANGE, new EventOwnerChanged(lj.lobbyData.name, storage.owner));
-                            inst.sendToTarget(lj.lobbyData.name, 'newOwner', storage.owner);
                             inst.lobby_names.push(lj.lobbyData.name);
                         }
                     });
