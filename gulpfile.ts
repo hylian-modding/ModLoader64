@@ -13,20 +13,20 @@ var ts = require('gulp-typescript');
 var tsProject = ts.createProject('tsconfig.json');
 var sourcemaps = require('gulp-sourcemaps');
 
-function getAllFiles(dir: string, arr: string[]){
-    fs.readdirSync(dir).forEach((f: string)=>{
+function getAllFiles(dir: string, arr: string[]) {
+    fs.readdirSync(dir).forEach((f: string) => {
         let file = path.resolve(dir, f);
-        if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()){
+        if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()) {
             arr.push(file);
         }
     });
     return arr;
 }
 
-function getAllFolders(dir: string, arr: string[]){
-    fs.readdirSync(dir).forEach((f: string)=>{
+function getAllFolders(dir: string, arr: string[]) {
+    fs.readdirSync(dir).forEach((f: string) => {
         let file = path.resolve(dir, f);
-        if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()){
+        if (fs.existsSync(file) && fs.lstatSync(file).isDirectory()) {
             arr.push(file);
         }
     });
@@ -56,7 +56,7 @@ gulp.task('bump', function () {
     return gulp.src('.');
 });
 
-gulp.task('dummy', function(){
+gulp.task('dummy', function () {
     return gulp.src('.');
 });
 
@@ -281,12 +281,12 @@ gulp.task('_api', function () {
         HAS_YAZ0: true,
         IS_MUPEN: true
     };
-    getAllFiles("./src", []).forEach((file: string)=>{
+    getAllFiles("./src", []).forEach((file: string) => {
         console.log(`Preprocess: ${file} -> ${path.resolve("./build", path.parse(file).base)}`);
         fs.writeFileSync(path.resolve("./build", path.parse(file).base), uprocess.processFile(file, defines));
     });
-    getAllFolders("./src", []).forEach((folder: string)=>{
-        getAllFiles(folder, []).forEach((file: string)=>{
+    getAllFolders("./src", []).forEach((folder: string) => {
+        getAllFiles(folder, []).forEach((file: string) => {
             let fuck = path.resolve(`./build/${path.parse(folder).name}`, path.parse(file).base);
             console.log(`Preprocess: ${file} -> ${fuck}`);
             fs.copySync(file, path.resolve(`./build/${path.parse(folder).name}`, path.parse(file).base));
@@ -310,13 +310,20 @@ gulp.task("api_link", function () {
 gulp.task("api", gulp.series(['_api', 'api_link']));
 
 gulp.task('player2', function () {
-    fs.copySync("./build", "./build2");
     if (fs.existsSync("./build2/ModLoader64-config.json")) {
         let config = JSON.parse(fs.readFileSync("./build2/ModLoader64-config.json", 'utf8'));
         config.ModLoader64.isServer = false;
         config["NetworkEngine.Client"].nickname = "Test";
         fs.writeFileSync("./build2/ModLoader64-config.json", JSON.stringify(config));
     }
+    fs.copySync("./build", "./build2", {
+        filter: (src: string, dest: string) => {
+            if (src.indexOf("roms") > -1) {
+                return false;
+            }
+            return true;
+        }
+    });
     return gulp.src('.');
 });
 
