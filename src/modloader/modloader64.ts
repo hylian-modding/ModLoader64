@@ -9,7 +9,6 @@ import {
     ModLoaderEvents,
 } from 'modloader64_api/IModLoaderAPI';
 import IModLoaderConfig from './IModLoaderConfig';
-import NetworkEngine from './NetworkEngine';
 import IMemory from 'modloader64_api/IMemory';
 import IConsole from 'modloader64_api/IConsole';
 import { bus, EventBus } from 'modloader64_api/EventHandler';
@@ -36,6 +35,7 @@ import { ExternalAPIData } from 'API/build/ExternalAPIProvider';
 import ConsoleManager from './ConsoleManager';
 import { MupenDescriptor } from './consoles/mupen/MupenDescriptor';
 import { ProxySide } from 'modloader64_api/SidedProxy/SidedProxy';
+import { NetworkEngine2_Client, NetworkEngine2_Server } from './networking/NetworkEngine2';
 
 export const internal_event_bus = new EventBus();
 
@@ -54,8 +54,8 @@ class ModLoader64 {
     rom_folder = './roms';
     mods_folder = './mods';
     roms: string[];
-    Server: NetworkEngine.Server;
-    Client: NetworkEngine.Client;
+    Server: NetworkEngine2_Server;
+    Client: NetworkEngine2_Client;
     RPC: ModLoaderRPC;
     rom_path!: string;
     emulator!: IConsole;
@@ -90,8 +90,8 @@ class ModLoader64 {
             this.config,
             this.logger.getLogger("PluginLoader")
         );
-        this.Server = new NetworkEngine.Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
-        this.Client = new NetworkEngine.Client(this.logger.getLogger("NetworkEngine.Client"), this.config, discord);
+        this.Server = new NetworkEngine2_Server(this.logger.getLogger("NetworkEngine.Server"), this.config);
+        this.Client = new NetworkEngine2_Client(this.logger.getLogger("NetworkEngine.Client"), this.config, discord);
         this.RPC = new ModLoaderRPC();
 
         if (process.platform === 'win32') {

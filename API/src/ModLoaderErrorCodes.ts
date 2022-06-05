@@ -8,5 +8,6 @@ export const enum ModLoaderErrorCodes {
   EMULATOR_CORE_FAILURE,
   BAD_LOBBY_PASSWORD,
   ML_CORE_REFUSED_ROM,
-  MISSING_CORE
+  MISSING_CORE,
+  BAD_URL
 }

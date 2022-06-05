@@ -1,3 +1,8 @@
+/**
+ * This version of the networking is deprecated.
+ * See NetworkEngine2.ts
+ */
+
 import {
     ILogger,
     IConfig,
@@ -12,7 +17,6 @@ import {
     EventsClient,
     EventServerJoined,
     EventServerLeft,
-    EventBus,
     EventOwnerChanged,
 } from 'modloader64_api/EventHandler';
 import {
@@ -39,145 +43,25 @@ import {
     Packet,
     UDPPacket,
 } from 'modloader64_api/ModLoaderDefaultImpls';
-import IModLoaderConfig from './IModLoaderConfig';
+import IModLoaderConfig from '../IModLoaderConfig';
 import fs from 'fs';
-import { internal_event_bus } from './modloader64';
+import { internal_event_bus } from '../modloader64';
 import zlib from 'zlib';
 import dgram, { Socket, RemoteInfo } from 'dgram';
 import { AddressInfo } from 'net';
 import path from 'path';
 import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
-import { ML_UUID } from './uuid/mluuid';
-import { getAllFiles } from './getAllFiles';
-import { IClientConfig } from './IClientConfig';
-import { IServerConfig } from './IServerConfig';
+import { ML_UUID } from '../uuid/mluuid';
+import { getAllFiles } from '../getAllFiles';
+import { IClientConfig } from '../IClientConfig';
+import { IServerConfig } from '../IServerConfig';
+import { FakeNetworkPlayer } from './FakeNetworkPlayer';
+import { getLobbyStorage_event, LobbyStorage, LobbyJoin } from './LobbyObjects';
+import { NetworkingEventBusServer } from './NetworkingEventBus';
+import { PingPacket, PongPacket, LatencyInfoPacket, UDPModeOffPacket, UDPModeOnPacket, UDPTestPacket, VersionPacket } from './NetworkingPackets';
 
 let natUpnp = require('nat-upnp');
 let natUpnp_client = natUpnp.createClient();
-const NetworkingEventBus: EventBus = new EventBus();
-
-class LobbyStorage implements ILobbyStorage {
-    config: LobbyData;
-    owner: INetworkPlayer;
-    players: INetworkPlayer[];
-    data: any;
-
-    constructor(config: LobbyData, owner: INetworkPlayer) {
-        this.config = config;
-        this.owner = owner;
-        this.data = {};
-        this.players = [];
-        this.players.push(owner);
-    }
-}
-
-class LobbyJoin {
-    lobbyData: LobbyData;
-    player: INetworkPlayer;
-
-    constructor(lobbyData: LobbyData, player: INetworkPlayer) {
-        this.lobbyData = lobbyData;
-        this.player = player;
-    }
-}
-
-class FakeNetworkPlayer implements INetworkPlayer {
-    nickname: string;
-    uuid!: string;
-    data: any = {};
-
-    constructor() {
-        this.nickname = 'FakeNetworkPlayer';
-        this.uuid = ML_UUID.getUUID();
-    }
-}
-
-export class createLobbyStorage_event {
-    lobbyName: string;
-    plugin: IPlugin;
-    obj: any;
-
-    constructor(lobbyName: string, plugin: IPlugin, obj: any) {
-        this.lobbyName = lobbyName;
-        this.plugin = plugin;
-        this.obj = obj;
-    }
-}
-
-export class getLobbyStorage_event {
-    lobbyName: string;
-    plugin: IPlugin;
-    obj: any;
-
-    constructor(lobbyName: string, plugin: IPlugin) {
-        this.lobbyName = lobbyName;
-        this.plugin = plugin;
-    }
-}
-
-export class LobbyManagerAbstract implements ILobbyManager {
-    getLobbyStorage(lobbyName: string, plugin: IPlugin) {
-        let evt: getLobbyStorage_event = new getLobbyStorage_event(
-            lobbyName,
-            plugin
-        );
-        NetworkingEventBus.emit('getLobbyStorage', evt);
-        return evt.obj;
-    }
-
-    createLobbyStorage(lobbyName: string, plugin: IPlugin, obj: any): void {
-        NetworkingEventBus.emit(
-            'createLobbyStorage',
-            new createLobbyStorage_event(lobbyName, plugin, obj)
-        );
-    }
-
-    getAllLobbies(): any {
-        let evt = { r: {} };
-        NetworkingEventBus.emit('getAllLobbies', evt);
-        return evt.r;
-    }
-}
-
-export class PingPacket extends UDPPacket {
-    timestamp: number = Date.now();
-
-    constructor(lobby: string) {
-        super('PingPacket', 'CORE', lobby, false);
-    }
-
-    setType(type: SocketType): PingPacket {
-        this.socketType = type;
-        return this;
-    }
-}
-
-export class PongPacket extends UDPPacket {
-    serverTime: number;
-    timestamp: number = Date.now();
-
-    constructor(serverTime: number, lobby: string) {
-        super('PongPacket', 'CORE', lobby, false);
-        this.serverTime = serverTime;
-    }
-
-    setType(type: SocketType): PingPacket {
-        this.socketType = type;
-        return this;
-    }
-}
-
-export class LatencyInfoPacket extends Packet {
-    ping: number;
-    roundtrip: number;
-
-    constructor(lobby: string, ping: number, roundtrip: number) {
-        super('LatencyInfoPacket', 'CORE', lobby, false);
-        this.ping = ping;
-        this.roundtrip = roundtrip;
-    }
-}
-
 namespace NetworkEngine {
     export class Server implements ILobbyManager {
         io: any;
@@ -215,18 +99,18 @@ namespace NetworkEngine {
                 }
             });
 
-            NetworkingEventBus.on('getLobbyStorage', (evt: getLobbyStorage_event) => {
+            NetworkingEventBusServer.on('getLobbyStorage', (evt: getLobbyStorage_event) => {
                 evt.obj = this.getLobbyStorage(evt.lobbyName, evt.plugin);
             });
 
-            NetworkingEventBus.on(
+            NetworkingEventBusServer.on(
                 'createLobbyStorage',
                 (evt: getLobbyStorage_event) => {
                     this.createLobbyStorage(evt.lobbyName, evt.plugin, evt.obj);
                 }
             );
 
-            NetworkingEventBus.on('getAllLobbies', (evt: any) => {
+            NetworkingEventBusServer.on('getAllLobbies', (evt: any) => {
                 evt["r"] = this.getAllLobbies();
             });
 
@@ -668,38 +552,6 @@ namespace NetworkEngine {
                     );
                 });
             })(this);
-        }
-    }
-
-    class UDPTestPacket extends UDPPacket {
-        constructor() {
-            super('UDPTestPacket', 'ModLoader64', 'TEST_LOBBY_PLEASE_IGNORE', false);
-        }
-    }
-
-    class VersionPacket {
-        ml: string;
-        plugins: any;
-        core: string;
-        discord: string;
-
-        constructor(ml: string, plugins: any, core: string, discord: string) {
-            this.ml = ml;
-            this.plugins = plugins;
-            this.core = core;
-            this.discord = discord;
-        }
-    }
-
-    class UDPModeOnPacket extends UDPPacket {
-        constructor(lobby: string) {
-            super('UDPModeOnPacket', 'CORE', lobby, false);
-        }
-    }
-
-    class UDPModeOffPacket extends Packet {
-        constructor(lobby: string) {
-            super('UDPModeOffPacket', 'CORE', lobby, false);
         }
     }
 

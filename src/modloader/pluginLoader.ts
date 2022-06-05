@@ -31,7 +31,7 @@ import IModLoaderConfig from './IModLoaderConfig';
 import IUtils from 'modloader64_api/IUtils';
 import { setupCoreInject } from 'modloader64_api/CoreInjection';
 import { IRomHeader } from 'modloader64_api/IRomHeader';
-import NetworkEngine, { LobbyManagerAbstract } from './NetworkEngine';
+import { LobbyManager } from "./networking/LobbyManager";
 import { Pak, PakFooter } from 'modloader64_api/PakFormat';
 import crypto from 'crypto';
 import { GUIAPI } from 'modloader64_api/GUITunnel';
@@ -56,6 +56,7 @@ import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 import { AnalyticsManager } from '../analytics/AnalyticsManager';
 import { setupBindVar } from 'modloader64_api/BindVar';
 import { Heap } from 'modloader64_api/heap';
+import { NetworkEngine2_Client } from './networking/NetworkEngine2';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -589,7 +590,7 @@ class pluginLoader {
         Object.freeze(utils);
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
-        let lma: LobbyManagerAbstract = Object.freeze(new LobbyManagerAbstract());
+        let lma: LobbyManager = Object.freeze(new LobbyManager());
         let rom: IRomMemory = Object.freeze(iconsole.getRomAccess());
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
@@ -664,7 +665,7 @@ class pluginLoader {
     loadPluginsInit(
         me: INetworkPlayer,
         iconsole: IConsole,
-        net: NetworkEngine.Client
+        net: NetworkEngine2_Client
     ) {
         this.resetPlayerInstance(me);
         this.loaded_core.init();
