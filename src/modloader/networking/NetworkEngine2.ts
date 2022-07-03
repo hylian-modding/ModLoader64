@@ -780,7 +780,7 @@ export class NetworkEngine2_Client {
         });
         NetworkEngine2_ClientEventComponents.NetworkSendBusClient_Targets.forEach((entry: { key: string, prop: string }) => {
             let fn: () => void = (this as any)[entry.prop];
-            NetworkSendBusServer.on(entry.key, fn.bind(this));
+            NetworkSendBus.on(entry.key, fn.bind(this));
         });
         NetworkEngine2_ClientEventComponents.protocolClient_Targets.forEach((entry: { key: string, prop: string }) => {
             let fn: () => void = (this as any)[entry.prop];
