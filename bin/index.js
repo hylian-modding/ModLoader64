@@ -196,8 +196,12 @@ function install(url) {
     else {
         child_process_1.default.execSync(`git clone ${url} ${dir}`);
         process.chdir(`./${dir}`);
-        child_process_1.default.execSync("modloader64 -ncbd");
+        try {
+            child_process_1.default.execSync("modloader64 -ncbd");
+        }
+        catch (err) { }
         child_process_1.default.execSync("yarn");
+        child_process_1.default.execSync("modloader64 -cbd");
         process.chdir("./build");
         process.chdir("./cores");
         let dir_to_link = ".";
@@ -216,7 +220,14 @@ function install(url) {
         child_process_1.default.execSync(`yarn link ${dir}`);
     }
     process.chdir(original_dir);
-    child_process_1.default.execSync(`yarn link ${dir}`);
+    try {
+        child_process_1.default.execSync(`yarn link ${dir}`);
+    }
+    catch (err) {
+        if (err) {
+            console.error("failed to create symlink");
+        }
+    }
 }
 if (!WAITING_ON_EXTERNAL) {
     if (commander_1.default.rebuildsdk) {

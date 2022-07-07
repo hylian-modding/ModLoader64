@@ -219,7 +219,13 @@ function install(url: string) {
         child_process.execSync(`yarn link ${dir}`);
     }
     process.chdir(original_dir);
-    child_process.execSync(`yarn link ${dir}`);
+    try{
+        child_process.execSync(`yarn link ${dir}`);
+    }catch(err){
+        if (err){
+            console.error("failed to create symlink");
+        }
+    }
 }
 
 if (!WAITING_ON_EXTERNAL) {
