@@ -79,10 +79,10 @@ let tsconfig;
 if (fs_1.default.existsSync(tsconfig_path)) {
     tsconfig = JSON.parse(stripJsonComments(fs_1.default.readFileSync(tsconfig_path).toString()));
 }
-const MOD_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/mods.json";
-const CORE_REPO_URL = "https://nexus.inpureprojects.info/ModLoader64/repo/cores.json";
-const GUI_SDK_URL = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/win-ia32-unpacked.pak";
-const GUI_SDK_URL_UNIX = "https://nexus.inpureprojects.info/ModLoader64/launcher/sdk/linux-unpacked.pak";
+const MOD_REPO_URL = "https://repo.modloader64.com/repo/mods.json";
+const CORE_REPO_URL = "https://repo.modloader64.com/repo/cores.json";
+const GUI_SDK_URL = "https://repo.modloader64.com/launcher/sdk/win-ia32-unpacked.pak";
+const GUI_SDK_URL_UNIX = "https://repo.modloader64.com/launcher/sdk/linux-unpacked.pak";
 // I'm legit just wrapping curl right here... its built into win10 these days should be ok.
 function getFileContents(url) {
     return child_process_1.default.execFileSync('curl', ['--silent', '-L', url], { encoding: 'utf8' });
