@@ -11,7 +11,7 @@ import { internal_event_bus } from "../modloader64";
 import { ML_UUID } from "../uuid/mluuid";
 import { FakeNetworkPlayer } from "./FakeNetworkPlayer";
 import dgram, { Socket, RemoteInfo } from 'dgram';
-import { LobbyData, INetworkPlayer, ILobbyStorage, IPacketHeader, IToPlayer, NetworkBusServer, NetworkQueryBusServer, NetworkSendBusServer, SocketType, NetworkChannelBusServer, NetworkEventBus, NetworkBus, NetworkChannelBus, NetworkSendBus, IConnectionCheckEvt } from "modloader64_api/NetworkHandler";
+import { LobbyData, INetworkPlayer, ILobbyStorage, IPacketHeader, IToPlayer, NetworkBusServer, NetworkQueryBusServer, NetworkSendBusServer, SocketType, NetworkChannelBusServer, NetworkEventBus, NetworkBus, NetworkChannelBus, NetworkSendBus, IConnectionCheckEvt, NetworkQueryBus } from "modloader64_api/NetworkHandler";
 import { getLobbyStorage_event, LobbyJoin, LobbyStorage } from "./LobbyObjects";
 import { bus, EventsServer, EventOwnerChanged, EventServerJoined, EventServerLeft, EventsClient } from "modloader64_api/EventHandler";
 import { NetworkPlayer, UDPPacket } from "modloader64_api/ModLoaderDefaultImpls";
@@ -694,7 +694,7 @@ export class NetworkEngine2_Client {
             this.plugins[p.name] = { version: p.version, hash: args[0].hash };
             if (typeof args[0].instance.getServerURL === "function" && !this.config.forceServerOverride && !this.pluginConfiguredConnection && !this.config.isSinglePlayer) {
                 this.logger.info("Using plugin server configuration: " + p.name + ".");
-                let server_connection_setup: IPluginServerConfig = args[0].thisance as IPluginServerConfig;
+                let server_connection_setup: IPluginServerConfig = args[0].instance as IPluginServerConfig;
                 this.config.ip = server_connection_setup.getServerURL().split(":")[0];
                 this.config.port = parseInt(server_connection_setup.getServerURL().split(":")[1]);
                 this.pluginConfiguredConnection = true;
@@ -772,11 +772,11 @@ export class NetworkEngine2_Client {
 
         NetworkEngine2_ClientEventComponents.NetworkBusClient_Targets.forEach((entry: { key: string, prop: string }) => {
             let fn: () => void = (this as any)[entry.prop];
-            NetworkBusServer.on(entry.key, fn.bind(this));
+            NetworkBus.on(entry.key, fn.bind(this));
         });
         NetworkEngine2_ClientEventComponents.NetworkQueryBusClient_Targets.forEach((entry: { key: string, prop: string }) => {
             let fn: () => void = (this as any)[entry.prop];
-            NetworkQueryBusServer.on(entry.key, fn.bind(this));
+            NetworkQueryBus.on(entry.key, fn.bind(this));
         });
         NetworkEngine2_ClientEventComponents.NetworkSendBusClient_Targets.forEach((entry: { key: string, prop: string }) => {
             let fn: () => void = (this as any)[entry.prop];
