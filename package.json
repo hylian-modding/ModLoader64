@@ -39,7 +39,7 @@
     "fs-extra": "^8.1.0",
     "graceful-fs": "^4.2.6",
     "jsonfile": "^6.1.0",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "lzma": "^2.3.2",
     "mkdir-recursive": "^0.4.0",
     "module-alias": "^2.2.2",
