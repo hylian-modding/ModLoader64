@@ -363,6 +363,41 @@ export class NetworkEngine2_Server implements Networking {
             const address = this.udpServer.address() as AddressInfo;
             this.logger.info(`UDP socket listening ${address.address}:${address.port}`);
         });
+
+        setInterval(() => {
+            let rm: Array<string> = [];
+            let lobbies: any = {};
+            for (let i = 0; i < this.lobby_names.length; i++) {
+                if (this.getLobbyStorage_internal(this.lobby_names[i]) !== null) {
+                    if (this.getLobbies()[this.lobby_names[i]] !== undefined) {
+                        lobbies[this.lobby_names[i]] = Object.keys(this.getLobbies()[this.lobby_names[i]]['sockets']).length;
+                    } else {
+                        rm.push(this.lobby_names[i]);
+                    }
+                } else {
+                    rm.push(this.lobby_names[i]);
+                }
+            }
+            if (rm.length > 0) {
+                for (let i = 0; i < rm.length; i++) {
+                    let index = this.lobby_names.indexOf(rm[i]);
+                    let name = this.lobby_names.splice(index, 1)[0].trim();
+                    this.logger.info("lobby " + name + " terminated.");
+                    bus.emit(EventsServer.ON_LOBBY_DESTROY, name);
+                    delete this.lobbyStorage[name];
+                }
+            }
+            fs.writeFile("./lobbies.json", JSON.stringify(lobbies), () => { });
+
+            Object.keys(this.io.sockets.sockets).forEach((player: string) => {
+                let rinfo = this.getPlayerRinfo(player);
+                if (rinfo !== undefined) {
+                    this.udpServer.send(JSON.stringify(new PingPacket(player)), rinfo.port, rinfo.address);
+                } else {
+                    this.sendToTarget(player, 'msg', new PingPacket(player).setType(SocketType.TCP));
+                }
+            });
+        }, 60 * 1000);
     }
 
     /**
