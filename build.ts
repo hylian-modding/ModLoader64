@@ -4,6 +4,13 @@ import child_process from 'child_process';
 import fetch from 'node-fetch';
 import AdmZip from 'adm-zip';
 import path from 'path';
+import crypto from 'crypto';
+
+function hash(file: string) {
+    let buf = fs.readFileSync(file);
+    let hash = crypto.createHash('md5').update(buf).digest().toString('hex');
+    return hash;
+}
 
 async function downloadWindowsDeps() {
     console.log("Getting windows client files from github...")
@@ -33,7 +40,7 @@ async function doBuild(pak: string, out: string) {
     let zip = new AdmZip();
     zip.addLocalFile(out);
     zip.writeZip(`./${path.parse(out).name}.zip`);
-    fs.writeFileSync(`./${path.parse(out).name}.md5`, child_process.execSync(`md5 -i ${path.resolve(`./${path.parse(out).name}.zip`)}`).toString().trim());
+    fs.writeFileSync(`./${path.parse(out).name}.md5`, hash(`./${path.parse(out).name}.zip`));
     fs.removeSync("./client");
 }
 
