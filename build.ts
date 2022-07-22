@@ -13,7 +13,7 @@ async function downloadWindowsDeps() {
 
 async function downloadLinuxDeps() {
     console.log("Getting linux client files from github...")
-    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/linux/emulator.pak");
+    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Linux/emulator.pak");
     fs.writeFileSync("./linux.pak", await pak.buffer());
 }
 
@@ -26,21 +26,20 @@ async function doBuild(pak: string, out: string) {
         fs.mkdirSync("./client/node_modules");
     }
     fs.copySync("./node_modules", "./client/node_modules", { dereference: true, recursive: true });
-    asar.createPackage("./client/node_modules", "./client/node_modules.asar").then(() => {
-        asar.createPackage("./build", "./client/modloader64.asar").then(() => {
-            fs.removeSync("./client/node_modules");
-            asar.createPackage("./client", out).then(() => {
-                let zip = new AdmZip();
-                zip.addLocalFile(out);
-                zip.writeZip(`./${path.parse(out).name}.zip`);
-                fs.writeFileSync(`./${path.parse(out).name}.md5`, child_process.execSync(`md5 -i ${path.resolve(`./${path.parse(out).name}.zip`)}`).toString().trim());
-            });
-        });
-    });
+    await asar.createPackage("./client/node_modules", "./client/node_modules.asar");
+    await asar.createPackage("./build", "./client/modloader64.asar");
+    fs.removeSync("./client/node_modules");
+    await asar.createPackage("./client", out);
+    let zip = new AdmZip();
+    zip.addLocalFile(out);
+    zip.writeZip(`./${path.parse(out).name}.zip`);
+    fs.writeFileSync(`./${path.parse(out).name}.md5`, child_process.execSync(`md5 -i ${path.resolve(`./${path.parse(out).name}.zip`)}`).toString().trim());
     fs.removeSync("./client");
 }
 
-downloadWindowsDeps();
-downloadLinuxDeps();
-doBuild("./windows.pak", "./windows.asar");
-doBuild("./linux.pak", "./linux.asar");
+(async () => {
+    await downloadWindowsDeps();
+    await downloadLinuxDeps();
+    await doBuild("./windows.pak", "./windows.asar");
+    await doBuild("./linux.pak", "./linux.asar");
+})();

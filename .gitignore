@@ -9,3 +9,11 @@ mods/
 client.asar
 emulator.pak
 privateKey.pem
+linux.asar
+linux.md5
+linux.pak
+linux.zip
+windows.asar
+windows.md5
+windows.pak
+windows.zip
