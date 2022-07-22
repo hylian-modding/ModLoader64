@@ -15,12 +15,12 @@ const key: string = `${platform}${arch}`;
 
 async function downloadWindowsDeps() {
     console.log("Getting client files from github...")
-    //let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Windows64/emulator.pak");
-    //fs.writeFileSync("./emulator.pak", await pak.buffer());
+    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Windows64/emulator.pak");
+    fs.writeFileSync("./emulator.pak", await pak.buffer());
     if (!fs.existsSync("./client")) {
         fs.mkdirSync("./client");
     }
-    //child_process.execSync(`paker -i ./emulator.pak -o ./client`);
+    child_process.execSync(`paker -i ./emulator.pak -o ./client`);
     if (!fs.existsSync("./client/node_modules")) {
         fs.mkdirSync("./client/node_modules");
     }
