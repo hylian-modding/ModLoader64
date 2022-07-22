@@ -22,8 +22,8 @@ import { ModLoaderErrorCodes } from 'modloader64_api/ModLoaderErrorCodes';
 import { Debugger, DebuggerEvents, RunState } from 'modloader64_api/Sylvain/Debugger';
 import moduleAlias from 'module-alias';
 import slash from 'slash';
-import IModLoaderConfig from 'src/modloader/IModLoaderConfig';
-import { IHiResTexture } from 'API/build/IHiResTexture';
+import IModLoaderConfig from '../../IModLoaderConfig';
+import { IHiResTexture } from 'modloader64_api/IHiResTexture';
 import { MupenMonkeyPatches } from '../../../monkeypatches/Mupen';
 import DynarecWrapper from './DynarecWrapper';
 

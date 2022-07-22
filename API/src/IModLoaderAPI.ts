@@ -11,7 +11,6 @@ import { IImGui } from './Sylvain/ImGui';
 import { SDL } from './Sylvain/SDL';
 import { Gfx } from './Sylvain/Gfx';
 import { Input } from './Sylvain/Input';
-import { IAnalyticsManager } from './analytics/IAnalyticsManager';
 import { Debugger } from './Sylvain/Debugger';
 import { Heap } from './heap';
 import { EventBus } from './EventHandler';
@@ -63,7 +62,6 @@ export interface IModLoaderAPI {
   isServer: boolean;
   sound: ISoundSystem;
   isModLoaded(modid: string): boolean;
-  analytics: IAnalyticsManager;
   heap: Heap | undefined;
   gfx_heap: Heap | undefined;
   publicBus: EventBus;
@@ -71,41 +69,29 @@ export interface IModLoaderAPI {
   hires_texture_management: IHiResTexture;
 }
 
-// #ifdef HAS_SAVESTATES
 export interface IModLoaderAPI {
   savestates: ISaveState;
 }
-// #endif
 
-// #ifdef HAS_IMGUI
 export interface IModLoaderAPI {
   ImGui: IImGui;
 }
-// #endif
 
-// #ifdef HAS_SDL
 export interface IModLoaderAPI {
   SDL: SDL;
 }
-// #endif
 
-// #ifdef HAS_GFX
 export interface IModLoaderAPI {
   Gfx: Gfx;
 }
-// #endif
 
-// #ifdef HAS_INPUT
 export interface IModLoaderAPI {
   Input: Input;
 }
-// #endif
 
-// #ifdef IS_MUPEN
 export interface IModLoaderAPI {
   debugger: Debugger;
 }
-// #endif
 
 export interface IPlugin {
   ModLoader: IModLoaderAPI;

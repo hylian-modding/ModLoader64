@@ -1,4 +1,4 @@
-import IDynarecCache from "API/build/IDynarecCache";
+import IDynarecCache from "modloader64_api/IDynarecCache";
 import { IMupen } from "./IMupen";
 
 export default class DynarecWrapper implements IDynarecCache{

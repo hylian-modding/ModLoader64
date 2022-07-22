@@ -3,7 +3,6 @@ import program from 'commander';
 import path from 'path';
 import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
-import { fork } from 'child_process';
 import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 
@@ -22,71 +21,6 @@ for (let i = 0; i < data.length; i++) {
 }
 const version = require('./version');
 
-global.ModLoader = {};
-global.ModLoader['version'] = version;
-
-program.option('-d, --dir <dir>', 'set directory');
-program.option('-u, --update', 'update mode');
-program.option("-m, --mods <dir>", "change mod folder");
-program.option("-r, --roms <dir>", "change rom folder");
-program.option("-c, --cores <dir>", "change core folder");
-program.option("-o, --config <file>, change config file");
-program.option("-s, --startdir <dir>", "the start dir for sdk usage");
-program.option("-l, --logginglevel <level>", "the logging level");
-program.option("-z, --devmode", "developer mode");
-program.option("-i, --discord <user>", "discord id");
-program.option("-w, --ScreenWidth <width>", "screen width");
-program.option("-h, --ScreenHeight <height>", "screen height");
-program.allowUnknownOption(true);
-program.parse(process.argv);
-
-if (program.mods) {
-    global.ModLoader["OVERRIDE_MODS_FOLDER"] = program.mods;
-}
-
-if (program.roms) {
-    global.ModLoader["OVERRIDE_ROMS_FOLDER"] = program.roms;
-}
-
-if (program.cores) {
-    global.ModLoader["OVERRIDE_CORES_FOLDER"] = program.cores;
-}
-
-if (program.config) {
-    global.ModLoader["OVERRIDE_CONFIG_FILE"] = program.config;
-}
-if (program.devmode) {
-    global.ModLoader["DEVFLAG"] = true;
-} else {
-    global.ModLoader["DEVFLAG"] = false;
-}
-let discord_id: string = "";
-if (program.discord) {
-    discord_id = program.discord;
-}
-
-if (program.dir) {
-    process.chdir(path.resolve(path.join(process.cwd(), program.dir)));
-}
-
-if (program.startdir) {
-    global.ModLoader["startdir"] = program.startdir;
-} else {
-    global.ModLoader['startdir'] = process.cwd();
-}
-
-if (program.ScreenWidth) {
-    global.ModLoader["ScreenWidth"] = parseInt(program.ScreenWidth);
-}
-
-if (program.ScreenHeight) {
-    global.ModLoader["ScreenHeight"] = parseInt(program.ScreenHeight);
-}
-
-if (fs.existsSync('./console.log')) {
-    fs.unlinkSync('./console.log');
-}
-
 const logger = getLogger("Core");
 
 const logConfig: any = {
@@ -102,25 +36,78 @@ console.log = (message?: any, ...optionalParams: any[]) => {
     logger_ovl.debug(message);
 };
 
-class dumb_logger {
-    setLevel(level: string) {
-    }
+global.ModLoader = {};
+global.ModLoader['version'] = version;
 
-    info(...msg: any) {
-        console.log(msg);
-    }
+console.log(process.argv);
 
-    error(...msg: any) {
-        console.log(msg);
-    }
+program.option('-d, --dir <dir>', 'set directory');
+program.option("-m, --mods <dir>", "change mod folder");
+program.option("-r, --roms <dir>", "change rom folder");
+program.option("-c, --cores <dir>", "change core folder");
+program.option("-o, --config <file>, change config file");
+program.option("-s, --startdir <dir>", "the start dir for sdk usage");
+program.option("-l, --logginglevel <level>", "the logging level");
+program.option("-i, --discord <user>", "discord id");
+program.option("-w, --ScreenWidth <width>", "screen width");
+program.option("-h, --ScreenHeight <height>", "screen height");
+program.allowUnknownOption(true);
+program.parse(process.argv);
+
+let opts = program.opts();
+
+console.log(opts);
+
+if (opts.mods) {
+    logger.debug(`Overriding mods folder: ${program.mods}`);
+    global.ModLoader["OVERRIDE_MODS_FOLDER"] = opts.mods;
+}
+
+if (opts.roms) {
+    global.ModLoader["OVERRIDE_ROMS_FOLDER"] = opts.roms;
+}
+
+if (opts.cores) {
+    global.ModLoader["OVERRIDE_CORES_FOLDER"] = opts.cores;
+}
+
+if (opts.config) {
+    global.ModLoader["OVERRIDE_CONFIG_FILE"] = opts.config;
+}
+
+let discord_id: string = "";
+if (program.discord) {
+    discord_id = program.discord;
+}
+
+if (opts.dir) {
+    process.chdir(path.resolve(path.join(process.cwd(), opts.dir)));
+}
+
+if (opts.startdir) {
+    global.ModLoader["startdir"] = opts.startdir;
+} else {
+    global.ModLoader['startdir'] = process.cwd();
+}
+
+if (opts.ScreenWidth) {
+    global.ModLoader["ScreenWidth"] = parseInt(opts.ScreenWidth);
+}
+
+if (opts.ScreenHeight) {
+    global.ModLoader["ScreenHeight"] = parseInt(opts.ScreenHeight);
+}
+
+if (fs.existsSync('./console.log')) {
+    fs.unlinkSync('./console.log');
 }
 
 if (fs.existsSync('../README.md')) {
     logger.level = ('all' as ILoggerLevels);
 }
 
-if (program.logginglevel !== undefined) {
-    logger.level = (program.logginglevel);
+if (opts.logginglevel !== undefined) {
+    logger.level = (opts.logginglevel);
 }
 
 logger.info(projectID);
@@ -169,21 +156,5 @@ if (global.ModLoader["OVERRIDE_CONFIG_FILE"]) {
     global.ModLoader["FIRST_RUN"] = !fs.existsSync(global.ModLoader["OVERRIDE_CONFIG_FILE"]);
 }
 
-setInterval(() => {
-    try {
-        global.gc();
-    } catch (err: any) { }
-}, 60 * 1000);
-
-if (program.update) {
-    let updateProcess = fork(__dirname + '/updater/updateModLoader.js');
-    updateProcess.on('exit', (code: number, signal: string) => {
-        updateProcess = fork(__dirname + '/updater/updatePlugins.js');
-        updateProcess.on('exit', (code: number, signal: string) => {
-            process.exit();
-        });
-    });
-} else {
-    const instance = new modloader64(new logwrapper(logger), discord_id);
-    instance.start();
-}
+const instance = new modloader64(new logwrapper(logger), discord_id);
+instance.start();

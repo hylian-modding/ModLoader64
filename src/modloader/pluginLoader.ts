@@ -41,7 +41,7 @@ import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
 import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
-import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
+import { ModLoaderConstructorBus, setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -53,7 +53,6 @@ import zip from 'adm-zip';
 import { SoundSystem } from './AudioAPI/API/SoundSystem';
 import { FakeSoundImpl } from 'modloader64_api/Sound/ISoundSystem';
 import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
-import { AnalyticsManager } from '../analytics/AnalyticsManager';
 import { setupBindVar } from 'modloader64_api/BindVar';
 import { Heap } from 'modloader64_api/heap';
 import { NetworkEngine2_Client } from './networking/NetworkEngine2';
@@ -132,6 +131,7 @@ class pluginLoader {
         lifecyclebus.on(LifeCycleEvents.ONCREATERESOURCES, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.push(handler);
         });
+
     }
 
     registerCorePlugin(name: string, core: any) {
@@ -184,6 +184,7 @@ class pluginLoader {
         setupLifecycle(plugin);
         Object.keys(plugin).forEach((key: string) => {
             if (plugin[key] !== null && plugin[key] !== undefined) {
+                if (plugin[key] === plugin) return;
                 setupParentReference((plugin as any)[key], plugin);
                 setupMLInjects((plugin as any)[key], plugin.ModLoader);
                 setupCoreInject((plugin as any)[key], this.loaded_core);
@@ -206,6 +207,7 @@ class pluginLoader {
             setupLifecycle(instance);
             Object.keys(instance).forEach((key: string) => {
                 if (instance[key] !== null && instance[key] !== undefined) {
+                    if ((instance as any)[key] === instance) return;
                     setupParentReference((instance as any)[key], parent);
                     setupMLInjects((instance as any)[key], plugin.ModLoader);
                     setupCoreInject((instance as any)[key], this.loaded_core);
@@ -264,7 +266,7 @@ class pluginLoader {
             f.generateHash(zipFile.toBuffer());
             hash = f._hash;
         }
-        if (!fs.lstatSync(path.resolve(dir)).isDirectory()) {
+        if (!fs.lstatSync(path.resolve(dir)).isDirectory() && !fs.lstatSync(path.resolve(dir)).isSymbolicLink()) {
             return;
         }
         let pkg_file: string = path.resolve(path.join(dir, 'package.json'));
@@ -352,6 +354,7 @@ class pluginLoader {
         setupBindVar(plugin, iconsole.getMemoryAccess());
         Object.keys(plugin).forEach((key: string) => {
             if (plugin[key] !== null && plugin[key] !== undefined) {
+                if (plugin[key] === plugin) return; // Don't do anything if its an instance of itself. @MegaMech.
                 setupParentReference((plugin as any)[key], plugin);
                 setupMLInjects((plugin as any)[key], plugin.ModLoader);
                 setupCoreInject((plugin as any)[key], this.loaded_core);
@@ -374,6 +377,7 @@ class pluginLoader {
             setupLifecycle(instance);
             Object.keys(instance).forEach((key: string) => {
                 if (instance[key] !== null && instance[key] !== undefined) {
+                    if ((instance as any)[key] === instance) return;
                     setupParentReference((instance as any)[key], parent);
                     setupMLInjects((instance as any)[key], plugin.ModLoader);
                     setupCoreInject((instance as any)[key], this.loaded_core);
@@ -439,6 +443,7 @@ class pluginLoader {
         markPrototypeProcessed(this.loaded_core);
         Object.keys(this.loaded_core).forEach((key: string) => {
             if ((this.loaded_core as any)[key] !== null && (this.loaded_core as any)[key] !== undefined) {
+                if ((this.loaded_core as any)[key] === this.loaded_core) return;
                 setupMLInjects((this.loaded_core as any)[key], this.loaded_core.ModLoader);
                 setupCoreInject((this.loaded_core as any)[key], this.loaded_core);
                 setupEventHandlers((this.loaded_core as any)[key], bus);
@@ -494,6 +499,15 @@ class pluginLoader {
             this.plugins.forEach((plugin: IPlugin) => {
                 plugin.ModLoader.me = evt.me;
             });
+        });
+
+        ModLoaderConstructorBus.on('give', (inst: any)=>{
+            inst["ModLoader"] = {};
+            Object.keys(this.loaded_core.ModLoader).forEach((key: string)=>{
+                inst["ModLoader"][key] = this.loaded_core.ModLoader[key];
+            });
+            inst['ModLoader']['logger'] = this.logger.getLogger(inst.constructor.name);
+            inst['ModLoader']['privateBus'] = new EventBus();
         });
     }
 
@@ -601,7 +615,6 @@ class pluginLoader {
         } else {
             ss = Object.freeze(new FakeSoundImpl());
         }
-        let analytics = Object.freeze(new AnalyticsManager());
         let debug = Object.freeze(iconsole.getDebuggerAccess());
         let hr = Object.freeze(iconsole.getHiResTextureAccess());
         try {
@@ -615,7 +628,6 @@ class pluginLoader {
             this.loaded_core.ModLoader.isServer = mlconfig.isServer;
             this.loaded_core.ModLoader.isModLoaded = fn;
             this.loaded_core.ModLoader.sound = ss;
-            this.loaded_core.ModLoader.analytics = analytics;
             this.loaded_core.ModLoader.debugger = debug;
             this.loaded_core.ModLoader.hires_texture_management = hr;
             this.loaded_core.preinit();
@@ -640,7 +652,6 @@ class pluginLoader {
             plugin.ModLoader.isServer = mlconfig.isServer;
             plugin.ModLoader.sound = ss;
             plugin.ModLoader.isModLoaded = fn;
-            plugin.ModLoader.analytics = analytics;
             plugin.ModLoader.debugger = debug;
             plugin.ModLoader.hires_texture_management = hr;
         });

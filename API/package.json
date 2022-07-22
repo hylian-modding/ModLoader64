@@ -2,11 +2,11 @@
   "name": "modloader64_api",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/index.js",
-  "scripts": {},
+  "main": "",
+  "scripts": {
+    "MLBuildScript": "./build.ts"
+  },
   "author": "Team-Ooto",
   "dependencies": {},
-  "devDependencies": {
-    "typescript": "^3.5.3"
-  }
+  "devDependencies": {}
 }

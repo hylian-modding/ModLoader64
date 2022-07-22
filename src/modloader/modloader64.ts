@@ -31,7 +31,7 @@ import { Cloudmax } from './Cloudmax';
 import { getAllFiles } from './getAllFiles';
 import { PakPatch } from './PakPatch';
 import { IClientConfig } from './IClientConfig';
-import { ExternalAPIData } from 'API/build/ExternalAPIProvider';
+import { ExternalAPIData } from 'modloader64_api/ExternalAPIProvider';
 import ConsoleManager from './ConsoleManager';
 import { MupenDescriptor } from './consoles/mupen/MupenDescriptor';
 import { ProxySide } from 'modloader64_api/SidedProxy/SidedProxy';

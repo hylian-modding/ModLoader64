@@ -129,7 +129,6 @@ export function onPostTick() {
     };
 }
 
-// #ifdef HAS_IMGUI
 export function onViUpdate() {
     return function (
         this: any,
@@ -175,7 +174,6 @@ export function onCreateResources() {
         target.ModLoader.Lifecycle.onCreateResources.set("onCreateResources", propertyKey);
     };
 }
-// #endif
 
 export function setupLifecycle(instance: any) {
     let p = Object.getPrototypeOf(instance);

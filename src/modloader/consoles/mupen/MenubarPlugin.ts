@@ -351,7 +351,8 @@ class BottomRightWidget {
         if (this.font === undefined) {
             try {
                 this.font = this.ModLoader.Gfx.createFont();
-                this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
+                fs.writeFileSync("./PolygonParty-3KXM.ttf", fs.readFileSync(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf")));
+                this.font.loadFromFile("./PolygonParty-3KXM.ttf", 30, 2);
                 this.ModLoader.logger.debug("Loading default font.");
             } catch (err: any) {
                 this.ModLoader.logger.error(err);
@@ -402,33 +403,6 @@ class BottomRightWidget {
     }
 }
 
-class AchievementWidget {
-
-    ModLoader: IModLoaderAPI;
-    font!: Font;
-    text!: string;
-
-    constructor(ModLoader: IModLoaderAPI) {
-        this.ModLoader = ModLoader;
-    }
-
-    loadResources() {
-        try {
-            this.font = this.ModLoader.Gfx.createFont();
-            this.font.loadFromFile(path.resolve(__dirname, "resources", "PolygonParty-3KXM.ttf"), 30, 2);
-            this.text = "Test";
-        } catch (err: any) {
-            this.ModLoader.logger.error(err);
-        }
-    }
-
-    onTick() {
-    }
-
-    update() {
-    }
-}
-
 class MenubarPlugin implements IPlugin {
     ModLoader!: IModLoaderAPI;
     Binding!: IConsole;
@@ -436,7 +410,6 @@ class MenubarPlugin implements IPlugin {
     menubar!: MenubarWidget;
     topNotifications!: TopBarWidget;
     bottomRight!: BottomRightWidget;
-    achievements!: AchievementWidget;
     texturePacks!: TexturePackManager;
     aspect: number_ref = [0];
     aspect_options = ['Stretch', 'Force 4:3', 'Force 16:9', 'Adjust'];
@@ -458,7 +431,6 @@ class MenubarPlugin implements IPlugin {
         this.menubar = new MenubarWidget(this.ModLoader);
         this.topNotifications = new TopBarWidget(this.ModLoader);
         this.bottomRight = new BottomRightWidget(this.ModLoader);
-        this.achievements = new AchievementWidget(this.ModLoader);
         this.texturePacks = new TexturePackManager(this.ModLoader);
     }
 
@@ -510,7 +482,6 @@ class MenubarPlugin implements IPlugin {
         this.texturePacks.post();
     }
     onTick(frame?: number | undefined): void {
-        this.achievements.onTick();
         this.menubar.onTick();
     }
 
@@ -542,13 +513,11 @@ class MenubarPlugin implements IPlugin {
     onViUpdate() {
         if (!this.resourcesLoaded) {
             this.bottomRight.loadResources();
-            this.achievements.loadResources();
             this.resourcesLoaded = true;
         }
         this.menubar.update();
         this.topNotifications.update();
         this.bottomRight.update();
-        this.achievements.update();
         this.texturePacks.update();
         if (this.ModLoader.ImGui.beginMainMenuBar()) {
             if (this.ModLoader.ImGui.beginMenu("Emulation")) {

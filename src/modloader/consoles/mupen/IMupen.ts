@@ -6,7 +6,7 @@ import { Gfx, Texture } from 'modloader64_api/Sylvain/Gfx';
 import { Input } from 'modloader64_api/Sylvain/Input';
 import { IYaz0 } from 'modloader64_api/Sylvain/Yaz0';
 import { Debugger } from 'modloader64_api/Sylvain/Debugger';
-import { IHiResTexture } from 'API/build/IHiResTexture';
+import { IHiResTexture } from 'modloader64_api/IHiResTexture';
 
 export interface IMupen {
     Frontend: IFrontend;

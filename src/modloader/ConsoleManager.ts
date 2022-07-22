@@ -1,5 +1,5 @@
-import { IConsoleDescriptor } from "API/build/IConsole";
-import { ILogger } from "API/build/IModLoaderAPI";
+import { IConsoleDescriptor } from "modloader64_api/IConsole";
+import { ILogger } from "modloader64_api/IModLoaderAPI";
 
 export default class ConsoleManager {
     private consoles: Map<string, IConsoleDescriptor> = new Map<string, IConsoleDescriptor>();

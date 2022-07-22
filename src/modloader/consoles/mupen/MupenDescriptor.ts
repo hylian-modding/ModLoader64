@@ -1,6 +1,6 @@
-import IConsole, { IConsoleDescriptor } from "API/build/IConsole";
+import IConsole, { IConsoleDescriptor } from "modloader64_api/IConsole";
 import { IConfig, ILogger } from "modloader64_api/IModLoaderAPI";
-import { ProxySide } from "API/build/SidedProxy/SidedProxy";
+import { ProxySide } from "modloader64_api/SidedProxy/SidedProxy";
 import { FakeMupen } from "./FakeMupen";
 import N64 from "./N64";
 

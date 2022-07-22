@@ -1,7 +1,8 @@
+import { EventBus } from "./EventHandler";
 import { IModLoaderAPI } from "./IModLoaderAPI";
 
 export function ModLoaderAPIInject() {
-    return function(target: any, key: string) {
+    return function (target: any, key: string) {
         if (target.ModLoader === undefined) {
             target['ModLoader'] = {};
         }
@@ -16,6 +17,23 @@ export function ModLoaderAPIInject() {
         }
         target.ModLoader.ModLoaderAPIInject.Targets.set(key, "yes");
     };
+}
+
+export const ModLoaderConstructorBus: EventBus = new EventBus();
+
+export function ModLoaderConstructorInjector(target: any) {
+
+    var original = target;
+
+    var f: any = function (...args) {
+        let inst = new original(...args);
+        ModLoaderConstructorBus.emit('give', inst);
+        return inst;
+    }
+
+    f.prototype = original.prototype;
+
+    return f;
 }
 
 export function setupMLInjects(instance: any, api: IModLoaderAPI) {

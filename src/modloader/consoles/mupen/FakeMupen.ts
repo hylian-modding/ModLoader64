@@ -14,7 +14,7 @@ import { FakeMemory, FakeRom } from 'modloader64_api/SidedProxy/FakeMemory';
 import { ILogger } from 'modloader64_api/IModLoaderAPI';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
 import path from 'path';
-import { IHiResTexture } from 'API/build/IHiResTexture';
+import { IHiResTexture } from 'modloader64_api/IHiResTexture';
 import fs from 'fs';
 
 export class FakeMupen implements IConsole {
