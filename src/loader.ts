@@ -59,7 +59,6 @@ let opts = program.opts();
 console.log(opts);
 
 if (opts.mods) {
-    logger.debug(`Overriding mods folder: ${program.mods}`);
     global.ModLoader["OVERRIDE_MODS_FOLDER"] = opts.mods;
 }
 

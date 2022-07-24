@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
 import {
     ILogger,
@@ -91,10 +91,11 @@ class pluginLoader {
         this.config = config;
         this.logger = logger;
         let cleanup: Function = function () {
+            console.log(`Trying cleanup in ${process.cwd()}...`);
             fs.readdirSync(process.cwd()).forEach((file: string) => {
                 let parse = path.parse(file);
                 if (parse.name.indexOf('ModLoader64_temp_') > -1) {
-                    fs.removeSync(file);
+                    fs.rmdirSync(path.resolve(process.cwd(), file), { recursive: true });
                 }
             });
         };
@@ -328,7 +329,15 @@ class pluginLoader {
                 p = p["default"];
             }
         } catch (err: any) { }
-        let plugin: any = new p();
+        let plugin: any = undefined;
+        try{
+            plugin = new p();
+        }catch(err){
+        }
+        if (plugin === undefined){
+            this.logger.error("Invalid plugin? Skipping.");
+            return;
+        }
         plugin['ModLoader'] = {} as IModLoaderAPI;
         plugin['ModLoader']['logger'] = this.logger.getLogger(parse.name);
         plugin['ModLoader']['config'] = this.config;
@@ -501,9 +510,9 @@ class pluginLoader {
             });
         });
 
-        ModLoaderConstructorBus.on('give', (inst: any)=>{
+        ModLoaderConstructorBus.on('give', (inst: any) => {
             inst["ModLoader"] = {};
-            Object.keys(this.loaded_core.ModLoader).forEach((key: string)=>{
+            Object.keys(this.loaded_core.ModLoader).forEach((key: string) => {
                 inst["ModLoader"][key] = this.loaded_core.ModLoader[key];
             });
             inst['ModLoader']['logger'] = this.logger.getLogger(inst.constructor.name);
@@ -904,7 +913,7 @@ class pluginLoader {
     }
 
     reinject(callback: Function) {
-        this.loaded_core.ModLoader.utils.setTimeoutFrames(()=>{
+        this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {
             this.heapSetup();
         }, 1);
         this.loaded_core.ModLoader.utils.setTimeoutFrames(() => {

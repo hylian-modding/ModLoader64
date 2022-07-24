@@ -29,6 +29,9 @@ async function doBuild(pak: string, out: string) {
         fs.mkdirSync("./client");
     }
     child_process.execSync(`paker -i ${pak} -o ./client`);
+    if (fs.existsSync("./client/node.exe")) {
+        fs.unlinkSync("./client/node.exe");
+    }
     if (!fs.existsSync("./client/node_modules")) {
         fs.mkdirSync("./client/node_modules");
     }
