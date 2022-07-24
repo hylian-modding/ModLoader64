@@ -12,6 +12,14 @@ function hash(file: string) {
     return hash;
 }
 
+function paker(pak: string) {
+    try {
+        child_process.execSync(`paker -i ${pak} -o ./client`);
+    } catch (err) {
+        child_process.execSync(`./paker -i ${pak} -o ./client`);
+    }
+}
+
 async function downloadWindowsDeps() {
     console.log("Getting windows client files from github...")
     let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Windows64/emulator.pak");
@@ -28,7 +36,7 @@ async function doBuild(pak: string, out: string) {
     if (!fs.existsSync("./client")) {
         fs.mkdirSync("./client");
     }
-    child_process.execSync(`paker -i ${pak} -o ./client`);
+    paker(pak);
     if (fs.existsSync("./client/node.exe")) {
         fs.unlinkSync("./client/node.exe");
     }
