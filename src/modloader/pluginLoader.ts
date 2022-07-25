@@ -267,6 +267,9 @@ class pluginLoader {
             f.generateHash(zipFile.toBuffer());
             hash = f._hash;
         }
+        if (parse.ext === ".asar" && global.ModLoader["ASAR_SUPPORT"]){
+            dir = path.resolve(dir);
+        }
         if (!fs.lstatSync(path.resolve(dir)).isDirectory() && !fs.lstatSync(path.resolve(dir)).isSymbolicLink()) {
             return;
         }

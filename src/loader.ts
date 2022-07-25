@@ -56,7 +56,10 @@ program.parse(process.argv);
 
 let opts = program.opts();
 
-console.log(opts);
+if (global.hasOwnProperty("MLASARSUPPORT")){
+    // The entry point was the SDK executable so ASAR loading is injected.
+    global.ModLoader["ASAR_SUPPORT"] = true;
+}
 
 if (opts.mods) {
     global.ModLoader["OVERRIDE_MODS_FOLDER"] = opts.mods;
