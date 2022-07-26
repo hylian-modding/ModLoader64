@@ -5,6 +5,7 @@ import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
 import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
+import { argv } from 'process';
 
 require('source-map-support').install();
 
@@ -23,9 +24,15 @@ const version = require('./version');
 
 const logger = getLogger("Core");
 
+const log_arr: string[] = ['ML64Core_stdout', 'ML64Core_file'];
+
+if (argv.indexOf("--forceclientmode") > -1) {
+    log_arr.pop();
+}
+
 const logConfig: any = {
     appenders: { ML64Core_stdout: { type: 'stdout' }, ML64Core_file: { type: 'file', filename: 'console.log' } },
-    categories: { default: { appenders: ['ML64Core_stdout', 'ML64Core_file'], level: 'all' } }
+    categories: { default: { appenders: log_arr, level: 'all' } }
 };
 
 configure(logConfig);
@@ -56,7 +63,7 @@ program.parse(process.argv);
 
 let opts = program.opts();
 
-if (global.hasOwnProperty("MLASARSUPPORT")){
+if (global.hasOwnProperty("MLASARSUPPORT")) {
     // The entry point was the SDK executable so ASAR loading is injected.
     global.ModLoader["ASAR_SUPPORT"] = true;
 }

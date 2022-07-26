@@ -102,7 +102,6 @@ class pluginLoader {
         internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
             cleanup();
         });
-        cleanup();
         this.lifecycle_funcs.set(LifeCycleEvents.PREINIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.INIT, []);
         this.lifecycle_funcs.set(LifeCycleEvents.POSTINIT, []);
