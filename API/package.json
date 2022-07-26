@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "postinstall": "npx tsc"
+    "postinstall": "../../tinytsc && ts-node ./build.ts"
   },
   "author": "Team-Ooto",
   "dependencies": {},
