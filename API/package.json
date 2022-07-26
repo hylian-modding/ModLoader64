@@ -4,7 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "MLBuildScript": "./build.ts"
+    "postinstall": "npx tsc"
   },
   "author": "Team-Ooto",
   "dependencies": {},

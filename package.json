@@ -4,8 +4,7 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
-    "postinstall": "npx patch-package",
-    "MLBuildScript": "./build.ts"
+    "postinstall": "npx patch-package && cd ./API && npx tsc && ts-node ./build.ts && cd .. && npx tsc && ts-node ./build.ts"
   },
   "bin": {},
   "author": "Team-Ooto",
