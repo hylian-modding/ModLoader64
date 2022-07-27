@@ -41,7 +41,7 @@ import { pakVerifier } from './pakVerifier';
 import moduleAlias from 'module-alias';
 import { IMath } from 'modloader64_api/math/IMath';
 import { Math } from './Math';
-import { ModLoaderConstructorBus, setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
+import { setupMLInjects } from 'modloader64_api/ModLoaderAPIInjector';
 import { setupLifecycle, LifeCycleEvents, lifecyclebus, setupLifecycle_IPlugin } from 'modloader64_api/PluginLifecycle';
 import { ML_UUID } from './uuid/mluuid';
 import { IRomMemory } from 'modloader64_api/IRomMemory';
@@ -98,6 +98,9 @@ class pluginLoader {
                     fs.rmdirSync(path.resolve(process.cwd(), file), { recursive: true });
                 }
             });
+            if (fs.existsSync(path.resolve(process.cwd(), "asarunpack"))) {
+                fs.rmdirSync(path.resolve(process.cwd(), "asarunpack"), { recursive: true });
+            }
         };
         internal_event_bus.on('SHUTDOWN_EVERYTHING', () => {
             cleanup();
@@ -131,7 +134,36 @@ class pluginLoader {
         lifecyclebus.on(LifeCycleEvents.ONCREATERESOURCES, (handler: Function) => {
             this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.push(handler);
         });
-
+        // reverse
+        lifecyclebus.on(LifeCycleEvents.PREINIT_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.PREINIT)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.INIT_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.INIT)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.POSTINIT_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.POSTINIT)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONTICK_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.indexOf(handler);
+            console.log(i);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.ONTICK)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONPOSTTICK_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.ONPOSTTICK)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONVIUPDATE_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.ONVIUPDATE)!.splice(i, 1);
+        });
+        lifecyclebus.on(LifeCycleEvents.ONCREATERESOURCES_DESTROY, (handler: Function) => {
+            let i = this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.indexOf(handler);
+            if (i > -1) this.lifecycle_funcs.get(LifeCycleEvents.ONCREATERESOURCES)!.splice(i, 1);
+        });
     }
 
     registerCorePlugin(name: string, core: any) {
@@ -266,7 +298,7 @@ class pluginLoader {
             f.generateHash(zipFile.toBuffer());
             hash = f._hash;
         }
-        if (parse.ext === ".asar" && global.ModLoader["ASAR_SUPPORT"]){
+        if (parse.ext === ".asar" && global.ModLoader["ASAR_SUPPORT"]) {
             dir = path.resolve(dir);
         }
         if (!fs.lstatSync(path.resolve(dir)).isDirectory() && !fs.lstatSync(path.resolve(dir)).isSymbolicLink()) {
@@ -312,6 +344,18 @@ class pluginLoader {
             return;
         }
 
+        if (pkg.hasOwnProperty("asarunpack")) {
+            if (!fs.existsSync(path.resolve(process.cwd(), "asarunpack"))) {
+                fs.mkdirSync(path.resolve(process.cwd(), "asarunpack"));
+            }
+            let unpack: string[] = pkg.asarunpack;
+            for (let i = 0; i < unpack.length; i++) {
+                let f = path.resolve(dir, unpack[i]);
+                if (fs.existsSync(f)) {
+                    fs.copyFileSync(f, path.resolve(process.cwd(), "asarunpack", path.parse(f).base));
+                }
+            }
+        }
         let file: string = path.resolve(path.join(dir, pkg.main));
 
         moduleAlias.addAlias("@" + pkg.name.replace(" ", "_"), path.resolve(dir));
@@ -332,11 +376,11 @@ class pluginLoader {
             }
         } catch (err: any) { }
         let plugin: any = undefined;
-        try{
+        try {
             plugin = new p();
-        }catch(err){
+        } catch (err) {
         }
-        if (plugin === undefined){
+        if (plugin === undefined) {
             this.logger.error("Invalid plugin? Skipping.");
             return;
         }
@@ -510,15 +554,6 @@ class pluginLoader {
             this.plugins.forEach((plugin: IPlugin) => {
                 plugin.ModLoader.me = evt.me;
             });
-        });
-
-        ModLoaderConstructorBus.on('give', (inst: any) => {
-            inst["ModLoader"] = {};
-            Object.keys(this.loaded_core.ModLoader).forEach((key: string) => {
-                inst["ModLoader"][key] = this.loaded_core.ModLoader[key];
-            });
-            inst['ModLoader']['logger'] = this.logger.getLogger(inst.constructor.name);
-            inst['ModLoader']['privateBus'] = new EventBus();
         });
     }
 

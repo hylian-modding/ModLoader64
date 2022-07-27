@@ -4,6 +4,15 @@ export class LifecycleEventBus extends EventEmitter { }
 
 export const lifecyclebus: LifecycleEventBus = new LifecycleEventBus();
 
+class LifecycleContainer {
+    key: string;
+    bound!: Function;
+
+    constructor(key: string) {
+        this.key = key;
+    }
+}
+
 export const enum LifeCycleEvents {
     PREINIT = "preinit",
     INIT = "init",
@@ -11,7 +20,15 @@ export const enum LifeCycleEvents {
     ONTICK = "ontick",
     ONPOSTTICK = 'onposttick',
     ONVIUPDATE = 'onviupdate',
-    ONCREATERESOURCES = 'oncreateresources'
+    ONCREATERESOURCES = 'oncreateresources',
+    // reverse
+    PREINIT_DESTROY = "preinit_destroy",
+    INIT_DESTROY = "init_destroy",
+    POSTINIT_DESTROY = "postinit_destroy",
+    ONTICK_DESTROY = "ontick_destroy",
+    ONPOSTTICK_DESTROY = "onposttick_destroy",
+    ONVIUPDATE_DESTROY = "onviupdate_destroy",
+    ONCREATERESOURCES_DESTROY = "oncreateresources_destroy"
 }
 
 export function Preinit() {
@@ -30,10 +47,10 @@ export function Preinit() {
         if (target.ModLoader.Lifecycle.Preinit === undefined) {
             target.ModLoader.Lifecycle['Preinit'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.Preinit.set("Preinit", propertyKey);
+        target.ModLoader.Lifecycle.Preinit.set("Preinit", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -53,10 +70,10 @@ export function Init() {
         if (target.ModLoader.Lifecycle.Init === undefined) {
             target.ModLoader.Lifecycle['Init'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.Init.set("Init", propertyKey);
+        target.ModLoader.Lifecycle.Init.set("Init", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -76,10 +93,10 @@ export function Postinit() {
         if (target.ModLoader.Lifecycle.Postinit === undefined) {
             target.ModLoader.Lifecycle['Postinit'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.Postinit.set("Postinit", propertyKey);
+        target.ModLoader.Lifecycle.Postinit.set("Postinit", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -99,10 +116,10 @@ export function onTick() {
         if (target.ModLoader.Lifecycle.onTick === undefined) {
             target.ModLoader.Lifecycle['onTick'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.onTick.set("onTick", propertyKey);
+        target.ModLoader.Lifecycle.onTick.set("onTick", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -122,10 +139,10 @@ export function onPostTick() {
         if (target.ModLoader.Lifecycle.onPostTick === undefined) {
             target.ModLoader.Lifecycle['onPostTick'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.onPostTick.set("onPostTick", propertyKey);
+        target.ModLoader.Lifecycle.onPostTick.set("onPostTick", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -145,10 +162,10 @@ export function onViUpdate() {
         if (target.ModLoader.Lifecycle.onViUpdate === undefined) {
             target.ModLoader.Lifecycle['onViUpdate'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.onViUpdate.set("onViUpdate", propertyKey);
+        target.ModLoader.Lifecycle.onViUpdate.set("onViUpdate", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -168,10 +185,10 @@ export function onCreateResources() {
         if (target.ModLoader.Lifecycle.onCreateResources === undefined) {
             target.ModLoader.Lifecycle['onCreateResources'] = new Map<
                 string,
-                string
+                LifecycleContainer
             >();
         }
-        target.ModLoader.Lifecycle.onCreateResources.set("onCreateResources", propertyKey);
+        target.ModLoader.Lifecycle.onCreateResources.set("onCreateResources", new LifecycleContainer(propertyKey));
     };
 }
 
@@ -183,45 +200,98 @@ export function setupLifecycle(instance: any) {
         }
         if (p.ModLoader.hasOwnProperty('Lifecycle')) {
             if (p.ModLoader.Lifecycle.hasOwnProperty("Preinit")) {
-                p.ModLoader.Lifecycle.Preinit.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.Preinit.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.PREINIT, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("Init")) {
-                p.ModLoader.Lifecycle.Init.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.Init.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.INIT, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("Postinit")) {
-                p.ModLoader.Lifecycle.Postinit.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.Postinit.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.POSTINIT, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onTick")) {
-                p.ModLoader.Lifecycle.onTick.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.onTick.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.ONTICK, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onPostTick")) {
-                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onViUpdate")) {
-                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE, a);
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onCreateResources")) {
-                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: string, key: string) {
-                    let a = (instance as any)[value].bind(instance);
+                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: LifecycleContainer, key: string) {
+                    let a = (instance as any)[value.key].bind(instance);
+                    value.bound = a;
                     lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES, a);
+                });
+            }
+        }
+    }
+}
+
+export function killLifecycle(instance: any) {
+    let p = Object.getPrototypeOf(instance);
+    if (p.hasOwnProperty('ModLoader')) {
+        if (p.ModLoader.hasOwnProperty("hasBeenProcessed")) {
+            delete p.ModLoader["hasBeenProcessed"];
+        }
+        if (p.ModLoader.hasOwnProperty('Lifecycle')) {
+            if (p.ModLoader.Lifecycle.hasOwnProperty("Preinit")) {
+                p.ModLoader.Lifecycle.Preinit.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.PREINIT_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("Init")) {
+                p.ModLoader.Lifecycle.Init.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.INIT_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("Postinit")) {
+                p.ModLoader.Lifecycle.Postinit.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.POSTINIT_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onTick")) {
+                p.ModLoader.Lifecycle.onTick.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.ONTICK_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onPostTick")) {
+                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onViUpdate")) {
+                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE_DESTROY, value.bound);
+                });
+            }
+            if (p.ModLoader.Lifecycle.hasOwnProperty("onCreateResources")) {
+                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: LifecycleContainer, key: string) {
+                    lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES_DESTROY, value.bound);
                 });
             }
         }
