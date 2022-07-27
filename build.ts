@@ -13,23 +13,19 @@ function hash(file: string) {
 }
 
 function paker(pak: string) {
-    try {
-        child_process.execSync(`paker -i ${pak} -o ./client`);
-    } catch (err) {
-        child_process.execSync(`./paker -i ${pak} -o ./client`);
-    }
+    asar.extractAll(pak, "./client");
 }
 
 async function downloadWindowsDeps() {
     console.log("Getting windows client files from github...")
-    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Windows64/emulator.pak");
-    fs.writeFileSync("./windows.pak", await pak.buffer());
+    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Windows64/Windows64.asar");
+    fs.writeFileSync("./windows_client.asar", await pak.buffer());
 }
 
 async function downloadLinuxDeps() {
     console.log("Getting linux client files from github...")
-    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Linux/emulator.pak");
-    fs.writeFileSync("./linux.pak", await pak.buffer());
+    let pak = await fetch("https://github.com/hylian-modding/ModLoader64-Platform-Deps/raw/master/Linux/Linux.asar");
+    fs.writeFileSync("./linux_client.asar", await pak.buffer());
 }
 
 async function doBuild(pak: string, out: string) {
@@ -58,6 +54,6 @@ async function doBuild(pak: string, out: string) {
 (async () => {
     await downloadWindowsDeps();
     await downloadLinuxDeps();
-    await doBuild("./windows.pak", "./windows.asar");
-    await doBuild("./linux.pak", "./linux.asar");
+    await doBuild("./windows_client.asar", "./windows.asar");
+    await doBuild("./linux_client.asar", "./linux.asar");
 })();

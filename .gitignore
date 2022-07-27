@@ -18,3 +18,5 @@ windows.md5
 windows.pak
 windows.zip
 modloader64.exe
+linux_client.asar
+windows_client.asar
