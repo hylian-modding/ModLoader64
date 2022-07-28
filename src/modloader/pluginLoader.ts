@@ -378,7 +378,8 @@ class pluginLoader {
         let plugin: any = undefined;
         try {
             plugin = new p();
-        } catch (err) {
+        } catch (err: any) {
+            this.logger.error(err);
         }
         if (plugin === undefined) {
             this.logger.error("Invalid plugin? Skipping.");
