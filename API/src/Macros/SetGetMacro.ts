@@ -27,7 +27,6 @@ const sPrimitiveTypeSizes: number[] = [
 ];
 
 function processMacros(instance: any) {
-    console.log(instance);
     let getFuncTable: any = {};
     let setFuncTable: any = {};
     let basePointer: number = 0;

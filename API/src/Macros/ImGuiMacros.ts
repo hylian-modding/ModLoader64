@@ -6,8 +6,6 @@ export function GenerateImGuiReferences() {
                 super(...args)
                 Object.setPrototypeOf(this, p);
                 let ref_string = "__ref_"
-                console.log(this);
-                console.log(Object.keys(this));
                 Object.keys(this).forEach((key: string) => {
                     if (key.startsWith(ref_string)) {
                         Object.defineProperty(this, key.substring(ref_string.length, key.length), {
