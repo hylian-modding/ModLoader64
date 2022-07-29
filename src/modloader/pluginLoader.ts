@@ -56,6 +56,7 @@ import { Emulator_Callbacks } from 'modloader64_api/Sylvain/ImGui';
 import { setupBindVar } from 'modloader64_api/BindVar';
 import { Heap } from 'modloader64_api/heap';
 import { NetworkEngine2_Client } from './networking/NetworkEngine2';
+import { SetupMemoryAccessors, SetupRomAccessors } from './drahsid/accessor';
 
 class pluginLoader {
     plugin_directories: string[];
@@ -652,7 +653,9 @@ class pluginLoader {
         let lobby: string = this.config.data['NetworkEngine.Client']['lobby'];
         Object.freeze(lobby);
         let lma: LobbyManager = Object.freeze(new LobbyManager());
-        let rom: IRomMemory = Object.freeze(iconsole.getRomAccess());
+        let rom: IRomMemory = Object.assign({}, iconsole.getRomAccess());
+        SetupRomAccessors(rom);
+        rom = Object.freeze(rom);
         let mlconfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
@@ -813,7 +816,9 @@ class pluginLoader {
         let mainConfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
-        let emu: IMemory = Object.freeze(emulator);
+        let emuclone = Object.assign({}, emulator);
+        SetupMemoryAccessors(emuclone);
+        let emu: IMemory = Object.freeze(emuclone);
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
         let savestates = iconsole.getSaveStateManager();

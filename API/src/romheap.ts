@@ -10,6 +10,10 @@ class RomBubbleWrap implements IRomMemory {
         this.emulator = emulator;
     }
 
+    u8: number[] = [];
+    u16: number[] = [];
+    u32: number[] = [];
+
     romRead8(addr: number): number {
         try {
             return this.emulator.romRead8(addr);

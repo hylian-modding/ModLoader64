@@ -14,6 +14,12 @@ export interface IRomMemory {
   romReadBuffer(addr: number, size: number): Buffer;
 
   romWriteBuffer(addr: number, buf: Buffer): void;
-  
+
   getRomBuffer(): ArrayBuffer;
+}
+
+export interface IRomMemory {
+  u8: number[];
+  u16: number[];
+  u32: number[];
 }

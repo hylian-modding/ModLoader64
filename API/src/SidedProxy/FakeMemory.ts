@@ -1,7 +1,17 @@
 import IMemory from "../IMemory";
 import { IRomMemory } from "../IRomMemory";
 
-export class FakeMemory implements IMemory{
+export class FakeMemory implements IMemory {
+    u8: number[] = [];
+    u16: number[] = [];
+    u32: number[] = []
+    u64: number[] = []
+    s8: number[] = [];
+    s16: number[] = [];
+    s32: number[] = [];
+    s64: number[] = [];
+    f32: number[] = [];
+    f64: number[] = [];
     rdramReadBigInt64(addr: number): BigInt {
         throw new Error("Method not implemented.");
     }
@@ -163,7 +173,10 @@ export class FakeMemory implements IMemory{
     }
 }
 
-export class FakeRom implements IRomMemory{
+export class FakeRom implements IRomMemory {
+    u8: number[] = [];
+    u16: number[] = [];
+    u32: number[] = []
     romRead8(addr: number): number {
         return 0;
     }

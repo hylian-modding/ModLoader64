@@ -125,4 +125,18 @@ interface IMemory {
   rdramWriteBigInt64(addr: number, val: BigInt): void;
 }
 
+// PJ64 type accessors
+interface IMemory {
+  u8: number[];
+  u16: number[];
+  u32: number[];
+  u64: number[];
+  s8: number[];
+  s16: number[];
+  s32: number[];
+  s64: number[];
+  f32: number[];
+  f64: number[];
+}
+
 export default IMemory;
