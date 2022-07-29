@@ -178,18 +178,6 @@ class pluginLoader {
     private processInternalPlugin(pluginPath: string, iconsole: IConsole) {
         if (pluginPath === "") return;
         let parse = path.parse(pluginPath);
-        if (!fs.existsSync(pluginPath)) {
-            // Try all combos.
-            let np = path.resolve(parse.dir, parse.name + ".mls");
-            if (fs.existsSync(np)) {
-                pluginPath = np;
-            } else {
-                np = path.resolve(parse.dir, parse.name + ".mlz");
-                if (fs.existsSync(np)) {
-                    pluginPath = np;
-                }
-            }
-        }
         let p = require(pluginPath);
         let plugin: any = new p();
         plugin['ModLoader'] = {} as IModLoaderAPI;
@@ -364,12 +352,6 @@ class pluginLoader {
         let p: any;
         if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".js"))) {
             p = require(path.resolve(parse.dir, parse.name + ".js"));
-        }
-        if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mls"))) {
-            p = require(path.resolve(parse.dir, parse.name + ".mls"));
-        }
-        if (p === undefined && fs.existsSync(path.resolve(parse.dir, parse.name + ".mlz"))) {
-            p = require(path.resolve(parse.dir, parse.name + ".mlz"));
         }
         try {
             if (p["default"] !== undefined) {

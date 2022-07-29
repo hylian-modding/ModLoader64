@@ -67,16 +67,6 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                             }
                         } catch (err) {
                         }
-                        try {
-                            if (c === undefined) {
-                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
-                            }
-                        } catch (err) { }
-                        try {
-                            if (c === undefined) {
-                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
-                            }
-                        } catch (err) { }
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();
@@ -91,16 +81,6 @@ export function setupSidedProxy(instance: any, isClient: boolean, isServer: bool
                             }
                         } catch (err) {
                         }
-                        try {
-                            if (c === undefined) {
-                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mls")).default;
-                            }
-                        } catch (err) { }
-                        try {
-                            if (c === undefined) {
-                                c = require(path.resolve(path.parse(key.backing).dir, path.parse(key.backing).name + ".mlz")).default;
-                            }
-                        } catch (err) { }
                         instance[value] = new c();
                     } else {
                         instance[value] = new key.backing();

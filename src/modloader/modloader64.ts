@@ -223,7 +223,7 @@ class ModLoader64 {
                 let f = path.join(p, file);
                 if (!fs.lstatSync(f).isDirectory()) {
                     let parse = path.parse(file);
-                    if (parse.ext === '.mls' || parse.ext === ".js" || parse.ext === ".mlz") {
+                    if (parse.ext === ".js") {
                         try {
                             let rq = require(path.resolve(f));
                             let p = rq[parse.name];
