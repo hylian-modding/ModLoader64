@@ -183,7 +183,7 @@ class N64 implements IConsole {
                 let trig = this.mupen.M64p.Debugger.bpTriggeredBy();
                 bus.emit(DebuggerEvents.UPDATE, trig);
             });
-        }else{
+        } else {
             let conf = this.mupen.M64p.Config.openSection("Core");
             conf.setInt("R4300Emulator", 2);
             conf.setBool("EnableDebugger", false);
@@ -199,6 +199,8 @@ class N64 implements IConsole {
             process.exit(ModLoaderErrorCodes.NO_ROM);
         }
         let _rom: Buffer = fs.readFileSync(rom);
+        this.nopCRC(_rom);
+
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _rom.byteLength;
         bus.on('openInputConfig', () => {
@@ -227,6 +229,48 @@ class N64 implements IConsole {
         MupenMonkeyPatches.patch(this.mupen);
 
         this.dynawrap = new DynarecWrapper(this.mupen);
+    }
+
+    nopCRC(rom: Buffer) {
+        let start = rom.subarray(0, 0x1000);
+        let _s = start.indexOf(Buffer.from('8D680010', 'hex'));
+        let _c = _s;
+        let ok: boolean = false;
+        if (_s > -1) {
+            _c += 3;
+            if (start.slice(_c, _c + 3).equals(Buffer.from('1014E8', 'hex'))) {
+                _c += 4;
+                if (start.readUInt8(_c) === 0x06) {
+                    _c += 5;
+                    if (start.slice(_c, _c + 2).equals(Buffer.from('8D68', 'hex'))) {
+                        _c += 3;
+                        if (start.slice(_c, _c + 3).equals(Buffer.from('141608', 'hex'))) {
+                            _c += 4;
+                            if (start.readUInt8(_c) === 0x03) {
+                                _c += 0xD;
+                                if (start.slice(_c, _c + 4).equals(Buffer.from('0411FFFF', 'hex'))) {
+                                    ok = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (ok) {
+            this.logger.debug("Found standard crc check.");
+            let payload_4 = Buffer.alloc(4);
+            let payload_3 = Buffer.alloc(3);
+            let payload_2 = Buffer.alloc(2);
+            let payload_1 = Buffer.alloc(1);
+            payload_4.copy(start, _s + 0);
+            payload_3.copy(start, _s + 3);
+            payload_1.copy(start, _s + 7);
+            payload_2.copy(start, _s + 12);
+            payload_3.copy(start, _s + 15);
+            payload_1.copy(start, _s + 19);
+            payload_4.copy(start, _s + 32);
+        }
     }
 
     private registerCallback(type: string, callback: Function) {
@@ -267,7 +311,7 @@ class N64 implements IConsole {
 
     startEmulator(preStartCallback: Function): IMemory {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
-        let buf: Buffer = preStartCallback();;
+        let buf: Buffer = preStartCallback();
         if (Buffer.isBuffer(buf)) {
             rom_r.romWriteBuffer(0x0, buf);
         }
