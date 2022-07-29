@@ -1,4 +1,4 @@
-import IMemory from "modloader64_api/IMemory"
+import IMemory from "../IMemory"
 
 const sPrimitiveTypes: string[] = [
     "u8",
