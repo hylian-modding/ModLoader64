@@ -199,7 +199,6 @@ class N64 implements IConsole {
             process.exit(ModLoaderErrorCodes.NO_ROM);
         }
         let _rom: Buffer = fs.readFileSync(rom);
-        this.nopCRC(_rom);
 
         this.mupen.M64p.openRomFromMemory(_rom, _64_MB);
         this.rom_size = _rom.byteLength;
@@ -313,6 +312,7 @@ class N64 implements IConsole {
         let rom_r = ((this.mupen.M64p.Memory as unknown) as IRomMemory);
         let buf: Buffer = preStartCallback();
         if (Buffer.isBuffer(buf)) {
+            this.nopCRC(buf);
             rom_r.romWriteBuffer(0x0, buf);
         }
         this.setSaveDir(path.relative(path.resolve(global["module-alias"]["moduleAliases"]["@emulator"]), path.resolve(global["module-alias"]["moduleAliases"]["@emulator"], "saves", this.lobby)));
