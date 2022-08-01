@@ -139,6 +139,7 @@ export class NetworkEngine2_Server implements Networking {
         config.setData('NetworkEngine.Server', 'port', 8082);
         config.setData('NetworkEngine.Server', 'udpPort', 8082);
         config.setData('NetworkEngine.Server', 'patchSizeLimitMB', 10);
+        config.setData('NetworkEngine.Server', 'noHashChecks', false);
         this.modLoaderconfig = this.masterConfig.registerConfigCategory('ModLoader64') as IModLoaderConfig;
 
         NetworkEngine2_ServerEventComponents.serverDisconnectHandler = this.onSocketDisconnect.bind(this);
@@ -346,7 +347,7 @@ export class NetworkEngine2_Server implements Networking {
                 socket.on(value.key, value.fn);
             });
             NetworkEngine2_ServerEventComponents.ServerEmitters.forEach((value: { key: string, fn: (socket: SocketIO.Socket, data: any) => void }) => {
-                socket.on(value.key, (data: any)=>{
+                socket.on(value.key, (data: any) => {
                     value.fn(socket, data);
                 });
             });
@@ -557,6 +558,7 @@ export class NetworkEngine2_Server implements Networking {
         if (this.core !== packet.core) {
             mismatch = true;
         }
+        if (this.config.noHashChecks && mismatch) mismatch = false;
         let evt = new VersionCheckEvent(packet.ml, packet.plugins);
         evt.canceled = mismatch;
         bus.emit(EventsServer.ON_VERSION_CHECK, evt);
@@ -782,7 +784,7 @@ export class NetworkEngine2_Client {
     private setupPostDNS(err: NodeJS.ErrnoException | null, addresses: string[] | undefined) {
         if (addresses === undefined) {
             addresses = [this.config.ip];
-        }else{
+        } else {
             this.logger.debug(`Resolving ${this.config.ip} to ${addresses}`);
         }
         if (addresses.length === 0) process.exit(ModLoaderErrorCodes.BAD_URL);
@@ -834,7 +836,7 @@ export class NetworkEngine2_Client {
                 this.socket.on(value.key, value.fn);
             });
             NetworkEngine2_ClientEventComponents.ClientEmitters.forEach((value: { key: string, fn: (socket: SocketIO.Socket, data: any) => void }) => {
-                this.socket.on(value.key, (data: any)=>{
+                this.socket.on(value.key, (data: any) => {
                     value.fn(this.socket, data);
                 });
             });

@@ -51,9 +51,25 @@ async function doBuild(pak: string, out: string) {
     fs.removeSync("./client");
 }
 
+async function doDedi(out: string){
+    if (!fs.existsSync("./client")) {
+        fs.mkdirSync("./client");
+    }
+    if (!fs.existsSync("./client/node_modules")) {
+        fs.mkdirSync("./client/node_modules");
+    }
+    fs.copySync("./node_modules", "./client/node_modules", { dereference: true, recursive: true });
+    await asar.createPackage("./client/node_modules", "./client/node_modules.asar");
+    await asar.createPackage("./build", "./client/modloader64.asar");
+    await asar.createPackage("./client", out);
+    fs.removeSync("./client/node_modules");
+    fs.removeSync("./client");
+}
+
 (async () => {
     await downloadWindowsDeps();
     await downloadLinuxDeps();
     await doBuild("./windows_client.asar", "./windows.asar");
     await doBuild("./linux_client.asar", "./linux.asar");
+    await doDedi("./dedi_universal.asar");
 })();
