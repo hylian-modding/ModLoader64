@@ -248,12 +248,12 @@ export class NetworkEngine2_Server implements Networking {
             let index = lobby.players.indexOf(ML.player.uuid);
             if (index > -1) {
                 lobby.players.splice(index, 1);
-                if (lobby.players.length > 0) {
-                    lobby.owner = lobby.players[0];
-                } else {
-                    lobby.owner.uuid = "null";
-                    lobby.owner.nickname = "null";
-                }
+            }
+            if (lobby.players.length > 0) {
+                lobby.owner = lobby.players[0];
+            } else {
+                lobby.owner.uuid = "null";
+                lobby.owner.nickname = "null";
             }
         }
         bus.emit(EventsServer.ON_LOBBY_LEAVE, new EventServerLeft(ML.player, ML.lobby));
