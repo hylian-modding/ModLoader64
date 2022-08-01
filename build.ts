@@ -60,9 +60,9 @@ async function doDedi(out: string){
     }
     fs.copySync("./node_modules", "./client/node_modules", { dereference: true, recursive: true });
     await asar.createPackage("./client/node_modules", "./client/node_modules.asar");
+    fs.removeSync("./client/node_modules");
     await asar.createPackage("./build", "./client/modloader64.asar");
     await asar.createPackage("./client", out);
-    fs.removeSync("./client/node_modules");
     fs.removeSync("./client");
 }
 
