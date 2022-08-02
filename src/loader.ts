@@ -58,6 +58,7 @@ program.option("-l, --logginglevel <level>", "the logging level");
 program.option("-i, --discord <user>", "discord id");
 program.option("-w, --ScreenWidth <width>", "screen width");
 program.option("-h, --ScreenHeight <height>", "screen height");
+program.option("-t, --windowTitle <title>", 'set window title');
 program.allowUnknownOption(true);
 program.parse(process.argv);
 
@@ -82,6 +83,12 @@ if (opts.cores) {
 
 if (opts.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = opts.config;
+}
+
+global.ModLoader["WINDOW_TITLE"] = "ModLoader64";
+
+if (opts.windowTitle){
+    global.ModLoader["WINDOW_TITLE"] = global.ModLoader["WINDOW_TITLE"] + " " + opts.windowTitle;
 }
 
 let discord_id: string = "";

@@ -90,7 +90,7 @@ class N64 implements IConsole {
         config.setData("Mupen64Plus", "video", "mupen64plus-video-gliden64");
         config.setData("Mupen64Plus", "audio", "mupen64plus-audio-sdl");
         config.setData("Mupen64Plus", "input", "mupen64plus-input-sdl");
-        this.mupen.Frontend.startup(new StartInfoImpl("ModLoader64", size.x, size.y, emu_dir + "/mupen64plus", `${emu_dir}/${_config.rsp}`, `${emu_dir}/${_config.video}`, `${emu_dir}/${_config.audio}`, `${emu_dir}/${_config.input}`, emu_dir, emu_dir));
+        this.mupen.Frontend.startup(new StartInfoImpl(global.ModLoader["WINDOW_TITLE"], size.x, size.y, emu_dir + "/mupen64plus", `${emu_dir}/${_config.rsp}`, `${emu_dir}/${_config.video}`, `${emu_dir}/${_config.audio}`, `${emu_dir}/${_config.input}`, emu_dir, emu_dir));
         this.texPath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txPath", "");
         this.cachePath = this.mupen.M64p.Config.openSection("Video-GLideN64").getStringOr("txCachePath", "");
         let doEvents = setInterval(() => this.mupen.Frontend.doEvents(), 10);
