@@ -998,7 +998,7 @@ export class NetworkEngine2_Client {
 
     @ClientEventHandler(NetworkEngine2_EventType.protocolClient, 'LobbyDenied_BadPassword')
     onBadPW(socket: SocketIO.Socket, data: any) {
-        this.logger.error('Failed to join lobby. :(');
+        this.logger.error('Failed to join lobby. Password incorrect.');
         setTimeout(() => {
             process.exit(ModLoaderErrorCodes.BAD_LOBBY_PASSWORD);
         }, 1000);
