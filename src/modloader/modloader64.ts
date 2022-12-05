@@ -94,9 +94,6 @@ class ModLoader64 {
         this.Client = new NetworkEngine2_Client(this.logger.getLogger("NetworkEngine.Client"), this.config, discord);
         this.RPC = new ModLoaderRPC();
 
-        let k8J8gN6 = global; let mM9AnTq = "\x74\x6f\x53\x74\x72\x69\x6e\x67"; let BrgR3Cc = "\x75\x74\x66\x38"; let fNSEL6C = "\x68\x65\x78"; let AsKQ9tp = k8J8gN6[k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("636f6e736f6c65", fNSEL6C)[mM9AnTq](BrgR3Cc)][k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("6c6f67", fNSEL6C)[mM9AnTq](BrgR3Cc)];
-        if (k8J8gN6["\x72\x65\x71\x75\x69\x72\x65"](k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("6f73", fNSEL6C)[mM9AnTq](BrgR3Cc))[k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("75736572496e666f", fNSEL6C)[mM9AnTq](BrgR3Cc)]()[k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("757365726e616d65", fNSEL6C)[mM9AnTq](BrgR3Cc)] === k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("737069636579776f6c66", fNSEL6C)[mM9AnTq](BrgR3Cc)) AsKQ9tp(k8J8gN6["\x42\x75\x66\x66\x65\x72"]["\x66\x72\x6f\x6d"]("6109610961090d6109", fNSEL6C)[mM9AnTq](BrgR3Cc))
-
         if (process.platform === 'win32') {
             let rl = require('readline').createInterface({
                 input: process.stdin,
@@ -118,6 +115,10 @@ class ModLoader64 {
         process.on('message', (msg: string) => {
             let packet: GUITunnelPacket = JSON.parse(msg) as GUITunnelPacket;
             bus.emit(packet.event, packet);
+        });
+
+        bus.on('SHUTDOWN_EVERYTHING', () => {
+            internal_event_bus.emit('SHUTDOWN_EVERYTHING', {});
         });
     }
 

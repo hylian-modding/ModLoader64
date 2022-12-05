@@ -357,7 +357,9 @@ class pluginLoader {
             if (p["default"] !== undefined) {
                 p = p["default"];
             }
-        } catch (err: any) { }
+        } catch (err: any) { 
+            this.logger.error(err);
+        }
         let plugin: any = undefined;
         try {
             plugin = new p();
@@ -798,9 +800,7 @@ class pluginLoader {
         let mainConfig = this.config.registerConfigCategory(
             'ModLoader64'
         ) as IModLoaderConfig;
-        let emuclone = Object.assign({}, emulator);
-        SetupMemoryAccessors(emuclone);
-        let emu: IMemory = Object.freeze(emuclone);
+        let emu: IMemory = emulator;
         let math: IMath = Object.freeze(new Math(emu));
         this.loaded_core.ModLoader.emulator = emu;
         let savestates = iconsole.getSaveStateManager();
