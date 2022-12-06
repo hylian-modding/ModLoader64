@@ -59,6 +59,7 @@ program.option("-i, --discord <user>", "discord id");
 program.option("-w, --ScreenWidth <width>", "screen width");
 program.option("-h, --ScreenHeight <height>", "screen height");
 program.option("-t, --windowTitle <title>", 'set window title');
+program.option("-x, --extradata <data>", 'extra data to pass to bindings');
 program.allowUnknownOption(true);
 program.parse(process.argv);
 
@@ -83,6 +84,10 @@ if (opts.cores) {
 
 if (opts.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = opts.config;
+}
+
+if (opts.extradata){
+    global.ModLoader["EXTRA_DATA"] = opts.extradata;
 }
 
 global.ModLoader["WINDOW_TITLE"] = "ModLoader64";
