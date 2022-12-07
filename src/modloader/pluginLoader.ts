@@ -86,6 +86,7 @@ class pluginLoader {
     lifecycle_funcs: Map<LifeCycleEvents, Array<Function>> = new Map<LifeCycleEvents, Array<Function>>();
     processNextFrame: boolean = true;
     resetting: boolean = false;
+    temporaryNetworkLoop: any;
 
     constructor(dirs: string[], config: IConfig, logger: ILogger) {
         this.plugin_directories = dirs;
@@ -543,7 +544,7 @@ class pluginLoader {
         });
     }
 
-    loadPluginsPreInit(iconsole: IConsole) {
+    loadPluginsPreInit(iconsole: IConsole, net: NetworkEngine2_Client) {
         Object.freeze(ClientController);
         Object.freeze(ServerController);
         let utils: IUtils = iconsole.getUtils();
@@ -698,6 +699,10 @@ class pluginLoader {
                 process.exit(1);
             }
         });
+
+        this.temporaryNetworkLoop = setInterval(()=>{
+            net.onTick();
+        }, 16);
     }
 
     resetPlayerInstance(me: INetworkPlayer) {
@@ -922,6 +927,8 @@ class pluginLoader {
             internal_event_bus.on('REGISTER_TICK_TIMEOUT', (fn: () => void[]) => {
                 this.loaded_core.ModLoader.utils.setTimeoutFrames(fn[0], 1);
             });
+            clearInterval(this.temporaryNetworkLoop);
+            this.temporaryNetworkLoop = undefined;
             iconsole.on(Emulator_Callbacks.new_frame, this.onTickHandle);
             if (!config.disableVIUpdates) {
                 iconsole.on(Emulator_Callbacks.vi_update, this.onViHandle);

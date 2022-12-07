@@ -334,7 +334,7 @@ class ModLoader64 {
             this.emulator.getRomAccess().romWriteBuffer(0x0, evt.rom);
         }
         bus.emit(ModLoaderEvents.ON_ROM_HEADER_PARSED, loaded_rom_header);
-        this.plugins.loadPluginsPreInit(this.emulator);
+        this.plugins.loadPluginsPreInit(this.emulator, this.Client);
         internal_event_bus.emit('onPreInitDone', {});
         // Set up networking.
         internal_event_bus.on('onNetworkConnect', (evt: any) => {
