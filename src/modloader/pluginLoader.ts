@@ -536,9 +536,9 @@ class pluginLoader {
             });
         }
         internal_event_bus.on('onNetworkConnect', (evt: any) => {
-            this.loaded_core.ModLoader.me = evt.me;
+            this.loaded_core.ModLoader.me = evt[0].me;
             this.plugins.forEach((plugin: IPlugin) => {
-                plugin.ModLoader.me = evt.me;
+                plugin.ModLoader.me = evt[0].me;
             });
         });
     }
