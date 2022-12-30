@@ -6,6 +6,7 @@ import fs from 'fs';
 import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
 import { argv } from 'process';
+import { register, addAsarToLookupPaths } from 'asar-node';
 
 require('source-map-support').install();
 
@@ -68,6 +69,10 @@ let opts = program.opts();
 if (global.hasOwnProperty("MLASARSUPPORT")) {
     // The entry point was the SDK executable so ASAR loading is injected.
     global.ModLoader["ASAR_SUPPORT"] = true;
+} else {
+    register();
+    addAsarToLookupPaths();
+    global.ModLoader["ASAR_SUPPORT"] = true;
 }
 
 if (opts.mods) {
@@ -86,13 +91,13 @@ if (opts.config) {
     global.ModLoader["OVERRIDE_CONFIG_FILE"] = opts.config;
 }
 
-if (opts.extradata){
+if (opts.extradata) {
     global.ModLoader["EXTRA_DATA"] = opts.extradata;
 }
 
 global.ModLoader["WINDOW_TITLE"] = "ModLoader64";
 
-if (opts.windowTitle){
+if (opts.windowTitle) {
     global.ModLoader["WINDOW_TITLE"] = global.ModLoader["WINDOW_TITLE"] + " " + opts.windowTitle;
 }
 

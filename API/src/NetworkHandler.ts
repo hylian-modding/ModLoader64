@@ -180,6 +180,7 @@ export interface INetworkPlayer {
 export const enum SocketType {
     TCP,
     UDP,
+    SETUP_PACKET
 }
 
 export interface IPacketHeader {

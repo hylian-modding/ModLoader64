@@ -711,7 +711,7 @@ export class NetworkEngine2_Client {
     discord!: string;
     lobbyOwner!: INetworkPlayer;
     protocol: NetworkEventBus = new NetworkEventBus();
-
+    
     constructor(logger: ILogger, config: IConfig, discord: string) {
         this.logger = logger;
         // Configuration.
@@ -757,6 +757,22 @@ export class NetworkEngine2_Client {
                 this.lastPacketBuffer.push(data);
                 NetworkBus.emit(data.packet_id, data);
                 NetworkChannelBus.emit(data.channel, data);
+            } catch (err: any) {
+                this.logger.error(err.stack);
+            }
+        }
+    }
+
+    onTickPreInit() {
+        this.lastPacketBuffer.length = 0;
+        while (this.packetBuffer.length > 0) {
+            try {
+                let data: IPacketHeader = this.packetBuffer.shift() as IPacketHeader;
+                this.lastPacketBuffer.push(data);
+                if (data.socketType == SocketType.SETUP_PACKET) {
+                    NetworkBus.emit(data.packet_id, data);
+                    NetworkChannelBus.emit(data.channel, data);
+                }
             } catch (err: any) {
                 this.logger.error(err.stack);
             }

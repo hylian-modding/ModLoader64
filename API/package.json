@@ -4,7 +4,6 @@
   "description": "",
   "main": "",
   "scripts": {
-    "postinstall": "../../tinytsc && ts-node ./build.ts"
   },
   "author": "Team-Ooto",
   "dependencies": {},

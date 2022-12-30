@@ -700,9 +700,11 @@ class pluginLoader {
             }
         });
 
-        this.temporaryNetworkLoop = setInterval(()=>{
-            net.onTick();
-        }, 16);
+        if (net !== undefined){
+            this.temporaryNetworkLoop = setInterval(net.onTickPreInit.bind(net), 16);
+        }else{
+            this.temporaryNetworkLoop = setInterval(()=>{}, 16);
+        }
     }
 
     resetPlayerInstance(me: INetworkPlayer) {

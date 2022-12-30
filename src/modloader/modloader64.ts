@@ -221,6 +221,22 @@ class ModLoader64 {
             }
         });
 
+        if (fs.existsSync("./lib")){
+            fs.readdirSync("./lib").forEach((f: string)=>{
+                let file = path.resolve("./lib", f);
+                if (fs.lstatSync(file).isDirectory()){
+                    let m = fs.readdirSync(file);
+                    for (let i = 0; i < m.length; i++){
+                        let m1 = path.resolve(file, m[i]);
+                        moduleAlias.addAlias(path.parse(m1).name, m1);
+                        moduleAlias.addAlias(`@${path.parse(m1).name}`, m1);
+                    }
+                }else{
+                    this.logger.warn(`${file} is not a directory!`);
+                }
+            });
+        }
+
         let auto_wire_cores: Function = (p: string) => {
             if (fs.lstatSync(p).isFile()) return;
             fs.readdirSync(p).forEach(file => {

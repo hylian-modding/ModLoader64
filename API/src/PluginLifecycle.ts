@@ -200,52 +200,88 @@ export function setupLifecycle(instance: any) {
         }
         if (p.ModLoader.hasOwnProperty('Lifecycle')) {
             if (p.ModLoader.Lifecycle.hasOwnProperty("Preinit")) {
-                p.ModLoader.Lifecycle.Preinit.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.PREINIT, a);
+                p.ModLoader.Lifecycle.Preinit.forEach((value: any, key: string) => {
+                    // How in the fuck is this a string sometimes specifically on the dolphin binding?
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.PREINIT, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.PREINIT, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("Init")) {
-                p.ModLoader.Lifecycle.Init.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.INIT, a);
+                p.ModLoader.Lifecycle.Init.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.INIT, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.INIT, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("Postinit")) {
-                p.ModLoader.Lifecycle.Postinit.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.POSTINIT, a);
+                p.ModLoader.Lifecycle.Postinit.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.POSTINIT, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.POSTINIT, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onTick")) {
-                p.ModLoader.Lifecycle.onTick.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.ONTICK, a);
+                p.ModLoader.Lifecycle.onTick.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.ONTICK, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.ONTICK, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onPostTick")) {
-                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
+                p.ModLoader.Lifecycle.onPostTick.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.ONPOSTTICK, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onViUpdate")) {
-                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE, a);
+                p.ModLoader.Lifecycle.onViUpdate.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.ONVIUPDATE, a);
+                    }
                 });
             }
             if (p.ModLoader.Lifecycle.hasOwnProperty("onCreateResources")) {
-                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: LifecycleContainer, key: string) {
-                    let a = (instance as any)[value.key].bind(instance);
-                    value.bound = a;
-                    lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES, a);
+                p.ModLoader.Lifecycle.onCreateResources.forEach(function (value: any, key: string) {
+                    if (value instanceof LifecycleContainer) {
+                        let a = (instance as any)[value.key].bind(instance);
+                        value.bound = a;
+                        lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES, a);
+                    } else if (value instanceof String) {
+                        let a = (instance as any)[value as any].bind(instance);
+                        lifecyclebus.emit(LifeCycleEvents.ONCREATERESOURCES, a);
+                    }
                 });
             }
         }

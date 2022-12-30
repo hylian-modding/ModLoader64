@@ -9,7 +9,7 @@ function makeSymlink(src: string, dest: string) {
         }
         fs.symlinkSync(src, dest, 'junction');
     } catch (err) {
-        console.log(err);
+        //console.log(err);
     }
 }
 
