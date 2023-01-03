@@ -351,7 +351,9 @@ export class NetworkEngine2_Server implements Networking {
                     value.fn(socket, data);
                 });
             });
-            socket.on('disconnect', NetworkEngine2_ServerEventComponents.serverDisconnectHandler);
+            socket.on('disconnect', ()=>{
+                NetworkEngine2_ServerEventComponents.serverDisconnectHandler(socket);
+            });
             NetworkingEventBusServer.emit('connection', socket);
         });
 
@@ -711,7 +713,7 @@ export class NetworkEngine2_Client {
     discord!: string;
     lobbyOwner!: INetworkPlayer;
     protocol: NetworkEventBus = new NetworkEventBus();
-    
+
     constructor(logger: ILogger, config: IConfig, discord: string) {
         this.logger = logger;
         // Configuration.
