@@ -1,6 +1,6 @@
 package:
   name: modloader64-dedi
-  version: 3.0.0
+  version: 3.0.1
 
 source:
   fn: ModLoader64-dedi.zip
