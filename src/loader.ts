@@ -1,7 +1,6 @@
 import modloader64 from './modloader/modloader64';
 import program from 'commander';
 import path from 'path';
-import { MonkeyPatch_Stringify, MonkeyPatch_Parse } from './monkeypatches/JSON';
 import fs from 'fs';
 import { configure, getLogger } from 'log4js';
 import { ILogger, ILoggerLevels } from 'modloader64_api/IModLoaderAPI';
@@ -170,12 +169,6 @@ class logwrapper implements ILogger {
         return wrap;
     }
 }
-
-// Monkey patches
-let stringify = new MonkeyPatch_Stringify();
-stringify.patch();
-let parse = new MonkeyPatch_Parse();
-parse.patch();
 
 global.ModLoader["FIRST_RUN"] = !fs.existsSync("./ModLoader64-config.json");
 if (global.ModLoader["OVERRIDE_CONFIG_FILE"]) {

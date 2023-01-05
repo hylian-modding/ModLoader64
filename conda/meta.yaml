@@ -1,0 +1,19 @@
+package:
+  name: modloader64-dedi
+  version: 3.0.0
+
+source:
+  fn: ModLoader64-dedi.zip
+  url: ../dedi.zip
+
+build:
+  number: 0
+  binary_relocation: False
+  detect_binary_files_with_prefix: False
+  include_recipe: False
+  noarch: generic
+
+about:
+  home: http://modloader64.com
+  license: GPL-3
+  summary: Dedicated server for ModLoader64

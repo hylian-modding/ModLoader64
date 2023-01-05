@@ -46,6 +46,18 @@ function doBuild(asar::String, out::String)
     rm("./client", force=true, recursive=true);
 end
 
+
+function buildDedi()
+    println("Building dedi...");
+    if (!ispath("./client"))
+        mkdir("./client");
+    end
+    cp("./node_modules", "./client/node_modules", force=true, follow_symlinks=true);
+    cp("./build", "./client/src", force=true, follow_symlinks=true);
+    runCommand("asar pack ./client ./dedi.asar");
+    rm("./client", force=true, recursive=true);
+end
+
 println("Compiling...");
 cp("./src", "./build", force=true);
 runCommand("tsc");
@@ -54,5 +66,6 @@ downloadWindowsDeps();
 downloadLinuxDeps();
 doBuild("./windows_client.asar", "./windows.asar");
 doBuild("./linux_client.asar", "./linux.asar");
+buildDedi();
 println("Hashing...");
 runCommand("ts-node ./generateHash.ts");
