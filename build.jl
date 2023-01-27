@@ -1,5 +1,4 @@
 println("Building ML64 core...");
-runCommand("yarn");
 
 function runCommand(command::String) 
     if (Sys.iswindows())
@@ -8,6 +7,7 @@ function runCommand(command::String)
         run(`$command`);
     end
 end
+runCommand("yarn");
 
 include("./API/build.jl");
 
