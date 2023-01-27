@@ -60,6 +60,7 @@ end
 
 println("Compiling...");
 cp("./src", "./build", force=true);
+runCommand("yarn");
 runCommand("tsc");
 
 downloadWindowsDeps();
