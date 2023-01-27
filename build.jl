@@ -1,4 +1,5 @@
 println("Building ML64 core...");
+runCommand("yarn");
 
 function runCommand(command::String) 
     if (Sys.iswindows())
@@ -60,7 +61,6 @@ end
 
 println("Compiling...");
 cp("./src", "./build", force=true);
-runCommand("yarn");
 runCommand("tsc");
 
 downloadWindowsDeps();
